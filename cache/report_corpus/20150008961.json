@@ -1,0 +1,15 @@
+{
+  "report_id": "20150008961",
+  "title": "Microgravity Flammability of PMMA Rods in Concurrent Flow",
+  "abstract": "Microgravity experiments burning cast PMMA cylindrical rods in axial flow have been conducted aboard the International Space Station in the Microgravity Science Glovebox (MSG) facility using the Burning and Suppression of Solids (BASS) flow duct, as part of the BASS-II experiment. Twenty-four concurrent-flow tests were performed, focusing on finding flammability limits as a function of oxygen and flow speed. The oxygen was varied by using gaseous nitrogen to vitiate the working volume of the MSG. The speed of the flow parallel to the rod was varied using a fan at the entrance to the duct. Both blowoff and quenching limits were obtained at several oxygen concentrations. Each experiment ignited the rod at the initially hemispherical stagnation tip of the rod, and allowed the flame to develop and heat the rod at a sufficient flow to sustain burning. For blowoff limit tests, the astronaut quickly turned up the flow to obtain extinction. Complementary 5.18-second Zero Gravity Facility drop tests were conducted to compare blowoff limits in short and long duration microgravity. For quenching tests, the flow was incrementally turned down and the flame allowed to stabilize at the new flow condition for at least the solid-phase response time before changing it again. Quenching was observed when the flow became sufficiently weak that the flame could no longer provide adequate heat flux to compensate for the heat losses (conduction into the rod and radiation). A surface energy balance is presented that shows the surface radiative loss exceeds the conductive loss into the rod near the limit. The flammability boundary is shown to represent a critical Damkohler number, expressed in terms of the reaction rate divided by the stretch rate. For the blowoff branch, the boundary exhibits a linear dependence on oxygen concentration and stretch rate, indicating that the temperature at blowoff must be fairly constant. For the quenching branch, the dominance of the exponential nature of the Arrhenius kinetics reaction rate indicates that the temperature is critical.",
+  "source_url": "https://ntrs.nasa.gov/citations/20150008961",
+  "publication_date": "2015-05-17",
+  "authors": [],
+  "keywords": [
+    "flammability",
+    "concurrent",
+    "microgravity"
+  ],
+  "distribution": "PUBLIC",
+  "center": "Glenn Research Center"
+}

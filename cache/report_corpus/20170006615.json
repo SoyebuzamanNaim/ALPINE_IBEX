@@ -1,0 +1,15 @@
+{
+  "report_id": "20170006615",
+  "title": "Mixed Convection Blowoff Limits as a Function of Oxygen Concentration and Upward Forced Stretch Rate for Burning Pmma Rods of Various Sizes",
+  "abstract": "Normal gravity flame blowoff limits in an axisymmetric pmma rod geometry in upward axial stagnation flow are compared with microgravity Burning and Suppression of Solids II (BASS-II) results recently obtained aboard the International Space Station. This testing utilized the same BASS-II concurrent rod geometry, but with the addition of normal gravity buoyant flow. Cast polymethylmethacrylate (pmma) rods of diameters ranging from 0.635 cm to 3.81 cm were burned at oxygen concentrations ranging from 14 to 18 by volume. The forced flow velocity where blowoff occurred was determined for each rod size and oxygen concentration. These blowoff limits compare favorably with the BASS-II results when the buoyant stretch is included and the flow is corrected by considering the blockage factor of the fuel. From these results, the normal gravity blowoff boundary for this axisymmetric rod geometry is determined to be linear, with oxygen concentration directly proportional to flow speed. We describe a new normal gravity upward flame spread test method which extrapolates the linear blowoff boundary to the zero stretch limit to resolve microgravity flammability limits, something current methods cannot do. This new test method can improve spacecraft fire safety for future exploration missions by providing a tractable way to obtain good estimates of material flammability in low gravity.",
+  "source_url": "https://ntrs.nasa.gov/citations/20170006615",
+  "publication_date": "2017-07-16",
+  "authors": [],
+  "keywords": [
+    "blowoff",
+    "flammability",
+    "microgravity"
+  ],
+  "distribution": "PUBLIC",
+  "center": "Glenn Research Center"
+}

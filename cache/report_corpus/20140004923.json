@@ -1,0 +1,15 @@
+{
+  "report_id": "20140004923",
+  "title": "Opposed-Flow Flame Spread in a Narrow Channel Apparatus over Thin PMMA Sheets",
+  "abstract": "Flame spread tests have been conducted over polymethylmethacrylate (PMMA) samples in San Diego State University's Narrow Channel Apparatus (SDSU NCA). The Narrow Channel Apparatus (NCA) has the ability to suppress buoyant flow in horizontally spreading flames, and is currently being investigated as a possible replacement or complement to NASA's current material flammability test standard for non-metallic solids, NASA-STD-(I)-6001B Test 1. The buoyant suppression achieved with a NCA allows for tests to be conducted in a simulated microgravity atmosphere-a characteristic that Test 1 lacks since flames present in Test 1 are buoyantly driven. The SDSU NCA allows for flame spread tests to be conducted with varying opposed flow oxidizer velocities, oxygen percent by volume, and total pressure. Also, since the test sample is placed symmetrically between two confining plates so that there is a gap above and below the sample, this gap can be adjusted. This gap height adjustment allows for a compromise between heat loss from the flame to the confining boundaries and buoyancy suppression achieved by those boundaries. This article explores the effect gap height has on the flame spread rate for 75 \u03bcm thick PMMA at 1 atm pressure and 21% oxygen concentration by volume in the SDSU NCA. Flame spread results from the SDSU NCA for thin cellulose fuels have previously been compared to results from tests in actual microgravity at various test conditions with the same sample materials and were found to be in good agreement. This article also presents results from the SDSU NCA for PMMA at 1 atm pressure, opposed oxidizer velocity ranging from 3 to 35 cm/s, oxygen concentration by volume at 21%, 30 %, and 50% and fuel thicknesses of 50 and 75 \u03bcm. These results are compared to results obtained in actual microgravity for PMMA obtained at the 4.5s drop tower of MGLAB in Gifu, Japan, and the 5.2s drop tower at NASA's Zero-Gravity Research Facility in Cleveland, OH. This comparison confirms that at 1 atm pressure, the SDSU NCA successfully simulates microgravity for not only thin cellulose fuels, but also for thin PMMA sheets as well. This further supports the idea that the NCA is a viable option to complement or replace NASA's Test 1 for material flammability testing. Tests with thick fuels will be conducted in the future to further characterize the SDSU NCA.",
+  "source_url": "https://ntrs.nasa.gov/citations/20140004923",
+  "publication_date": "2013-05-19",
+  "authors": [],
+  "keywords": [
+    "flame spread",
+    "microgravity",
+    "polymethyl methacrylate"
+  ],
+  "distribution": "PUBLIC",
+  "center": "Glenn Research Center"
+}

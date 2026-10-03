@@ -1,0 +1,15 @@
+{
+  "report_id": "20140011099",
+  "title": "Thickness and Fuel Preheating Effects on Material Flammability in Microgravity from the BASS Experiment",
+  "abstract": "The Burning and Suppression of Solids (BASS) experiment was performed on the International Space Station. Microgravity combustion tests burning thin and thick flat samples, acrylic spheres, and candles were conducted. The samples were mounted inside a small wind tunnel which could impose air flow speeds up to 40 cms. The wind tunnel was installed in the Microgravity Science Glovebox which supplied power, imaging, and a level of containment. The effects of air flow speed, fuel thickness, fuel preheating, and nitrogen dilution on flame appearance, flame growth, and spread rates were determined in both the opposed and concurrent flow configuration. In some cases, a jet of nitrogen was introduced to attempt to extinguish the flame. Microgravity flames were found to be especially sensitive to air flow speed in the range 0 to 5 cms. The gas phase response is much faster compared to the solid and so as the flow speed is changed, the flame responds with almost no delay. At the lowest speeds examined (less than 1 cms) all the flames tended to become dim blue and very stable. However, heat loss at these very low convective rates is small so the flames can burn for a long time. At moderate flow speeds (between about 1 and 5 cms) the flame continually heats the solid fuel resulting in an increasing fuel temperature, higher rate of fuel vaporization, and a stronger, more luminous flame as time progresses. Only the smallest flames burning acrylic slabs appeared to be adversely influenced by solid conductive heat loss, but even these burned for over 5 minutes before self-extinguishing. This has implications for spacecraft fire safety since a tiny flame might be undetected for a long time. While the small flame is not particularly hazardous if it remains small, the danger is that it might flare up if the air convection is suddenly increased or if the flame spreads into another fuel source.",
+  "source_url": "https://ntrs.nasa.gov/citations/20140011099",
+  "publication_date": "2013-11-03",
+  "authors": [],
+  "keywords": [
+    "Combustion",
+    "Microgravity",
+    "Fire Safety"
+  ],
+  "distribution": "PUBLIC",
+  "center": "Glenn Research Center"
+}

@@ -1,0 +1,11 @@
+{
+  "report_id": "20040053557",
+  "title": "Extinction Criteria for Opposed-Flow Flame Spread in a Microgravity Environment",
+  "abstract": "A simplified analysis is presented to extend a previous work on flame extinction in a quiescent microgravity environment to a more likely situation of a mild opposing flow. The energy balance equation, that includes surface re-radiation, is solved to yield a closed form spread rate expression in terms of its thermal limit, and a radiation number that can be evaluated from the known parameters of the problem. Based on this spread rate expression, extinction criterions for a flame over solid fuels, both thin and thick, have been developed that are qualitatively verified with experiments conducted at the MGLAB in Japan. Flammability maps with oxygen level, opposing flow velocity and fuel thickness as independent variables are extracted from the theory that explains the well-established trends in the existing experimental data.",
+  "source_url": "https://ntrs.nasa.gov/citations/20040053557",
+  "publication_date": "2003-08-01",
+  "authors": [],
+  "keywords": [],
+  "distribution": "PUBLIC",
+  "center": "Glenn Research Center"
+}

@@ -1,0 +1,11 @@
+{
+  "report_id": "20080034883",
+  "title": "Microgravity Flame Spread in Exploration Atmospheres: Pressure, Oxygen, and Velocity Effects on Opposed and Concurrent Flame Spread",
+  "abstract": "Microgravity tests of flammability and flame spread were performed in a low-speed flow tunnel to simulate spacecraft ventilation flows. Three thin fuels were tested for flammability (Ultem 1000 (General Electric Company), 10 mil film, Nomex (Dupont) HT90-40, and Mylar G (Dupont) and one fuel for flame spread testing (Kimwipes (Kimberly-Clark Worldwide, Inc.). The 1g Upward Limiting Oxygen Index (ULOI) and 1g Maximum Oxygen Concentration (MOC) are found to be greater than those in 0g, by up to 4% oxygen mole fraction, meaning that the fuels burned in 0g at lower oxygen concentrations than they did using the NASA Standard 6001 Test 1 protocol. Flame spread tests with Kimwipes were used to develop correlations that capture the effects of flow velocity, oxygen concentration, and pressure on flame spread rate. These correlations were used to determine that over virtually the entire range of spacecraft atmospheres and flow conditions, the opposed spread is faster, especially for normoxic atmospheres. The correlations were also compared with 1g MOC for various materials as a function of pressure and oxygen. The lines of constant opposed flow agreed best with the 1g MOC trends, which indicates that Test 1 limits are essentially dictated by the critical heat flux for ignition. Further evaluation of these and other materials is continuing to better understand the 0g flammability of materials and its effect on the oxygen margin of safety.",
+  "source_url": "https://ntrs.nasa.gov/citations/20080034883",
+  "publication_date": "2008-08-01",
+  "authors": [],
+  "keywords": [],
+  "distribution": "PUBLIC",
+  "center": "Glenn Research Center"
+}

@@ -1,0 +1,11 @@
+{
+  "report_id": "19970020617",
+  "title": "Extinguishment of a Diffusion Flame Over a PMMA Cylinder by Depressurization in Low-Gravity",
+  "abstract": "The behavior of flames in low-speed flows in low-gravity is relevant to spacecraft fire safety. Previous work has shown that flames in the presence of low-speed forced flows in low-gravity may be more flammable than in a forced flow of the same magnitude in normal gravity. Additionally, fire suppression plans for the International Space Station include the use of venting (depressurization) as an emergency option for extinguishing fires. This procedure would induce flows in the affected compartment that could temporarily intensify the fire, as was observed in flammability tests of solids conducted on board Skylab. Despite a general Understanding, current knowledge of the combined effects of reduced pressure and forced flow on a burning solid in low-gravity is inadequate for the design of a venting extinguishment system. Previous studies in low-g have examined flammability limits for thermally thin solids. However, there are differences when burning thick materials because the interior solid-phase temperature continuously changes, which affects the percentage of gas-phase heat feedback to the solid-phase. Changes in the heat feedback to the solid-phase can affect the flammability characteristics of the material. In the current work, the extinction of a diffusion flame burning over PMMA (polymethyl methacrylate) cylinders during depressurization with a low-speed cross flow was examined experimentally and via numerical simulations.",
+  "source_url": "https://ntrs.nasa.gov/citations/19970020617",
+  "publication_date": "1997-05-01",
+  "authors": [],
+  "keywords": [],
+  "distribution": "PUBLIC",
+  "center": "Glenn Research Center"
+}

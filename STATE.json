@@ -1,15 +1,16 @@
 {
   "project": "FLARE-X Research Prototype",
-  "current_phase": "04",
+  "current_phase": "05",
   "completed_phases": [
     "01",
     "02",
-    "03"
+    "03",
+    "04"
   ],
   "blocked_phases": [],
   "last_validation_status": "PASS",
   "known_limitations": [
-    "Published microgravity dataset is small (dozens to low hundreds of points) and sparse in 4-D input space.",
+    "Published microgravity dataset contains 145 discrete test conditions; dataset is concentrated in PMMA and thin fabrics under ISS and drop-tower conditions.",
     "Droplet and gaseous diffusion flame datasets are catalogued but excluded from core solid flame-spread model due to physical incompatibility.",
     "Official challenge listing page is client-rendered; verified via public search engine index and challenge brief.",
     "Pre-hackathon research prototype; to be kept separate from official hackathon repository."
@@ -18,6 +19,7 @@
     "Phase 01 requirements, scope, problem definition, non-goals, and traceability matrix completed and validated.",
     "Phase 02 NASA data discovery completed with 23 audited investigations in dataset_catalog.csv, 28 raw files in source_manifest.csv, and NASA_DATASET_AUDIT.md.",
     "Phase 03 data audit and schema completed with crosswalk, canonical units, schema.json, unit_map.json, labeling protocol, and passing tests.",
-    "Advancing to Phase 04: Data Ingestion (extracting structured table into cache/experiments.parquet)."
+    "Phase 04 data ingestion completed with 145 verified rows in cache/experiments.parquet, 13 report corpus entries, DATA_QUALITY.md, and 8/8 tests passing.",
+    "Advancing to Phase 05: Baseline Models (src/compute/model.py with StratifiedGroupKFold honest evaluation)."
   ]
 }
