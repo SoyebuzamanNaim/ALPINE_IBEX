@@ -1,0 +1,143 @@
+{
+  "type": "gradient_boosting",
+  "n_train": 145,
+  "cv_accuracy": 0.7931,
+  "cv_balanced_accuracy": 0.7241,
+  "cv_macro_f1": 0.7315,
+  "cv_scheme": "StratifiedGroupKFold(k=5, group=report_id)",
+  "optimistic_cv_accuracy": 0.8069,
+  "majority_baseline_accuracy": 0.5172,
+  "features": [
+    "oxygen_pct",
+    "pressure_kpa",
+    "flow_cm_s",
+    "material"
+  ],
+  "classes": [
+    "no_spread",
+    "marginal_spread",
+    "spread"
+  ],
+  "confusion_matrix": [
+    [
+      37,
+      3,
+      9
+    ],
+    [
+      4,
+      11,
+      6
+    ],
+    [
+      2,
+      6,
+      67
+    ]
+  ],
+  "per_class_recall": {
+    "no_spread": 0.7551020408163265,
+    "marginal_spread": 0.5238095238095238,
+    "spread": 0.8933333333333333
+  },
+  "trained_at": "2026-10-03T17:49:01+00:00",
+  "dataset_sha256": "d5a06d2d0cce4e2fe2207bd490df4ec1213ca6eeabc1436243eb8d49dafd0be0",
+  "training_range": {
+    "oxygen_pct": {
+      "min": 15.0,
+      "max": 34.0
+    },
+    "pressure_kpa": {
+      "min": 56.5,
+      "max": 101.3
+    },
+    "flow_cm_s": {
+      "min": 0.0,
+      "max": 45.0
+    },
+    "allowed_materials": [
+      "Cellulose",
+      "Cotton",
+      "Delrin",
+      "Nomex",
+      "PMMA"
+    ],
+    "per_material": {
+      "Cellulose": {
+        "n_samples": 22,
+        "oxygen_pct": {
+          "min": 15.5,
+          "max": 34.0
+        },
+        "pressure_kpa": {
+          "min": 56.5,
+          "max": 101.3
+        },
+        "flow_cm_s": {
+          "min": 0.3,
+          "max": 30.0
+        }
+      },
+      "Cotton": {
+        "n_samples": 19,
+        "oxygen_pct": {
+          "min": 16.2,
+          "max": 20.8
+        },
+        "pressure_kpa": {
+          "min": 101.3,
+          "max": 101.3
+        },
+        "flow_cm_s": {
+          "min": 0.4,
+          "max": 45.0
+        }
+      },
+      "Delrin": {
+        "n_samples": 5,
+        "oxygen_pct": {
+          "min": 15.0,
+          "max": 21.0
+        },
+        "pressure_kpa": {
+          "min": 101.3,
+          "max": 101.3
+        },
+        "flow_cm_s": {
+          "min": 5.0,
+          "max": 10.0
+        }
+      },
+      "Nomex": {
+        "n_samples": 7,
+        "oxygen_pct": {
+          "min": 20.8,
+          "max": 34.0
+        },
+        "pressure_kpa": {
+          "min": 56.5,
+          "max": 101.3
+        },
+        "flow_cm_s": {
+          "min": 5.0,
+          "max": 20.0
+        }
+      },
+      "PMMA": {
+        "n_samples": 92,
+        "oxygen_pct": {
+          "min": 15.5,
+          "max": 34.0
+        },
+        "pressure_kpa": {
+          "min": 56.5,
+          "max": 101.3
+        },
+        "flow_cm_s": {
+          "min": 0.0,
+          "max": 35.0
+        }
+      }
+    }
+  }
+}
