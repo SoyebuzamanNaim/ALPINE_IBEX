@@ -264,3 +264,10 @@ def get_source_document(report_id: str) -> dict[str, Any]:
     if not doc:
         raise HTTPException(status_code=404, detail=f"Report '{report_id}' not found in corpus.")
     return doc
+
+
+from fastapi.staticfiles import StaticFiles
+
+APP_DIR = ROOT / "app"
+if APP_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(APP_DIR), html=True), name="static")

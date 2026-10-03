@@ -174,3 +174,11 @@ def test_get_source_document(client):
     doc = res.json()
     assert doc["report_id"] == "20140011099"
     assert "BASS" in doc["title"]
+
+
+def test_get_root_serves_frontend(client):
+    res = client.get("/")
+    assert res.status_code == 200
+    assert "text/html" in res.headers["content-type"]
+    assert "FLARE-X" in res.text
+    assert "flammability-boundary-canvas" in res.text

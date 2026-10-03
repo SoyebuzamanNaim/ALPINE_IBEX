@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FLARE-X | NASA Microgravity Combustion Flammability Explorer</title>
+  <meta name="description" content="AI-assisted microgravity combustion and solid-fuel flame-spread exploration tool grounded in published NASA spaceflight experiments (BASS, BASS-II, DARTFire).">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="flarex-theme">
+  <!-- Top Navigation / Mission Bar -->
+  <header class="mission-header" id="mission-header">
+    <div class="header-brand">
+      <div class="nasa-insignia-badge" aria-hidden="true">NASA PSI</div>
+      <div class="brand-titles">
+        <h1 class="brand-title">FLARE-X</h1>
+        <span class="brand-subtitle">FLAME IN FREEFALL · MICROGRAVITY COMBUSTION EXPLORER</span>
+      </div>
+    </div>
+
+    <!-- Active Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist" aria-label="Main Navigation">
+      <button class="nav-tab active" id="tab-lab-btn" role="tab" aria-selected="true" aria-controls="view-scenario-lab">
+        <span class="tab-icon">⚡</span> Scenario Lab
+      </button>
+      <button class="nav-tab" id="tab-sweep-btn" role="tab" aria-selected="false" aria-controls="view-counterfactual-sweep">
+        <span class="tab-icon">📈</span> O₂ Sweep & Safety
+      </button>
+      <button class="nav-tab" id="tab-atlas-btn" role="tab" aria-selected="false" aria-controls="view-experiment-atlas">
+        <span class="tab-icon">🛰️</span> Experiment Atlas (145)
+      </button>
+      <button class="nav-tab" id="tab-model-btn" role="tab" aria-selected="false" aria-controls="view-model-transparency">
+        <span class="tab-icon">🔬</span> Model Card & Provenance
+      </button>
+    </nav>
+
+    <!-- Operational System Status Chip -->
+    <div class="system-status-indicator" id="system-status-indicator">
+      <span class="status-pulse-dot" id="status-dot"></span>
+      <span class="status-text" id="status-text">ENGINE ONLINE · 145 FLIGHT TESTS</span>
+    </div>
+  </header>
+
+  <!-- Main Content Views Container -->
+  <main class="main-container" id="main-container">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: SCENARIO LAB (MISSION CONTROL) -->
+    <!-- ========================================== -->
+    <section class="view-panel active" id="view-scenario-lab" role="tabpanel" aria-labelledby="tab-lab-btn">
+      <div class="lab-layout-grid">
+        
+        <!-- LEFT COLUMN: OPERATIONAL CONTROLS & SLIDERS -->
+        <aside class="control-panel glass-card" id="control-panel">
+          <div class="card-header">
+            <h2 class="card-title">ATMOSPHERIC & VENTILATION INPUTS</h2>
+            <span class="badge badge-accent">OPERATOR INPUT</span>
+          </div>
+
+          <!-- Natural Language Quick Query -->
+          <div class="nlp-input-group">
+            <label for="nlp-query-input" class="input-label">Natural Language Scenario Interpreter</label>
+            <div class="nlp-search-row">
+              <input type="text" id="nlp-query-input" class="nlp-input" placeholder="e.g. 18% O2, sea level, 5 cm/s for PMMA...">
+              <button type="button" id="nlp-query-submit" class="btn-action" title="Interpret Scenario">PARSER</button>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <!-- Material Selector -->
+          <div class="input-group">
+            <div class="input-label-row">
+              <label for="input-material" class="input-label">Solid Fuel Material</label>
+              <span class="input-annotation" id="mat-samples-badge">92 tests</span>
+            </div>
+            <select id="input-material" class="form-select">
+              <option value="PMMA" selected>PMMA (Polymethyl Methacrylate / Acrylic)</option>
+              <option value="Cellulose">Cellulose (Ashless Filter Paper)</option>
+              <option value="Cotton">Cotton (Thin Woven Fabric)</option>
+              <option value="Nomex">Nomex (Aramid Synthetic Fabric)</option>
+              <option value="Delrin">Delrin (Polyoxymethylene)</option>
+            </select>
+          </div>
+
+          <!-- Oxygen Concentration Slider -->
+          <div class="input-group">
+            <div class="input-label-row">
+              <label for="input-o2" class="input-label">Oxygen Concentration (% by vol)</label>
+              <span class="value-readout" id="readout-o2">21.0 %</span>
+            </div>
+            <input type="range" id="input-o2" class="range-slider" min="15.0" max="34.0" step="0.1" value="21.0">
+            <div class="slider-bounds">
+              <span>15.0% (LOC Limit)</span>
+              <span>21.0% (Standard)</span>
+              <span>34.0% (Max Flight)</span>
+            </div>
+          </div>
+
+          <!-- Ambient Cabin Pressure Slider -->
+          <div class="input-group">
+            <div class="input-label-row">
+              <label for="input-pressure" class="input-label">Ambient Pressure (kPa)</label>
+              <span class="value-readout" id="readout-pressure">101.3 kPa</span>
+            </div>
+            <input type="range" id="input-pressure" class="range-slider" min="56.5" max="101.3" step="0.1" value="101.3">
+            <div class="slider-bounds">
+              <span>56.5 kPa (Exploration)</span>
+              <span>70.3 kPa</span>
+              <span>101.3 kPa (1 atm)</span>
+            </div>
+          </div>
+
+          <!-- Forced Flow Velocity Slider -->
+          <div class="input-group">
+            <div class="input-label-row">
+              <label for="input-flow" class="input-label">Ventilation Flow Velocity (cm/s)</label>
+              <span class="value-readout" id="readout-flow">5.0 cm/s</span>
+            </div>
+            <input type="range" id="input-flow" class="range-slider" min="0.0" max="45.0" step="0.5" value="5.0">
+            <div class="slider-bounds">
+              <span>0.0 (Quiescent)</span>
+              <span>5.0 (Opposed/BASS)</span>
+              <span>45.0 (High Flow)</span>
+            </div>
+          </div>
+
+          <!-- Out-of-Range Extrapolation Switch -->
+          <div class="extrapolation-toggle-box">
+            <label class="toggle-container" for="toggle-extrapolate">
+              <input type="checkbox" id="toggle-extrapolate">
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Test Out-of-Envelope Extrapolation (Refusal Trigger)</span>
+            </label>
+          </div>
+
+          <!-- Quick Presets -->
+          <div class="preset-buttons-grid">
+            <button type="button" class="btn-preset" id="preset-iss-standard">ISS Standard (21% O₂, 101 kPa)</button>
+            <button type="button" class="btn-preset" id="preset-exploration">Exploration (34% O₂, 56.5 kPa)</button>
+            <button type="button" class="btn-preset" id="preset-near-extinction">Near Extinction (16.5% O₂)</button>
+          </div>
+        </aside>
+
+        <!-- CENTER COLUMN: FIRE INTELLIGENCE & 2-D BOUNDARY MAP -->
+        <div class="center-display-column">
+
+          <!-- Refusal / Warning Banner (Dynamic) -->
+          <div class="alert-banner hidden" id="envelope-alert-banner" role="alert">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-content">
+              <strong id="alert-title">EXTRAPOLATION REFUSED: CONDITIONS OUTSIDE PUBLISHED DATA</strong>
+              <p id="alert-message">Conditions exceed the envelope of verified NASA microgravity experiments. In accordance with safety rules, no prediction is made.</p>
+            </div>
+          </div>
+
+          <!-- Operator Safety & Prediction Card -->
+          <div class="prediction-hero-card glass-card" id="prediction-hero-card">
+            <div class="hero-top-row">
+              <div class="regime-status-wrapper">
+                <span class="sub-header-label">PREDICTED FLAME SPREAD REGIME</span>
+                <div class="regime-badge-container">
+                  <div class="regime-badge regime-spread" id="regime-badge">SUSTAINED SPREAD</div>
+                  <span class="confidence-pill" id="confidence-pill">97.7% PROBABILITY</span>
+                </div>
+              </div>
+
+              <!-- Model Card Mini Chip -->
+              <div class="model-provenance-chip" id="model-provenance-chip">
+                <div class="chip-item">
+                  <span class="chip-label">MODEL</span>
+                  <strong class="chip-val" id="chip-model-type">Gradient Boosting</strong>
+                </div>
+                <div class="chip-item">
+                  <span class="chip-label">TRAIN SIZE</span>
+                  <strong class="chip-val" id="chip-n-train">145 tests</strong>
+                </div>
+                <div class="chip-item">
+                  <span class="chip-label">GROUPED CV</span>
+                  <strong class="chip-val highlight" id="chip-cv-acc">79.31%</strong>
+                </div>
+                <div class="chip-item">
+                  <span class="chip-label">MAJORITY BASELINE</span>
+                  <strong class="chip-val" id="chip-base-acc">51.72%</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Probability Distribution Bar -->
+            <div class="probability-distribution-wrapper">
+              <div class="bar-header-labels">
+                <span class="label-no-spread"><span class="dot dot-no-spread"></span> No Spread (Extinction): <strong id="val-prob-no-spread">0.8%</strong></span>
+                <span class="label-marginal"><span class="dot dot-marginal"></span> Marginal Spread: <strong id="val-prob-marginal">1.5%</strong></span>
+                <span class="label-spread"><span class="dot dot-spread"></span> Sustained Spread: <strong id="val-prob-spread">97.7%</strong></span>
+              </div>
+              <div class="stacked-probability-bar" id="stacked-probability-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                <div class="segment seg-no-spread" id="bar-seg-no-spread" style="width: 1%;"></div>
+                <div class="segment seg-marginal" id="bar-seg-marginal" style="width: 2%;"></div>
+                <div class="segment seg-spread" id="bar-seg-spread" style="width: 97%;"></div>
+              </div>
+            </div>
+
+            <!-- Operator Safety Briefing -->
+            <div class="operator-safety-briefing" id="operator-safety-briefing">
+              <div class="briefing-header">
+                <span class="briefing-icon">🛡️</span>
+                <strong>SPACECRAFT OPERATOR SAFETY ASSESSMENT</strong>
+              </div>
+              <p class="briefing-text" id="operator-briefing-text">
+                Current atmospheric conditions support steady flame propagation across PMMA fuel. Radiative heat dissipation is insufficient to extinguish combustion under 5.0 cm/s opposed flow. To suppress flammability, cabin oxygen must be reduced below 17.5% or ventilation deactivated.
+              </p>
+            </div>
+          </div>
+
+          <!-- SIGNATURE 2-D BOUNDARY MAP (CANVAS) -->
+          <div class="boundary-canvas-card glass-card" id="boundary-canvas-card">
+            <div class="canvas-header-row">
+              <div class="canvas-titles">
+                <h3 class="canvas-title">NASA FLAMMABILITY REGIME MAP (2-D SLICE)</h3>
+                <span class="canvas-subtitle" id="canvas-slice-caption">Fixed slice at Pressure = 101.3 kPa, Material = PMMA</span>
+              </div>
+              <div class="legend-container">
+                <span class="legend-item"><span class="legend-color legend-spread-box"></span> Spread</span>
+                <span class="legend-item"><span class="legend-color legend-marginal-box"></span> Marginal</span>
+                <span class="legend-item"><span class="legend-color legend-no-spread-box"></span> Extinction</span>
+                <span class="legend-item"><span class="legend-dot-marker"></span> NASA Test (Real)</span>
+                <span class="legend-item"><span class="legend-target-reticle">⌖</span> Query Point</span>
+              </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="canvas-viewport" id="canvas-viewport">
+              <canvas id="flammability-boundary-canvas" width="700" height="400" aria-label="2D Microgravity Flammability Boundary Map"></canvas>
+              <div class="canvas-tooltip hidden" id="canvas-tooltip"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: NEAREST CITATIONS & AI EXPLANATION -->
+        <aside class="evidence-column">
+
+          <!-- Nearest Experiments Card -->
+          <div class="glass-card nearest-experiments-card" id="nearest-experiments-card">
+            <div class="card-header">
+              <h3 class="card-title">NEAREST HISTORICAL FLIGHT TESTS</h3>
+              <span class="badge badge-info">FEATURE DISTANCE</span>
+            </div>
+            <p class="card-description">Top empirical observations from NASA PSI / NTRS closest in normalized feature space:</p>
+            
+            <div class="nearest-cards-list" id="nearest-cards-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Grounded AI Explanation Card -->
+          <div class="glass-card explanation-card" id="explanation-card">
+            <div class="card-header">
+              <h3 class="card-title">BOUNDED SCIENTIFIC EXPLANATION</h3>
+              <span class="badge badge-verified">AUDITED · ZERO FABRICATION</span>
+            </div>
+            <div class="explanation-content-box">
+              <p class="explanation-paragraph" id="explanation-text-display">
+                Loading validated explanation...
+              </p>
+            </div>
+            <div class="audit-integrity-footer">
+              <span class="integrity-check-icon">✓</span>
+              <span class="integrity-text" id="integrity-text">Audited: All numbers and citations verify against prediction object.</span>
+            </div>
+          </div>
+
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
+    <!-- VIEW 2: OXYGEN SWEEP DEMO & COUNTERFACTUAL EXPLORER -->
+    <!-- ==================================================== -->
+    <section class="view-panel" id="view-counterfactual-sweep" role="tabpanel" aria-labelledby="tab-sweep-btn" hidden>
+      <div class="sweep-container glass-card">
+        <div class="sweep-header-box">
+          <div class="sweep-title-group">
+            <h2 class="view-title">KILLER DEMO: OXYGEN SWEEP & FLAMMABILITY TRANSITION</h2>
+            <p class="view-description">
+              As required by Challenge Brief §2, sliding oxygen concentration from 21% down to 16% on PMMA (fixed at 101.3 kPa and 5.0 cm/s flow)
+              demonstrates how microgravity flames transition across regime boundaries into extinction, with historical NASA spaceflight observations cited on each side.
+            </p>
+          </div>
+          <div class="safety-margin-display" id="safety-margin-display">
+            <span class="margin-label">EXTINCTION SAFETY MARGIN</span>
+            <strong class="margin-value" id="safety-margin-val">+3.25 % O₂</strong>
+            <span class="margin-status safe" id="safety-margin-status">SAFE OPERATING ZONE</span>
+          </div>
+        </div>
+
+        <!-- Interactive Sweep Slider -->
+        <div class="sweep-interactive-row">
+          <div class="sweep-slider-wrapper">
+            <label for="sweep-oxygen-slider" class="input-label">Simulate Oxygen Depletion (21.0% down to 16.0% O₂)</label>
+            <input type="range" id="sweep-oxygen-slider" class="range-slider sweep-slider" min="16.0" max="21.0" step="0.1" value="21.0">
+            <div class="slider-bounds">
+              <span>16.0% (Extinction)</span>
+              <span>17.5% (Regime Boundary)</span>
+              <span>21.0% (Sea Level Ambient)</span>
+            </div>
+          </div>
+          <button type="button" class="btn-action btn-large" id="btn-run-auto-sweep">▶ PLAY AUTO-SWEEP</button>
+        </div>
+
+        <!-- Sweep Probability Graph (Canvas) -->
+        <div class="sweep-graph-wrapper">
+          <canvas id="sweep-chart-canvas" width="900" height="260" aria-label="Oxygen Sweep Probability Graph"></canvas>
+        </div>
+
+        <!-- Before / After Boundary Comparison -->
+        <div class="boundary-dual-cards-grid" id="boundary-dual-cards-grid">
+          <div class="dual-card card-above-boundary">
+            <div class="dual-header">
+              <span class="dual-badge badge-spread">ABOVE BOUNDARY (O₂ > 17.5%)</span>
+              <h4>Sustained Spread Regime</h4>
+            </div>
+            <p>Convective oxidizer supply exceeds radiative/conductive losses. Flame survives continuously in microgravity.</p>
+            <div class="dual-evidence" id="evidence-above-boundary">
+              <strong>Nearest Real NASA Test:</strong> Loading flight data...
+            </div>
+          </div>
+
+          <div class="dual-card card-below-boundary">
+            <div class="dual-header">
+              <span class="dual-badge badge-no-spread">BELOW BOUNDARY (O₂ ≤ 17.0%)</span>
+              <h4>Extinction / Marginal Regime</h4>
+            </div>
+            <p>Oxygen flux is starved below the limiting oxygen index (LOI). Radiation cools the flame base, causing flame collapse.</p>
+            <div class="dual-evidence" id="evidence-below-boundary">
+              <strong>Nearest Real NASA Test:</strong> Loading flight data...
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: NASA EXPERIMENT ATLAS -->
+    <!-- ========================================== -->
+    <section class="view-panel" id="view-experiment-atlas" role="tabpanel" aria-labelledby="tab-atlas-btn" hidden>
+      <div class="atlas-container glass-card">
+        <div class="atlas-header-row">
+          <div>
+            <h2 class="view-title">NASA MICROGRAVITY EXPERIMENT ATLAS</h2>
+            <p class="view-description">145 discrete spaceflight observations curated from BASS, BASS-II, DARTFire, and Exploration Atmospheres.</p>
+          </div>
+          <div class="atlas-filters-row">
+            <input type="text" id="atlas-search-input" class="atlas-filter-input" placeholder="Search report ID, material...">
+            <select id="atlas-filter-material" class="form-select filter-select">
+              <option value="">All Materials (5)</option>
+              <option value="PMMA">PMMA (92)</option>
+              <option value="Cellulose">Cellulose (22)</option>
+              <option value="Cotton">Cotton (19)</option>
+              <option value="Nomex">Nomex (7)</option>
+              <option value="Delrin">Delrin (5)</option>
+            </select>
+            <select id="atlas-filter-outcome" class="form-select filter-select">
+              <option value="">All Outcomes (3)</option>
+              <option value="spread">Spread</option>
+              <option value="marginal_spread">Marginal Spread</option>
+              <option value="no_spread">No Spread (Extinction)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="atlas-table" id="atlas-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Investigation</th>
+                <th>Material</th>
+                <th>O₂ (%)</th>
+                <th>Pressure (kPa)</th>
+                <th>Flow (cm/s)</th>
+                <th>Observed Outcome</th>
+                <th>Report ID</th>
+                <th>NTRS Citation</th>
+              </tr>
+            </thead>
+            <tbody id="atlas-table-body">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 4: MODEL CARD & TRANSPARENCY -->
+    <!-- ========================================== -->
+    <section class="view-panel" id="view-model-transparency" role="tabpanel" aria-labelledby="tab-model-btn" hidden>
+      <div class="transparency-grid">
+        
+        <!-- Left: Model Card & Honest Metrics -->
+        <div class="glass-card model-metrics-card">
+          <h2 class="view-title">MODEL CARD & CROSS-VALIDATION</h2>
+          <p class="view-description">Rigorous group-stratified evaluation preventing data leakage across publication sources.</p>
+
+          <div class="metrics-kpi-grid">
+            <div class="kpi-box">
+              <span class="kpi-label">HONEST GROUPED CV ACCURACY</span>
+              <strong class="kpi-value highlight">79.31%</strong>
+              <span class="kpi-sub">StratifiedGroupKFold (k=5, group=report_id)</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">MAJORITY CLASS BASELINE</span>
+              <strong class="kpi-value">51.72%</strong>
+              <span class="kpi-sub">+27.59% lift over zero-rule</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">BALANCED ACCURACY</span>
+              <strong class="kpi-value">72.41%</strong>
+              <span class="kpi-sub">Class-balanced macro recall</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">TOTAL VERIFIED SAMPLES</span>
+              <strong class="kpi-value">145</strong>
+              <span class="kpi-sub">Discrete spaceflight tests</span>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <h3 class="subsection-title">5-FOLD GROUPED CONFUSION MATRIX</h3>
+          <div class="confusion-matrix-table-wrapper">
+            <table class="confusion-table">
+              <thead>
+                <tr>
+                  <th>Actual \ Predicted</th>
+                  <th>no_spread</th>
+                  <th>marginal_spread</th>
+                  <th>spread</th>
+                  <th>Recall</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>no_spread (49)</strong></td>
+                  <td class="cell-hit">37</td>
+                  <td class="cell-miss">3</td>
+                  <td class="cell-miss">9</td>
+                  <td><strong>75.5%</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>marginal_spread (21)</strong></td>
+                  <td class="cell-miss">4</td>
+                  <td class="cell-hit">11</td>
+                  <td class="cell-miss">6</td>
+                  <td><strong>52.4%</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>spread (75)</strong></td>
+                  <td class="cell-miss">2</td>
+                  <td class="cell-miss">6</td>
+                  <td class="cell-hit">67</td>
+                  <td><strong>89.3%</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right: Audited NASA Investigations -->
+        <div class="glass-card investigations-card">
+          <h2 class="view-title">AUDITED NASA DATASET PROVENANCE</h2>
+          <p class="view-description">23 NASA combustion investigations audited across PSI, NTRS, and OSDR.</p>
+
+          <div class="investigation-cards-list" id="investigation-cards-list">
+            <!-- Dynamically populated from /datasets -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
