@@ -1,13 +1,14 @@
 {
   "project": "FLARE-X Research Prototype",
-  "current_phase": "07",
+  "current_phase": "08",
   "completed_phases": [
     "01",
     "02",
     "03",
     "04",
     "05",
-    "06"
+    "06",
+    "07"
   ],
   "blocked_phases": [],
   "last_validation_status": "PASS",
@@ -24,6 +25,7 @@
     "Phase 04 data ingestion completed with 145 verified rows in cache/experiments.parquet, 13 report corpus entries, DATA_QUALITY.md, and 8/8 tests passing.",
     "Phase 05 baseline models completed: src/compute/model.py evaluated 4 model families, saved flame_spread_gb.joblib and model_meta.json, 6/6 tests passing.",
     "Phase 06 evidence retrieval completed with nearest experiment retriever, BM25 corpus search, evidence bundle schema, and 100% Precision@3 on benchmark queries.",
-    "Advancing to Phase 07: Experimental Envelope Guard (strict out-of-range refusal, per-material limits, kNN sparse-region warning)."
+    "Phase 07 envelope guard completed with strict bounding box refusal, per-material limits, kNN sparse region detection, and 6/6 tests passing.",
+    "Advancing to Phase 08: Counterfactual Engine (parameter sweeps, boundary transition search, safety margins)."
   ]
 }
