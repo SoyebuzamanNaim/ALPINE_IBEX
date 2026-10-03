@@ -1,0 +1,17 @@
+# Live Demo & Video Presentation Script (Phase 14)
+
+> **Document Status:** Minute-by-minute speaking and screen capture script for hackathon presentations and prescreening video recording.
+> **Disclaimer:** **RESEARCH PROTOTYPE DEMONSTRATION**
+
+---
+
+## Pitch Overview (2 Minutes 45 Seconds)
+
+| Time | Slide / Screen | Speaker Dialogue | On-Screen Action |
+|---|---|---|---|
+| **0:00 - 0:25** | **Title & Problem** (`#view-scenario-lab`) | *"In microgravity, fire behaves unlike anything on Earth. Without buoyancy, flames become spherical, spread slowly, and survive in conditions that would extinguish on the ground. For NASA Challenge #8 'Flame in Freefall', we built FLARE-X: an AI flammability explorer grounded entirely in decades of real spaceflight combustion experiments."* | Show FLARE-X Mission Control header with NASA PSI badge and active system telemetry. |
+| **0:25 - 0:55** | **Scenario Lab & 2D Boundary Map** | *"Here in the Scenario Lab, an operator selects material, cabin pressure, oxygen concentration, and ventilation speed. Unlike black-box models that hallucinate, FLARE-X visualizes the entire 2-D flammability boundary slice. Every single dot you see overlaid on the map is a real NASA flight test from the BASS and BASS-II experiments on the ISS."* | Move the Oxygen slider to 21% and Flow slider to 5 cm/s. Point out the overlaid scatter dots on the HTML5 canvas map. |
+| **0:55 - 1:30** | **The Killer Demo (O₂ Sweep)** (`#view-counterfactual-sweep`) | *"Now, let's execute the Challenge Brief killer demo. We start with PMMA at 21% oxygen and 5 cm/s flow. As we slide oxygen down, watch the flammability regime transition. At 17.5% O₂, the flame enters marginal spread, and by 16.5%, it extinguishes completely. Crucially, FLARE-X doesn't guess: it cites the exact NASA flight reports on both sides—NTRS report 20160010041 above the boundary, and 20140011099 below it."* | Switch to 'O₂ Sweep & Safety' tab. Click 'PLAY AUTO-SWEEP' and watch the curve move across the vertical dashed boundary line. |
+| **1:30 - 1:55** | **Strict Envelope Refusal** (`#view-scenario-lab`) | *"Spacecraft safety demands strict discipline. If an operator asks for 45% oxygen or an unverified material like Teflon, FLARE-X will never hallucinate a prediction. It triggers an immediate refusal banner, returns null predictions, and presents the 3 nearest real experiments so engineers see where NASA data ends."* | Toggle the 'Test Out-of-Envelope Extrapolation' switch. Show the hazard warning banner and null prediction badge. |
+| **1:55 - 2:20** | **Honest Science & Transparency** (`#view-model-transparency`) | *"We don't hide behind misleading 99% accuracy scores. Our Gradient Boosting classifier achieves an honest 79.31% grouped cross-validation score across 145 discrete spaceflight observations, evaluated by publication report to prevent data leakage. Every single cited number is audited in code to guarantee zero AI hallucination."* | Switch to 'Model Card & Provenance' tab. Show the 5-fold grouped confusion matrix and audited dataset catalog. |
+| **2:20 - 2:45** | **Conclusion & Call to Action** | *"FLARE-X brings empirical rigor, bounded AI explanation, and transparent safety margins to microgravity fire science. The entire prototype is open-source under Apache-2.0, with a single-command local launcher and full API documentation. Thank you."* | Return to Scenario Lab, show green status indicator. End on clean mission control view. |
