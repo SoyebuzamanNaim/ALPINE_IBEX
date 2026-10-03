@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FLARE_X_ExperimentRecord",
+  "description": "Schema definition for verified microgravity solid fuel combustion experimental records.",
+  "type": "object",
+  "required": [
+    "experiment_id",
+    "investigation",
+    "material",
+    "material_raw",
+    "sample_geometry",
+    "oxygen_pct",
+    "pressure_kpa",
+    "flow_cm_s",
+    "flow_direction",
+    "outcome",
+    "outcome_raw",
+    "outcome_interpreted",
+    "gravity_env",
+    "report_id",
+    "source_url",
+    "extraction_method"
+  ],
+  "properties": {
+    "experiment_id": {
+      "type": "string",
+      "description": "Unique experiment run identifier."
+    },
+    "investigation": {
+      "type": "string",
+      "enum": ["BASS", "BASS-II", "SAFFIRE", "DARTFire", "SIBAL", "SoFIE"],
+      "description": "NASA investigation family."
+    },
+    "material": {
+      "type": "string",
+      "enum": ["PMMA", "Cotton", "Delrin", "Nomex", "Cellulose"],
+      "description": "Standardized solid combustible material name."
+    },
+    "material_raw": {
+      "type": "string",
+      "description": "Verbatim material description from publication."
+    },
+    "sample_geometry": {
+      "type": "string",
+      "enum": ["sheet", "rod", "slab", "sphere"],
+      "description": "Physical geometry of the sample."
+    },
+    "sample_thickness_mm": {
+      "type": ["number", "null"],
+      "minimum": 0.01,
+      "maximum": 50.0,
+      "description": "Sample thickness or rod diameter in millimeters."
+    },
+    "oxygen_pct": {
+      "type": "number",
+      "minimum": 10.0,
+      "maximum": 40.0,
+      "description": "Ambient oxygen concentration in volume percent."
+    },
+    "oxygen_raw": {
+      "type": ["string", "null"],
+      "description": "Verbatim oxygen measurement."
+    },
+    "pressure_kpa": {
+      "type": "number",
+      "minimum": 30.0,
+      "maximum": 150.0,
+      "description": "Total chamber pressure in kilopascals."
+    },
+    "pressure_raw": {
+      "type": ["string", "null"],
+      "description": "Verbatim pressure measurement."
+    },
+    "flow_cm_s": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "description": "Imposed flow velocity in cm/s."
+    },
+    "flow_direction": {
+      "type": "string",
+      "enum": ["opposed", "concurrent", "quiescent"],
+      "description": "Relative flow direction."
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["no_spread", "marginal_spread", "spread"],
+      "description": "Observed flame-spread regime classification."
+    },
+    "outcome_raw": {
+      "type": "string",
+      "description": "Verbatim observation from the publication."
+    },
+    "outcome_interpreted": {
+      "type": "boolean",
+      "description": "Whether outcome required categorization rule interpretation."
+    },
+    "burn_duration_s": {
+      "type": ["number", "null"],
+      "minimum": 0.0,
+      "description": "Observed burn duration in seconds."
+    },
+    "spread_rate_mm_s": {
+      "type": ["number", "null"],
+      "minimum": 0.0,
+      "description": "Observed flame spread rate in mm/s."
+    },
+    "gravity_env": {
+      "type": "string",
+      "enum": ["ISS", "drop_tower", "sounding_rocket", "parabolic"],
+      "description": "Gravitational test environment."
+    },
+    "report_id": {
+      "type": "string",
+      "description": "NASA NTRS or OSDR document identifier."
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Resolvable citation URL."
+    },
+    "source_page": {
+      "type": ["integer", "null"],
+      "description": "Page number in cited PDF."
+    },
+    "source_table": {
+      "type": ["string", "null"],
+      "description": "Table or figure identifier in cited PDF."
+    },
+    "extraction_method": {
+      "type": "string",
+      "enum": ["table_parsed", "digitized_figure", "text_reported"],
+      "description": "Extraction method used."
+    },
+    "extraction_notes": {
+      "type": ["string", "null"],
+      "description": "Audit notes or boundary remarks."
+    }
+  }
+}

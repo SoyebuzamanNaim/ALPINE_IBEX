@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "canonical_units": {
+    "oxygen": {
+      "canonical_unit": "%",
+      "canonical_dimension": "volume_percent",
+      "conversions": {
+        "%": {"factor": 1.0, "offset": 0.0},
+        "vol%": {"factor": 1.0, "offset": 0.0},
+        "percent": {"factor": 1.0, "offset": 0.0},
+        "mole_fraction": {"factor": 100.0, "offset": 0.0},
+        "mass_fraction": "NON_LINEAR (requires molecular weight calculation; do not use without exact composition)"
+      }
+    },
+    "pressure": {
+      "canonical_unit": "kPa",
+      "canonical_dimension": "pressure",
+      "conversions": {
+        "kPa": {"factor": 1.0, "offset": 0.0},
+        "psia": {"factor": 6.894757293, "offset": 0.0},
+        "atm": {"factor": 101.325, "offset": 0.0},
+        "bar": {"factor": 100.0, "offset": 0.0},
+        "torr": {"factor": 0.133322368, "offset": 0.0},
+        "mmHg": {"factor": 0.133322368, "offset": 0.0},
+        "Pa": {"factor": 0.001, "offset": 0.0}
+      }
+    },
+    "flow_velocity": {
+      "canonical_unit": "cm/s",
+      "canonical_dimension": "velocity",
+      "conversions": {
+        "cm/s": {"factor": 1.0, "offset": 0.0},
+        "m/s": {"factor": 100.0, "offset": 0.0},
+        "mm/s": {"factor": 0.1, "offset": 0.0},
+        "ft/min": {"factor": 0.508, "offset": 0.0},
+        "in/s": {"factor": 2.54, "offset": 0.0}
+      }
+    },
+    "length": {
+      "canonical_unit": "mm",
+      "canonical_dimension": "length",
+      "conversions": {
+        "mm": {"factor": 1.0, "offset": 0.0},
+        "cm": {"factor": 10.0, "offset": 0.0},
+        "m": {"factor": 1000.0, "offset": 0.0},
+        "um": {"factor": 0.001, "offset": 0.0},
+        "µm": {"factor": 0.001, "offset": 0.0},
+        "inch": {"factor": 25.4, "offset": 0.0},
+        "in": {"factor": 25.4, "offset": 0.0}
+      }
+    },
+    "spread_rate": {
+      "canonical_unit": "mm/s",
+      "canonical_dimension": "velocity",
+      "conversions": {
+        "mm/s": {"factor": 1.0, "offset": 0.0},
+        "cm/s": {"factor": 10.0, "offset": 0.0},
+        "cm/min": {"factor": 0.166666667, "offset": 0.0},
+        "in/s": {"factor": 25.4, "offset": 0.0}
+      }
+    },
+    "duration": {
+      "canonical_unit": "s",
+      "canonical_dimension": "time",
+      "conversions": {
+        "s": {"factor": 1.0, "offset": 0.0},
+        "sec": {"factor": 1.0, "offset": 0.0},
+        "min": {"factor": 60.0, "offset": 0.0},
+        "minutes": {"factor": 60.0, "offset": 0.0}
+      }
+    }
+  },
+  "provenance_rules": {
+    "preserve_raw_input": true,
+    "require_conversion_source": true,
+    "prohibit_silent_incompatible_merging": true
+  }
+}
