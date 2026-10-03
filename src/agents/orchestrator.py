@@ -64,6 +64,7 @@ class AgentOrchestrator:
             state_history.append(OrchestratorState.FAILED_AMBIGUOUS)
             return {
                 "status": "failed_ambiguous",
+                "in_training_range": False,
                 "state_history": [s.value for s in state_history],
                 "ambiguities": interp_res["ambiguities"],
                 "inputs": None,
