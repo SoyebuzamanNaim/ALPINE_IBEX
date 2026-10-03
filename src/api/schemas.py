@@ -74,6 +74,7 @@ class PredictResponse(BaseModel):
     explanation: str
     status: str | None = None
     sparse_region_warning: bool | None = False
+    knn_mean_distance: float | None = None
     warning_message: str | None = None
 
 
