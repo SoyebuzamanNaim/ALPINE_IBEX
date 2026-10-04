@@ -537,6 +537,8 @@ function drawBoundaryCanvas() {
   const h = canvas.height;
 
   ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
 
   const padLeft = 70;
   const padBottom = 45;
@@ -558,7 +560,7 @@ function drawBoundaryCanvas() {
     return padTop + plotH - ((flow - flowMin) / (flowMax - flowMin)) * plotH;
   }
 
-  // 1. Draw Grid Cells Shaded by Predicted Regime
+  // 1. Draw Grid Cells Shaded by Predicted Regime (Light Theme Inks)
   const o2Grid = b.oxygen_grid;
   const flowGrid = b.flow_grid;
   const cellW = plotW / (o2Grid.length - 1);
@@ -568,13 +570,13 @@ function drawBoundaryCanvas() {
     for (let i = 0; i < o2Grid.length; i++) {
       const pred = b.grid_predictions[j][i];
       if (!pred) {
-        ctx.fillStyle = 'rgba(71, 85, 105, 0.12)';
+        ctx.fillStyle = 'rgba(203, 213, 225, 0.25)';
       } else if (pred === 'spread') {
-        ctx.fillStyle = 'rgba(220, 38, 38, 0.22)';
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.16)';
       } else if (pred === 'marginal_spread') {
-        ctx.fillStyle = 'rgba(217, 119, 6, 0.22)';
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.16)';
       } else {
-        ctx.fillStyle = 'rgba(5, 150, 105, 0.20)';
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.16)';
       }
 
       const cx = toX(o2Grid[i]) - cellW / 2;
@@ -584,7 +586,7 @@ function drawBoundaryCanvas() {
   }
 
   // 2. Draw Scientific Axes & Precision Grid Lines
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   // X grid
@@ -604,7 +606,7 @@ function drawBoundaryCanvas() {
   // Limiting Oxygen Concentration (LOC) vertical dashed guide
   if (17.5 >= o2Min && 17.5 <= o2Max) {
     const locX = toX(17.5);
-    ctx.strokeStyle = 'rgba(245, 158, 11, 0.55)';
+    ctx.strokeStyle = 'rgba(217, 119, 6, 0.75)';
     ctx.lineWidth = 1.2;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
@@ -613,28 +615,30 @@ function drawBoundaryCanvas() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = '#f59e0b';
+    ctx.fillStyle = '#b45309';
     ctx.font = '10px "JetBrains Mono", monospace';
     ctx.textAlign = 'left';
     ctx.fillText('LOC ≈ 17.5%', locX + 6, padTop + 14);
   }
 
   // Outer Plot Border
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+  ctx.strokeStyle = '#cbd5e1';
   ctx.lineWidth = 1;
   ctx.strokeRect(padLeft, padTop, plotW, plotH);
 
   // 3. Draw Axis Labels & Numbers
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = '#475569';
   ctx.font = '11px "JetBrains Mono", monospace';
   ctx.textAlign = 'center';
   for (let o2 = Math.ceil(o2Min); o2 <= o2Max; o2 += 3) {
     ctx.fillText(`${o2}%`, toX(o2), padTop + plotH + 20);
   }
   ctx.font = '12px "Inter", sans-serif';
+  ctx.fillStyle = '#1e293b';
   ctx.fillText('Oxygen Concentration, X_O₂ (% by volume)', padLeft + plotW / 2, h - 8);
 
   ctx.font = '11px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#475569';
   ctx.textAlign = 'right';
   for (let f = Math.ceil(flowMin); f <= flowMax; f += 5) {
     ctx.fillText(`${f}`, padLeft - 10, toY(f) + 4);
@@ -643,6 +647,7 @@ function drawBoundaryCanvas() {
   ctx.translate(18, padTop + plotH / 2);
   ctx.rotate(-Math.PI / 2);
   ctx.font = '12px "Inter", sans-serif';
+  ctx.fillStyle = '#1e293b';
   ctx.textAlign = 'center';
   ctx.fillText('Forced Ventilation Velocity, v_g (cm/s)', 0, 0);
   ctx.restore();
@@ -658,15 +663,15 @@ function drawBoundaryCanvas() {
     ctx.beginPath();
     ctx.arc(ex, ey, 4.5, 0, Math.PI * 2);
     if (exp.outcome === 'spread') {
-      ctx.fillStyle = '#ef4444';
+      ctx.fillStyle = '#dc2626';
     } else if (exp.outcome === 'marginal_spread') {
-      ctx.fillStyle = '#f59e0b';
+      ctx.fillStyle = '#d97706';
     } else {
-      ctx.fillStyle = '#10b981';
+      ctx.fillStyle = '#059669';
     }
     ctx.fill();
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.lineWidth = 1.0;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
     ctx.stroke();
   });
 
@@ -679,19 +684,19 @@ function drawBoundaryCanvas() {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const pulseFactor = reducedMotion ? 0 : Math.sin(now * 0.0035);
     const ringRadius = 8.5 + (reducedMotion ? 0 : 4 * (0.5 + 0.5 * pulseFactor));
-    const ringAlpha = reducedMotion ? 0.6 : (0.20 + 0.30 * (0.5 + 0.5 * pulseFactor));
+    const ringAlpha = reducedMotion ? 0.6 : (0.25 + 0.35 * (0.5 + 0.5 * pulseFactor));
 
     // Outer Precision Radar Halo
     ctx.beginPath();
     ctx.arc(qx, qy, ringRadius, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(56, 189, 248, ${ringAlpha})`;
+    ctx.strokeStyle = `rgba(29, 78, 216, ${ringAlpha})`;
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
     // Solid Target Ring
     ctx.beginPath();
     ctx.arc(qx, qy, 7, 0, Math.PI * 2);
-    ctx.strokeStyle = '#38bdf8';
+    ctx.strokeStyle = '#1d4ed8';
     ctx.lineWidth = 2;
     ctx.stroke();
 
@@ -700,9 +705,12 @@ function drawBoundaryCanvas() {
     ctx.arc(qx, qy, 2, 0, Math.PI * 2);
     ctx.fillStyle = '#ffffff';
     ctx.fill();
+    ctx.strokeStyle = '#1d4ed8';
+    ctx.lineWidth = 1;
+    ctx.stroke();
 
     // Crosshairs
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
+    ctx.strokeStyle = 'rgba(29, 78, 216, 0.65)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(qx - 14, qy);
@@ -712,8 +720,8 @@ function drawBoundaryCanvas() {
     ctx.stroke();
 
     // Coordinate tag box
-    ctx.fillStyle = 'rgba(11, 15, 24, 0.92)';
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.50)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+    ctx.strokeStyle = '#1d4ed8';
     ctx.lineWidth = 1;
     const tagText = `${state.oxygen_pct.toFixed(1)}% · ${state.flow_cm_s.toFixed(1)} cm/s`;
     ctx.font = '10px "JetBrains Mono", monospace';
@@ -722,7 +730,7 @@ function drawBoundaryCanvas() {
     const tagY = Math.max(qy - 20, padTop + 2);
     ctx.fillRect(tagX, tagY, tagW, 18);
     ctx.strokeRect(tagX, tagY, tagW, 18);
-    ctx.fillStyle = '#f8fafc';
+    ctx.fillStyle = '#0f172a';
     ctx.textAlign = 'left';
     ctx.fillText(tagText, tagX + 5, tagY + 13);
   }
@@ -842,6 +850,8 @@ function drawSweepCanvas(currentO2 = 21.0) {
   const h = canvas.height;
 
   ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
 
   const padLeft = 70;
   const padBottom = 40;
@@ -851,12 +861,12 @@ function drawSweepCanvas(currentO2 = 21.0) {
   const pH = h - padTop - padBottom;
 
   // Grid
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
   ctx.strokeRect(padLeft, padTop, pW, pH);
 
   // Transition vertical line at 17.5%
   const boundaryX = padLeft + ((17.5 - 16.0) / (21.0 - 16.0)) * pW;
-  ctx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
+  ctx.strokeStyle = 'rgba(217, 119, 6, 0.75)';
   ctx.setLineDash([4, 4]);
   ctx.beginPath();
   ctx.moveTo(boundaryX, padTop);
@@ -864,12 +874,12 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  ctx.fillStyle = '#f59e0b';
+  ctx.fillStyle = '#b45309';
   ctx.font = '10px "JetBrains Mono", monospace';
   ctx.fillText('LOC BOUNDARY (17.5%)', boundaryX + 8, padTop + 16);
 
   // Curve: P(Spread)
-  ctx.strokeStyle = '#ef4444';
+  ctx.strokeStyle = '#dc2626';
   ctx.lineWidth = 2.4;
   ctx.beginPath();
   for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
@@ -882,7 +892,7 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.stroke();
 
   // Curve: P(No Spread)
-  ctx.strokeStyle = '#10b981';
+  ctx.strokeStyle = '#059669';
   ctx.lineWidth = 2.4;
   ctx.beginPath();
   for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
@@ -896,7 +906,7 @@ function drawSweepCanvas(currentO2 = 21.0) {
 
   // Current slider marker
   const curX = padLeft + ((currentO2 - 16.0) / (21.0 - 16.0)) * pW;
-  ctx.strokeStyle = '#ffffff';
+  ctx.strokeStyle = '#1e293b';
   ctx.lineWidth = 1.8;
   ctx.beginPath();
   ctx.moveTo(curX, padTop);
@@ -905,15 +915,15 @@ function drawSweepCanvas(currentO2 = 21.0) {
 
   ctx.beginPath();
   ctx.arc(curX, padTop + pH / 2, 5, 0, Math.PI * 2);
-  ctx.fillStyle = currentO2 >= 17.5 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)';
+  ctx.fillStyle = currentO2 >= 17.5 ? 'rgba(220, 38, 38, 0.25)' : 'rgba(5, 150, 105, 0.25)';
   ctx.fill();
   ctx.beginPath();
   ctx.arc(curX, padTop + pH / 2, 2.5, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#1d4ed8';
   ctx.fill();
 
   // Labels
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = '#475569';
   ctx.font = '11px "JetBrains Mono", monospace';
   ctx.textAlign = 'center';
   for (let o2 = 16; o2 <= 21; o2++) {
@@ -1004,11 +1014,11 @@ async function loadDatasetsAndModel() {
           const div = document.createElement('div');
           div.className = 'investigation-card';
           div.innerHTML = `
-            <div class="inv-title">${inv.investigation_name || inv.investigation}</div>
+            <div class="inv-title">${inv.exact_nasa_title || inv.investigation_key || 'NASA Investigation'}</div>
             <div class="inv-meta">
-              Platform: ${inv.platform || 'ISS CIR'} · Primary Fuel: ${inv.primary_fuel_types || 'PMMA'}
+              PSI ID: <strong>${inv.psi_id || 'N/A'}</strong> · Role: <strong>${inv.usable_for_prototype_model === 'YES' ? 'Core Training Set' : 'Reference Catalog'}</strong>
             </div>
-            <div class="inv-desc">${inv.description || 'Microgravity combustion experiment conducted aboard space station.'}</div>
+            <div class="inv-desc">${inv.experiment_objective || inv.description || 'Microgravity combustion flight experiment.'}</div>
           `;
           container.appendChild(div);
         });
