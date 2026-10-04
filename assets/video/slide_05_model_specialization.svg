@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#0c162e"/>
+      <stop offset="60%" stop-color="#060913"/>
+      <stop offset="100%" stop-color="#020408"/>
+    </radialGradient>
+    <linearGradient id="cyanCard" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#112244"/>
+      <stop offset="100%" stop-color="#091224"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#bgGlow)"/>
+
+  <!-- Top Telemetry Header -->
+  <text x="120" y="80" font-family="'JetBrains Mono', monospace" font-size="14" fill="#00e5ff" letter-spacing="4">
+    // QUANTITATIVE ML ARCHITECTURE · BLOCK 3: WHAT [2:10–2:26]
+  </text>
+  <text x="1800" y="80" font-family="'JetBrains Mono', monospace" font-size="14" fill="#64748b" text-anchor="end">
+    FAMILY-SPECIALIZED QUANTITATIVE INFERENCE
+  </text>
+
+  <!-- Headline -->
+  <g transform="translate(960, 150)">
+    <text x="0" y="0" font-family="'Orbitron', sans-serif" font-size="38" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="3">
+      FAMILY-SPECIALIZED QUANTITATIVE MODELS
+    </text>
+    <text x="0" y="40" font-family="'Inter', sans-serif" font-size="18" fill="#8899b8" text-anchor="middle">
+      FLARE-X rejects universal "super-models". Each physical combustion family utilizes dedicated, empirical models.
+    </text>
+  </g>
+
+  <!-- 3 Model Cards -->
+  <g transform="translate(140, 250)">
+    <!-- Card 1: SPICE-FL (Gas) -->
+    <g transform="translate(0, 0)">
+      <rect width="520" height="520" rx="12" fill="url(#cyanCard)" stroke="#00e5ff" stroke-opacity="0.4" stroke-width="2"/>
+      
+      <!-- Top Badge -->
+      <rect x="30" y="30" width="120" height="28" rx="4" fill="#00e5ff" fill-opacity="0.2"/>
+      <text x="90" y="49" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" fill="#00e5ff" text-anchor="middle">GAS FLAMES</text>
+      
+      <text x="30" y="95" font-family="'Orbitron', sans-serif" font-size="28" font-weight="bold" fill="#ffffff">SPICE-FL</text>
+      <text x="30" y="125" font-family="'Inter', sans-serif" font-size="15" fill="#00e5ff" font-weight="600">Flame-Length &amp; Radiance Regressor</text>
+      <line x1="30" y1="145" x2="490" y2="145" stroke="#00e5ff" stroke-opacity="0.2"/>
+
+      <text x="30" y="180" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">FLIGHT DATASET:</text>
+      <text x="30" y="202" font-family="'Inter', sans-serif" font-size="14" fill="#ffffff">NASA SPICE (Smoke Point in Co-flow)</text>
+
+      <text x="30" y="240" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">PHYSICAL TARGET:</text>
+      <text x="30" y="262" font-family="'Inter', sans-serif" font-size="14" fill="#ffffff">Continuous flame tip position &amp; length (mm)</text>
+
+      <text x="30" y="300" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">INPUT FEATURES:</text>
+      <text x="30" y="322" font-family="'Inter', sans-serif" font-size="14" fill="#cbd5e1">• Fuel injection velocity (cm/s)<br/>• Co-flow duct velocity (cm/s)<br/>• Ambient O₂ mole fraction (%)<br/>• Burner inner diameter (mm)</text>
+
+      <rect x="30" y="420" width="460" height="70" rx="6" fill="#060913" stroke="#52c41a" stroke-opacity="0.3"/>
+      <text x="45" y="448" font-family="'JetBrains Mono', monospace" font-size="12" fill="#52c41a" font-weight="bold">TARGET VALIDATION METRIC:</text>
+      <text x="45" y="472" font-family="'Inter', sans-serif" font-size="13" fill="#ffffff">R² ≥ 0.85 on 5-fold spatial cross-validation</text>
+    </g>
+
+    <!-- Card 2: FLEX-EX (Droplets) -->
+    <g transform="translate(560, 0)">
+      <rect width="520" height="520" rx="12" fill="url(#cyanCard)" stroke="#00e5ff" stroke-opacity="0.4" stroke-width="2"/>
+      
+      <!-- Top Badge -->
+      <rect x="30" y="30" width="150" height="28" rx="4" fill="#00e5ff" fill-opacity="0.2"/>
+      <text x="105" y="49" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" fill="#00e5ff" text-anchor="middle">LIQUID DROPLETS</text>
+      
+      <text x="30" y="95" font-family="'Orbitron', sans-serif" font-size="28" font-weight="bold" fill="#ffffff">FLEX-EX</text>
+      <text x="30" y="125" font-family="'Inter', sans-serif" font-size="15" fill="#00e5ff" font-weight="600">Extinction Boundary Classifier</text>
+      <line x1="30" y1="145" x2="490" y2="145" stroke="#00e5ff" stroke-opacity="0.2"/>
+
+      <text x="30" y="180" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">FLIGHT DATASET:</text>
+      <text x="30" y="202" font-family="'Inter', sans-serif" font-size="14" fill="#ffffff">NASA FLEX (Flame Extinction Experiment)</text>
+
+      <text x="30" y="240" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">PHYSICAL TARGET:</text>
+      <text x="30" y="262" font-family="'Inter', sans-serif" font-size="14" fill="#ffffff">Extinction diameter &amp; burning rate K (mm²/s)</text>
+
+      <text x="30" y="300" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">INPUT FEATURES:</text>
+      <text x="30" y="322" font-family="'Inter', sans-serif" font-size="14" fill="#cbd5e1">• Initial droplet diameter d₀ (mm)<br/>• Alkane fuel type (heptane, decane)<br/>• Ambient pressure (0.5 – 1.0 atm)<br/>• Inert diluent (N₂ / CO₂ ratio)</text>
+
+      <rect x="30" y="420" width="460" height="70" rx="6" fill="#060913" stroke="#52c41a" stroke-opacity="0.3"/>
+      <text x="45" y="448" font-family="'JetBrains Mono', monospace" font-size="12" fill="#52c41a" font-weight="bold">TARGET VALIDATION METRIC:</text>
+      <text x="45" y="472" font-family="'Inter', sans-serif" font-size="13" fill="#ffffff">ROC-AUC ≥ 0.88 for extinction vs sustained flame</text>
+    </g>
+
+    <!-- Card 3: BASS-RG (Solid Fuels) -->
+    <g transform="translate(1120, 0)">
+      <rect width="520" height="520" rx="12" fill="url(#cyanCard)" stroke="#ffb300" stroke-opacity="0.5" stroke-width="2"/>
+      
+      <!-- Top Badge -->
+      <rect x="30" y="30" width="140" height="28" rx="4" fill="#ffb300" fill-opacity="0.2"/>
+      <text x="100" y="49" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" fill="#ffb300" text-anchor="middle">SOLID FUELS</text>
+      
+      <text x="30" y="95" font-family="'Orbitron', sans-serif" font-size="28" font-weight="bold" fill="#ffffff">BASS-RG</text>
+      <text x="30" y="125" font-family="'Inter', sans-serif" font-size="15" fill="#ffb300" font-weight="600">Regime Classifier (Conditional)</text>
+      <line x1="30" y1="145" x2="490" y2="145" stroke="#ffb300" stroke-opacity="0.3"/>
+
+      <text x="30" y="180" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">FLIGHT DATASET:</text>
+      <text x="30" y="202" font-family="'Inter', sans-serif" font-size="14" fill="#ffffff">NASA BASS-II (Burning &amp; Suppression Solids)</text>
+
+      <text x="30" y="240" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">PHYSICAL TARGET:</text>
+      <text x="30" y="262" font-family="'Inter', sans-serif" font-size="14" fill="#ffffff">Quenching vs Steady Flame vs Transition</text>
+
+      <text x="30" y="300" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">INPUT FEATURES:</text>
+      <text x="30" y="322" font-family="'Inter', sans-serif" font-size="14" fill="#cbd5e1">• Sample geometry (rod diameter, flat sheet)<br/>• PMMA / Cotton / Nomex fuel type<br/>• Forced flow velocity (0 – 35 cm/s)<br/>• Oxygen mole fraction (16% – 25%)</text>
+
+      <rect x="30" y="420" width="460" height="70" rx="6" fill="#060913" stroke="#ffb300" stroke-opacity="0.5"/>
+      <text x="45" y="448" font-family="'JetBrains Mono', monospace" font-size="12" fill="#ffb300" font-weight="bold">CONDITIONAL STATUS DISCLOSURE:</text>
+      <text x="45" y="472" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1">*Trained only if extracted labels meet quality audit</text>
+    </g>
+  </g>
+
+  <!-- Bottom Epistemic Callout -->
+  <g transform="translate(960, 840)">
+    <rect x="-700" y="0" width="1400" height="70" rx="8" fill="#080e1c" stroke="#00e5ff" stroke-opacity="0.3"/>
+    <text x="0" y="32" font-family="'Inter', sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">
+      EPISTEMIC BOUNDARY: IF NO MODEL APPLIES, FLARE-X RETURNS RAW NASA EVIDENCE INSTEAD OF GUESSING
+    </text>
+    <text x="0" y="54" font-family="'JetBrains Mono', monospace" font-size="13" fill="#64748b" text-anchor="middle">
+      PREVENTS DANGEROUS OUT-OF-DISTRIBUTION CROSS-OVER EXTRAPOLATION BETWEEN PHYSICAL REGIMES
+    </text>
+  </g>
+
+  <!-- Lower Border Safe Zone Indicator -->
+  <rect x="120" y="1020" width="1680" height="2" fill="#00e5ff" opacity="0.3"/>
+  <text x="960" y="1048" font-family="'JetBrains Mono', monospace" font-size="13" fill="#475569" text-anchor="middle">
+    RESEARCH PROTOTYPE ARCHITECTURE · RIGOROUS PHYSICAL SCOPING · NASA SPACE APPS 2026
+  </text>
+</svg>

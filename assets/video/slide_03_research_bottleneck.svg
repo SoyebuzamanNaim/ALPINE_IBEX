@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#0e172e"/>
+      <stop offset="60%" stop-color="#060913"/>
+      <stop offset="100%" stop-color="#020408"/>
+    </radialGradient>
+    <linearGradient id="redCutGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff4d4f" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#ff4d4f"/>
+      <stop offset="100%" stop-color="#ff4d4f" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#bgGlow)"/>
+
+  <!-- Top Telemetry Header -->
+  <text x="120" y="80" font-family="'JetBrains Mono', monospace" font-size="14" fill="#00e5ff" letter-spacing="4">
+    // PROBLEM SPACE ANALYSIS · BLOCK 2: WHY [0:42–1:38]
+  </text>
+  <text x="1800" y="80" font-family="'JetBrains Mono', monospace" font-size="14" fill="#64748b" text-anchor="end">
+    RESEARCH BOTTLENECK · EVIDENCE FRAGMENTATION
+  </text>
+
+  <!-- Main Headline Banner -->
+  <g transform="translate(960, 150)">
+    <text x="0" y="0" font-family="'Orbitron', sans-serif" font-size="34" font-weight="900" fill="#8899b8" text-anchor="middle" letter-spacing="3">
+      NASA HAS DECADES OF COMBUSTION DATA.
+    </text>
+    <text x="0" y="45" font-family="'Orbitron', sans-serif" font-size="44" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="2">
+      THE CRITICAL PROBLEM: <tspan fill="#ff4d4f">WHICH EXPERIMENT ACTUALLY APPLIES?</tspan>
+    </text>
+  </g>
+
+  <!-- Left: The 5 Fragmented Research Silos -->
+  <g transform="translate(140, 260)">
+    <rect width="780" height="420" rx="12" fill="#0c1326" stroke="#00e5ff" stroke-opacity="0.25" stroke-width="1.5"/>
+    <text x="40" y="45" font-family="'Orbitron', sans-serif" font-size="18" font-weight="bold" fill="#00e5ff">
+      FRAGMENTED FLIGHT CAMPAIGNS &amp; REGIMES
+    </text>
+    <text x="40" y="70" font-family="'Inter', sans-serif" font-size="13" fill="#8899b8">
+      Each campaign investigated distinct physical regimes under varying conditions:
+    </text>
+
+    <!-- Silo 1: Solid Fuels -->
+    <g transform="translate(40, 95)">
+      <rect width="700" height="52" rx="6" fill="#111a33" stroke="#64748b" stroke-opacity="0.3"/>
+      <text x="20" y="32" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" fill="#ffffff">SOLID MATERIALS</text>
+      <text x="210" y="32" font-family="'Inter', sans-serif" font-size="13" fill="#00e5ff">BASS-II (Burning &amp; Suppression of Solids)</text>
+      <text x="560" y="32" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">PMMA, Cotton, Nomex</text>
+    </g>
+
+    <!-- Silo 2: Droplet Combustion -->
+    <g transform="translate(40, 157)">
+      <rect width="700" height="52" rx="6" fill="#111a33" stroke="#64748b" stroke-opacity="0.3"/>
+      <text x="20" y="32" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" fill="#ffffff">LIQUID DROPLETS</text>
+      <text x="210" y="32" font-family="'Inter', sans-serif" font-size="13" fill="#00e5ff">FLEX (Flame Extinction Experiment)</text>
+      <text x="560" y="32" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">Decane, Heptane Drops</text>
+    </g>
+
+    <!-- Silo 3: Gaseous Jets -->
+    <g transform="translate(40, 219)">
+      <rect width="700" height="52" rx="6" fill="#111a33" stroke="#64748b" stroke-opacity="0.3"/>
+      <text x="20" y="32" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" fill="#ffffff">GASEOUS FLAMES</text>
+      <text x="210" y="32" font-family="'Inter', sans-serif" font-size="13" fill="#00e5ff">SPICE (Smoke Point In Co-flow)</text>
+      <text x="560" y="32" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">Methane, Ethylene Jets</text>
+    </g>
+
+    <!-- Silo 4: Spacecraft Scale -->
+    <g transform="translate(40, 281)">
+      <rect width="700" height="52" rx="6" fill="#111a33" stroke="#64748b" stroke-opacity="0.3"/>
+      <text x="20" y="32" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" fill="#ffffff">LARGE-SCALE FIRE</text>
+      <text x="210" y="32" font-family="'Inter', sans-serif" font-size="13" fill="#00e5ff">SAFFIRE-I through VI (Cygnus Vehicles)</text>
+      <text x="560" y="32" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">Meter-Scale Fabrics</text>
+    </g>
+
+    <!-- Silo 5: Smoke Detection -->
+    <g transform="translate(40, 343)">
+      <rect width="700" height="52" rx="6" fill="#111a33" stroke="#64748b" stroke-opacity="0.3"/>
+      <text x="20" y="32" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" fill="#ffffff">SMOKE DETECTION</text>
+      <text x="210" y="32" font-family="'Inter', sans-serif" font-size="13" fill="#00e5ff">SAME (Spacecraft Aerosol Measurement)</text>
+      <text x="560" y="32" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">Aerosol Particulates</text>
+    </g>
+  </g>
+
+  <!-- Right: Multi-Parameter Dimension Complexity -->
+  <g transform="translate(980, 260)">
+    <rect width="800" height="420" rx="12" fill="#0c1326" stroke="#00e5ff" stroke-opacity="0.25" stroke-width="1.5"/>
+    <text x="40" y="45" font-family="'Orbitron', sans-serif" font-size="18" font-weight="bold" fill="#00e5ff">
+      COUPLED PHYSICAL TRANSPORT PARAMETERS
+    </text>
+    <text x="40" y="70" font-family="'Inter', sans-serif" font-size="13" fill="#8899b8">
+      A fire query requires multidimensional physical congruence across five variables:
+    </text>
+
+    <!-- 5 Parameters -->
+    <g transform="translate(40, 105)">
+      <!-- O2 -->
+      <g transform="translate(0, 0)">
+        <rect width="720" height="48" rx="6" fill="#111c38"/>
+        <text x="20" y="30" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="bold" fill="#00e5ff">1. O₂ CONCENTRATION</text>
+        <text x="260" y="30" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1">15.0% to 30.0% (Exploration Atmospheres)</text>
+      </g>
+      <!-- Pressure -->
+      <g transform="translate(0, 58)">
+        <rect width="720" height="48" rx="6" fill="#111c38"/>
+        <text x="20" y="30" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="bold" fill="#00e5ff">2. AMBIENT PRESSURE</text>
+        <text x="260" y="30" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1">56 kPa (Lunar 8.2 psi) to 101.3 kPa (Standard 1.0 atm)</text>
+      </g>
+      <!-- Airflow -->
+      <g transform="translate(0, 116)">
+        <rect width="720" height="48" rx="6" fill="#111c38"/>
+        <text x="20" y="30" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="bold" fill="#00e5ff">3. FORCED AIRFLOW</text>
+        <text x="260" y="30" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1">0 to 40 cm/s (ISS ECLSS ventilation limits)</text>
+      </g>
+      <!-- Geometry -->
+      <g transform="translate(0, 174)">
+        <rect width="720" height="48" rx="6" fill="#111c38"/>
+        <text x="20" y="30" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="bold" fill="#00e5ff">4. SAMPLE GEOMETRY</text>
+        <text x="260" y="30" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1">Cylindrical rods, flat sheets, isolated droplets, co-flow ducts</text>
+      </g>
+      <!-- Fuel Material -->
+      <g transform="translate(0, 232)">
+        <rect width="720" height="48" rx="6" fill="#111c38"/>
+        <text x="20" y="30" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="bold" fill="#00e5ff">5. FUEL CHEMISTRY</text>
+        <text x="260" y="30" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1">Thermoplastics (PMMA), Nomex, pure hydrocarbons, alkanes</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Bottom Hero Insight: The Great Distinction -->
+  <g transform="translate(960, 750)">
+    <rect x="-780" y="0" width="1560" height="180" rx="12" fill="#070d1c" stroke="#ff4d4f" stroke-opacity="0.5" stroke-width="2"/>
+    
+    <text x="-400" y="55" font-family="'Orbitron', sans-serif" font-size="24" font-weight="bold" fill="#8899b8" text-anchor="middle">
+      CONVENTIONAL DOCUMENT SEARCH
+    </text>
+    <text x="-400" y="90" font-family="'Inter', sans-serif" font-size="16" fill="#a0aec0" text-anchor="middle">
+      Finds matching keywords in 300-page PDFs
+    </text>
+    <text x="-400" y="125" font-family="'JetBrains Mono', monospace" font-size="13" fill="#ff4d4f" text-anchor="middle">
+      ✗ Ignores transport physics &amp; regime boundaries
+    </text>
+
+    <!-- Big Inequality Symbol -->
+    <text x="0" y="105" font-family="'Orbitron', sans-serif" font-size="70" font-weight="900" fill="#ff4d4f" text-anchor="middle">
+      ≠
+    </text>
+
+    <text x="400" y="55" font-family="'Orbitron', sans-serif" font-size="24" font-weight="bold" fill="#00e5ff" text-anchor="middle">
+      PHYSICALLY COMPARABLE EXPERIMENT
+    </text>
+    <text x="400" y="90" font-family="'Inter', sans-serif" font-size="16" fill="#ffffff" text-anchor="middle">
+      Matches Damköhler number, flow regime &amp; geometry
+    </text>
+    <text x="400" y="125" font-family="'JetBrains Mono', monospace" font-size="13" fill="#52c41a" text-anchor="middle">
+      ✓ Preserves NASA empirical scientific context
+    </text>
+  </g>
+
+  <!-- Lower Border Safe Zone Indicator -->
+  <rect x="120" y="1020" width="1680" height="2" fill="#00e5ff" opacity="0.3"/>
+  <text x="960" y="1048" font-family="'JetBrains Mono', monospace" font-size="13" fill="#475569" text-anchor="middle">
+    CORE PHILOSOPHY: FIND, COMPARE, AND INTERPRET THE RIGHT EXPERIMENTS WITHOUT LOSING SCIENTIFIC CONTEXT
+  </text>
+</svg>

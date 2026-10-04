@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#0c162e"/>
+      <stop offset="60%" stop-color="#060913"/>
+      <stop offset="100%" stop-color="#020408"/>
+    </radialGradient>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111c38"/>
+      <stop offset="100%" stop-color="#090f20"/>
+    </linearGradient>
+    <linearGradient id="cyanLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00e5ff" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#bgGlow)"/>
+
+  <!-- Top Header Banner -->
+  <g transform="translate(960, 90)">
+    <text x="0" y="0" font-family="'JetBrains Mono', monospace" font-size="14" fill="#00e5ff" letter-spacing="4" text-anchor="middle">
+      NASA SPACE APPS CHALLENGE 2026 · TEAM IDENTIFICATION [0:17–0:42]
+    </text>
+    <text x="0" y="55" font-family="'Orbitron', sans-serif" font-size="46" font-weight="900" fill="#ffffff" letter-spacing="6" text-anchor="middle">
+      FLARE-X
+    </text>
+    <text x="0" y="95" font-family="'Inter', sans-serif" font-size="20" font-weight="600" fill="#00e5ff" letter-spacing="2" text-anchor="middle">
+      NASA MICROGRAVITY FIRE INTELLIGENCE
+    </text>
+    <line x1="-500" y1="120" x2="500" y2="120" stroke="url(#cyanLine)" stroke-width="2"/>
+  </g>
+
+  <!-- Team Grid (6 Members: 2 Rows of 3) -->
+  <g transform="translate(180, 260)">
+    <!-- Member 1: Saber Hossain Mahim -->
+    <g transform="translate(0, 0)">
+      <rect width="480" height="240" rx="12" fill="url(#cardGrad)" stroke="#00e5ff" stroke-opacity="0.3" stroke-width="1.5"/>
+      <rect x="25" y="25" width="60" height="60" rx="30" fill="#00e5ff" fill-opacity="0.15" stroke="#00e5ff" stroke-width="1.5"/>
+      <text x="55" y="62" font-family="'Orbitron', sans-serif" font-size="22" font-weight="bold" fill="#00e5ff" text-anchor="middle">SM</text>
+      
+      <text x="105" y="50" font-family="'Orbitron', sans-serif" font-size="20" font-weight="bold" fill="#ffffff">Saber Hossain Mahim</text>
+      <rect x="105" y="65" width="230" height="24" rx="4" fill="#00e5ff" fill-opacity="0.15"/>
+      <text x="115" y="82" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" fill="#00e5ff">PRODUCT &amp; SCIENCE LEAD</text>
+      
+      <text x="30" y="130" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1" font-weight="500">Domain Science Architecture</text>
+      <text x="30" y="152" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• Microgravity combustion physics mapping</text>
+      <text x="30" y="172" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• Challenge scope &amp; scientific defensibility</text>
+      <text x="30" y="192" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• Primary voiceover narration &amp; concept design</text>
+    </g>
+
+    <!-- Member 2: Ismail Hossen -->
+    <g transform="translate(540, 0)">
+      <rect width="480" height="240" rx="12" fill="url(#cardGrad)" stroke="#00e5ff" stroke-opacity="0.3" stroke-width="1.5"/>
+      <rect x="25" y="25" width="60" height="60" rx="30" fill="#00e5ff" fill-opacity="0.15" stroke="#00e5ff" stroke-width="1.5"/>
+      <text x="55" y="62" font-family="'Orbitron', sans-serif" font-size="22" font-weight="bold" fill="#00e5ff" text-anchor="middle">IH</text>
+      
+      <text x="105" y="50" font-family="'Orbitron', sans-serif" font-size="20" font-weight="bold" fill="#ffffff">Ismail Hossen</text>
+      <rect x="105" y="65" width="210" height="24" rx="4" fill="#00e5ff" fill-opacity="0.15"/>
+      <text x="115" y="82" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" fill="#00e5ff">DATA &amp; EVIDENCE LEAD</text>
+      
+      <text x="30" y="130" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1" font-weight="500">NASA Archive &amp; Ingestion</text>
+      <text x="30" y="152" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• 23 NASA PSI investigations ingestion pipeline</text>
+      <text x="30" y="172" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• 145 spaceflight tests verification &amp; Parquet storage</text>
+      <text x="30" y="192" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• Data lineage &amp; DOI provenance traceability</text>
+    </g>
+
+    <!-- Member 3: Mahzabin Muntaha -->
+    <g transform="translate(1080, 0)">
+      <rect width="480" height="240" rx="12" fill="url(#cardGrad)" stroke="#00e5ff" stroke-opacity="0.3" stroke-width="1.5"/>
+      <rect x="25" y="25" width="60" height="60" rx="30" fill="#00e5ff" fill-opacity="0.15" stroke="#00e5ff" stroke-width="1.5"/>
+      <text x="55" y="62" font-family="'Orbitron', sans-serif" font-size="22" font-weight="bold" fill="#00e5ff" text-anchor="middle">MM</text>
+      
+      <text x="105" y="50" font-family="'Orbitron', sans-serif" font-size="20" font-weight="bold" fill="#ffffff">Mahzabin Muntaha</text>
+      <rect x="105" y="65" width="225" height="24" rx="4" fill="#00e5ff" fill-opacity="0.15"/>
+      <text x="115" y="82" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" fill="#00e5ff">ML &amp; VALIDATION LEAD</text>
+      
+      <text x="30" y="130" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1" font-weight="500">Quantitative Modeling &amp; Guards</text>
+      <text x="30" y="152" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• Experimental Envelope Guard convex hull</text>
+      <text x="30" y="172" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• SPICE-FL, FLEX-EX &amp; BASS-RG models</text>
+      <text x="30" y="192" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• Epistemic abstention criteria &amp; metrics</text>
+    </g>
+
+    <!-- Member 4: Abdullah Al Masum -->
+    <g transform="translate(0, 270)">
+      <rect width="480" height="240" rx="12" fill="url(#cardGrad)" stroke="#00e5ff" stroke-opacity="0.3" stroke-width="1.5"/>
+      <rect x="25" y="25" width="60" height="60" rx="30" fill="#00e5ff" fill-opacity="0.15" stroke="#00e5ff" stroke-width="1.5"/>
+      <text x="55" y="62" font-family="'Orbitron', sans-serif" font-size="22" font-weight="bold" fill="#00e5ff" text-anchor="middle">AM</text>
+      
+      <text x="105" y="50" font-family="'Orbitron', sans-serif" font-size="20" font-weight="bold" fill="#ffffff">Abdullah Al Masum</text>
+      <rect x="105" y="65" width="200" height="24" rx="4" fill="#00e5ff" fill-opacity="0.15"/>
+      <text x="115" y="82" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" fill="#00e5ff">AI SYSTEMS LEAD</text>
+      
+      <text x="30" y="130" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1" font-weight="500">Retrieval &amp; Agent Engine</text>
+      <text x="30" y="152" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• BM25 passage index + Gower similarity</text>
+      <text x="30" y="172" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• Multi-agent orchestration &amp; JSON schema</text>
+      <text x="30" y="192" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• FastAPI backend endpoints &amp; state machine</text>
+    </g>
+
+    <!-- Member 5: Nahid -->
+    <g transform="translate(540, 270)">
+      <rect width="480" height="240" rx="12" fill="url(#cardGrad)" stroke="#00e5ff" stroke-opacity="0.3" stroke-width="1.5"/>
+      <rect x="25" y="25" width="60" height="60" rx="30" fill="#00e5ff" fill-opacity="0.15" stroke="#00e5ff" stroke-width="1.5"/>
+      <text x="55" y="62" font-family="'Orbitron', sans-serif" font-size="22" font-weight="bold" fill="#00e5ff" text-anchor="middle">NH</text>
+      
+      <text x="105" y="50" font-family="'Orbitron', sans-serif" font-size="20" font-weight="bold" fill="#ffffff">Nahid</text>
+      <rect x="105" y="65" width="285" height="24" rx="4" fill="#00e5ff" fill-opacity="0.15"/>
+      <text x="115" y="82" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" fill="#00e5ff">FRONTEND &amp; VISUALIZATION LEAD</text>
+      
+      <text x="30" y="130" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1" font-weight="500">Mission UI &amp; Interactive Graphics</text>
+      <text x="30" y="152" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• 2D Experimental Support Map coordinate system</text>
+      <text x="30" y="172" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• Real-time counterfactual oxygen sweep slider</text>
+      <text x="30" y="192" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• Phase 25 single-page web app engineering</text>
+    </g>
+
+    <!-- Member 6: Soyebuzaman Naim -->
+    <g transform="translate(1080, 270)">
+      <rect width="480" height="240" rx="12" fill="url(#cardGrad)" stroke="#00e5ff" stroke-opacity="0.3" stroke-width="1.5"/>
+      <rect x="25" y="25" width="60" height="60" rx="30" fill="#00e5ff" fill-opacity="0.15" stroke="#00e5ff" stroke-width="1.5"/>
+      <text x="55" y="62" font-family="'Orbitron', sans-serif" font-size="22" font-weight="bold" fill="#00e5ff" text-anchor="middle">SN</text>
+      
+      <text x="105" y="50" font-family="'Orbitron', sans-serif" font-size="20" font-weight="bold" fill="#ffffff">Soyebuzaman Naim</text>
+      <rect x="105" y="65" width="270" height="24" rx="4" fill="#00e5ff" fill-opacity="0.15"/>
+      <text x="115" y="82" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" fill="#00e5ff">MEDIA &amp; SUBMISSION LEAD</text>
+      
+      <text x="30" y="130" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1" font-weight="500">Visual Media &amp; Prescreening Ops</text>
+      <text x="30" y="152" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• 240-second video storyboard, assets &amp; render</text>
+      <text x="30" y="172" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• Prescreening compliance audit &amp; packaging</text>
+      <text x="30" y="192" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">• Submission portal documentation &amp; verification</text>
+    </g>
+  </g>
+
+  <!-- Bottom Legal & Mandate Banner -->
+  <g transform="translate(960, 840)">
+    <rect x="-700" y="0" width="1400" height="70" rx="8" fill="#090f20" stroke="#00e5ff" stroke-opacity="0.2"/>
+    <text x="0" y="32" font-family="'Inter', sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">
+      MISSION OBJECTIVE: TRANSFORM SCATTERED NASA COMBUSTION EXPERIMENTS INTO EVIDENCE-BACKED SAFETY INTELLIGENCE
+    </text>
+    <text x="0" y="54" font-family="'JetBrains Mono', monospace" font-size="13" fill="#64748b" text-anchor="middle">
+      RESEARCH DECISION-SUPPORT PROTOTYPE · NOT FOR AUTONOMOUS LIFE-SAFETY CONTROL · NASA SPACE APPS 2026
+    </text>
+  </g>
+
+  <!-- Lower Border Safe Zone Indicator -->
+  <rect x="120" y="1020" width="1680" height="2" fill="#00e5ff" opacity="0.3"/>
+  <text x="960" y="1048" font-family="'JetBrains Mono', monospace" font-size="13" fill="#475569" text-anchor="middle">
+    REGISTERED SUBMISSION TEAM · BANGLADESH REGION · OCTOBER 2026
+  </text>
+</svg>

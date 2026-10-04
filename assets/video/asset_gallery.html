@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FLARE-X — Video Visual Asset Pack Gallery (1080p Deck)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #03050a;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 16px 24px;
+      background: #060913;
+      border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ffffff;
+    }
+    .brand-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #00e5ff;
+      background: rgba(0, 229, 255, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 229, 255, 0.3);
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn {
+      background: #111a30;
+      color: #00e5ff;
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover {
+      background: rgba(0, 229, 255, 0.2);
+      border-color: #00e5ff;
+      color: #ffffff;
+    }
+    .btn.active {
+      background: #00e5ff;
+      color: #060913;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+      gap: 20px;
+    }
+    .presentation-container {
+      width: 100%;
+      max-width: 1280px;
+      aspect-ratio: 16 / 9;
+      background: #000000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 229, 255, 0.15);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      position: relative;
+    }
+    .slide-viewer {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .slide-meta-panel {
+      width: 100%;
+      max-width: 1280px;
+      background: #0a0f1d;
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 20px;
+    }
+    .slide-indicator {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #00e5ff;
+    }
+    .slide-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .slide-title-text {
+      font-weight: 700;
+      font-size: 15px;
+      color: #ffffff;
+    }
+    .slide-cue-text {
+      font-size: 13px;
+      color: #8899b8;
+      font-style: italic;
+    }
+    .time-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffb300;
+      background: rgba(255, 179, 0, 0.1);
+      border: 1px solid rgba(255, 179, 0, 0.3);
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+    .filmstrip {
+      width: 100%;
+      max-width: 1280px;
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .thumb-card {
+      background: #080d1a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .thumb-card:hover {
+      border-color: #00e5ff;
+      transform: translateY(-2px);
+    }
+    .thumb-card.active {
+      border-color: #00e5ff;
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
+    }
+    .thumb-img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      background: #000;
+    }
+    .thumb-label {
+      padding: 6px 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-align: center;
+      color: #8899b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .thumb-card.active .thumb-label {
+      color: #00e5ff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-group">
+      <div class="brand-title">FLARE-X</div>
+      <div class="brand-tag">VIDEO ASSET PACK GALLERY · 1080P DECK</div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="prevBtn" title="Previous Slide (Left Arrow)">◀ PREV</button>
+      <button class="btn" id="nextBtn" title="Next Slide (Right Arrow / Space)">NEXT ▶</button>
+      <button class="btn" id="fullscreenBtn" title="Toggle 16:9 Fullscreen">⛶ FULLSCREEN</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="presentation-container" id="presentationContainer">
+      <img id="activeSlide" class="slide-viewer" src="slide_01_opener_microgravity.svg" alt="Active Slide Viewport">
+    </div>
+
+    <div class="slide-meta-panel">
+      <div class="slide-indicator" id="slideIndexText">SLIDE 01 / 09</div>
+      <div class="slide-details">
+        <div class="slide-title-text" id="slideTitle">Hook &amp; Microgravity Flame Physics</div>
+        <div class="slide-cue-text" id="slideCue">"Fire does not behave in microgravity the way it does on Earth..."</div>
+      </div>
+      <div class="time-badge" id="slideTimestamp">0:00 – 0:17</div>
+    </div>
+
+    <div class="filmstrip" id="filmstrip">
+      <!-- 9 Thumbnails generated via JS -->
+    </div>
+  </main>
+
+  <script>
+    const slides = [
+      {
+        id: "slide_01_opener_microgravity.svg",
+        title: "Hook & Microgravity Flame Physics",
+        time: "0:00 – 0:17",
+        cue: "“Fire does not behave in microgravity the way it does on Earth...”"
+      },
+      {
+        id: "slide_02_team_roster.svg",
+        title: "Team FLARE-X Roster & Project Identity",
+        time: "0:17 – 0:42",
+        cue: "“We are Team FLARE-X. I’m Saber Hossain Mahim, joined by Ismail, Mahzabin, Abdullah, Nahid, and Soyeb...”"
+      },
+      {
+        id: "slide_03_research_bottleneck.svg",
+        title: "The Research Bottleneck & Multidimensional Silos",
+        time: "0:42 – 1:38",
+        cue: "“The problem is not that NASA lacks data. The problem is knowing which experiment actually applies...”"
+      },
+      {
+        id: "slide_04_pipeline_routing.svg",
+        title: "6-Step Closed-Loop Pipeline & Family Routing",
+        time: "1:38 – 2:10",
+        cue: "“FLARE-X is designed to bridge that gap. A user describes a scenario in natural language...”"
+      },
+      {
+        id: "slide_05_model_specialization.svg",
+        title: "Family-Specialized Quantitative Models",
+        time: "2:10 – 2:26",
+        cue: "“FLARE-X then routes supported questions to a compatible quantitative model: SPICE, FLEX, BASS-II...”"
+      },
+      {
+        id: "slide_06_envelope_guard.svg",
+        title: "Experimental Envelope Guard Climax",
+        time: "2:26 – 2:35",
+        cue: "“Before presenting a prediction, an Experimental Envelope Guard checks... FLARE-X knows when not to predict.”"
+      },
+      {
+        id: "slide_07_support_map_sweep.svg",
+        title: "2D Support Map & Counterfactual Sweep",
+        time: "2:35 – 3:30",
+        cue: "“Now change oxygen while holding the other variables constant... The prediction is withheld.”"
+      },
+      {
+        id: "slide_08_provenance_hierarchy.svg",
+        title: "3-Tier Provenance & Epistemic Hierarchy",
+        time: "3:30 – 3:43",
+        cue: "“Every conclusion carries provenance: direct NASA observations, model inference, and AI synthesis remain distinct.”"
+      },
+      {
+        id: "slide_09_closing_end_card.svg",
+        title: "Final Mission End Card",
+        time: "3:43 – 3:52",
+        cue: "“FLARE-X. Evidence-bounded AI for microgravity fire science.”"
+      }
+    ];
+
+    let currentIndex = 0;
+    const activeSlide = document.getElementById("activeSlide");
+    const slideIndexText = document.getElementById("slideIndexText");
+    const slideTitle = document.getElementById("slideTitle");
+    const slideCue = document.getElementById("slideCue");
+    const slideTimestamp = document.getElementById("slideTimestamp");
+    const filmstrip = document.getElementById("filmstrip");
+    const container = document.getElementById("presentationContainer");
+
+    function renderFilmstrip() {
+      filmstrip.innerHTML = "";
+      slides.forEach((slide, idx) => {
+        const card = document.createElement("div");
+        card.className = "thumb-card" + (idx === currentIndex ? " active" : "");
+        card.innerHTML = `
+          <img class="thumb-img" src="${slide.id}" alt="Thumbnail ${idx + 1}">
+          <div class="thumb-label">${idx + 1}. ${slide.title.split(" ")[0]}</div>
+        `;
+        card.onclick = () => goToSlide(idx);
+        filmstrip.appendChild(card);
+      });
+    }
+
+    function updateSlide() {
+      const slide = slides[currentIndex];
+      activeSlide.src = slide.id;
+      slideIndexText.textContent = `SLIDE 0${currentIndex + 1} / 09`;
+      slideTitle.textContent = slide.title;
+      slideCue.textContent = slide.cue;
+      slideTimestamp.textContent = slide.time;
+
+      const cards = filmstrip.querySelectorAll(".thumb-card");
+      cards.forEach((c, idx) => {
+        if (idx === currentIndex) c.classList.add("active");
+        else c.classList.remove("active");
+      });
+    }
+
+    function goToSlide(idx) {
+      if (idx >= 0 && idx < slides.length) {
+        currentIndex = idx;
+        updateSlide();
+      }
+    }
+
+    document.getElementById("prevBtn").onclick = () => {
+      if (currentIndex > 0) goToSlide(currentIndex - 1);
+    };
+
+    document.getElementById("nextBtn").onclick = () => {
+      if (currentIndex < slides.length - 1) goToSlide(currentIndex + 1);
+    };
+
+    document.getElementById("fullscreenBtn").onclick = () => {
+      if (!document.fullscreenElement) {
+        container.requestFullscreen().catch(err => alert("Fullscreen error: " + err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    };
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        if (currentIndex < slides.length - 1) goToSlide(currentIndex + 1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        if (currentIndex > 0) goToSlide(currentIndex - 1);
+      } else if (e.key >= "1" && e.key <= "9") {
+        goToSlide(parseInt(e.key) - 1);
+      }
+    });
+
+    renderFilmstrip();
+    updateSlide();
+  </script>
+</body>
+</html>
