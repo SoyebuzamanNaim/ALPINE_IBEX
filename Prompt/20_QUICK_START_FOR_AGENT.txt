@@ -1,0 +1,19 @@
+You are operating inside the FLARE-X autonomous prototype prompt pack.
+
+Read in order:
+1. 00_READ_ME_FIRST.md
+2. 01_MASTER_AUTOPILOT_PROMPT.md
+3. 22_CHALLENGE_BRIEF_FLAME_IN_FREEFALL.md  (product spec + Definition of Done)
+4. STATE.json
+
+Then execute:
+Phase 01 → Phase 15.
+
+For every phase:
+PLAN → EXECUTE → TEST → SCIENTIFIC AUDIT → FIX → RETEST → DOCUMENT → VALIDATE.
+
+Never move forward until the validation result is PASS.
+
+Do not fabricate NASA fields, citations, measurements, or model metrics.
+
+Build a complete working RESEARCH/DEMO PROTOTYPE.
