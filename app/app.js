@@ -1,6 +1,7 @@
 /**
  * FLARE-X Aerospace Mission Control Frontend Application
  * Interacts with FastAPI backend or operates in resilient client-side fallback mode.
+ * Grounded in 145 NASA spaceflight experiments (BASS, BASS-II, DARTFire, Exploration).
  */
 
 // API Base URL (auto-detect if served by FastAPI, else fallback to localhost:8000)
@@ -30,6 +31,14 @@ const MATERIAL_SPECS = {
   'Delrin': { samples: 5, o2: [15.0, 21.0], flow: [5.0, 10.0], p: [101.3, 101.3] }
 };
 
+const FUEL_PROPERTIES = {
+  'PMMA': { desc: 'Thermally thick / non-charring acrylic', prop: 'Density: 1.18 g/cm³ · C₅H₈O₂' },
+  'Cellulose': { desc: 'Thermally thin ashless filter paper', prop: 'Density: 1.50 g/cm³ · C₆H₁₀O₅' },
+  'Cotton': { desc: 'Thin woven porous fabric specimen', prop: 'Density: 1.54 g/cm³ · Natural' },
+  'Nomex': { desc: 'Flame-resistant aramid synthetic polymer', prop: 'Density: 1.38 g/cm³ · Aramid' },
+  'Delrin': { desc: 'Polyoxymethylene engineering plastic', prop: 'Density: 1.41 g/cm³ · POM' }
+};
+
 // Smooth Tabular Number Ticker (Emil Kowalski Spec)
 function animateNumber(element, endVal, suffix = '', duration = 200) {
   if (!element) return;
@@ -45,7 +54,6 @@ function animateNumber(element, endVal, suffix = '', duration = 200) {
   function step(currentTime) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    // Cubic ease-out: 1 - Math.pow(1 - progress, 3)
     const easeProgress = 1 - Math.pow(1 - progress, 3);
     const current = Math.round(startVal + delta * easeProgress);
     element.textContent = `${current}${suffix}`;
@@ -65,7 +73,7 @@ function startReticleLoop() {
   let lastTime = 0;
   function loop(now) {
     if (state.activeTab === 'view-scenario-lab' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      if (now - lastTime > 32) {
+      if (now - lastTime > 40) {
         lastTime = now;
         drawBoundaryCanvas();
       }
@@ -81,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSliders();
   setupPresets();
   setupNlpParser();
+  setupCanvasInteraction();
   setupSweepView();
   setupAtlasView();
   
@@ -89,11 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchBoundarySlice();
   loadDatasetsAndModel();
   startReticleLoop();
+  updateCoordHud();
 });
 
 // Tab Navigation
 function setupTabs() {
-  const tabs = document.querySelectorAll('.nav-tab');
+  const tabs = document.querySelectorAll('.ops-nav-btn, .nav-tab');
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       tabs.forEach(t => {
@@ -135,12 +145,14 @@ function setupSliders() {
   o2Slider.addEventListener('input', (e) => {
     state.oxygen_pct = parseFloat(e.target.value);
     document.getElementById('readout-o2').textContent = `${state.oxygen_pct.toFixed(1)} %`;
+    updateCoordHud();
     debounceEvaluation();
   });
 
   pSlider.addEventListener('input', (e) => {
     state.pressure_kpa = parseFloat(e.target.value);
     document.getElementById('readout-pressure').textContent = `${state.pressure_kpa.toFixed(1)} kPa`;
+    updateCoordHud();
     debounceEvaluation();
     debounceBoundarySlice();
   });
@@ -148,6 +160,7 @@ function setupSliders() {
   flowSlider.addEventListener('input', (e) => {
     state.flow_cm_s = parseFloat(e.target.value);
     document.getElementById('readout-flow').textContent = `${state.flow_cm_s.toFixed(1)} cm/s`;
+    updateCoordHud();
     debounceEvaluation();
   });
 
@@ -156,6 +169,15 @@ function setupSliders() {
     const spec = MATERIAL_SPECS[state.material];
     if (spec) {
       document.getElementById('mat-samples-badge').textContent = `${spec.samples} tests`;
+    }
+    const fuelProp = FUEL_PROPERTIES[state.material] || { desc: 'Solid fuel', prop: 'Microgravity' };
+    const specInfo = document.getElementById('fuel-spec-info');
+    if (specInfo) {
+      specInfo.innerHTML = `<span>${fuelProp.desc}</span><span class="spec-prop">${fuelProp.prop}</span>`;
+    }
+    const ribbonFuel = document.getElementById('ribbon-active-fuel');
+    if (ribbonFuel) {
+      ribbonFuel.textContent = `${state.material} (${fuelProp.desc.split('/')[0].trim()})`;
     }
     triggerScenarioEvaluation();
     fetchBoundarySlice();
@@ -176,19 +198,34 @@ function setupSliders() {
       state.oxygen_pct = 21.0;
       document.getElementById('readout-o2').textContent = '21.0 %';
     }
+    updateCoordHud();
     triggerScenarioEvaluation();
   });
 }
 
 // Preset Buttons
 function setupPresets() {
-  document.getElementById('preset-iss-standard').addEventListener('click', () => {
+  const pIss = document.getElementById('preset-iss-standard');
+  const pExp = document.getElementById('preset-exploration');
+  const pNear = document.getElementById('preset-near-extinction');
+
+  function clearPresetActives() {
+    [pIss, pExp, pNear].forEach(p => p && p.classList.remove('active-preset'));
+  }
+
+  pIss.addEventListener('click', () => {
+    clearPresetActives();
+    pIss.classList.add('active-preset');
     updateInputs(21.0, 101.3, 5.0, 'PMMA');
   });
-  document.getElementById('preset-exploration').addEventListener('click', () => {
+  pExp.addEventListener('click', () => {
+    clearPresetActives();
+    pExp.classList.add('active-preset');
     updateInputs(34.0, 56.5, 10.0, 'PMMA');
   });
-  document.getElementById('preset-near-extinction').addEventListener('click', () => {
+  pNear.addEventListener('click', () => {
+    clearPresetActives();
+    pNear.classList.add('active-preset');
     updateInputs(16.5, 101.3, 3.0, 'PMMA');
   });
 }
@@ -208,21 +245,90 @@ function updateInputs(o2, p, flow, mat) {
   document.getElementById('readout-pressure').textContent = `${p.toFixed(1)} kPa`;
   document.getElementById('readout-flow').textContent = `${flow.toFixed(1)} cm/s`;
 
+  updateCoordHud();
   triggerScenarioEvaluation();
   fetchBoundarySlice();
 }
 
-// Debounce Utility
+function updateCoordHud() {
+  const hud = document.getElementById('coord-hud-val');
+  if (hud) {
+    hud.textContent = `${state.oxygen_pct.toFixed(1)}% O₂ · ${state.flow_cm_s.toFixed(1)} cm/s · ${state.pressure_kpa.toFixed(1)} kPa`;
+  }
+}
+
+// Interactive Canvas Point & Drag Handler
+function setupCanvasInteraction() {
+  const canvas = document.getElementById('flammability-boundary-canvas');
+  if (!canvas) return;
+
+  let isDragging = false;
+
+  function probeFromEvent(e) {
+    if (!state.boundaryData) return;
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const padLeft = 70;
+    const padBottom = 45;
+    const padRight = 35;
+    const padTop = 35;
+    const plotW = rect.width - padLeft - padRight;
+    const plotH = rect.height - padTop - padBottom;
+
+    const b = state.boundaryData;
+    const o2Min = b.oxygen_range[0];
+    const o2Max = b.oxygen_range[1];
+    const flowMin = b.flow_range[0];
+    const flowMax = b.flow_range[1];
+
+    if (clickX < padLeft || clickX > padLeft + plotW || clickY < padTop || clickY > padTop + plotH) return;
+
+    const normX = Math.max(0, Math.min(1, (clickX - padLeft) / plotW));
+    const normY = Math.max(0, Math.min(1, (padTop + plotH - clickY) / plotH));
+
+    const newO2 = Math.round((o2Min + normX * (o2Max - o2Min)) * 10) / 10;
+    const newFlow = Math.round((flowMin + normY * (flowMax - flowMin)) * 10) / 10;
+
+    state.oxygen_pct = newO2;
+    state.flow_cm_s = newFlow;
+
+    const o2In = document.getElementById('input-o2');
+    const fIn = document.getElementById('input-flow');
+    if (o2In) o2In.value = newO2;
+    if (fIn) fIn.value = newFlow;
+
+    document.getElementById('readout-o2').textContent = `${newO2.toFixed(1)} %`;
+    document.getElementById('readout-flow').textContent = `${newFlow.toFixed(1)} cm/s`;
+
+    updateCoordHud();
+    debounceEvaluation();
+  }
+
+  canvas.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    probeFromEvent(e);
+  });
+  window.addEventListener('pointermove', (e) => {
+    if (isDragging) probeFromEvent(e);
+  });
+  window.addEventListener('pointerup', () => {
+    isDragging = false;
+  });
+}
+
+// Debounce Utilities
 let evalTimeout = null;
 function debounceEvaluation() {
   clearTimeout(evalTimeout);
-  evalTimeout = setTimeout(triggerScenarioEvaluation, 120);
+  evalTimeout = setTimeout(triggerScenarioEvaluation, 100);
 }
 
 let boundaryTimeout = null;
 function debounceBoundarySlice() {
   clearTimeout(boundaryTimeout);
-  boundaryTimeout = setTimeout(fetchBoundarySlice, 300);
+  boundaryTimeout = setTimeout(fetchBoundarySlice, 200);
 }
 
 // Trigger Scenario Prediction API
@@ -267,40 +373,68 @@ function renderPredictionResults(data) {
   const bMarginal = document.getElementById('bar-seg-marginal');
   const bSpread = document.getElementById('bar-seg-spread');
 
+  // Physics Telemetry Elements
+  const o2 = state.oxygen_pct;
+  const flow = state.flow_cm_s;
+  const da = flow > 0.1 ? (Math.pow(o2 / 21.0, 2) * (15.0 / flow)).toFixed(1) : '> 50.0';
+  const pe = (flow * 0.5 / 0.22).toFixed(1);
+  const margin = (o2 - 17.5).toFixed(1);
+
+  const daEl = document.getElementById('telemetry-damkohler');
+  const peEl = document.getElementById('telemetry-peclet');
+  const mgEl = document.getElementById('telemetry-margin');
+
+  if (daEl) daEl.textContent = `Da ≈ ${da} (${parseFloat(da) > 5 ? 'Reaction-dominated' : 'Flow-dominated'})`;
+  if (peEl) peEl.textContent = `Pe ≈ ${pe} (Laminar airflow)`;
+  if (mgEl) {
+    if (parseFloat(margin) >= 0) {
+      mgEl.textContent = `+${margin}% above LOC (17.5%)`;
+      mgEl.className = 'phys-val highlight-green';
+    } else {
+      mgEl.textContent = `${margin}% below LOC (Extinction)`;
+      mgEl.className = 'phys-val';
+    }
+  }
+
   if (!data.in_training_range) {
     // Refusal State
-    alertBanner.classList.remove('hidden');
+    if (alertBanner) alertBanner.classList.remove('hidden');
     const reasons = (data.out_of_range_reasons || []).map(r => r.reason).join(' ');
-    alertMsg.textContent = reasons || data.warning_message || 'Requested parameters are outside NASA training data.';
+    if (alertMsg) alertMsg.textContent = reasons || data.warning_message || 'Requested parameters are outside NASA training data.';
 
-    badge.className = 'regime-badge regime-refusal';
-    badge.textContent = 'REFUSED (OUT OF ENVELOPE)';
-    confPill.textContent = 'PREDICTION REFUSED';
+    if (badge) {
+      badge.className = 'regime-status-badge regime-refusal';
+      badge.textContent = 'SAFETY REFUSAL: OUT OF ENVELOPE';
+    }
+    if (confPill) confPill.textContent = 'INFERENCE REFUSED';
 
-    pNoSpread.textContent = 'N/A';
-    pMarginal.textContent = 'N/A';
-    pSpread.textContent = 'N/A';
-    pNoSpread._currentVal = null;
-    pMarginal._currentVal = null;
-    pSpread._currentVal = null;
-    bNoSpread.style.width = '0%';
-    bMarginal.style.width = '0%';
-    bSpread.style.width = '0%';
+    if (pNoSpread) pNoSpread.textContent = 'N/A';
+    if (pMarginal) pMarginal.textContent = 'N/A';
+    if (pSpread) pSpread.textContent = 'N/A';
+    if (bNoSpread) bNoSpread.style.width = '0%';
+    if (bMarginal) bMarginal.style.width = '0%';
+    if (bSpread) bSpread.style.width = '0%';
 
-    briefing.textContent = `CAUTION: Spacecraft operations cannot be certified in this regime. No published microgravity flight tests support ${state.material} at ${state.oxygen_pct}% O2 / ${state.flow_cm_s} cm/s. Relying on model extrapolation in unverified atmospheres violates NASA flight safety rules.`;
-    expText.textContent = data.explanation || 'Requested conditions are outside the published experimental envelope. No prediction is made.';
+    if (briefing) {
+      briefing.textContent = `FLIGHT SAFETY NOTICE: Spacecraft operations cannot be certified in this regime. No published microgravity flight tests support ${state.material} at ${state.oxygen_pct}% O₂ / ${state.flow_cm_s} cm/s. Relying on model extrapolation in unverified atmospheres violates NASA flight safety rules.`;
+    }
+    if (expText) {
+      expText.textContent = data.explanation || 'Requested conditions are outside the published experimental envelope. No prediction is made.';
+    }
   } else {
     // In-Domain Prediction
-    alertBanner.classList.add('hidden');
+    if (alertBanner) alertBanner.classList.add('hidden');
 
     const pred = data.prediction;
-    const probs = data.probabilities || { no_spread: 0.1, marginal_spread: 0.2, spread: 0.7 };
+    const probs = data.probabilities || { no_spread: 0.01, marginal_spread: 0.02, spread: 0.97 };
 
-    badge.className = `regime-badge regime-${pred.replace('_', '-')}`;
-    badge.textContent = pred === 'spread' ? 'SUSTAINED SPREAD' : (pred === 'marginal_spread' ? 'MARGINAL SPREAD' : 'EXTINCTION / NO SPREAD');
+    if (badge) {
+      badge.className = `regime-status-badge regime-${pred.replace('_', '-')}`;
+      badge.textContent = pred === 'spread' ? 'Sustained Flame Spread' : (pred === 'marginal_spread' ? 'Marginal Spread (Unsteady)' : 'Extinction / No Spread');
+    }
 
     const confPct = Math.round((probs[pred] || 0) * 100);
-    confPill.textContent = `${confPct}% PROBABILITY`;
+    if (confPill) confPill.textContent = `${confPct}% Probability`;
 
     const pctNo = Math.round((probs.no_spread || 0) * 100);
     const pctMarg = Math.round((probs.marginal_spread || 0) * 100);
@@ -310,19 +444,23 @@ function renderPredictionResults(data) {
     animateNumber(pMarginal, pctMarg, '%', 200);
     animateNumber(pSpread, pctSp, '%', 200);
 
-    bNoSpread.style.width = `${pctNo}%`;
-    bMarginal.style.width = `${pctMarg}%`;
-    bSpread.style.width = `${pctSp}%`;
+    if (bNoSpread) bNoSpread.style.width = `${pctNo}%`;
+    if (bMarginal) bMarginal.style.width = `${pctMarg}%`;
+    if (bSpread) bSpread.style.width = `${pctSp}%`;
 
-    if (pred === 'spread') {
-      briefing.textContent = `HIGH COMBUSTION RISK: Forced ventilation of ${state.flow_cm_s} cm/s supplies convective oxygen sustaining continuous flame propagation across ${state.material}. Quenching requires reducing ventilation to quiescent or dropping oxygen below 17.5%.`;
-    } else if (pred === 'marginal_spread') {
-      briefing.textContent = `CRITICAL TRANSITION REGIME: Operating near the microgravity flammability limit. Combustion will exhibit unstable propagation, periodic flame oscillations, or slow self-extinction. Small airflow disturbances may reignite or snuff flame.`;
-    } else {
-      briefing.textContent = `SAFE / EXTINCTION REGIME: Oxygen flux is starved below the limiting oxygen index (LOI). In microgravity without buoyant replenishment, conductive and radiative cooling extinguishes the reaction zone.`;
+    if (briefing) {
+      if (pred === 'spread') {
+        briefing.textContent = `HIGH FLAMMABILITY RISK: Forced cabin ventilation of ${state.flow_cm_s} cm/s delivers convective oxidizer that outpaces radiative and conductive heat losses, sustaining steady flame spread across ${state.material}. Quenching requires reducing ventilation to quiescent or dropping oxygen below 17.5%.`;
+      } else if (pred === 'marginal_spread') {
+        briefing.textContent = `CRITICAL TRANSITION REGIME: Operating near the microgravity flammability limit. Combustion will exhibit unsteady propagation, periodic flame oscillations, or slow self-extinction. Small airflow disturbances may reignite or extinguish flame.`;
+      } else {
+        briefing.textContent = `SAFE / EXTINCTION REGIME: Oxygen flux is starved below the limiting oxygen index (LOI). In microgravity without buoyant replenishment, conductive and radiative cooling extinguishes the reaction zone.`;
+      }
     }
 
-    expText.textContent = data.explanation || 'Prediction generated from empirical gradient boosted model.';
+    if (expText) {
+      expText.textContent = data.explanation || 'Prediction generated from empirical gradient boosted model.';
+    }
   }
 
   // Render Nearest Experiments List
@@ -335,33 +473,34 @@ function renderPredictionResults(data) {
 // Render Nearest Experiments Cards
 function renderNearestExperiments(experiments) {
   const container = document.getElementById('nearest-cards-list');
+  if (!container) return;
   container.innerHTML = '';
 
   if (experiments.length === 0) {
-    container.innerHTML = '<p class="card-description">No matching experiments found.</p>';
+    container.innerHTML = '<p class="module-explainer">No matching experiments found.</p>';
     return;
   }
 
   experiments.forEach(exp => {
     const item = document.createElement('div');
-    item.className = 'nearest-exp-item';
+    item.className = 'flight-obs-card';
 
-    const dist = exp.distance !== undefined ? `d = ${exp.distance.toFixed(3)}` : '';
-    const outcomeClass = exp.outcome === 'spread' ? 'badge-spread' : 'badge-no-spread';
+    const dist = exp.distance !== undefined ? `d = ${exp.distance.toFixed(3)}` : 'Exact match';
+    const outcomeClass = exp.outcome === 'spread' ? 'badge-spread' : (exp.outcome === 'marginal_spread' ? 'badge-marginal' : 'badge-no-spread');
     const reportUrl = exp.source_url || `https://ntrs.nasa.gov/citations/${exp.report_id}`;
 
     item.innerHTML = `
-      <div class="exp-top-row">
-        <span class="exp-id">${exp.experiment_id || 'EXP_OBS'} · ${exp.material}</span>
-        <span class="exp-distance">${dist}</span>
+      <div class="obs-top-line">
+        <span class="obs-id">${exp.experiment_id || 'EXP_OBS'} · ${exp.material}</span>
+        <span class="obs-distance">${dist}</span>
       </div>
-      <div class="exp-conditions">
+      <div class="obs-conditions">
         ${exp.oxygen_pct}% O₂ · ${exp.pressure_kpa} kPa · ${exp.flow_cm_s} cm/s
       </div>
-      <div class="exp-bottom-row">
-        <span class="badge ${outcomeClass}">${exp.outcome || 'observed'}</span>
-        <a href="${reportUrl}" target="_blank" rel="noopener noreferrer" class="exp-citation-link">
-          ${exp.report_id || 'NTRS Report'} ↗
+      <div class="obs-bottom-line">
+        <span class="badge-outcome ${outcomeClass}">${exp.outcome || 'observed'}</span>
+        <a href="${reportUrl}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">
+          NTRS ${exp.report_id || 'Report'} ↗
         </a>
       </div>
     `;
@@ -371,8 +510,10 @@ function renderNearestExperiments(experiments) {
 
 // Fetch 2-D Boundary Slice
 async function fetchBoundarySlice() {
-  document.getElementById('canvas-slice-caption').textContent =
-    `Fixed slice at Pressure = ${state.pressure_kpa.toFixed(1)} kPa, Material = ${state.material}`;
+  const caption = document.getElementById('canvas-slice-caption');
+  if (caption) {
+    caption.textContent = `Fixed slice at Pressure = ${state.pressure_kpa.toFixed(1)} kPa, Material = ${state.material}`;
+  }
 
   try {
     const url = `${API_BASE}/boundary?material=${state.material}&pressure_kpa=${state.pressure_kpa}&o2_steps=28&flow_steps=28`;
@@ -397,10 +538,10 @@ function drawBoundaryCanvas() {
 
   ctx.clearRect(0, 0, w, h);
 
-  const padLeft = 60;
-  const padBottom = 40;
-  const padRight = 30;
-  const padTop = 30;
+  const padLeft = 70;
+  const padBottom = 45;
+  const padRight = 35;
+  const padTop = 35;
   const plotW = w - padLeft - padRight;
   const plotH = h - padTop - padBottom;
 
@@ -410,7 +551,6 @@ function drawBoundaryCanvas() {
   const flowMin = b.flow_range[0];
   const flowMax = b.flow_range[1];
 
-  // Helper coordinate converters
   function toX(o2) {
     return padLeft + ((o2 - o2Min) / (o2Max - o2Min)) * plotW;
   }
@@ -428,13 +568,13 @@ function drawBoundaryCanvas() {
     for (let i = 0; i < o2Grid.length; i++) {
       const pred = b.grid_predictions[j][i];
       if (!pred) {
-        ctx.fillStyle = 'rgba(255, 77, 79, 0.15)'; // hatched/refusal
+        ctx.fillStyle = 'rgba(71, 85, 105, 0.12)';
       } else if (pred === 'spread') {
-        ctx.fillStyle = 'rgba(255, 51, 102, 0.28)';
+        ctx.fillStyle = 'rgba(220, 38, 38, 0.22)';
       } else if (pred === 'marginal_spread') {
-        ctx.fillStyle = 'rgba(255, 179, 0, 0.28)';
+        ctx.fillStyle = 'rgba(217, 119, 6, 0.22)';
       } else {
-        ctx.fillStyle = 'rgba(0, 180, 216, 0.25)';
+        ctx.fillStyle = 'rgba(5, 150, 105, 0.20)';
       }
 
       const cx = toX(o2Grid[i]) - cellW / 2;
@@ -443,8 +583,8 @@ function drawBoundaryCanvas() {
     }
   }
 
-  // 2. Draw Axes and Grid Lines
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  // 2. Draw Scientific Axes & Precision Grid Lines
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   // X grid
@@ -461,28 +601,50 @@ function drawBoundaryCanvas() {
   }
   ctx.stroke();
 
+  // Limiting Oxygen Concentration (LOC) vertical dashed guide
+  if (17.5 >= o2Min && 17.5 <= o2Max) {
+    const locX = toX(17.5);
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.55)';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(locX, padTop);
+    ctx.lineTo(locX, padTop + plotH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('LOC ≈ 17.5%', locX + 6, padTop + 14);
+  }
+
   // Outer Plot Border
-  ctx.strokeStyle = 'rgba(0, 229, 255, 0.4)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+  ctx.lineWidth = 1;
   ctx.strokeRect(padLeft, padTop, plotW, plotH);
 
   // 3. Draw Axis Labels & Numbers
-  ctx.fillStyle = '#8899b8';
-  ctx.font = '10px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px "JetBrains Mono", monospace';
   ctx.textAlign = 'center';
   for (let o2 = Math.ceil(o2Min); o2 <= o2Max; o2 += 3) {
-    ctx.fillText(`${o2}%`, toX(o2), padTop + plotH + 18);
+    ctx.fillText(`${o2}%`, toX(o2), padTop + plotH + 20);
   }
-  ctx.fillText('Oxygen Concentration (% O₂ by volume)', padLeft + plotW / 2, h - 8);
+  ctx.font = '12px "Inter", sans-serif';
+  ctx.fillText('Oxygen Concentration, X_O₂ (% by volume)', padLeft + plotW / 2, h - 8);
 
+  ctx.font = '11px "JetBrains Mono", monospace';
   ctx.textAlign = 'right';
   for (let f = Math.ceil(flowMin); f <= flowMax; f += 5) {
     ctx.fillText(`${f}`, padLeft - 10, toY(f) + 4);
   }
   ctx.save();
-  ctx.translate(16, padTop + plotH / 2);
+  ctx.translate(18, padTop + plotH / 2);
   ctx.rotate(-Math.PI / 2);
+  ctx.font = '12px "Inter", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('Ventilation Flow Velocity (cm/s)', 0, 0);
+  ctx.fillText('Forced Ventilation Velocity, v_g (cm/s)', 0, 0);
   ctx.restore();
 
   // 4. Overlaid Real Historical NASA Experiments (Scatter Dots)
@@ -496,15 +658,15 @@ function drawBoundaryCanvas() {
     ctx.beginPath();
     ctx.arc(ex, ey, 4.5, 0, Math.PI * 2);
     if (exp.outcome === 'spread') {
-      ctx.fillStyle = '#ff3366';
+      ctx.fillStyle = '#ef4444';
     } else if (exp.outcome === 'marginal_spread') {
-      ctx.fillStyle = '#ffb300';
+      ctx.fillStyle = '#f59e0b';
     } else {
-      ctx.fillStyle = '#00e5ff';
+      ctx.fillStyle = '#10b981';
     }
     ctx.fill();
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.lineWidth = 1.0;
     ctx.stroke();
   });
 
@@ -516,31 +678,31 @@ function drawBoundaryCanvas() {
     const now = performance.now();
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const pulseFactor = reducedMotion ? 0 : Math.sin(now * 0.0035);
-    const ringRadius = 9 + (reducedMotion ? 0 : 5 * (0.5 + 0.5 * pulseFactor));
-    const ringAlpha = reducedMotion ? 0.6 : (0.25 + 0.35 * (0.5 + 0.5 * pulseFactor));
+    const ringRadius = 8.5 + (reducedMotion ? 0 : 4 * (0.5 + 0.5 * pulseFactor));
+    const ringAlpha = reducedMotion ? 0.6 : (0.20 + 0.30 * (0.5 + 0.5 * pulseFactor));
 
-    // Outer Animated Radar Halo
+    // Outer Precision Radar Halo
     ctx.beginPath();
     ctx.arc(qx, qy, ringRadius, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(0, 229, 255, ${ringAlpha})`;
+    ctx.strokeStyle = `rgba(56, 189, 248, ${ringAlpha})`;
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
     // Solid Target Ring
     ctx.beginPath();
-    ctx.arc(qx, qy, 7.5, 0, Math.PI * 2);
-    ctx.strokeStyle = '#00e5ff';
-    ctx.lineWidth = 2.2;
+    ctx.arc(qx, qy, 7, 0, Math.PI * 2);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2;
     ctx.stroke();
 
     // Center Core Dot
     ctx.beginPath();
-    ctx.arc(qx, qy, 2.5, 0, Math.PI * 2);
+    ctx.arc(qx, qy, 2, 0, Math.PI * 2);
     ctx.fillStyle = '#ffffff';
     ctx.fill();
 
-    // Aerospace Precision Crosshairs
-    ctx.strokeStyle = 'rgba(0, 229, 255, 0.75)';
+    // Crosshairs
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(qx - 14, qy);
@@ -548,13 +710,29 @@ function drawBoundaryCanvas() {
     ctx.moveTo(qx, qy - 14);
     ctx.lineTo(qx, qy + 14);
     ctx.stroke();
+
+    // Coordinate tag box
+    ctx.fillStyle = 'rgba(11, 15, 24, 0.92)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.50)';
+    ctx.lineWidth = 1;
+    const tagText = `${state.oxygen_pct.toFixed(1)}% · ${state.flow_cm_s.toFixed(1)} cm/s`;
+    ctx.font = '10px "JetBrains Mono", monospace';
+    const tagW = ctx.measureText(tagText).width + 10;
+    const tagX = Math.min(qx + 10, padLeft + plotW - tagW);
+    const tagY = Math.max(qy - 20, padTop + 2);
+    ctx.fillRect(tagX, tagY, tagW, 18);
+    ctx.strokeRect(tagX, tagY, tagW, 18);
+    ctx.fillStyle = '#f8fafc';
+    ctx.textAlign = 'left';
+    ctx.fillText(tagText, tagX + 5, tagY + 13);
   }
 }
 
-// NLP Parser Handler
+// Scenario Command Search Parser
 function setupNlpParser() {
   const btn = document.getElementById('nlp-query-submit');
   const input = document.getElementById('nlp-query-input');
+  if (!btn || !input) return;
 
   btn.addEventListener('click', async () => {
     const text = input.value.trim();
@@ -587,6 +765,7 @@ function setupNlpParser() {
 function setupSweepView() {
   const sweepSlider = document.getElementById('sweep-oxygen-slider');
   const autoBtn = document.getElementById('btn-run-auto-sweep');
+  if (!sweepSlider || !autoBtn) return;
 
   sweepSlider.addEventListener('input', (e) => {
     updateSweepPoint(parseFloat(e.target.value));
@@ -595,14 +774,14 @@ function setupSweepView() {
   autoBtn.addEventListener('click', () => {
     if (state.sweepRunning) return;
     state.sweepRunning = true;
-    autoBtn.textContent = 'SWEEPING O₂...';
+    autoBtn.textContent = '⏳ SWEEPING OXYGEN...';
     let val = 21.0;
     const interval = setInterval(() => {
       val -= 0.1;
       if (val < 16.0) {
         clearInterval(interval);
         state.sweepRunning = false;
-        autoBtn.textContent = '▶ PLAY AUTO-SWEEP';
+        autoBtn.textContent = '▶ Play Automated Oxygen Sweep';
       }
       sweepSlider.value = val.toFixed(1);
       updateSweepPoint(val);
@@ -615,29 +794,41 @@ function setupSweepView() {
 function updateSweepPoint(o2Val) {
   const marginDisplay = document.getElementById('safety-margin-val');
   const marginStatus = document.getElementById('safety-margin-status');
+  const readout = document.getElementById('readout-sweep-o2');
+  if (readout) readout.textContent = `${o2Val.toFixed(1)} %`;
 
   const locBoundary = 17.5;
   const delta = o2Val - locBoundary;
-  marginDisplay.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)} % O₂`;
+  if (marginDisplay) marginDisplay.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)} % O₂`;
 
-  if (delta > 1.0) {
-    marginStatus.className = 'margin-status safe';
-    marginStatus.textContent = 'SAFE FLAMMABILITY MARGIN';
-  } else if (delta >= 0.0) {
-    marginStatus.className = 'margin-status';
-    marginStatus.style.color = '#ffb300';
-    marginStatus.textContent = 'CRITICAL NEAR-BOUNDARY MARGIN';
-  } else {
-    marginStatus.className = 'margin-status';
-    marginStatus.style.color = '#00e5ff';
-    marginStatus.textContent = 'EXTINCTION / INERT REGIME';
+  if (marginStatus) {
+    if (delta > 1.0) {
+      marginStatus.className = 'margin-pill safe';
+      marginStatus.textContent = 'Nominal Operating Margin';
+    } else if (delta >= 0.0) {
+      marginStatus.className = 'margin-pill';
+      marginStatus.style.background = 'rgba(217, 119, 6, 0.15)';
+      marginStatus.style.border = '1px solid #d97706';
+      marginStatus.style.color = '#f59e0b';
+      marginStatus.textContent = 'Critical Near-Boundary Margin';
+    } else {
+      marginStatus.className = 'margin-pill';
+      marginStatus.style.background = 'rgba(56, 189, 248, 0.15)';
+      marginStatus.style.border = '1px solid #0284c7';
+      marginStatus.style.color = '#38bdf8';
+      marginStatus.textContent = 'Extinction / Quenched';
+    }
   }
 
   // Update real historical evidence boxes
-  document.getElementById('evidence-above-boundary').innerHTML =
-    '<strong>Real NASA BASS Test:</strong> 20.8% O₂, 101.3 kPa, 5.0 cm/s → <em>spread</em> (NTRS 20160010041, PMMA)';
-  document.getElementById('evidence-below-boundary').innerHTML =
-    '<strong>Real NASA BASS Test:</strong> 16.5% O₂, 101.3 kPa, 4.0 cm/s → <em>no_spread</em> (NTRS 20140011099, PMMA)';
+  const evAbove = document.getElementById('evidence-above-boundary');
+  const evBelow = document.getElementById('evidence-below-boundary');
+  if (evAbove) {
+    evAbove.innerHTML = '<strong>Real NASA BASS Test:</strong> 20.8% O₂, 101.3 kPa, 5.0 cm/s → <em>spread</em> (NTRS 20160010041, PMMA)';
+  }
+  if (evBelow) {
+    evBelow.innerHTML = '<strong>Real NASA BASS Test:</strong> 16.5% O₂, 101.3 kPa, 4.0 cm/s → <em>no_spread</em> (NTRS 20140011099, PMMA)';
+  }
 
   drawSweepCanvas(o2Val);
 }
@@ -652,20 +843,20 @@ function drawSweepCanvas(currentO2 = 21.0) {
 
   ctx.clearRect(0, 0, w, h);
 
-  const padLeft = 60;
-  const padBottom = 30;
-  const padTop = 20;
-  const padRight = 30;
+  const padLeft = 70;
+  const padBottom = 40;
+  const padTop = 30;
+  const padRight = 40;
   const pW = w - padLeft - padRight;
   const pH = h - padTop - padBottom;
 
   // Grid
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
   ctx.strokeRect(padLeft, padTop, pW, pH);
 
   // Transition vertical line at 17.5%
   const boundaryX = padLeft + ((17.5 - 16.0) / (21.0 - 16.0)) * pW;
-  ctx.strokeStyle = 'rgba(255, 179, 0, 0.6)';
+  ctx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
   ctx.setLineDash([4, 4]);
   ctx.beginPath();
   ctx.moveTo(boundaryX, padTop);
@@ -673,17 +864,16 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  ctx.fillStyle = '#ffb300';
-  ctx.font = '10px "JetBrains Mono"';
-  ctx.fillText('BOUNDARY (17.5%)', boundaryX + 6, padTop + 14);
+  ctx.fillStyle = '#f59e0b';
+  ctx.font = '10px "JetBrains Mono", monospace';
+  ctx.fillText('LOC BOUNDARY (17.5%)', boundaryX + 8, padTop + 16);
 
   // Curve: P(Spread)
-  ctx.strokeStyle = '#ff3366';
-  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2.4;
   ctx.beginPath();
   for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
     const x = padLeft + ((o2 - 16.0) / (21.0 - 16.0)) * pW;
-    // Logistic sigmoidal curve simulating model output
     const prob = 1 / (1 + Math.exp(-2.5 * (o2 - 17.7)));
     const y = padTop + pH - prob * pH;
     if (o2 === 16.0) ctx.moveTo(x, y);
@@ -692,8 +882,8 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.stroke();
 
   // Curve: P(No Spread)
-  ctx.strokeStyle = '#00e5ff';
-  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2.4;
   ctx.beginPath();
   for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
     const x = padLeft + ((o2 - 16.0) / (21.0 - 16.0)) * pW;
@@ -704,19 +894,18 @@ function drawSweepCanvas(currentO2 = 21.0) {
   }
   ctx.stroke();
 
-  // Current slider marker with aerospace glow pin
+  // Current slider marker
   const curX = padLeft + ((currentO2 - 16.0) / (21.0 - 16.0)) * pW;
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1.8;
   ctx.beginPath();
   ctx.moveTo(curX, padTop);
   ctx.lineTo(curX, padTop + pH);
   ctx.stroke();
 
-  // Glow pin at intersection
   ctx.beginPath();
-  ctx.arc(curX, padTop + pH / 2, 6, 0, Math.PI * 2);
-  ctx.fillStyle = currentO2 >= 17.5 ? 'rgba(255, 51, 102, 0.35)' : 'rgba(0, 229, 255, 0.35)';
+  ctx.arc(curX, padTop + pH / 2, 5, 0, Math.PI * 2);
+  ctx.fillStyle = currentO2 >= 17.5 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)';
   ctx.fill();
   ctx.beginPath();
   ctx.arc(curX, padTop + pH / 2, 2.5, 0, Math.PI * 2);
@@ -724,11 +913,12 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.fill();
 
   // Labels
-  ctx.fillStyle = '#8899b8';
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px "JetBrains Mono", monospace';
   ctx.textAlign = 'center';
   for (let o2 = 16; o2 <= 21; o2++) {
     const x = padLeft + ((o2 - 16.0) / 5.0) * pW;
-    ctx.fillText(`${o2}% O₂`, x, padTop + pH + 18);
+    ctx.fillText(`${o2}% O₂`, x, padTop + pH + 20);
   }
 }
 
@@ -737,6 +927,7 @@ async function setupAtlasView() {
   const searchInput = document.getElementById('atlas-search-input');
   const matFilter = document.getElementById('atlas-filter-material');
   const outFilter = document.getElementById('atlas-filter-outcome');
+  if (!searchInput || !matFilter || !outFilter) return;
 
   try {
     const res = await fetch(`${API_BASE}/experiments?limit=200`);
@@ -785,10 +976,17 @@ function renderAtlasTable(rows) {
       <td>${r.oxygen_pct}%</td>
       <td>${r.pressure_kpa} kPa</td>
       <td>${r.flow_cm_s} cm/s</td>
-      <td><span class="badge ${badgeClass}">${r.outcome}</span></td>
+      <td><span class="badge-outcome ${badgeClass}">${r.outcome}</span></td>
       <td>${r.report_id}</td>
-      <td><a href="${citeUrl}" target="_blank" rel="noopener noreferrer" class="exp-citation-link">NTRS Link ↗</a></td>
+      <td><a href="${citeUrl}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ↗</a></td>
     `;
+
+    // Click row to probe into Flammability Deck
+    tr.addEventListener('click', () => {
+      document.getElementById('tab-lab-btn').click();
+      updateInputs(r.oxygen_pct, r.pressure_kpa, r.flow_cm_s, r.material);
+    });
+
     tbody.appendChild(tr);
   });
 }
@@ -802,14 +1000,15 @@ async function loadDatasetsAndModel() {
       const container = document.getElementById('investigation-cards-list');
       if (container) {
         container.innerHTML = '';
-        data.investigations.slice(0, 8).forEach(inv => {
+        data.investigations.slice(0, 10).forEach(inv => {
           const div = document.createElement('div');
-          div.className = 'investigation-item';
+          div.className = 'investigation-card';
           div.innerHTML = `
-            <div class="investigation-title">${inv.investigation_name || inv.investigation}</div>
-            <div class="investigation-meta">
-              Platform: ${inv.platform || 'ISS'} · Fuel: ${inv.primary_fuel_types || 'PMMA'} · Records: ${inv.test_records_extracted || 'Multiple'}
+            <div class="inv-title">${inv.investigation_name || inv.investigation}</div>
+            <div class="inv-meta">
+              Platform: ${inv.platform || 'ISS CIR'} · Primary Fuel: ${inv.primary_fuel_types || 'PMMA'}
             </div>
+            <div class="inv-desc">${inv.description || 'Microgravity combustion experiment conducted aboard space station.'}</div>
           `;
           container.appendChild(div);
         });
@@ -846,7 +1045,7 @@ function simulatePrediction(payload) {
   }
 
   let pred = 'spread';
-  let probs = { no_spread: 0.02, marginal_spread: 0.08, spread: 0.90 };
+  let probs = { no_spread: 0.01, marginal_spread: 0.02, spread: 0.97 };
 
   if (oxygen_pct <= 16.8) {
     pred = 'no_spread';
@@ -864,7 +1063,7 @@ function simulatePrediction(payload) {
     probabilities: probs,
     model: { type: 'gradient_boosting', n_train: 145, cv_accuracy: 0.7931, cv_scheme: 'StratifiedGroupKFold(k=5, group=report_id)', features: ['oxygen_pct', 'pressure_kpa', 'flow_cm_s', 'material'] },
     nearest_experiments: [
-      { experiment_id: 'EXP_BASS_012', report_id: '20160010041', material, oxygen_pct: 21.0, pressure_kpa: 101.3, flow_cm_s: 5.0, outcome: 'spread', distance: 0.015, source_url: 'https://ntrs.nasa.gov/citations/20160010041' },
+      { experiment_id: 'EXP_BASS_012', report_id: '20160010041', material, oxygen_pct: 21.0, pressure_kpa: 101.3, flow_cm_s: 5.0, outcome: 'spread', distance: 0.000, source_url: 'https://ntrs.nasa.gov/citations/20160010041' },
       { experiment_id: 'EXP_BASS_044', report_id: '20140011099', material, oxygen_pct: 18.0, pressure_kpa: 101.3, flow_cm_s: 5.0, outcome: 'spread', distance: 0.082, source_url: 'https://ntrs.nasa.gov/citations/20140011099' },
       { experiment_id: 'EXP_BASS_089', report_id: '20170006615', material, oxygen_pct: 16.5, pressure_kpa: 101.3, flow_cm_s: 3.5, outcome: 'no_spread', distance: 0.114, source_url: 'https://ntrs.nasa.gov/citations/20170006615' }
     ],

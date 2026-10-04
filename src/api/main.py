@@ -157,27 +157,59 @@ def get_decision_boundary(
     o2_grid = np.linspace(o2_min, o2_max, o2_steps).tolist()
     flow_grid = np.linspace(f_min, f_max, flow_steps).tolist()
 
-    grid_predictions = []
-    grid_probabilities = []
+    n_flows = len(flow_grid)
+    n_o2s = len(o2_grid)
+    total_pts = n_flows * n_o2s
+    O2_mesh, F_mesh = np.meshgrid(o2_grid, flow_grid)
+    o2_flat = O2_mesh.ravel()
+    flow_flat = F_mesh.ravel()
 
-    for f_val in flow_grid:
-        row_preds = []
-        row_probs = []
-        for o2_val in o2_grid:
-            eval_res = cf_engine.evaluate_scenario(
-                oxygen_pct=o2_val,
-                pressure_kpa=pressure_kpa,
-                flow_cm_s=f_val,
-                material=material,
-            )
-            row_preds.append(eval_res["prediction"])
-            row_probs.append(
-                eval_res["probabilities"].get("spread")
-                if eval_res["probabilities"]
-                else None
-            )
-        grid_predictions.append(row_preds)
-        grid_probabilities.append(row_probs)
+    # Check bounds
+    p_min = t_range["pressure_kpa"]["min"]
+    p_max = t_range["pressure_kpa"]["max"]
+    is_p_valid = (pressure_kpa >= p_min) and (pressure_kpa <= p_max)
+    mat_p_min = mat_cfg.get("pressure_kpa", {}).get("min", p_min)
+    mat_p_max = mat_cfg.get("pressure_kpa", {}).get("max", p_max)
+    is_p_valid = is_p_valid and (pressure_kpa >= mat_p_min) and (pressure_kpa <= mat_p_max)
+
+    valid_mask = (
+        is_p_valid
+        & (o2_flat >= o2_min)
+        & (o2_flat <= o2_max)
+        & (flow_flat >= f_min)
+        & (flow_flat <= f_max)
+    )
+
+    preds_flat: list[str | None] = [None] * total_pts
+    probs_flat: list[float | None] = [None] * total_pts
+
+    if valid_mask.any():
+        valid_df = pd.DataFrame({
+            "oxygen_pct": o2_flat[valid_mask],
+            "pressure_kpa": pressure_kpa,
+            "flow_cm_s": flow_flat[valid_mask],
+            "material": material,
+        })
+        model_preds = cf_engine.model.predict(valid_df)
+        model_probs = cf_engine.model.predict_proba(valid_df)
+        spread_idx = (
+            list(cf_engine.model.classes_).index("spread")
+            if "spread" in cf_engine.model.classes_
+            else None
+        )
+
+        valid_indices = np.where(valid_mask)[0]
+        for i, idx in enumerate(valid_indices):
+            preds_flat[idx] = str(model_preds[i])
+            if spread_idx is not None:
+                probs_flat[idx] = round(float(model_probs[i][spread_idx]), 4)
+
+    grid_predictions = [
+        preds_flat[k * n_o2s : (k + 1) * n_o2s] for k in range(n_flows)
+    ]
+    grid_probabilities = [
+        probs_flat[k * n_o2s : (k + 1) * n_o2s] for k in range(n_flows)
+    ]
 
     # Real experiment points for overlay
     df = pd.read_parquet(DATA_PATH)
