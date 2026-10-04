@@ -1,0 +1,23 @@
+asset_index,asset_name,start_time,end_time,duration_sec,segment,purpose
+00,00_opener_microgravity_fire,00:00,00:10,10.0,WHO,Opening microgravity-fire hook
+01,01_nasa_investigation_families,00:10,00:22,12.0,WHO,BASS-II / FLEX / SPICE / SAFFIRE / SAME flight programs
+02,02_problem_fragmentation,00:22,00:29,7.0,WHO,Fragmented evidence problem & NASA archive overview
+03,03_flarex_title_card,00:29,00:36,7.0,WHO,FLARE-X project title reveal & mission subtitle
+04,04_team_card_template,00:36,00:42,6.0,WHO,All 6 team names + registered functional roles
+05,05_mission_find_compare_model_verify_trace,00:42,00:52,10.0,WHY,Core 6-step mission workflow overview
+06,06_research_question,00:52,01:02,10.0,WHY,Flagship scientific question: PMMA at exploration atmosphere
+07,07_heterogeneous_conditions,01:02,01:14,12.0,WHY,Comparison problem: different fuels pressures geometries
+08,08_search_vs_scientific_comparability,01:14,01:38,24.0,WHY,Keyword similarity != physical transport comparability
+09,09_scenario_interpretation,01:38,01:48,10.0,WHAT,Natural language prompt to structured scenario card
+10,10_combustion_family_router,01:48,01:58,10.0,WHAT,Adaptive routing: solid liquid gas smoke regimes
+11,11_ranked_nasa_evidence,01:58,02:10,12.0,WHAT,Experiment ranking via hybrid BM25 + Gower similarity
+12,12_specialized_model_router,02:10,02:26,16.0,WHAT,SPICE-FL / FLEX-EX / conditional BASS-RG architecture
+13,13_experimental_envelope_guard,02:26,02:35,9.0,WHAT,Envelope Guard firewall: FLARE-X knows when not to predict
+14,14_support_map_inside,02:35,02:50,15.0,SO WHAT,Support Map: State 1 (21% O2 inside supported domain)
+15,15_support_map_near_boundary,02:50,03:05,15.0,SO WHAT,Support Map: State 2 (19% O2 near flammability boundary)
+16,16_support_map_outside,03:05,03:15,10.0,SO WHAT,Support Map: State 3 (17% O2 partial support)
+17,17_counterfactual_three_state_sequence,03:15,03:23,8.0,SO WHAT,Dynamic 3-state slider sequence: 21% -> 18% -> 14% O2
+18,18_prediction_withheld,03:23,03:32,9.0,SO WHAT,Signature moment: OUTSIDE DOMAIN / Reliable prediction withheld
+19,19_provenance_chain,03:32,03:43,11.0,SO WHAT,3-tier provenance: NASA Obs != Model != AI Synthesis
+20,20_end_card,03:43,03:49,6.0,SO WHAT,Final FLARE-X close: Find the evidence. Know its limits.
+21,21_credits_disclosure_card,03:49,03:52,3.0,SO WHAT,Sources & disclosures: NASA PSI credits + Apache 2.0

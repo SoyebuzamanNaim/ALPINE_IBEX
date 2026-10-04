@@ -1,0 +1,67 @@
+{
+  "project": "FLARE-X",
+  "challenge": "NASA Space Apps Challenge 2026 - Flame in Freefall",
+  "resolution": {
+    "width": 1920,
+    "height": 1080,
+    "aspectRatio": "16:9",
+    "framerate": 30,
+    "targetDurationSeconds": 232.0,
+    "maxDurationSeconds": 240.0
+  },
+  "safeZones": {
+    "actionSafe": {
+      "x": 96,
+      "y": 54,
+      "width": 1728,
+      "height": 972
+    },
+    "titleSafe": {
+      "x": 192,
+      "y": 108,
+      "width": 1536,
+      "height": 864
+    },
+    "subtitleZone": {
+      "x": 192,
+      "y": 900,
+      "width": 1536,
+      "height": 140,
+      "maxCharactersPerLine": 37,
+      "maxLines": 2
+    }
+  },
+  "colors": {
+    "background": {
+      "base": "#060913",
+      "card": "#0c1222",
+      "cardElevated": "#111c38",
+      "deep": "#020408"
+    },
+    "accents": {
+      "cyanTelemetry": "#00e5ff",
+      "cyanGlow": "rgba(0, 229, 255, 0.4)",
+      "bluePrimary": "#0077ff"
+    },
+    "status": {
+      "refusalCrimson": "#ff4d4f",
+      "warningAmber": "#ffb300",
+      "cautionOrange": "#ff7700",
+      "supportedEmerald": "#52c41a",
+      "reasoningPurple": "#a855f7"
+    },
+    "typography": {
+      "primary": "#ffffff",
+      "secondary": "#cbd5e1",
+      "muted": "#8899b8",
+      "dim": "#64748b",
+      "border": "rgba(0, 229, 255, 0.25)"
+    }
+  },
+  "fonts": {
+    "display": "Orbitron, sans-serif",
+    "monospace": "JetBrains Mono, monospace",
+    "body": "Inter, sans-serif"
+  },
+  "disclaimerWatermark": "[ ILLUSTRATIVE CONCEPT UI ]"
+}
