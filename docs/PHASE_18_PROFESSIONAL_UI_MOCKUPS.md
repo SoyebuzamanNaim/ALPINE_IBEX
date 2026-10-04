@@ -26,6 +26,18 @@ FLARE-X VISUAL IDENTITY
 
 ---
 
+## 18.0 Master Visual Design System & High-Fidelity Mockup Artifacts
+
+The visual identity, component library, and multi-view mockups are fully rendered and stored as canonical image artifacts:
+
+| Visual Artifact | Path | Description |
+| :--- | :--- | :--- |
+| **Dark Aerospace Visual Design System** | [`assets/design/phase_18_ui_visual_design_system_dark.jpg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/design/phase_18_ui_visual_design_system_dark.jpg) | Core design principles, color system, typography scale, icon system, status & claim badges, form components, charts, and interaction states. |
+| **Professional High-Fidelity Mockups (9 Views)** | [`assets/design/phase_18_professional_ui_mockups_dark.jpg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/design/phase_18_professional_ui_mockups_dark.jpg) | High-fidelity compositions of Mission Control, Analyze Workspace, Ranked Evidence, Experiment Detail, Compare Experiments, Explore Evidence, Provenance Tree, Model Card, and Mobile View. |
+| **Light & Structural Component Foundations** | [`assets/design/phase_18_ui_design_system_light.jpg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/design/phase_18_ui_design_system_light.jpg) | Brand tokens, 12-column grid layout, spacing scale, card components, data visualization styles, and responsive layouts. |
+
+---
+
 ## 18.1 Master Screen 1: Mission Control (Landing Page)
 
 **Purpose:** Immediate orientation, clear challenge value proposition, real NASA flight metrics, and one-click entry into prefilled demonstration scenarios.
