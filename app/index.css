@@ -24,12 +24,34 @@
   --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-title: 'Orbitron', 'Space Grotesk', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+
+  /* Motion & Animation Design Tokens (Emil Kowalski Standards) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease: ease;
+  --duration-press: 140ms;
+  --duration-fast: 160ms;
+  --duration-normal: 220ms;
+  --duration-smooth: 280ms;
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/* Tabular Numbers to prevent layout jank during value changes */
+.value-readout,
+.prob-val,
+.kpi-value,
+.margin-value,
+.confidence-pill,
+.exp-distance,
+.exp-conditions,
+.atlas-table td {
+  font-variant-numeric: tabular-nums;
 }
 
 body.flarex-theme {
@@ -76,6 +98,7 @@ body.flarex-theme {
   padding: 6px 12px;
   border-radius: 4px;
   box-shadow: 0 0 12px rgba(11, 61, 145, 0.5);
+  transition: transform var(--duration-fast) var(--ease-out);
 }
 
 .brand-title {
@@ -112,16 +135,26 @@ body.flarex-theme {
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: color var(--duration-fast) var(--ease),
+              background-color var(--duration-fast) var(--ease),
+              border-color var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-press) var(--ease-out);
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.nav-tab:hover {
-  background: rgba(0, 229, 255, 0.08);
-  color: #fff;
-  border-color: var(--border-active);
+@media (hover: hover) and (pointer: fine) {
+  .nav-tab:hover {
+    background: rgba(0, 229, 255, 0.08);
+    color: #fff;
+    border-color: var(--border-active);
+  }
+}
+
+.nav-tab:active {
+  transform: scale(0.97);
 }
 
 .nav-tab.active {
@@ -170,6 +203,18 @@ body.flarex-theme {
 
 .view-panel.active {
   display: block;
+  animation: panelEnter var(--duration-normal) var(--ease-out) forwards;
+}
+
+@keyframes panelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Glass Card */
@@ -180,11 +225,14 @@ body.flarex-theme {
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  transition: border-color 0.2s ease;
+  transition: border-color var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
-.glass-card:hover {
-  border-color: var(--border-active);
+@media (hover: hover) and (pointer: fine) {
+  .glass-card:hover {
+    border-color: var(--border-active);
+  }
 }
 
 .card-header {
@@ -281,12 +329,20 @@ body.flarex-theme {
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-press) var(--ease-out);
 }
 
-.btn-action:hover {
-  background: #fff;
-  box-shadow: 0 0 16px var(--color-cyan);
+@media (hover: hover) and (pointer: fine) {
+  .btn-action:hover {
+    background: #fff;
+    box-shadow: 0 0 16px var(--color-cyan);
+  }
+}
+
+.btn-action:active {
+  transform: scale(0.97);
 }
 
 .btn-large {
@@ -339,6 +395,7 @@ body.flarex-theme {
   border-radius: 6px;
   font-size: 13px;
   outline: none;
+  transition: border-color var(--duration-fast) var(--ease);
 }
 
 .form-select:focus {
@@ -365,11 +422,19 @@ body.flarex-theme {
   background: var(--color-cyan);
   cursor: pointer;
   box-shadow: 0 0 10px var(--color-cyan);
-  transition: transform 0.15s ease;
+  transition: transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
-.range-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
+@media (hover: hover) and (pointer: fine) {
+  .range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 14px var(--color-cyan);
+  }
+}
+
+.range-slider::-webkit-slider-thumb:active {
+  transform: scale(0.95);
 }
 
 .slider-bounds {
@@ -415,13 +480,22 @@ body.flarex-theme {
   border-radius: 5px;
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s ease;
+  transition: color var(--duration-fast) var(--ease),
+              background-color var(--duration-fast) var(--ease),
+              border-color var(--duration-fast) var(--ease),
+              transform var(--duration-press) var(--ease-out);
 }
 
-.btn-preset:hover {
-  background: rgba(0, 229, 255, 0.08);
-  color: #fff;
-  border-color: var(--color-cyan);
+@media (hover: hover) and (pointer: fine) {
+  .btn-preset:hover {
+    background: rgba(0, 229, 255, 0.08);
+    color: #fff;
+    border-color: var(--color-cyan);
+  }
+}
+
+.btn-preset:active {
+  transform: scale(0.97);
 }
 
 /* Center Column */
@@ -440,6 +514,19 @@ body.flarex-theme {
   border-left: 5px solid var(--color-refusal);
   padding: 14px 18px;
   border-radius: 8px;
+  animation: alertSlideDown var(--duration-normal) var(--ease-out) forwards;
+  transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+}
+
+@keyframes alertSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .alert-banner.hidden {
@@ -603,7 +690,8 @@ body.flarex-theme {
 
 .segment {
   height: 100%;
-  transition: width 0.3s ease;
+  transition: width var(--duration-smooth) var(--ease-out);
+  will-change: width;
 }
 
 .seg-no-spread { background: var(--color-no-spread); }
@@ -748,12 +836,33 @@ canvas#flammability-boundary-canvas {
   border-left: 3px solid var(--color-cyan);
   border-radius: 6px;
   padding: 10px 12px;
-  transition: all 0.2s ease;
+  transition: background-color var(--duration-fast) var(--ease),
+              border-color var(--duration-fast) var(--ease),
+              transform var(--duration-fast) var(--ease-out);
+  animation: cardEnter var(--duration-normal) var(--ease-out) backwards;
 }
 
-.nearest-exp-item:hover {
-  background: rgba(0, 229, 255, 0.04);
-  border-color: var(--color-cyan);
+.nearest-exp-item:nth-child(1) { animation-delay: 0ms; }
+.nearest-exp-item:nth-child(2) { animation-delay: 35ms; }
+.nearest-exp-item:nth-child(3) { animation-delay: 70ms; }
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nearest-exp-item:hover {
+    background: rgba(0, 229, 255, 0.04);
+    border-color: var(--color-cyan);
+    transform: translateY(-1px);
+  }
 }
 
 .exp-top-row {
@@ -1086,3 +1195,31 @@ canvas#sweep-chart-canvas {
   font-size: 11px;
   color: var(--text-muted);
 }
+
+/* Accessibility & Reduced Motion Standards (Emil Kowalski Spec) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .view-panel.active,
+  .nearest-exp-item,
+  .alert-banner {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .status-pulse-dot {
+    animation: none !important;
+  }
+
+  .range-slider::-webkit-slider-thumb {
+    transition: none !important;
+  }
+}
+

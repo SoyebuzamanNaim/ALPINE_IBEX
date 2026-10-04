@@ -30,6 +30,51 @@ const MATERIAL_SPECS = {
   'Delrin': { samples: 5, o2: [15.0, 21.0], flow: [5.0, 10.0], p: [101.3, 101.3] }
 };
 
+// Smooth Tabular Number Ticker (Emil Kowalski Spec)
+function animateNumber(element, endVal, suffix = '', duration = 200) {
+  if (!element) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    element.textContent = `${endVal}${suffix}`;
+    element._currentVal = endVal;
+    return;
+  }
+  const startVal = typeof element._currentVal === 'number' ? element._currentVal : (parseFloat(element.textContent) || 0);
+  const startTime = performance.now();
+  const delta = endVal - startVal;
+
+  function step(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // Cubic ease-out: 1 - Math.pow(1 - progress, 3)
+    const easeProgress = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(startVal + delta * easeProgress);
+    element.textContent = `${current}${suffix}`;
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      element._currentVal = endVal;
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+// Background reticle pulse loop
+let reticleAnimId = null;
+function startReticleLoop() {
+  if (reticleAnimId) return;
+  let lastTime = 0;
+  function loop(now) {
+    if (state.activeTab === 'view-scenario-lab' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (now - lastTime > 32) {
+        lastTime = now;
+        drawBoundaryCanvas();
+      }
+    }
+    reticleAnimId = requestAnimationFrame(loop);
+  }
+  reticleAnimId = requestAnimationFrame(loop);
+}
+
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
   setupTabs();
@@ -43,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
   triggerScenarioEvaluation();
   fetchBoundarySlice();
   loadDatasetsAndModel();
+  startReticleLoop();
 });
 
 // Tab Navigation
@@ -234,6 +280,9 @@ function renderPredictionResults(data) {
     pNoSpread.textContent = 'N/A';
     pMarginal.textContent = 'N/A';
     pSpread.textContent = 'N/A';
+    pNoSpread._currentVal = null;
+    pMarginal._currentVal = null;
+    pSpread._currentVal = null;
     bNoSpread.style.width = '0%';
     bMarginal.style.width = '0%';
     bSpread.style.width = '0%';
@@ -257,9 +306,9 @@ function renderPredictionResults(data) {
     const pctMarg = Math.round((probs.marginal_spread || 0) * 100);
     const pctSp = Math.round((probs.spread || 0) * 100);
 
-    pNoSpread.textContent = `${pctNo}%`;
-    pMarginal.textContent = `${pctMarg}%`;
-    pSpread.textContent = `${pctSp}%`;
+    animateNumber(pNoSpread, pctNo, '%', 200);
+    animateNumber(pMarginal, pctMarg, '%', 200);
+    animateNumber(pSpread, pctSp, '%', 200);
 
     bNoSpread.style.width = `${pctNo}%`;
     bMarginal.style.width = `${pctMarg}%`;
@@ -459,31 +508,45 @@ function drawBoundaryCanvas() {
     ctx.stroke();
   });
 
-  // 5. Active User Query Reticle
+  // 5. Active User Query Reticle with Animated Radar Halo Ring
   if (state.oxygen_pct >= o2Min && state.oxygen_pct <= o2Max && state.flow_cm_s >= flowMin && state.flow_cm_s <= flowMax) {
     const qx = toX(state.oxygen_pct);
     const qy = toY(state.flow_cm_s);
 
-    // Glowing Target Marker
+    const now = performance.now();
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const pulseFactor = reducedMotion ? 0 : Math.sin(now * 0.0035);
+    const ringRadius = 9 + (reducedMotion ? 0 : 5 * (0.5 + 0.5 * pulseFactor));
+    const ringAlpha = reducedMotion ? 0.6 : (0.25 + 0.35 * (0.5 + 0.5 * pulseFactor));
+
+    // Outer Animated Radar Halo
     ctx.beginPath();
-    ctx.arc(qx, qy, 9, 0, Math.PI * 2);
-    ctx.strokeStyle = '#00e5ff';
-    ctx.lineWidth = 2.5;
+    ctx.arc(qx, qy, ringRadius, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(0, 229, 255, ${ringAlpha})`;
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
+    // Solid Target Ring
+    ctx.beginPath();
+    ctx.arc(qx, qy, 7.5, 0, Math.PI * 2);
+    ctx.strokeStyle = '#00e5ff';
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+
+    // Center Core Dot
     ctx.beginPath();
     ctx.arc(qx, qy, 2.5, 0, Math.PI * 2);
     ctx.fillStyle = '#ffffff';
     ctx.fill();
 
-    // Crosshairs
-    ctx.strokeStyle = 'rgba(0, 229, 255, 0.7)';
+    // Aerospace Precision Crosshairs
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.75)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(qx - 15, qy);
-    ctx.lineTo(qx + 15, qy);
-    ctx.moveTo(qx, qy - 15);
-    ctx.lineTo(qx, qy + 15);
+    ctx.moveTo(qx - 14, qy);
+    ctx.lineTo(qx + 14, qy);
+    ctx.moveTo(qx, qy - 14);
+    ctx.lineTo(qx, qy + 14);
     ctx.stroke();
   }
 }
@@ -641,7 +704,7 @@ function drawSweepCanvas(currentO2 = 21.0) {
   }
   ctx.stroke();
 
-  // Current slider marker
+  // Current slider marker with aerospace glow pin
   const curX = padLeft + ((currentO2 - 16.0) / (21.0 - 16.0)) * pW;
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 2;
@@ -649,6 +712,16 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.moveTo(curX, padTop);
   ctx.lineTo(curX, padTop + pH);
   ctx.stroke();
+
+  // Glow pin at intersection
+  ctx.beginPath();
+  ctx.arc(curX, padTop + pH / 2, 6, 0, Math.PI * 2);
+  ctx.fillStyle = currentO2 >= 17.5 ? 'rgba(255, 51, 102, 0.35)' : 'rgba(0, 229, 255, 0.35)';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(curX, padTop + pH / 2, 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
 
   // Labels
   ctx.fillStyle = '#8899b8';
