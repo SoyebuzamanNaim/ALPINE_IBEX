@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLARE-X transforms NASA microgravity-combustion experiments into searchable, comparable, model-assisted and evidence-traceable fire-safety intelligence." />
+  <meta name="theme-color" content="#060913" />
+  <title>FLARE-X | NASA Microgravity Fire Intelligence</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" id="top">
+    <div class="nav-shell">
+      <a class="brand" href="#top" aria-label="FLARE-X home">
+        <span class="brand-mark" aria-hidden="true">FX</span>
+        <span>
+          <strong>FLARE-X</strong>
+          <small>NASA Microgravity Fire Intelligence</small>
+        </span>
+      </a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+      <nav id="primary-nav" class="primary-nav" aria-label="Primary navigation">
+        <a href="#problem">Problem</a>
+        <a href="#workflow">How it works</a>
+        <a href="#evidence">Evidence</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#team">Team</a>
+        <a class="nav-cta" href="#pitch">Pitch</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero section-pad">
+      <div class="hero-grid shell">
+        <div class="hero-copy reveal">
+          <div class="status-chip">Prescreening Concept • Illustrative UI • Proposed Architecture</div>
+          <p class="eyebrow">NASA Space Apps 2026</p>
+          <h1>FLARE-X</h1>
+          <h2>NASA Microgravity Fire Intelligence</h2>
+          <p class="hero-tagline">From NASA combustion experiments to evidence-backed fire-safety intelligence.</p>
+          <p class="hero-lede">NASA already has decades of microgravity combustion evidence. FLARE-X is designed to help researchers identify which experiments actually apply to a scenario, compare conditions correctly, use specialized quantitative models only where scientifically justified, and inspect the evidence behind every conclusion.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#pitch">Watch 240-Second Pitch</a>
+            <a class="btn secondary" href="#workflow">Explore the Concept</a>
+          </div>
+          <div class="hero-badges" aria-label="Project attributes">
+            <span>NASA PSI Data</span><span>Experiment-Centric</span><span>Evidence-Bounded AI</span><span>Research Prototype</span>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal" aria-label="Illustrative FLARE-X experimental support map concept">
+          <div class="visual-head">
+            <div>
+              <span class="mini-label">ILLUSTRATIVE SUPPORT MAP</span>
+              <strong>Experimental support around your scenario</strong>
+            </div>
+            <span class="state inside">INSIDE</span>
+          </div>
+          <svg viewBox="0 0 720 500" role="img" aria-labelledby="support-title support-desc">
+            <title id="support-title">Illustrative experimental support map</title>
+            <desc id="support-desc">NASA experiment points, a user scenario marker, evidence-density zones and a model boundary shown as a conceptual interface.</desc>
+            <defs>
+              <radialGradient id="supportA" cx="50%" cy="45%" r="52%">
+                <stop offset="0%" stop-color="#1dd6c9" stop-opacity="0.28"/>
+                <stop offset="62%" stop-color="#0aa0d4" stop-opacity="0.10"/>
+                <stop offset="100%" stop-color="#0aa0d4" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="modelBand" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#6949ff" stop-opacity="0.10"/>
+                <stop offset="0.55" stop-color="#6949ff" stop-opacity="0.24"/>
+                <stop offset="1" stop-color="#ff9b45" stop-opacity="0.10"/>
+              </linearGradient>
+            </defs>
+            <rect x="60" y="40" width="610" height="390" rx="18" fill="#08111e" stroke="#1c2a3a"/>
+            <rect x="80" y="60" width="570" height="350" rx="16" fill="url(#supportA)"/>
+            <path d="M145 350 C210 310, 235 305, 300 250 S420 165, 565 130" stroke="#7d5cff" stroke-width="3" fill="none" opacity="0.85"/>
+            <path d="M105 385 C210 345, 370 332, 615 296" stroke="#ffb45d" stroke-width="3" fill="none" stroke-dasharray="9 10" opacity="0.8"/>
+            <path d="M80 230 C180 215, 250 195, 320 180 C410 160, 505 175, 650 210 L650 410 L80 410 Z" fill="url(#modelBand)"/>
+            <g fill="#66bfff" stroke="#b9dcff" stroke-width="1.5">
+              <circle cx="150" cy="325" r="7"/><circle cx="182" cy="292" r="7"/><circle cx="212" cy="313" r="7"/>
+              <circle cx="245" cy="272" r="7"/><circle cx="288" cy="252" r="7"/><circle cx="320" cy="228" r="7"/>
+              <circle cx="348" cy="265" r="7"/><circle cx="380" cy="213" r="7"/><circle cx="420" cy="205" r="7"/>
+              <circle cx="454" cy="184" r="7"/><circle cx="500" cy="167" r="7"/><circle cx="545" cy="151" r="7"/>
+              <circle cx="575" cy="172" r="7"/>
+            </g>
+            <g>
+              <circle cx="352" cy="245" r="24" fill="#0ee8d2" opacity="0.14"/>
+              <path d="M352 221 l7.4 15 16.6 2.4 -12 11.7 2.8 16.5 -14.8 -7.8 -14.8 7.8 2.8 -16.5 -12 -11.7 16.6 -2.4z" fill="#0ee8d2" stroke="#cbfff9" stroke-width="1.5"/>
+            </g>
+            <g stroke="#52657a" stroke-width="1">
+              <line x1="100" y1="410" x2="630" y2="410"/>
+              <line x1="100" y1="80" x2="100" y2="410"/>
+            </g>
+            <text x="322" y="462" fill="#8ca0b7" font-size="15">AIRFLOW VELOCITY</text>
+            <text x="28" y="275" fill="#8ca0b7" font-size="15" transform="rotate(-90 28 275)">OXYGEN CONCENTRATION</text>
+            <text x="378" y="238" fill="#bafdf6" font-size="15" font-weight="600">YOUR SCENARIO</text>
+            <text x="420" y="110" fill="#a993ff" font-size="14">MODEL REGIME BOUNDARY</text>
+            <text x="383" y="340" fill="#ffc47c" font-size="14">EXPERIMENTAL SUPPORT BOUNDARY</text>
+          </svg>
+          <div class="visual-foot">
+            <span><i class="dot nasa"></i> NASA experiment</span>
+            <span><i class="star-dot">★</i> Your scenario</span>
+            <span><i class="line model"></i> Model boundary</span>
+            <span><i class="line support"></i> Support boundary</span>
+          </div>
+          <p class="concept-note">Illustrative FLARE-X interface concept. Scientific values and boundaries shown here are placeholders for interaction design, not validated results.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="status-section shell reveal" aria-labelledby="status-heading">
+      <div class="section-kicker">CURRENT PROJECT STATUS</div>
+      <div class="status-layout">
+        <div>
+          <h2 id="status-heading">Designed transparently before the build.</h2>
+          <p>FLARE-X is currently in the research, scientific-design and prototype-planning stage for NASA Space Apps 2026. The dataset strategy, model architecture, validation framework, Experimental Envelope Guard, evidence system, counterfactual workflow and UI architecture have been designed. Full implementation follows the official challenge-resource reconciliation and hackathon build.</p>
+        </div>
+        <div class="status-table" role="table" aria-label="Project status">
+          <div role="row"><span role="cell">Challenge & dataset audit</span><strong role="cell">Completed</strong></div>
+          <div role="row"><span role="cell">Scientific architecture</span><strong role="cell">Completed</strong></div>
+          <div role="row"><span role="cell">ML & validation design</span><strong role="cell">Designed</strong></div>
+          <div role="row"><span role="cell">Concept UI</span><strong role="cell">Created</strong></div>
+          <div role="row"><span role="cell">Production models</span><strong role="cell" class="planned">Planned</strong></div>
+          <div role="row"><span role="cell">Integrated platform</span><strong role="cell" class="planned">Hackathon build</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="problem" class="section-pad section-alt">
+      <div class="shell split-grid">
+        <div class="reveal">
+          <p class="eyebrow">THE PROBLEM</p>
+          <h2>NASA has the evidence. Finding the right evidence is the hard part.</h2>
+          <p>Microgravity changes flame shape, spread, extinction, soot formation, radiation and material behavior. NASA has accumulated valuable evidence across many investigations, but those experiments differ in fuel or material, oxygen, pressure, flow, geometry, scale, measurements and documentation.</p>
+          <p>A researcher asking a specific fire-safety question must determine which experiments are truly comparable, what was observed, whether a quantitative model is appropriate, how far a result can be generalized, and where every scientific claim came from.</p>
+        </div>
+        <div class="fragment-card reveal" aria-label="Fragmented NASA evidence families">
+          <div class="family-row"><span>BASS-II</span><em>Solid combustion</em></div>
+          <div class="family-row"><span>FLEX</span><em>Droplet combustion</em></div>
+          <div class="family-row"><span>SPICE</span><em>Gas flames</em></div>
+          <div class="family-row"><span>SAFFIRE</span><em>Spacecraft-scale fire</em></div>
+          <div class="family-row"><span>SAME</span><em>Smoke & aerosols</em></div>
+          <div class="question-node">USER QUESTION</div>
+          <div class="question-mark" aria-hidden="true">?</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow" class="section-pad">
+      <div class="shell">
+        <p class="eyebrow reveal">THE FLARE-X SOLUTION</p>
+        <div class="section-heading-row reveal">
+          <div>
+            <h2>Find → Compare → Model → Verify → Trace</h2>
+            <p>FLARE-X is designed as an evidence-bounded scientific decision-support workflow, not a generic document chatbot.</p>
+          </div>
+          <div class="callout"><strong>Core principle</strong><span>When the evidence becomes weak, FLARE-X becomes less confident and eventually stops predicting.</span></div>
+        </div>
+
+        <div class="workflow-grid reveal">
+          <article><b>01</b><h3>Define scenario</h3><p>Natural language or structured scientific parameters.</p></article>
+          <article><b>02</b><h3>Identify family</h3><p>Solid, liquid droplet, gas flame, smoke or contextual evidence.</p></article>
+          <article><b>03</b><h3>Retrieve & rank</h3><p>Find relevant NASA experiments, then rank physical comparability.</p></article>
+          <article><b>04</b><h3>Model</h3><p>Route only compatible questions to specialized quantitative models.</p></article>
+          <article><b>05</b><h3>Verify domain</h3><p>Check whether NASA-tested conditions support model use.</p></article>
+          <article><b>06</b><h3>Audit & trace</h3><p>Separate observations, inference and synthesis with provenance.</p></article>
+        </div>
+
+        <div class="flagship reveal">
+          <div>
+            <span class="mini-label">ILLUSTRATIVE FLAGSHIP SCENARIO</span>
+            <h3>Reduced-oxygen solid combustion under forced airflow</h3>
+            <p>Example parameters for interface design only. They are not presented as measured results or a validated prediction.</p>
+          </div>
+          <div class="scenario-pills">
+            <span><small>Material</small>PMMA</span>
+            <span><small>Oxygen</small>18%</span>
+            <span><small>Airflow</small>15 cm/s</span>
+            <span><small>Phenomenon</small>Flame propagation</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence" class="section-pad section-alt">
+      <div class="shell">
+        <p class="eyebrow reveal">SIGNATURE INTERACTION</p>
+        <h2 class="reveal">See where the evidence ends.</h2>
+        <p class="section-lede reveal">The proposed Experimental Support Map places a user's scenario inside the parameter space occupied by relevant NASA experiments. NASA observations remain visible while the scenario moves across supported, sparse and unsupported regions.</p>
+
+        <div class="boundary-strip reveal" aria-label="Experimental domain statuses">
+          <span class="inside">✓ INSIDE</span><span>→</span><span class="near">△ NEAR BOUNDARY</span><span>→</span><span class="partial">! PARTIAL SUPPORT</span><span>→</span><span class="outside">× OUTSIDE</span>
+        </div>
+
+        <div class="counter-grid reveal">
+          <div class="counter-copy">
+            <span class="mini-label">EVIDENCE-AWARE COUNTERFACTUALS</span>
+            <h3>Change the conditions. Re-evaluate the evidence.</h3>
+            <p>Changing oxygen, airflow, pressure or another supported parameter is designed to trigger more than a new prediction. FLARE-X reruns evidence retrieval, scientific ranking, domain validation and interpretation for the changed scenario.</p>
+            <div class="counter-steps">
+              <div><strong>21% O₂</strong><span>Inside • stronger evidence</span></div>
+              <div><strong>18% O₂</strong><span>Near boundary • evidence thins</span></div>
+              <div><strong>14% O₂</strong><span>Outside • reliable prediction withheld</span></div>
+            </div>
+            <p class="concept-note">Illustrative interaction, not an experimentally established oxygen threshold.</p>
+          </div>
+          <div class="counter-visual" aria-label="Illustrative counterfactual slider">
+            <div class="slider-labels"><span>21%</span><span>18%</span><span>14%</span></div>
+            <div class="fake-slider"><div class="track-fill"></div><div class="thumb"></div></div>
+            <div class="counter-chart">
+              <svg viewBox="0 0 620 280" role="img" aria-label="Concept model response and evidence support chart">
+                <path d="M50 48 H585 V240 H50 Z" fill="#08111e" stroke="#1a2b3d"/>
+                <path d="M65 85 C170 98, 270 120, 350 153 S480 205, 565 220" fill="none" stroke="#7d5cff" stroke-width="4"/>
+                <path d="M65 175 C210 165, 320 160, 565 105" fill="none" stroke="#16d7c3" stroke-width="7" opacity="0.18"/>
+                <path d="M420 55 V235" stroke="#ffb45d" stroke-width="2" stroke-dasharray="7 7"/>
+                <circle cx="255" cy="117" r="8" fill="#66bfff"/>
+                <circle cx="332" cy="146" r="8" fill="#66bfff"/>
+                <circle cx="390" cy="166" r="8" fill="#66bfff"/>
+                <path d="M350 131 l6 12 13 2 -9.5 9 2.2 13 -11.7 -6.2 -11.7 6.2 2.2 -13 -9.5 -9 13 -2z" fill="#0ee8d2"/>
+                <text x="432" y="74" fill="#ffc47c" font-size="13">support boundary</text>
+                <text x="258" y="108" fill="#a6b8ca" font-size="12">NASA observations</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad">
+      <div class="shell">
+        <p class="eyebrow reveal">NASA DATA FOUNDATION</p>
+        <h2 class="reveal">Built around real experimental families, not one universal fire model.</h2>
+        <div class="dataset-grid reveal">
+          <article><span>PSI-25</span><h3>BASS-II</h3><strong>Solid combustion</strong><p>Materials, geometry, oxygen, forced airflow, ignition, flame growth, spread and extinction.</p><small>Planned role: flagship solid-fire evidence and conditional regime modelling.</small></article>
+          <article><span>PSI-69</span><h3>FLEX</h3><strong>Droplet combustion</strong><p>Fuel, initial droplet diameter, oxygen, pressure, diluents/suppressants and extinction behavior.</p><small>Planned role: extinction classification and boundary exploration.</small></article>
+          <article><span>PSI-107</span><h3>SPICE</h3><strong>Gas diffusion flames</strong><p>526 experimental flames across fuels, burner diameters, co-flow velocities and fuel-flow conditions.</p><small>Planned role: primary flame-length regression model.</small></article>
+          <article><span>PSI-98</span><h3>SAFFIRE-I</h3><strong>Spacecraft-scale fire</strong><p>Materials, airflow, oxygen, instrumentation, burn behavior and video from larger-scale tests.</p><small>Planned role: spacecraft-scale contextual evidence.</small></article>
+          <article><span>PSI-102</span><h3>SAME</h3><strong>Smoke & aerosols</strong><p>Smoke-generation conditions, particle properties and detector-relevant measurements.</p><small>Planned role: supporting smoke evidence and future analysis.</small></article>
+        </div>
+        <div class="source-links reveal">
+          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-25" target="_blank" rel="noreferrer">BASS-II official NASA PSI ↗</a>
+          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-69" target="_blank" rel="noreferrer">FLEX official NASA PSI ↗</a>
+          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-107" target="_blank" rel="noreferrer">SPICE official NASA PSI ↗</a>
+          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-98" target="_blank" rel="noreferrer">SAFFIRE-I official NASA PSI ↗</a>
+          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-102" target="_blank" rel="noreferrer">SAME official NASA PSI ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad section-alt">
+      <div class="shell">
+        <p class="eyebrow reveal">QUANTITATIVE AI</p>
+        <h2 class="reveal">Specialized models, not one universal fire score.</h2>
+        <div class="model-grid reveal">
+          <article class="model-card">
+            <div class="model-top"><span>CORE</span><b>SPICE-FL</b></div>
+            <h3>Flame-length regression</h3>
+            <p>Gas-flame model using SPICE experimental variables such as fuel, burner diameter, co-flow velocity and fuel flow.</p>
+            <dl><div><dt>Validation planned</dt><dd>MAE • RMSE • R²</dd></div><div><dt>Status</dt><dd>Planned</dd></div></dl>
+          </article>
+          <article class="model-card">
+            <div class="model-top"><span>P1</span><b>FLEX-EX</b></div>
+            <h3>Extinction classification</h3>
+            <p>Droplet-combustion classifier for sustained/extinguished regimes where clean NASA labels support the task.</p>
+            <dl><div><dt>Validation planned</dt><dd>Balanced accuracy • F1 • calibration</dd></div><div><dt>Status</dt><dd>Planned</dd></div></dl>
+          </article>
+          <article class="model-card conditional">
+            <div class="model-top"><span>CONDITIONAL</span><b>BASS-RG</b></div>
+            <h3>Solid-fire regime model</h3>
+            <p>Propagation/extinction modelling only if extracted BASS-II labels and independent sample counts support defensible validation.</p>
+            <dl><div><dt>Validation</dt><dd>Only if scientifically viable</dd></div><div><dt>Status</dt><dd>Conditional</dd></div></dl>
+          </article>
+        </div>
+        <p class="integrity-note reveal"><strong>No projected accuracy is shown here.</strong> Metrics will be reported only after training and held-out validation.</p>
+      </div>
+    </section>
+
+    <section class="section-pad">
+      <div class="shell trust-grid">
+        <div class="reveal">
+          <p class="eyebrow">EVIDENCE BEFORE ELOQUENCE</p>
+          <h2>Every result has an epistemic identity.</h2>
+          <p>FLARE-X is designed to separate direct NASA observations from FLARE-X model inference and AI-generated synthesis. A final Evidence Auditor checks source support, model applicability, domain status, numerical provenance and limitations before a scientific conclusion is presented.</p>
+        </div>
+        <div class="claim-stack reveal">
+          <div class="claim nasa"><strong>NASA OBSERVATION</strong><span>Directly recorded experimental evidence.</span></div>
+          <div class="claim model"><strong>MODEL INFERENCE</strong><span>Output from a documented FLARE-X quantitative model.</span></div>
+          <div class="claim ai"><strong>AI SYNTHESIS</strong><span>Explanation grounded in retrieved evidence and model outputs.</span></div>
+          <div class="claim limit"><strong>LIMITATION</strong><span>Conditions restricting how strongly the result should be interpreted.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad section-alt">
+      <div class="shell">
+        <p class="eyebrow reveal">PROVENANCE</p>
+        <h2 class="reveal">Where did this answer come from?</h2>
+        <div class="provenance-grid reveal">
+          <div class="prov-path">
+            <span>CLAIM</span><i>↓</i><span>NASA EXPERIMENT</span><i>↓</i><span>SOURCE FILE / RECORD</span><i>↓</i><span>NASA INVESTIGATION</span><i>↓</i><span>DOI</span>
+          </div>
+          <div class="prov-path model-path">
+            <span>MODEL CLAIM</span><i>↓</i><span>MODEL RUN</span><i>↓</i><span>MODEL VERSION</span><i>↓</i><span>TRAINING MANIFEST</span><i>↓</i><span>NASA EXPERIMENTS</span>
+          </div>
+        </div>
+        <p class="section-lede reveal">The goal is not merely to attach a citation to a paragraph. FLARE-X is designed so important scientific statements can resolve to the experiment, source or model lineage that produced them.</p>
+      </div>
+    </section>
+
+    <section class="section-pad">
+      <div class="shell">
+        <p class="eyebrow reveal">WHY FLARE-X IS DIFFERENT</p>
+        <h2 class="reveal">Not another PDF chatbot.</h2>
+        <div class="diff-grid reveal">
+          <article><span>01</span><h3>Evidence-Bounded AI</h3><p>Checks whether NASA's experimental record actually supports a scenario before trusting a model prediction.</p></article>
+          <article><span>02</span><h3>Experiment-Centric Intelligence</h3><p>The physical experiment, not merely a paper or PDF, is the central unit of scientific evidence.</p></article>
+          <article><span>03</span><h3>Evidence-Aware Counterfactuals</h3><p>Changing a condition re-evaluates both model behavior and the surrounding NASA evidence.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="section-pad section-alt">
+      <div class="shell">
+        <p class="eyebrow reveal">SYSTEM ARCHITECTURE</p>
+        <h2 class="reveal">Language reasoning on top. Controlled scientific computation underneath.</h2>
+        <div class="architecture reveal" aria-label="Simplified FLARE-X system architecture">
+          <div>NASA PSI / NTRS</div><span>↓</span>
+          <div>Scientific Data Layer</div><span>↓</span>
+          <div>Evidence Retrieval + Ranking</div><span>↓</span>
+          <div class="arch-split"><b>Specialized Models</b><b>Experimental Envelope Guard</b></div><span>↓</span>
+          <div>Evidence Synthesis + Auditor</div><span>↓</span>
+          <div>FLARE-X Interface</div>
+        </div>
+        <p class="section-lede reveal">AI components interpret questions, retrieve evidence and explain results. Numerical predictions, unit conversion, similarity scoring, uncertainty and domain checks are handled by controlled computational components.</p>
+      </div>
+    </section>
+
+    <section class="section-pad">
+      <div class="shell">
+        <p class="eyebrow reveal">EXPECTED IMPACT</p>
+        <h2 class="reveal">Make NASA combustion evidence easier to reuse.</h2>
+        <div class="impact-grid reveal">
+          <article><h3>Faster discovery</h3><p>Move from a scientific scenario to relevant experiments across multiple NASA investigations.</p></article>
+          <article><h3>Better comparison</h3><p>See which experimental conditions match, which differ, and why that difference matters.</p></article>
+          <article><h3>More transparent interpretation</h3><p>Know what is observed, inferred, uncertain, contradictory or unsupported.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad section-alt">
+      <div class="shell limitations reveal">
+        <div>
+          <p class="eyebrow">SCIENTIFIC BOUNDARIES</p>
+          <h2>Insufficient evidence is a valid result.</h2>
+        </div>
+        <div>
+          <p>FLARE-X is a research and scientific decision-support concept, not certified engineering or operational safety software. NASA investigations cover specific fuels, materials, geometries and environmental conditions. Controlled experimental similarity does not guarantee equivalent spacecraft behavior.</p>
+          <p>Quantitative models are designed to remain experiment-family-specific and primarily interpolate within validated domains. Lack of matching evidence is never interpreted as evidence of safety.</p>
+          <div class="limitation-banner">Research prototype • Not operational spacecraft safety guidance</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad">
+      <div class="shell">
+        <p class="eyebrow reveal">DEVELOPMENT ROADMAP</p>
+        <h2 class="reveal">Designed first. Built and validated next.</h2>
+        <div class="roadmap reveal">
+          <article><span>NOW</span><h3>Prescreening</h3><p>Challenge research, NASA dataset audit, model design, evidence system, validation plan, UI/UX and concept visuals.</p></article>
+          <article><span>NEXT</span><h3>Core build</h3><p>NASA data ingestion, SPICE baseline/model, hybrid retrieval, ranking, comparison, provenance and Envelope Guard.</p></article>
+          <article><span>THEN</span><h3>Differentiation</h3><p>Experimental Support Map, counterfactual explorer, FLEX classifier and deeper evidence auditing.</p></article>
+          <article><span>STRETCH</span><h3>Advanced research tools</h3><p>BASS model if valid, research-gap mapping, smoke intelligence, video analysis and graph exploration.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="team" class="section-pad section-alt">
+      <div class="shell">
+        <p class="eyebrow reveal">TEAM</p>
+        <h2 class="reveal">Registered Space Apps Bangladesh Team Roster</h2>
+        <div class="team-grid reveal">
+          <article><div>A</div><h3>Saber Hossain Mahim</h3><strong>Product & Science Lead</strong><p>Challenge research, scientific scope, product strategy and presentation.</p></article>
+          <article><div>B</div><h3>Ismail Hossen</h3><strong>Data & Evidence Lead</strong><p>NASA datasets, normalization, ontology and provenance.</p></article>
+          <article><div>C</div><h3>Mahzabin Muntaha</h3><strong>ML & Validation Lead</strong><p>Model design, validation, calibration and uncertainty.</p></article>
+          <article><div>D</div><h3>Abdullah Al Masum</h3><strong>AI Systems & Backend Lead</strong><p>Retrieval, orchestration, APIs, routing and system integration.</p></article>
+          <article><div>E</div><h3>Nahid</h3><strong>Frontend & Visualization Lead</strong><p>Analyze experience, Experimental Support Map and counterfactual interaction.</p></article>
+          <article><div>F</div><h3>Soyebuzaman Naim</h3><strong>UX, Media & Submission Lead</strong><p>Visual consistency, project page, video, subtitles and submission assets.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="pitch" class="section-pad pitch-section">
+      <div class="shell pitch-card reveal">
+        <div>
+          <p class="eyebrow">240 SECONDS OF FLARE-X</p>
+          <h2>Prescreening concept pitch</h2>
+          <p>The official 240-second pitch video for the NASA Space Apps Challenge 2026 prescreening. Verified under 240 seconds with full English closed captions.</p>
+          <div class="pitch-meta"><span>&lt; 240 seconds</span><span>English</span><span>English subtitles</span></div>
+        </div>
+        <a class="btn primary disabled" href="#" aria-disabled="true" onclick="return false;">Video link pending</a>
+      </div>
+    </section>
+
+    <section class="section-pad section-alt">
+      <div class="shell sources-grid">
+        <div class="reveal">
+          <p class="eyebrow">NASA SOURCES</p>
+          <h2>Primary evidence foundation</h2>
+          <p>FLARE-X is designed around publicly available NASA physical-sciences data and documentation. Final implementation will reconcile all sources with the official 2026 challenge resources.</p>
+          <div class="source-list">
+            <a href="https://psi.nasa.gov/physci/repo" target="_blank" rel="noreferrer">NASA Physical Sciences Informatics (PSI) ↗</a>
+            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-25" target="_blank" rel="noreferrer">BASS-II — PSI-25 ↗</a>
+            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-69" target="_blank" rel="noreferrer">FLEX — PSI-69 ↗</a>
+            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-107" target="_blank" rel="noreferrer">SPICE — PSI-107 ↗</a>
+            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-98" target="_blank" rel="noreferrer">SAFFIRE-I — PSI-98 ↗</a>
+            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-102" target="_blank" rel="noreferrer">SAME — PSI-102 ↗</a>
+          </div>
+        </div>
+        <div class="credits reveal">
+          <p class="eyebrow">CREDITS & ATTRIBUTIONS</p>
+          <h2>Transparency includes the presentation.</h2>
+          <p>NASA dataset and publication attribution should be retained throughout the final project. Any third-party fonts, icons, libraries, templates, stock assets or generated media used in the final submission must be credited according to their terms.</p>
+          <p>This page itself uses original HTML/CSS/SVG concept graphics. Architectural concept mockups and visualization assets were developed with generative prototyping tools; all scientific parameters are illustrative unless designated as historical flight data.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-grid">
+      <div>
+        <strong>FLARE-X</strong>
+        <span>NASA Microgravity Fire Intelligence</span>
+      </div>
+      <p>Independent NASA Space Apps Challenge project using publicly available NASA scientific data. Research prototype/concept. Not operational spacecraft safety guidance.</p>
+      <div class="footer-links"><a href="#top">Top</a><a href="DATA_SOURCES.md">Data sources</a><a href="LIMITATIONS.md">Limitations</a><a href="CREDITS.md">Credits</a></div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
