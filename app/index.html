@@ -412,7 +412,7 @@
             <input type="range" id="sweep-oxygen-slider" class="instrument-slider sweep-slider" min="16.0" max="21.0" step="0.1" value="21.0">
             <div class="calibrated-ticks">
               <span class="tick-label"><span class="tick-mark">|</span> 16.0% (Complete Extinction)</span>
-              <span class="tick-label active-tick"><span class="tick-mark">|</span> 17.5% (LOC Boundary)</span>
+              <span class="tick-label active-tick" id="tick-loc-boundary"><span class="tick-mark">|</span> 17.5% (LOC Boundary)</span>
               <span class="tick-label"><span class="tick-mark">|</span> 21.0% (Nominal Ambient)</span>
             </div>
           </div>
@@ -430,7 +430,7 @@
         <div class="boundary-comparison-grid" id="boundary-dual-cards-grid">
           <div class="regime-evidence-card card-spread-side">
             <div class="evidence-header">
-              <span class="regime-tag tag-spread">Above Boundary (O₂ &gt; 17.5%)</span>
+              <span class="regime-tag tag-spread" id="tag-above-boundary">Above Boundary (O₂ &gt; 17.5%)</span>
               <h3>Sustained Flame Spread Regime</h3>
             </div>
             <p>Convective oxidizer flux from cabin ventilation supplies sufficient oxygen to the spherical reaction zone, exceeding conductive and radiative heat losses. The flame propagates continuously across solid PMMA.</p>
@@ -441,7 +441,7 @@
 
           <div class="regime-evidence-card card-extinction-side">
             <div class="evidence-header">
-              <span class="regime-tag tag-extinction">Below Boundary (O₂ ≤ 17.0%)</span>
+              <span class="regime-tag tag-extinction" id="tag-below-boundary">Below Boundary (O₂ ≤ 17.0%)</span>
               <h3>Extinction / Quenched Regime</h3>
             </div>
             <p>Oxygen flux drops below the Limiting Oxygen Concentration (LOC). Without buoyant buoyant acceleration to sweep fresh oxidizer into the flame base, conductive heat losses to the fuel surface snuff out the reaction.</p>

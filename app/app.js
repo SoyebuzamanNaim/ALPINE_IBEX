@@ -128,6 +128,7 @@ function setupTabs() {
       if (targetId === 'view-scenario-lab') {
         drawBoundaryCanvas();
       } else if (targetId === 'view-counterfactual-sweep') {
+        fetchSweepData();
         drawSweepCanvas();
       }
     });
@@ -769,7 +770,46 @@ function setupNlpParser() {
   });
 }
 
-// Killer Demo Sweep View (Brief §2)
+// Killer Demo Sweep View (Brief §2) - Completely Dynamic
+async function fetchSweepData() {
+  try {
+    const res = await fetch(`${API_BASE}/sweep`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        baseline: {
+          oxygen_pct: state.oxygen_pct,
+          pressure_kpa: state.pressure_kpa,
+          flow_cm_s: state.flow_cm_s,
+          material: state.material
+        },
+        param: 'oxygen_pct',
+        start: 16.0,
+        end: 21.0,
+        steps: 26
+      })
+    });
+    if (res.ok) {
+      state.sweepData = await res.json();
+      const trans = state.sweepData.transitions;
+      if (trans && trans.length > 0) {
+        const t = trans.find(tr => tr.to_regime === 'spread' || tr.to_regime === 'marginal_spread') || trans[0];
+        state.dynamicLocBoundary = t.midpoint;
+        state.sweepEvidenceBefore = t.evidence_before;
+        state.sweepEvidenceAfter = t.evidence_after;
+      } else if (state.sweepData.safety_margin && state.sweepData.safety_margin.boundary_midpoint) {
+        state.dynamicLocBoundary = state.sweepData.safety_margin.boundary_midpoint;
+      } else {
+        state.dynamicLocBoundary = 17.5;
+      }
+      const slider = document.getElementById('sweep-oxygen-slider');
+      updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
+    }
+  } catch (err) {
+    console.warn('Dynamic sweep fetch error:', err);
+  }
+}
+
 function setupSweepView() {
   const sweepSlider = document.getElementById('sweep-oxygen-slider');
   const autoBtn = document.getElementById('btn-run-auto-sweep');
@@ -796,7 +836,7 @@ function setupSweepView() {
     }, 60);
   });
 
-  updateSweepPoint(21.0);
+  fetchSweepData();
 }
 
 function updateSweepPoint(o2Val) {
@@ -805,9 +845,18 @@ function updateSweepPoint(o2Val) {
   const readout = document.getElementById('readout-sweep-o2');
   if (readout) readout.textContent = `${o2Val.toFixed(1)} %`;
 
-  const locBoundary = 17.5;
+  // Dynamically derived from experiment sweep rather than hardcoded!
+  const locBoundary = state.dynamicLocBoundary || 17.5;
   const delta = o2Val - locBoundary;
   if (marginDisplay) marginDisplay.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)} % O₂`;
+
+  // Update dynamic boundary tags in UI
+  const tagAbove = document.getElementById('tag-above-boundary');
+  const tagBelow = document.getElementById('tag-below-boundary');
+  const tickLoc = document.getElementById('tick-loc-boundary');
+  if (tagAbove) tagAbove.textContent = `Above Boundary (O₂ > ${locBoundary.toFixed(1)}%)`;
+  if (tagBelow) tagBelow.textContent = `Below Boundary (O₂ ≤ ${locBoundary.toFixed(1)}%)`;
+  if (tickLoc) tickLoc.innerHTML = `<span class="tick-mark">|</span> ${locBoundary.toFixed(1)}% (LOC Boundary)`;
 
   if (marginStatus) {
     if (delta > 1.0) {
@@ -817,25 +866,35 @@ function updateSweepPoint(o2Val) {
       marginStatus.className = 'margin-pill';
       marginStatus.style.background = 'rgba(217, 119, 6, 0.15)';
       marginStatus.style.border = '1px solid #d97706';
-      marginStatus.style.color = '#f59e0b';
+      marginStatus.style.color = '#b45309';
       marginStatus.textContent = 'Critical Near-Boundary Margin';
     } else {
       marginStatus.className = 'margin-pill';
       marginStatus.style.background = 'rgba(56, 189, 248, 0.15)';
       marginStatus.style.border = '1px solid #0284c7';
-      marginStatus.style.color = '#38bdf8';
+      marginStatus.style.color = '#0369a1';
       marginStatus.textContent = 'Extinction / Quenched';
     }
   }
 
-  // Update real historical evidence boxes
+  // Update real historical evidence boxes from dynamic sweep results
   const evAbove = document.getElementById('evidence-above-boundary');
   const evBelow = document.getElementById('evidence-below-boundary');
   if (evAbove) {
-    evAbove.innerHTML = '<strong>Real NASA BASS Test:</strong> 20.8% O₂, 101.3 kPa, 5.0 cm/s → <em>spread</em> (NTRS 20160010041, PMMA)';
+    const exp = (state.sweepEvidenceAfter && state.sweepEvidenceAfter[0]);
+    if (exp) {
+      evAbove.innerHTML = `<strong>Real NASA ${exp.investigation || 'Flight'} Test:</strong> ${exp.oxygen_pct}% O₂, ${exp.pressure_kpa} kPa, ${exp.flow_cm_s} cm/s → <em>${exp.outcome}</em> (<a href="${exp.source_url || '#'}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${exp.report_id} ↗</a>, ${state.material})`;
+    } else {
+      evAbove.innerHTML = `<strong>Real NASA BASS Test:</strong> 20.8% O₂, 101.3 kPa, 5.0 cm/s → <em>spread</em> (<a href="https://ntrs.nasa.gov/citations/20160010041" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS 20160010041 ↗</a>, ${state.material})`;
+    }
   }
   if (evBelow) {
-    evBelow.innerHTML = '<strong>Real NASA BASS Test:</strong> 16.5% O₂, 101.3 kPa, 4.0 cm/s → <em>no_spread</em> (NTRS 20140011099, PMMA)';
+    const exp = (state.sweepEvidenceBefore && state.sweepEvidenceBefore[0]);
+    if (exp) {
+      evBelow.innerHTML = `<strong>Real NASA ${exp.investigation || 'Flight'} Test:</strong> ${exp.oxygen_pct}% O₂, ${exp.pressure_kpa} kPa, ${exp.flow_cm_s} cm/s → <em>${exp.outcome}</em> (<a href="${exp.source_url || '#'}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${exp.report_id} ↗</a>, ${state.material})`;
+    } else {
+      evBelow.innerHTML = `<strong>Real NASA BASS Test:</strong> 16.5% O₂, 101.3 kPa, 4.0 cm/s → <em>no_spread</em> (<a href="https://ntrs.nasa.gov/citations/20140011099" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS 20140011099 ↗</a>, ${state.material})`;
+    }
   }
 
   drawSweepCanvas(o2Val);
@@ -864,8 +923,9 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
   ctx.strokeRect(padLeft, padTop, pW, pH);
 
-  // Transition vertical line at 17.5%
-  const boundaryX = padLeft + ((17.5 - 16.0) / (21.0 - 16.0)) * pW;
+  // Transition vertical line derived dynamically
+  const locBoundary = state.dynamicLocBoundary || 17.5;
+  const boundaryX = padLeft + ((locBoundary - 16.0) / (21.0 - 16.0)) * pW;
   ctx.strokeStyle = 'rgba(217, 119, 6, 0.75)';
   ctx.setLineDash([4, 4]);
   ctx.beginPath();
@@ -876,18 +936,31 @@ function drawSweepCanvas(currentO2 = 21.0) {
 
   ctx.fillStyle = '#b45309';
   ctx.font = '10px "JetBrains Mono", monospace';
-  ctx.fillText('LOC BOUNDARY (17.5%)', boundaryX + 8, padTop + 16);
+  ctx.fillText(`LOC BOUNDARY (${locBoundary.toFixed(1)}%)`, Math.min(boundaryX + 8, padLeft + pW - 140), padTop + 16);
+
+  // Check if we have real sweep points from the backend
+  const pts = state.sweepData && state.sweepData.points;
 
   // Curve: P(Spread)
   ctx.strokeStyle = '#dc2626';
   ctx.lineWidth = 2.4;
   ctx.beginPath();
-  for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
-    const x = padLeft + ((o2 - 16.0) / (21.0 - 16.0)) * pW;
-    const prob = 1 / (1 + Math.exp(-2.5 * (o2 - 17.7)));
-    const y = padTop + pH - prob * pH;
-    if (o2 === 16.0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
+  if (pts && pts.length > 0) {
+    pts.forEach((pt, idx) => {
+      const x = padLeft + ((pt.oxygen_pct - 16.0) / (21.0 - 16.0)) * pW;
+      const prob = pt.probabilities ? (pt.probabilities.spread || 0) : 0;
+      const y = padTop + pH - prob * pH;
+      if (idx === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+  } else {
+    for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
+      const x = padLeft + ((o2 - 16.0) / (21.0 - 16.0)) * pW;
+      const prob = 1 / (1 + Math.exp(-2.5 * (o2 - locBoundary)));
+      const y = padTop + pH - prob * pH;
+      if (o2 === 16.0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
   }
   ctx.stroke();
 
@@ -895,12 +968,22 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.strokeStyle = '#059669';
   ctx.lineWidth = 2.4;
   ctx.beginPath();
-  for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
-    const x = padLeft + ((o2 - 16.0) / (21.0 - 16.0)) * pW;
-    const prob = 1 / (1 + Math.exp(2.5 * (o2 - 17.1)));
-    const y = padTop + pH - prob * pH;
-    if (o2 === 16.0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
+  if (pts && pts.length > 0) {
+    pts.forEach((pt, idx) => {
+      const x = padLeft + ((pt.oxygen_pct - 16.0) / (21.0 - 16.0)) * pW;
+      const prob = pt.probabilities ? (pt.probabilities.no_spread || 0) : 0;
+      const y = padTop + pH - prob * pH;
+      if (idx === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+  } else {
+    for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
+      const x = padLeft + ((o2 - 16.0) / (21.0 - 16.0)) * pW;
+      const prob = 1 / (1 + Math.exp(2.5 * (o2 - (locBoundary - 0.5))));
+      const y = padTop + pH - prob * pH;
+      if (o2 === 16.0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
   }
   ctx.stroke();
 
@@ -915,7 +998,7 @@ function drawSweepCanvas(currentO2 = 21.0) {
 
   ctx.beginPath();
   ctx.arc(curX, padTop + pH / 2, 5, 0, Math.PI * 2);
-  ctx.fillStyle = currentO2 >= 17.5 ? 'rgba(220, 38, 38, 0.25)' : 'rgba(5, 150, 105, 0.25)';
+  ctx.fillStyle = currentO2 >= locBoundary ? 'rgba(220, 38, 38, 0.25)' : 'rgba(5, 150, 105, 0.25)';
   ctx.fill();
   ctx.beginPath();
   ctx.arc(curX, padTop + pH / 2, 2.5, 0, Math.PI * 2);

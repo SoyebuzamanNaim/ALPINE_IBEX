@@ -188,9 +188,12 @@ The prototype is built with a **NASA Technical Publication Light Mode** laborato
 
 ---
 
-### View 2: Oxygen Concentration Sweep & Limiting Oxygen Concentration (LOC)
+### View 2: Oxygen Concentration Sweep & Dynamic LOC Boundary Identification
 * **Physics-Grounded Transition Analysis:** Generates continuous sensitivity curves evaluating flammability and extinction probabilities across oxygen depletion sweeps.
-* **Operational LOC Identification:** Identifies the exact crossover threshold (e.g., $17.5\%\text{ O}_2$ for PMMA under $5\text{ cm/s}$ ventilation) with a calculated safety buffer ($+3.25\%\text{ O}_2$ buffer at standard air).
+* **Empirical Boundary Finding (Not Hardcoded Constants):** Crucially, numerical figures such as an LOC of $\approx 17.5\%\text{ O}_2$ or $+3.25\%\text{ O}_2$ margin are **approximate empirical outcomes under specific test conditions (e.g., PMMA, $5\text{ cm/s}$, $101.3\text{ kPa}$), NOT immutable fundamental constants**. In FLARE-X, regime boundaries are dynamically discovered by executing parametric sweeps (`POST /sweep`), evaluating gradient-boosted probability crossovers, and retrieving historical NASA flight experiments on both sides of the detected transition.
+
+> **💡 Architectural Rule (Prediction Engine ≠ Evidence Retrieval Engine):**  
+> Per our two-layer scientific design, the Machine Learning Classifier predicts flame spread regimes from structured parameters, while an independent Retrieval Engine queries the NASA Physical Sciences Informatics (PSI) database. If the model prediction ever disagrees with nearby NASA flight records (e.g., model predicts `spread` near the boundary while nearest empirical tests observed `no_spread`), the system immediately raises an **Empirical Disagreement Alert**, informing flight safety officers that the scenario lies in an ambiguous transition zone rather than claiming false certainty.
 
 ![View 2: Oxygen Sweep & LOC Boundary](./assets/screenshots/view2_oxygen_sweep_loc.png)
 
