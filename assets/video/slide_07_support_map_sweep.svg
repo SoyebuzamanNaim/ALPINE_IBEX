@@ -1,220 +1,213 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
   <defs>
-    <radialGradient id="bgGlow" cx="50%" cy="40%" r="70%">
-      <stop offset="0%" stop-color="#0c162e"/>
-      <stop offset="60%" stop-color="#060913"/>
-      <stop offset="100%" stop-color="#020408"/>
-    </radialGradient>
-    <linearGradient id="sliderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ff4d4f"/>
-      <stop offset="35%" stop-color="#ffb300"/>
-      <stop offset="70%" stop-color="#52c41a"/>
-      <stop offset="100%" stop-color="#00e5ff"/>
+    <linearGradient id="bgLabGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
     </linearGradient>
-    <filter id="crimsonAlertGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="12" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    <linearGradient id="sliderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#dc2626"/>
+      <stop offset="35%" stop-color="#d97706"/>
+      <stop offset="70%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="6" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.06"/>
     </filter>
   </defs>
 
-  <!-- Background -->
-  <rect width="1920" height="1080" fill="url(#bgGlow)"/>
+  <!-- Clean Canvas Background -->
+  <rect width="1920" height="1080" fill="url(#bgLabGrad)"/>
+
+  <!-- Subtle Technical Grid Lines -->
+  <g stroke="#cbd5e1" stroke-opacity="0.4" stroke-width="1">
+    <line x1="0" y1="270" x2="1920" y2="270"/>
+    <line x1="0" y1="540" x2="1920" y2="540"/>
+    <line x1="0" y1="810" x2="1920" y2="810"/>
+  </g>
 
   <!-- Mandatory Watermark -->
-  <rect x="1560" y="30" width="240" height="32" rx="4" fill="#00e5ff" fill-opacity="0.1" stroke="#00e5ff" stroke-opacity="0.4"/>
-  <text x="1680" y="52" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" fill="#00e5ff" text-anchor="middle">
+  <rect x="1560" y="36" width="240" height="34" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <text x="1680" y="58" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#1d4ed8" text-anchor="middle">
     [ PROPOSED INTERACTION ]
   </text>
 
   <!-- Top Telemetry Header -->
-  <text x="120" y="60" font-family="'JetBrains Mono', monospace" font-size="14" fill="#00e5ff" letter-spacing="4">
-    // FLAGSHIP INTERACTION · EXPERIMENTAL SUPPORT MAP [2:35–3:30]
-  </text>
-  <text x="120" y="100" font-family="'Orbitron', sans-serif" font-size="34" font-weight="900" fill="#ffffff" letter-spacing="2">
-    2D EXPERIMENTAL SUPPORT MAP &amp; COUNTERFACTUAL SWEEP
-  </text>
+  <g transform="translate(100, 70)">
+    <text x="0" y="0" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#1d4ed8" letter-spacing="3">
+      FLAGSHIP INTERACTION · EXPERIMENTAL SUPPORT MAP [2:20–3:15]
+    </text>
+    <text x="0" y="42" font-family="'Orbitron', sans-serif" font-size="34" font-weight="900" fill="#0f172a" letter-spacing="2">
+      2D EXPERIMENTAL SUPPORT MAP &amp; COUNTERFACTUAL SWEEP
+    </text>
+  </g>
 
   <!-- Left: 2D Coordinate Space (Support Map) -->
-  <g transform="translate(120, 150)">
-    <rect width="840" height="640" rx="12" fill="#070c18" stroke="#00e5ff" stroke-opacity="0.3" stroke-width="1.5"/>
+  <g transform="translate(100, 155)">
+    <rect width="860" height="660" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
     
     <!-- Title & Legend -->
-    <text x="30" y="40" font-family="'Orbitron', sans-serif" font-size="16" font-weight="bold" fill="#00e5ff">
-      COORDINATE SPACE: O₂ MOLE FRACTION vs FORCED AIRFLOW
+    <text x="35" y="42" font-family="'Orbitron', sans-serif" font-size="16" font-weight="900" fill="#0f172a">
+      COORDINATE SPACE: O₂ CONCENTRATION vs FORCED AIRFLOW
     </text>
-    <text x="30" y="65" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">
-      Material: PMMA Cylinder · Pressure: 101.3 kPa · NASA Experiments: 145 Tests
+    <text x="35" y="68" font-family="'Inter', sans-serif" font-size="13" fill="#64748b">
+      Material: PMMA Polymer · Pressure: 101.3 kPa · Empirical NASA Spaceflight Burns: 145 Tests
     </text>
 
     <!-- Legend Icons -->
-    <circle cx="620" cy="45" r="6" fill="#00e5ff"/>
-    <text x="635" y="50" font-family="'JetBrains Mono', monospace" font-size="12" fill="#a0aec0">NASA Test (●)</text>
-    <polygon points="730,40 733,48 741,48 735,53 737,61 730,56 723,61 725,53 719,48 727,48" fill="#ff4d4f"/>
-    <text x="750" y="50" font-family="'JetBrains Mono', monospace" font-size="12" fill="#ff4d4f">Scenario (★)</text>
+    <circle cx="640" cy="46" r="6" fill="#0284c7"/>
+    <text x="655" y="50" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#334155">NASA Test (●)</text>
+    <polygon points="760,40 763,48 771,48 765,53 767,61 760,56 753,61 755,53 749,48 757,48" fill="#dc2626"/>
+    <text x="778" y="50" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#dc2626">Scenario (★)</text>
 
     <!-- Coordinate Box & Grid -->
-    <g transform="translate(80, 100)">
+    <g transform="translate(75, 105)">
       <!-- Axis Background -->
-      <rect width="700" height="480" fill="#04070e" stroke="#1e293b"/>
+      <rect width="730" height="490" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
       
       <!-- Grid Lines -->
-      <line x1="0" y1="120" x2="700" y2="120" stroke="#1e293b" stroke-dasharray="4 4"/>
-      <line x1="0" y1="240" x2="700" y2="240" stroke="#1e293b" stroke-dasharray="4 4"/>
-      <line x1="0" y1="360" x2="700" y2="360" stroke="#1e293b" stroke-dasharray="4 4"/>
-      <line x1="175" y1="0" x2="175" y2="480" stroke="#1e293b" stroke-dasharray="4 4"/>
-      <line x1="350" y1="0" x2="350" y2="480" stroke="#1e293b" stroke-dasharray="4 4"/>
-      <line x1="525" y1="0" x2="525" y2="480" stroke="#1e293b" stroke-dasharray="4 4"/>
-
-      <!-- Safe Flight Data Envelope (Convex Hull) -->
-      <polygon points="120,400 240,430 480,380 640,280 600,100 380,80 200,180" 
-               fill="#00e5ff" fill-opacity="0.08" stroke="#00e5ff" stroke-dasharray="6 4" stroke-width="2"/>
-      <text x="380" y="240" font-family="'Orbitron', sans-serif" font-size="14" fill="#00e5ff" fill-opacity="0.4" text-anchor="middle">
-        NASA TESTED ENVELOPE
-      </text>
-
-      <!-- Extinction Quenching Boundary -->
-      <path d="M 0,320 Q 200,340 400,260 T 700,160" fill="none" stroke="#ffb300" stroke-width="2" stroke-dasharray="8 4"/>
-      <text x="560" y="195" font-family="'JetBrains Mono', monospace" font-size="11" fill="#ffb300">
-        Extinction Boundary
-      </text>
-
-      <!-- NASA Scatter Points (Cyan Dots) -->
-      <circle cx="220" cy="380" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="260" cy="360" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="290" cy="400" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="340" cy="320" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="380" cy="300" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="420" cy="270" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="460" cy="220" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="500" cy="200" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="530" cy="180" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="580" cy="140" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="400" cy="160" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="310" cy="220" r="5" fill="#00e5ff" opacity="0.8"/>
-      <circle cx="250" cy="240" r="5" fill="#00e5ff" opacity="0.8"/>
-
-      <!-- Highlighted Nearest NASA Points -->
-      <circle cx="220" cy="380" r="9" fill="none" stroke="#52c41a" stroke-width="2"/>
-      <text x="235" y="385" font-family="'JetBrains Mono', monospace" font-size="10" fill="#52c41a">Test 31 (18.4% O₂)</text>
-
-      <circle cx="260" cy="360" r="9" fill="none" stroke="#52c41a" stroke-width="2"/>
-      <text x="275" y="355" font-family="'JetBrains Mono', monospace" font-size="10" fill="#52c41a">Test 42 (19.0% O₂)</text>
-
-      <!-- Active User Scenario Trajectory -->
-      <line x1="450" y1="360" x2="60" y2="360" stroke="#ff4d4f" stroke-width="2" stroke-dasharray="6 4"/>
+      <line x1="0" y1="98" x2="730" y2="98" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="0" y1="196" x2="730" y2="196" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="0" y1="294" x2="730" y2="294" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="0" y1="392" x2="730" y2="392" stroke="#e2e8f0" stroke-width="1"/>
       
-      <!-- Current State 4 Position: 15.0% O2 (Outside!) -->
-      <polygon points="60,350 64,360 74,360 66,366 69,376 60,370 51,376 54,366 46,360 56,360" 
-               fill="#ff4d4f" filter="url(#crimsonAlertGlow)"/>
-      <circle cx="60" cy="360" r="22" fill="none" stroke="#ff4d4f" stroke-width="2" stroke-dasharray="4 4"/>
-      <text x="60" y="405" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" fill="#ff4d4f" text-anchor="middle">
-        Scenario (15.0% O₂)
-      </text>
+      <line x1="146" y1="0" x2="146" y2="490" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="292" y1="0" x2="292" y2="490" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="438" y1="0" x2="438" y2="490" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="584" y1="0" x2="584" y2="490" stroke="#e2e8f0" stroke-width="1"/>
 
-      <!-- Y-Axis Labels (Flow cm/s) -->
-      <text x="-15" y="10" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="end">35</text>
-      <text x="-15" y="125" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="end">25</text>
-      <text x="-15" y="245" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="end">15</text>
-      <text x="-15" y="365" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="end">5</text>
-      <text x="-15" y="475" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="end">0 cm/s</text>
-
-      <!-- X-Axis Labels (O2 %) -->
-      <text x="10" y="505" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8">15%</text>
-      <text x="175" y="505" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8">18%</text>
-      <text x="350" y="505" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8">21%</text>
-      <text x="525" y="505" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8">25%</text>
-      <text x="680" y="505" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8">30% O₂</text>
-    </g>
-  </g>
-
-  <!-- Right: 4-State Progression & Active Refusal Card -->
-  <g transform="translate(1000, 150)">
-    <!-- Oxygen Slider Bar -->
-    <rect width="800" height="90" rx="10" fill="#0b1224" stroke="#00e5ff" stroke-opacity="0.3"/>
-    <text x="30" y="35" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" fill="#00e5ff">
-      REAL-TIME COUNTERFACTUAL PARAMETER SWEEP
-    </text>
-    <text x="30" y="65" font-family="'Inter', sans-serif" font-size="12" fill="#8899b8">
-      Sweeping O₂: 21% ──► 20% ──► 19% ──► 18% ──► 17% ──► 15% (Extinction Study)
-    </text>
-    
-    <!-- Visual Slider Track -->
-    <rect x="350" y="45" width="410" height="12" rx="6" fill="#1e293b"/>
-    <rect x="350" y="45" width="60" height="12" rx="6" fill="#ff4d4f"/>
-    <circle cx="410" cy="51" r="12" fill="#ffffff" stroke="#ff4d4f" stroke-width="3"/>
-    <text x="410" y="25" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" fill="#ff4d4f" text-anchor="middle">15.0%</text>
-
-    <!-- 4 Transition States -->
-    <g transform="translate(0, 115)">
-      <!-- State 1 -->
-      <rect x="0" y="0" width="190" height="100" rx="8" fill="#111c38" stroke="#52c41a" stroke-opacity="0.3"/>
-      <text x="15" y="25" font-family="'JetBrains Mono', monospace" font-size="11" fill="#52c41a">STATE 1 (21% O₂)</text>
-      <text x="15" y="55" font-family="'Orbitron', sans-serif" font-size="14" font-weight="bold" fill="#ffffff">✓ INSIDE</text>
-      <text x="15" y="80" font-family="'Inter', sans-serif" font-size="11" fill="#8899b8">High NASA Support</text>
-
-      <!-- State 2 -->
-      <rect x="205" y="0" width="190" height="100" rx="8" fill="#111c38" stroke="#ffb300" stroke-opacity="0.3"/>
-      <text x="15" y="25" font-family="'JetBrains Mono', monospace" font-size="11" fill="#ffb300">STATE 2 (19% O₂)</text>
-      <text x="15" y="55" font-family="'Orbitron', sans-serif" font-size="14" font-weight="bold" fill="#ffffff">△ BOUNDARY</text>
-      <text x="15" y="80" font-family="'Inter', sans-serif" font-size="11" fill="#8899b8">Flammability Limit</text>
-
-      <!-- State 3 -->
-      <rect x="410" y="0" width="190" height="100" rx="8" fill="#111c38" stroke="#ff7700" stroke-opacity="0.3"/>
-      <text x="15" y="25" font-family="'JetBrains Mono', monospace" font-size="11" fill="#ff7700">STATE 3 (17% O₂)</text>
-      <text x="15" y="55" font-family="'Orbitron', sans-serif" font-size="14" font-weight="bold" fill="#ffffff">! PARTIAL</text>
-      <text x="15" y="80" font-family="'Inter', sans-serif" font-size="11" fill="#8899b8">Sparsely Tested</text>
-
-      <!-- State 4: Current Active Refusal -->
-      <rect x="615" y="0" width="185" height="100" rx="8" fill="#220a12" stroke="#ff4d4f" stroke-width="2"/>
-      <text x="15" y="25" font-family="'JetBrains Mono', monospace" font-size="11" fill="#ff4d4f" font-weight="bold">STATE 4 (15% O₂)</text>
-      <text x="15" y="55" font-family="'Orbitron', sans-serif" font-size="14" font-weight="bold" fill="#ff4d4f">× OUTSIDE</text>
-      <text x="15" y="80" font-family="'Inter', sans-serif" font-size="11" fill="#ff4d4f">Refusal Active</text>
-    </g>
-
-    <!-- Climax Full Card: THE PREDICTION IS WITHHELD -->
-    <g transform="translate(0, 240)">
-      <rect width="800" height="280" rx="12" fill="#18070b" stroke="#ff4d4f" stroke-width="2.5" filter="url(#crimsonAlertGlow)"/>
+      <!-- NASA Empirical Domain Shading (Convex Hull) -->
+      <polygon points="120,410 240,160 520,120 680,260 590,440 260,450" 
+               fill="#eff6ff" stroke="#3b82f6" stroke-width="2" stroke-opacity="0.8"/>
       
-      <circle cx="60" cy="65" r="28" fill="#ff4d4f" fill-opacity="0.2"/>
-      <text x="60" y="75" font-family="'Orbitron', sans-serif" font-size="28" font-weight="900" fill="#ff4d4f" text-anchor="middle">!</text>
-
-      <text x="110" y="55" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" fill="#ff4d4f" letter-spacing="2">
-        EXPERIMENTAL ENVELOPE GUARD TRIGGERED
-      </text>
-      <text x="110" y="88" font-family="'Orbitron', sans-serif" font-size="24" font-weight="900" fill="#ffffff" letter-spacing="1">
-        OUTSIDE NASA-SUPPORTED MODEL DOMAIN
+      <!-- Extinction Quench Transition Boundary -->
+      <path d="M 120 330 Q 320 280 620 200" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="8 6"/>
+      <text x="380" y="250" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#d97706">
+        LIMITING OXYGEN BOUNDARY (LOC)
       </text>
 
-      <line x1="30" y1="120" x2="770" y2="120" stroke="#ff4d4f" stroke-opacity="0.3"/>
+      <!-- Empirical Flight Test Points (Scatter of blue dots) -->
+      <g fill="#0284c7" stroke="#ffffff" stroke-width="1">
+        <circle cx="160" cy="380" r="5"/><circle cx="210" cy="350" r="5"/><circle cx="240" cy="300" r="5"/>
+        <circle cx="280" cy="270" r="5"/><circle cx="310" cy="240" r="5"/><circle cx="350" cy="220" r="5"/>
+        <circle cx="390" cy="190" r="5"/><circle cx="430" cy="170" r="5"/><circle cx="480" cy="150" r="5"/>
+        <circle cx="520" cy="140" r="5"/><circle cx="560" cy="170" r="5"/><circle cx="610" cy="210" r="5"/>
+        <circle cx="640" cy="260" r="5"/><circle cx="590" cy="320" r="5"/><circle cx="520" cy="380" r="5"/>
+        <circle cx="460" cy="410" r="5"/><circle cx="380" cy="430" r="5"/><circle cx="300" cy="420" r="5"/>
+        <circle cx="240" cy="400" r="5"/><circle cx="340" cy="330" r="5"/><circle cx="410" cy="290" r="5"/>
+      </g>
 
-      <!-- Big Highlighted Withheld Box -->
-      <rect x="30" y="140" width="740" height="60" rx="6" fill="#060913" stroke="#ff4d4f" stroke-opacity="0.6"/>
-      <text x="370" y="178" font-family="'Orbitron', sans-serif" font-size="22" font-weight="900" fill="#ff4d4f" text-anchor="middle" letter-spacing="2">
-        RELIABLE PREDICTION WITHHELD.
+      <!-- Current Scenario Point (Swept to 13% O₂ - Outside Hull) -->
+      <polygon points="90,440 93,448 101,448 95,453 97,461 90,456 83,461 85,453 79,448 87,448" fill="#dc2626"/>
+      <circle cx="90" cy="452" r="16" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="4 4"/>
+      <text x="115" y="456" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#dc2626">
+        ★ Scenario: 13.0% O₂ (OUTSIDE HULL)
       </text>
 
-      <text x="30" y="230" font-family="'Inter', sans-serif" font-size="13" fill="#cbd5e1">
-        NASA BASS-II has no validated PMMA flight data at 15.0% O₂. FLARE-X refuses unvalidated extrapolation.
+      <!-- Axis Labels -->
+      <text x="365" y="525" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">
+        Forced Airflow Velocity u (cm/s) ──►
       </text>
-      <text x="30" y="255" font-family="'JetBrains Mono', monospace" font-size="12" fill="#52c41a">
-        Nearest verified NASA boundary: BASS-II Test 31 (18.4% O₂) &amp; Test 42 (19.0% O₂) remain displayed.
+      <text x="-40" y="245" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#334155" text-anchor="middle" transform="rotate(-90, -40, 245)">
+        Ambient Oxygen Concentration (% O₂) ──►
       </text>
     </g>
   </g>
 
-  <!-- Bottom Hero Line -->
-  <g transform="translate(960, 840)">
-    <text x="0" y="0" font-family="'Orbitron', sans-serif" font-size="26" font-weight="bold" fill="#ffffff" text-anchor="middle">
-      ABSENCE OF EVIDENCE IS NOT EVIDENCE OF SAFETY.
+  <!-- Right: Real-time Counterfactual Sweep Panel -->
+  <g transform="translate(1000, 155)">
+    <rect width="820" height="660" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+
+    <text x="40" y="42" font-family="'Orbitron', sans-serif" font-size="16" font-weight="900" fill="#0f172a">
+      COUNTERFACTUAL SWEEP CONTROLS &amp; REAL-TIME RE-RANKING
     </text>
-    <text x="0" y="30" font-family="'Inter', sans-serif" font-size="15" fill="#8899b8" text-anchor="middle">
-      By refusing unverified guesses, FLARE-X preserves scientific integrity for mission designers and researchers.
+    <text x="40" y="68" font-family="'Inter', sans-serif" font-size="13" fill="#64748b">
+      Hold airflow velocity constant at 15 cm/s · Sweep Oxygen Concentration
     </text>
+
+    <!-- Slider Widget Container -->
+    <g transform="translate(40, 95)">
+      <rect width="740" height="110" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+      <text x="25" y="32" font-family="'Inter', sans-serif" font-size="13.5" font-weight="700" fill="#0f172a">
+        Oxygen Concentration Slider [O₂]:
+      </text>
+      <text x="630" y="32" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="800" fill="#dc2626">
+        13.0% O₂
+      </text>
+
+      <!-- Track -->
+      <rect x="25" y="55" width="690" height="12" rx="6" fill="url(#sliderGrad)"/>
+      
+      <!-- Thumb at 13% (Far Left in Warning Zone) -->
+      <circle cx="85" cy="61" r="14" fill="#ffffff" stroke="#dc2626" stroke-width="3.5" filter="url(#cardShadow)"/>
+      <text x="25" y="90" font-family="'JetBrains Mono', monospace" font-size="11" fill="#64748b">10%</text>
+      <text x="255" y="90" font-family="'JetBrains Mono', monospace" font-size="11" fill="#64748b">16%</text>
+      <text x="485" y="90" font-family="'JetBrains Mono', monospace" font-size="11" fill="#64748b">19%</text>
+      <text x="700" y="90" font-family="'JetBrains Mono', monospace" font-size="11" fill="#64748b">21%</text>
+    </g>
+
+    <!-- Flagship Abstention Refusal Card -->
+    <g transform="translate(40, 225)">
+      <rect width="740" height="190" rx="12" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+      <rect x="0" y="0" width="8" height="190" rx="4" fill="#dc2626"/>
+
+      <text x="30" y="38" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="800" fill="#dc2626">
+        ⚠️ SECTION 7 ENVELOPE GUARD TRIGGERED: PREDICTION WITHHELD
+      </text>
+      <text x="30" y="70" font-family="'Inter', sans-serif" font-size="14.5" font-weight="700" fill="#7f1d1d">
+        The requested scenario (13.0% O₂ at 15 cm/s flow) lies outside the NASA flight-tested domain.
+      </text>
+      <text x="30" y="98" font-family="'Inter', sans-serif" font-size="13" fill="#991b1b">
+        • Minimum empirical oxygen concentration in NASA BASS-II archive is 15.0% O₂.
+      </text>
+      <text x="30" y="122" font-family="'Inter', sans-serif" font-size="13" fill="#991b1b">
+        • Extrapolation forbidden under strict Spacecraft Safety Protocol (Zero Hallucination).
+      </text>
+      <text x="30" y="156" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#dc2626">
+        STATUS: PREDICTION REFUSED · NEAREST EMPIRICAL TESTS RETAINED FOR RESEARCH
+      </text>
+    </g>
+
+    <!-- Dynamically Re-ranked Nearest Empirical Evidence -->
+    <g transform="translate(40, 435)">
+      <text x="0" y="20" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#1d4ed8">
+        CLOSEST NASA EMPIRICAL FLIGHT BURNS (SURFACED FOR INSPECTION):
+      </text>
+
+      <g transform="translate(0, 35)">
+        <rect width="740" height="48" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+        <text x="15" y="30" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#1d4ed8">#1</text>
+        <text x="45" y="30" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#0f172a">BASS-II Test 31</text>
+        <text x="195" y="30" font-family="'Inter', sans-serif" font-size="12" fill="#475569">PMMA Rod · 15.2% O₂ · 14.8 cm/s</text>
+        <text x="490" y="30" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#059669">Outcome: Quenched (42s)</text>
+        <text x="680" y="30" font-family="'JetBrains Mono', monospace" font-size="11" fill="#1d4ed8">Gower: 0.94</text>
+      </g>
+
+      <g transform="translate(0, 92)">
+        <rect width="740" height="48" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+        <text x="15" y="30" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#1d4ed8">#2</text>
+        <text x="45" y="30" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#0f172a">BASS-II Test 42</text>
+        <text x="195" y="30" font-family="'Inter', sans-serif" font-size="12" fill="#475569">PMMA Rod · 16.5% O₂ · 15.0 cm/s</text>
+        <text x="490" y="30" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#059669">Outcome: Quenched (58s)</text>
+        <text x="680" y="30" font-family="'JetBrains Mono', monospace" font-size="11" fill="#1d4ed8">Gower: 0.89</text>
+      </g>
+
+      <g transform="translate(0, 149)">
+        <rect width="740" height="48" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+        <text x="15" y="30" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#1d4ed8">#3</text>
+        <text x="45" y="30" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#0f172a">BASS-II Test 56</text>
+        <text x="195" y="30" font-family="'Inter', sans-serif" font-size="12" fill="#475569">PMMA Rod · 18.0% O₂ · 15.2 cm/s</text>
+        <text x="490" y="30" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#d97706">Outcome: Sustained (120s)</text>
+        <text x="680" y="30" font-family="'JetBrains Mono', monospace" font-size="11" fill="#1d4ed8">Gower: 0.82</text>
+      </g>
+    </g>
   </g>
 
-  <!-- Lower Border Safe Zone Indicator -->
-  <rect x="120" y="1020" width="1680" height="2" fill="#00e5ff" opacity="0.3"/>
-  <text x="960" y="1048" font-family="'JetBrains Mono', monospace" font-size="13" fill="#475569" text-anchor="middle">
-    INTERACTIVE SUPPORT MAP · ACTIVE ABSTENTION DEMONSTRATION · NASA SPACE APPS 2026
-  </text>
+  <!-- Bottom Core Principle Banner -->
+  <g transform="translate(960, 855)">
+    <rect x="-650" y="-35" width="1300" height="70" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="0" y="8" font-family="'Inter', sans-serif" font-size="16" font-weight="700" fill="#0f172a" text-anchor="middle">
+      <tspan fill="#1d4ed8">DYNAMIC RE-EVALUATION:</tspan> Moving the slider updates evidence, checks the envelope, and abstains safely beyond the flight domain.
+    </text>
+  </g>
 </svg>

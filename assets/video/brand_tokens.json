@@ -6,7 +6,7 @@
     "height": 1080,
     "aspectRatio": "16:9",
     "framerate": 30,
-    "targetDurationSeconds": 232.0,
+    "targetDurationSeconds": 220.0,
     "maxDurationSeconds": 240.0
   },
   "safeZones": {
@@ -32,36 +32,36 @@
     }
   },
   "colors": {
-    "background": {
-      "base": "#060913",
-      "card": "#0c1222",
-      "cardElevated": "#111c38",
-      "deep": "#020408"
-    },
-    "accents": {
-      "cyanTelemetry": "#00e5ff",
-      "cyanGlow": "rgba(0, 229, 255, 0.4)",
-      "bluePrimary": "#0077ff"
-    },
-    "status": {
-      "refusalCrimson": "#ff4d4f",
-      "warningAmber": "#ffb300",
-      "cautionOrange": "#ff7700",
-      "supportedEmerald": "#52c41a",
-      "reasoningPurple": "#a855f7"
-    },
-    "typography": {
-      "primary": "#ffffff",
-      "secondary": "#cbd5e1",
-      "muted": "#8899b8",
-      "dim": "#64748b",
-      "border": "rgba(0, 229, 255, 0.25)"
+    "lightLaboratoryTheme": {
+      "background": {
+        "base": "#f8fafc",
+        "card": "#ffffff",
+        "cardElevated": "#ffffff",
+        "subtle": "#f1f5f9"
+      },
+      "accents": {
+        "bluePrimary": "#1d4ed8",
+        "cyanTelemetry": "#0284c7",
+        "blueSubtle": "#eff6ff"
+      },
+      "status": {
+        "refusalCrimson": "#dc2626",
+        "warningAmber": "#d97706",
+        "supportedEmerald": "#059669",
+        "reasoningPurple": "#7c3aed"
+      },
+      "typography": {
+        "primary": "#0f172a",
+        "secondary": "#334155",
+        "muted": "#64748b",
+        "border": "#cbd5e1",
+        "borderSubtle": "#e2e8f0"
+      }
     }
   },
   "fonts": {
-    "display": "Orbitron, sans-serif",
-    "monospace": "JetBrains Mono, monospace",
-    "body": "Inter, sans-serif"
-  },
-  "disclaimerWatermark": "[ ILLUSTRATIVE CONCEPT UI ]"
+    "display": "'Orbitron', sans-serif",
+    "body": "'Inter', -apple-system, sans-serif",
+    "monospace": "'JetBrains Mono', 'Courier New', monospace"
+  }
 }

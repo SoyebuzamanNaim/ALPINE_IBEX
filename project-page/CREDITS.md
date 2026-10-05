@@ -8,12 +8,12 @@
 
 ## Team Roster (Space Apps Bangladesh)
 
-- **Saber Hossain Mahim** — Product & Science Lead
-- **Ismail Hossen** — Data & Evidence Lead
-- **Mahzabin Muntaha** — ML & Validation Lead
-- **Abdullah Al Masum** — AI Systems & Backend Lead
-- **Nahid** — Frontend & Visualization Lead
-- **Soyebuzaman Naim** — UX, Media & Submission Lead
+- **Soyebuzaman Naim (Naim)** — Full Stack Developer
+- **Saber Hossain Mahim (Mahim)** — AI ML Engineer
+- **Abdullah Al Masum (Masum)** — Researcher
+- **Mahzabin Muntaha (Muntaha)** — UI UX Designer
+- **Hamza** — Backend Developer and Researcher
+- **Nahid** — Video Editor
 
 ## Site Assets & Prototyping Disclosures
 

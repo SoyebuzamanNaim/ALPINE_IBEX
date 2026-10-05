@@ -135,12 +135,12 @@ NASA historical "240 Seconds of Glory" pitch framework:
 * **Datasets Offline:** Source datasets downloaded locally before the event to prevent network failures at the venue.
 * **Environment Ready:** Python, Node/npm, Git, IDE, APIs, libraries pre-tested.
 * **Team Roles:** Defined and visible on project page:
-  - Saber Hossain Mahim — Team Lead / Strategy
-  - Soyebuzaman Naim — Aerospace & Computational Lead
-  - Ismail Hossen — Data Engineering & Ingestion
-  - Mahzabin Muntaha — Scientific Research & Safety Systems
-  - Abdullah Al Masum — Systems Architecture & Security
-  - Nahid — Scientific Visualization & Operations
+  - Soyebuzaman Naim — Full Stack Developer
+  - Saber Hossain Mahim — AI ML Engineer
+  - Abdullah Al Masum — Researcher
+  - Mahzabin Muntaha — UI UX Designer
+  - Hamza — Backend Developer & Researcher
+  - Nahid — Video Editor
 * **CREDITS.md:** Maintain running log of asset, creator, source URL, license, and usage location.
 * **Accessibility Test:** Test via normal browser, incognito, mobile, logged-out account before submission.
 

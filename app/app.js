@@ -5,8 +5,10 @@
  */
 
 // API Base URL (auto-detect if served by FastAPI, else fallback to localhost:8000)
-const API_BASE = window.location.origin.includes('http') && !window.location.origin.includes('file')
-  ? (window.location.port === '8000' ? '' : 'http://localhost:8000')
+const API_BASE = (window.location.protocol.startsWith('http') && !window.location.origin.includes('file'))
+  ? (window.location.hostname === 'localhost' && window.location.port && window.location.port !== '8000' && window.location.port !== '80' && window.location.port !== '443'
+      ? 'http://localhost:8000'
+      : '')
   : 'http://localhost:8000';
 
 // Current Scenario State
@@ -754,11 +756,19 @@ function setupNlpParser() {
         body: JSON.stringify({ query: text })
       });
       const data = await res.json();
+      const feedbackEl = document.getElementById('nlp-feedback');
       if (data.is_valid && data.parsed_scenario) {
+        if (feedbackEl) feedbackEl.style.display = 'none';
         const sc = data.parsed_scenario;
         updateInputs(sc.oxygen_pct, sc.pressure_kpa, sc.flow_cm_s, sc.material);
       } else {
-        alert('Could not parse scenario: ' + (data.ambiguities || []).join('; '));
+        const msg = 'Could not parse scenario: ' + (data.ambiguities || []).join('; ');
+        if (feedbackEl) {
+          feedbackEl.textContent = msg;
+          feedbackEl.style.display = 'block';
+        } else {
+          console.warn(msg);
+        }
       }
     } catch (err) {
       console.warn('NLP parser error:', err);
@@ -1075,7 +1085,8 @@ function renderAtlasTable(rows) {
     `;
 
     // Click row to probe into Flammability Deck
-    tr.addEventListener('click', () => {
+    tr.addEventListener('click', (e) => {
+      if (e.target.closest('a')) return;
       document.getElementById('tab-lab-btn').click();
       updateInputs(r.oxygen_pct, r.pressure_kpa, r.flow_cm_s, r.material);
     });

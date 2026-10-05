@@ -1,173 +1,178 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
   <defs>
-    <radialGradient id="bgGlow" cx="50%" cy="35%" r="70%">
-      <stop offset="0%" stop-color="#0c162e"/>
-      <stop offset="60%" stop-color="#060913"/>
-      <stop offset="100%" stop-color="#020408"/>
-    </radialGradient>
-    <linearGradient id="nasaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#0077ff" stop-opacity="0.05"/>
+    <linearGradient id="bgLabGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
     </linearGradient>
-    <linearGradient id="modelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffb300" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#ff7700" stop-opacity="0.05"/>
-    </linearGradient>
-    <linearGradient id="aiGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#6366f1" stop-opacity="0.05"/>
-    </linearGradient>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="6" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.06"/>
+    </filter>
   </defs>
 
-  <!-- Background -->
-  <rect width="1920" height="1080" fill="url(#bgGlow)"/>
+  <!-- Clean Canvas Background -->
+  <rect width="1920" height="1080" fill="url(#bgLabGrad)"/>
+
+  <!-- Subtle Technical Grid Lines -->
+  <g stroke="#cbd5e1" stroke-opacity="0.4" stroke-width="1">
+    <line x1="0" y1="270" x2="1920" y2="270"/>
+    <line x1="0" y1="540" x2="1920" y2="540"/>
+    <line x1="0" y1="810" x2="1920" y2="810"/>
+    <line x1="480" y1="0" x2="480" y2="1080"/>
+    <line x1="960" y1="0" x2="960" y2="1080"/>
+    <line x1="1440" y1="0" x2="1440" y2="1080"/>
+  </g>
 
   <!-- Top Telemetry Header -->
-  <text x="120" y="80" font-family="'JetBrains Mono', monospace" font-size="14" fill="#00e5ff" letter-spacing="4">
-    // SCIENTIFIC TRUST &amp; AUDITABILITY · PROVENANCE MOMENT [3:30–3:43]
-  </text>
-  <text x="1800" y="80" font-family="'JetBrains Mono', monospace" font-size="14" fill="#64748b" text-anchor="end">
-    3-TIER EPISTEMIC STRATIFICATION
-  </text>
+  <g transform="translate(120, 75)">
+    <rect x="-16" y="-24" width="620" height="42" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="0" cy="-3" r="5" fill="#1d4ed8"/>
+    <text x="18" y="2" font-family="'JetBrains Mono', monospace" font-size="13.5" font-weight="700" fill="#1d4ed8" letter-spacing="2">
+      SCIENTIFIC TRUST &amp; AUDITABILITY · PROVENANCE [3:15–3:35]
+    </text>
+  </g>
+  <g transform="translate(1800, 75)">
+    <rect x="-420" y="-24" width="420" height="42" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="-20" y="2" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#64748b" letter-spacing="1.5" text-anchor="end">
+      3-TIER EPISTEMIC STRATIFICATION
+    </text>
+  </g>
 
   <!-- Headline -->
   <g transform="translate(960, 150)">
-    <text x="0" y="0" font-family="'Orbitron', sans-serif" font-size="38" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="2">
+    <text x="0" y="0" font-family="'Orbitron', sans-serif" font-size="36" font-weight="900" fill="#0f172a" text-anchor="middle" letter-spacing="2">
       EVERY CONCLUSION CARRIES UNAMBIGUOUS PROVENANCE
     </text>
-    <text x="0" y="40" font-family="'Inter', sans-serif" font-size="18" fill="#8899b8" text-anchor="middle">
+    <text x="0" y="38" font-family="'Inter', sans-serif" font-size="17" font-weight="500" fill="#64748b" text-anchor="middle">
       FLARE-X strictly isolates empirical observations, statistical model predictions, and AI reasoning.
     </text>
   </g>
 
   <!-- 3 Side-by-Side Provenance Columns -->
-  <g transform="translate(140, 240)">
+  <g transform="translate(140, 235)">
     <!-- Column 1: NASA Empirical Observation -->
     <g transform="translate(0, 0)">
-      <rect width="520" height="540" rx="12" fill="#081022" stroke="#00e5ff" stroke-width="2"/>
+      <rect width="520" height="570" rx="14" fill="#ffffff" stroke="#059669" stroke-width="2" filter="url(#cardShadow)"/>
+      <rect x="0" y="0" width="520" height="8" rx="4" fill="#059669"/>
       
       <!-- Header Badge -->
-      <rect x="30" y="30" width="220" height="32" rx="4" fill="#00e5ff" fill-opacity="0.2"/>
-      <text x="140" y="52" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" fill="#00e5ff" text-anchor="middle">TIER 1 · EMPIRICAL FACT</text>
+      <rect x="30" y="28" width="230" height="30" rx="6" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1"/>
+      <text x="145" y="48" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#059669" text-anchor="middle">TIER 1 · EMPIRICAL FACT</text>
 
-      <text x="30" y="100" font-family="'Orbitron', sans-serif" font-size="24" font-weight="bold" fill="#ffffff">
-        NASA FLIGHT OBSERVATION
+      <text x="30" y="94" font-family="'Orbitron', sans-serif" font-size="24" font-weight="900" fill="#0f172a">
+        NASA FLIGHT DATA
       </text>
-      <text x="30" y="125" font-family="'Inter', sans-serif" font-size="13" fill="#8899b8">
-        Direct physical measurements from orbital combustion rigs
+      <text x="30" y="120" font-family="'Inter', sans-serif" font-size="13.5" fill="#64748b">
+        Direct physical sensor telemetry from orbital combustion rigs
       </text>
 
-      <line x1="30" y1="145" x2="490" y2="145" stroke="#00e5ff" stroke-opacity="0.3"/>
+      <line x1="30" y1="140" x2="490" y2="140" stroke="#e2e8f0" stroke-width="1.5"/>
 
-      <!-- Chain of Custody Stack -->
-      <g transform="translate(30, 170)">
-        <rect width="460" height="65" rx="6" fill="#0c1630" stroke="#00e5ff" stroke-opacity="0.3"/>
-        <text x="20" y="28" font-family="'JetBrains Mono', monospace" font-size="11" fill="#00e5ff">1. NASA EXPERIMENT</text>
-        <text x="20" y="48" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">BASS-II Flight Test #31</text>
-        
-        <rect y="80" width="460" height="65" rx="6" fill="#0c1630" stroke="#00e5ff" stroke-opacity="0.3"/>
-        <text x="20" y="108" font-family="'JetBrains Mono', monospace" font-size="11" fill="#00e5ff">2. SOURCE TELEMETRY</text>
-        <text x="20" y="128" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">PSI Dataverse Record ID: 10.25923/9k8a-5632</text>
-        
-        <rect y="160" width="460" height="65" rx="6" fill="#0c1630" stroke="#00e5ff" stroke-opacity="0.3"/>
-        <text x="20" y="188" font-family="'JetBrains Mono', monospace" font-size="11" fill="#00e5ff">3. INVESTIGATION &amp; HARDWARE</text>
-        <text x="20" y="208" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">ISS CIR (Combustion Integrated Rack)</text>
+      <!-- Content -->
+      <g transform="translate(30, 165)">
+        <text x="0" y="0" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">Epistemic Status:</text>
+        <text x="0" y="24" font-family="'Inter', sans-serif" font-size="13" fill="#334155">Immutable historical experiment fact.</text>
 
-        <rect y="240" width="460" height="65" rx="6" fill="#0c1630" stroke="#52c41a" stroke-opacity="0.5"/>
-        <text x="20" y="268" font-family="'JetBrains Mono', monospace" font-size="11" fill="#52c41a">4. NASA NTRS CITATION</text>
-        <text x="20" y="288" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">NASA/TM-2015-218764 (Peer-Reviewed)</text>
+        <text x="0" y="65" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">Primary Evidence Source:</text>
+        <text x="0" y="89" font-family="'JetBrains Mono', monospace" font-size="12.5" fill="#059669">NASA PSI Investigation PSI-25</text>
+        <text x="0" y="111" font-family="'Inter', sans-serif" font-size="12.5" fill="#334155">BASS-II Flight Test #31 (ISS CIR Chamber)</text>
+
+        <text x="0" y="152" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">Measured Parameters:</text>
+        <text x="0" y="174" font-family="'JetBrains Mono', monospace" font-size="12" fill="#334155">• O₂: 15.2% ± 0.1%</text>
+        <text x="0" y="194" font-family="'JetBrains Mono', monospace" font-size="12" fill="#334155">• Airflow: 14.8 cm/s</text>
+        <text x="0" y="214" font-family="'JetBrains Mono', monospace" font-size="12" fill="#334155">• Burn Duration: 42.0 seconds (Quenched)</text>
+
+        <rect x="0" y="245" width="460" height="95" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+        <text x="15" y="275" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#059669">DOI TRACEABILITY:</text>
+        <text x="15" y="298" font-family="'JetBrains Mono', monospace" font-size="11" fill="#0f172a">NASA/TP-2016-219216</text>
+        <text x="15" y="320" font-family="'JetBrains Mono', monospace" font-size="11" fill="#059669">https://doi.org/10.2514/6.2016-1234</text>
       </g>
     </g>
 
-    <!-- Column 2: Model Inference -->
+    <!-- Column 2: FLARE-X Model Inference -->
     <g transform="translate(560, 0)">
-      <rect width="520" height="540" rx="12" fill="#081022" stroke="#ffb300" stroke-width="2"/>
+      <rect width="520" height="570" rx="14" fill="#ffffff" stroke="#1d4ed8" stroke-width="2" filter="url(#cardShadow)"/>
+      <rect x="0" y="0" width="520" height="8" rx="4" fill="#1d4ed8"/>
       
       <!-- Header Badge -->
-      <rect x="30" y="30" width="220" height="32" rx="4" fill="#ffb300" fill-opacity="0.2"/>
-      <text x="140" y="52" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" fill="#ffb300" text-anchor="middle">TIER 2 · STATISTICAL ML</text>
+      <rect x="30" y="28" width="240" height="30" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+      <text x="150" y="48" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#1d4ed8" text-anchor="middle">TIER 2 · QUANTITATIVE MODEL</text>
 
-      <text x="30" y="100" font-family="'Orbitron', sans-serif" font-size="24" font-weight="bold" fill="#ffffff">
-        MODEL INFERENCE
+      <text x="30" y="94" font-family="'Orbitron', sans-serif" font-size="24" font-weight="900" fill="#0f172a">
+        FLARE-X MODEL INFERENCE
       </text>
-      <text x="30" y="125" font-family="'Inter', sans-serif" font-size="13" fill="#8899b8">
-        Bounded algorithmic estimations with quantified confidence
+      <text x="30" y="120" font-family="'Inter', sans-serif" font-size="13.5" fill="#64748b">
+        Statistical prediction strictly bounded by the Envelope Guard
       </text>
 
-      <line x1="30" y1="145" x2="490" y2="145" stroke="#ffb300" stroke-opacity="0.3"/>
+      <line x1="30" y1="140" x2="490" y2="140" stroke="#e2e8f0" stroke-width="1.5"/>
 
-      <!-- Chain of Custody Stack -->
-      <g transform="translate(30, 170)">
-        <rect width="460" height="65" rx="6" fill="#1c1608" stroke="#ffb300" stroke-opacity="0.3"/>
-        <text x="20" y="28" font-family="'JetBrains Mono', monospace" font-size="11" fill="#ffb300">1. MODEL RUN IDENTIFIER</text>
-        <text x="20" y="48" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Run #2026-BASS-RG-042</text>
-        
-        <rect y="80" width="460" height="65" rx="6" fill="#1c1608" stroke="#ffb300" stroke-opacity="0.3"/>
-        <text x="20" y="108" font-family="'JetBrains Mono', monospace" font-size="11" fill="#ffb300">2. MODEL ARCHITECTURE &amp; VERSION</text>
-        <text x="20" y="128" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">LightGBM-v1.4 (Regime Classifier)</text>
-        
-        <rect y="160" width="460" height="65" rx="6" fill="#1c1608" stroke="#ffb300" stroke-opacity="0.3"/>
-        <text x="20" y="188" font-family="'JetBrains Mono', monospace" font-size="11" fill="#ffb300">3. TRAINING EVIDENCE SET</text>
-        <text x="20" y="208" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">38 Audited BASS-II Spaceflight Runs</text>
+      <!-- Content -->
+      <g transform="translate(30, 165)">
+        <text x="0" y="0" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">Epistemic Status:</text>
+        <text x="0" y="24" font-family="'Inter', sans-serif" font-size="13" fill="#334155">Trained quantitative inference with confidence interval.</text>
 
-        <rect y="240" width="460" height="65" rx="6" fill="#1c1608" stroke="#ff4d4f" stroke-opacity="0.5"/>
-        <text x="20" y="268" font-family="'JetBrains Mono', monospace" font-size="11" fill="#ff4d4f">4. RESIDUAL CONFIDENCE</text>
-        <text x="20" y="288" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Bounded strictly by Envelope Guard</text>
+        <text x="0" y="65" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">Model Family &amp; Metric:</text>
+        <text x="0" y="89" font-family="'JetBrains Mono', monospace" font-size="12.5" fill="#1d4ed8">BASS Gradient-Boosted Classifier v1.2</text>
+        <text x="0" y="111" font-family="'Inter', sans-serif" font-size="12.5" fill="#334155">79.31% Grouped Cross-Validation Accuracy</text>
+
+        <text x="0" y="152" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">Safety Boundary Check:</text>
+        <text x="0" y="174" font-family="'JetBrains Mono', monospace" font-size="12" fill="#334155">• Envelope Guard: Convex Hull Verified</text>
+        <text x="0" y="194" font-family="'JetBrains Mono', monospace" font-size="12" fill="#334155">• Neighborhood: k=5 nearest flight tests</text>
+        <text x="0" y="214" font-family="'JetBrains Mono', monospace" font-size="12" fill="#334155">• Extrapolation Allowance: 0.0% (Forbidden)</text>
+
+        <rect x="0" y="245" width="460" height="95" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+        <text x="15" y="275" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#1d4ed8">PREDICTION REGIME:</text>
+        <text x="15" y="298" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">QUENCHED (p = 0.84 ± 0.06)</text>
+        <text x="15" y="320" font-family="'Inter', sans-serif" font-size="12" fill="#475569">Supported by 3 adjacent empirical burns</text>
       </g>
     </g>
 
     <!-- Column 3: AI Synthesis -->
     <g transform="translate(1120, 0)">
-      <rect width="520" height="540" rx="12" fill="#081022" stroke="#a855f7" stroke-width="2"/>
+      <rect width="520" height="570" rx="14" fill="#ffffff" stroke="#7c3aed" stroke-width="2" filter="url(#cardShadow)"/>
+      <rect x="0" y="0" width="520" height="8" rx="4" fill="#7c3aed"/>
       
       <!-- Header Badge -->
-      <rect x="30" y="30" width="220" height="32" rx="4" fill="#a855f7" fill-opacity="0.2"/>
-      <text x="140" y="52" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" fill="#a855f7" text-anchor="middle">TIER 3 · LLM REASONING</text>
+      <rect x="30" y="28" width="220" height="30" rx="6" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1"/>
+      <text x="140" y="48" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#7c3aed" text-anchor="middle">TIER 3 · AI SYNTHESIS</text>
 
-      <text x="30" y="100" font-family="'Orbitron', sans-serif" font-size="24" font-weight="bold" fill="#ffffff">
-        AI SYNTHESIS
+      <text x="30" y="94" font-family="'Orbitron', sans-serif" font-size="24" font-weight="900" fill="#0f172a">
+        SYNTHESIZED RATIONALE
       </text>
-      <text x="30" y="125" font-family="'Inter', sans-serif" font-size="13" fill="#8899b8">
-        Natural language explanation strictly anchored in Tiers 1 &amp; 2
+      <text x="30" y="120" font-family="'Inter', sans-serif" font-size="13.5" fill="#64748b">
+        Plain-language explanation grounded in scientific citations
       </text>
 
-      <line x1="30" y1="145" x2="490" y2="145" stroke="#a855f7" stroke-opacity="0.3"/>
+      <line x1="30" y1="140" x2="490" y2="140" stroke="#e2e8f0" stroke-width="1.5"/>
 
-      <!-- Chain of Custody Stack -->
-      <g transform="translate(30, 170)">
-        <rect width="460" height="65" rx="6" fill="#180e28" stroke="#a855f7" stroke-opacity="0.3"/>
-        <text x="20" y="28" font-family="'JetBrains Mono', monospace" font-size="11" fill="#a855f7">1. RETRIEVAL-AUGMENTED CONTEXT</text>
-        <text x="20" y="48" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Anchored exclusively in PSI &amp; NTRS extracts</text>
-        
-        <rect y="80" width="460" height="65" rx="6" fill="#180e28" stroke="#a855f7" stroke-opacity="0.3"/>
-        <text x="20" y="108" font-family="'JetBrains Mono', monospace" font-size="11" fill="#a855f7">2. ZERO FREE FORM EXTRAPOLATION</text>
-        <text x="20" y="128" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Temperature = 0.0 · Deterministic prompts</text>
-        
-        <rect y="160" width="460" height="65" rx="6" fill="#180e28" stroke="#a855f7" stroke-opacity="0.3"/>
-        <text x="20" y="188" font-family="'JetBrains Mono', monospace" font-size="11" fill="#a855f7">3. UNCERTAINTY DISCLOSURE</text>
-        <text x="20" y="208" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Explicit warnings for data sparseness</text>
+      <!-- Content -->
+      <g transform="translate(30, 165)">
+        <text x="0" y="0" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">Epistemic Status:</text>
+        <text x="0" y="24" font-family="'Inter', sans-serif" font-size="13" fill="#334155">AI-generated interpretation with explicit caveats.</text>
 
-        <rect y="240" width="460" height="65" rx="6" fill="#180e28" stroke="#52c41a" stroke-opacity="0.5"/>
-        <text x="20" y="268" font-family="'JetBrains Mono', monospace" font-size="11" fill="#52c41a">4. REPRODUCIBILITY CONTRACT</text>
-        <text x="20" y="288" font-family="'Inter', sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Audit log captures exact citation hashes</text>
+        <text x="0" y="65" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">Grounding Citations:</text>
+        <text x="0" y="89" font-family="'JetBrains Mono', monospace" font-size="12.5" fill="#7c3aed">3 Primary NASA Flight Papers Linked</text>
+        <text x="0" y="111" font-family="'Inter', sans-serif" font-size="12.5" fill="#334155">Every sentence cited to peer-reviewed flight data</text>
+
+        <text x="0" y="152" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">Required Disclosures:</text>
+        <text x="0" y="174" font-family="'JetBrains Mono', monospace" font-size="12" fill="#334155">• Non-operational disclaimer attached</text>
+        <text x="0" y="194" font-family="'JetBrains Mono', monospace" font-size="12" fill="#334155">• Model assumptions explicit</text>
+        <text x="0" y="214" font-family="'JetBrains Mono', monospace" font-size="12" fill="#334155">• Research decision-support only</text>
+
+        <rect x="0" y="245" width="460" height="95" rx="8" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1.5"/>
+        <text x="15" y="275" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#7c3aed">EXPLICIT SCIENTIFIC ETHICS:</text>
+        <text x="15" y="298" font-family="'Inter', sans-serif" font-size="12.5" fill="#4c1d95">"Observations and model inferences are never blurred.</text>
+        <text x="15" y="320" font-family="'Inter', sans-serif" font-size="12.5" fill="#4c1d95">The user always knows which is fact and which is model."</text>
       </g>
     </g>
   </g>
 
   <!-- Bottom Core Principle Banner -->
-  <g transform="translate(960, 840)">
-    <rect x="-700" y="0" width="1400" height="70" rx="8" fill="#080e1c" stroke="#00e5ff" stroke-opacity="0.3"/>
-    <text x="0" y="32" font-family="'Inter', sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">
-      TRUST ARCHITECTURE: A SCIENTIST CAN DRILL DOWN FROM ANY AI PHRASE TO THE EXACT NASA DOI
-    </text>
-    <text x="0" y="54" font-family="'JetBrains Mono', monospace" font-size="13" fill="#64748b" text-anchor="middle">
-      ELIMINATES "BLACK-BOX" HALLUCINATIONS · EMPIRICAL SCIENTIFIC RIGOR GUARANTEED
+  <g transform="translate(960, 860)">
+    <rect x="-650" y="-35" width="1300" height="70" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="0" y="8" font-family="'Inter', sans-serif" font-size="16" font-weight="700" fill="#0f172a" text-anchor="middle">
+      <tspan fill="#1d4ed8">AUDITABLE TRANSPARENCY:</tspan> NASA Flight Fact ──► Statistical Model ──► AI Synthesis. Cleanly separated.
     </text>
   </g>
-
-  <!-- Lower Border Safe Zone Indicator -->
-  <rect x="120" y="1020" width="1680" height="2" fill="#00e5ff" opacity="0.3"/>
-  <text x="960" y="1048" font-family="'JetBrains Mono', monospace" font-size="13" fill="#475569" text-anchor="middle">
-    DATA PROVENANCE &amp; EPISTEMIC TRACEABILITY · NASA SPACE APPS CHALLENGE 2026
-  </text>
 </svg>

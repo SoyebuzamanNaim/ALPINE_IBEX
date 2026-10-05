@@ -1,104 +1,104 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" width="1000" height="560">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#060913"/>
-      <stop offset="100%" stop-color="#0c1222"/>
+    <linearGradient id="bgLabGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
     </linearGradient>
-    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#00e5ff"/>
-      <stop offset="100%" stop-color="#0077ff"/>
-    </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="6" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.06"/>
     </filter>
   </defs>
 
-  <!-- Background -->
-  <rect width="1000" height="560" fill="url(#bgGrad)" rx="12"/>
-  <rect width="998" height="558" x="1" y="1" fill="none" stroke="#00e5ff" stroke-opacity="0.2" rx="12"/>
+  <!-- Clean Canvas Background -->
+  <rect width="1000" height="560" fill="url(#bgLabGrad)" rx="12"/>
+  <rect width="998" height="558" x="1" y="1" fill="none" stroke="#cbd5e1" rx="12"/>
 
   <!-- Title Banner -->
-  <text x="500" y="45" font-family="'Orbitron', sans-serif" font-size="22" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="2">
+  <text x="500" y="45" font-family="'Orbitron', sans-serif" font-size="20" font-weight="900" fill="#0f172a" text-anchor="middle" letter-spacing="2">
     FLARE-X SYSTEM ARCHITECTURE · CLOSED-LOOP AGENTIC PIPELINE
   </text>
-  <text x="500" y="70" font-family="'JetBrains Mono', monospace" font-size="12" fill="#00e5ff" text-anchor="middle">
+  <text x="500" y="70" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">
     RESEARCH PROTOTYPE · NASA CHALLENGE #08 "FLAME IN FREEFALL"
   </text>
 
   <!-- Layer 1: Data Ingestion & Storage -->
-  <g transform="translate(60, 110)">
-    <rect width="260" height="380" fill="#111a30" stroke="#00e5ff" stroke-opacity="0.3" rx="8"/>
-    <text x="130" y="30" font-family="'Orbitron', sans-serif" font-size="13" font-weight="bold" fill="#00e5ff" text-anchor="middle">1. PROVENANCE & DATA</text>
+  <g transform="translate(60, 105)">
+    <rect width="260" height="395" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" rx="10" filter="url(#cardShadow)"/>
+    <rect x="0" y="0" width="260" height="5" rx="2.5" fill="#1d4ed8"/>
+    <text x="130" y="32" font-family="'Orbitron', sans-serif" font-size="13" font-weight="900" fill="#1d4ed8" text-anchor="middle">1. PROVENANCE &amp; DATA</text>
     
     <!-- Sub-blocks -->
-    <rect x="20" y="55" width="220" height="60" fill="#060913" stroke="#ffffff" stroke-opacity="0.1" rx="4"/>
-    <text x="30" y="80" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#ffffff">NASA PSI & NTRS</text>
-    <text x="30" y="100" font-family="'Inter', sans-serif" font-size="10" fill="#8899b8">23 Audited Investigations</text>
+    <rect x="20" y="55" width="220" height="65" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="32" y="82" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#0f172a">NASA PSI &amp; NTRS</text>
+    <text x="32" y="103" font-family="'Inter', sans-serif" font-size="11" fill="#64748b">23 Audited Investigations</text>
 
-    <rect x="20" y="135" width="220" height="60" fill="#060913" stroke="#ffffff" stroke-opacity="0.1" rx="4"/>
-    <text x="30" y="160" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#ffffff">experiments.parquet</text>
-    <text x="30" y="180" font-family="'Inter', sans-serif" font-size="10" fill="#8899b8">145 Verified Spaceflight Tests</text>
+    <rect x="20" y="135" width="220" height="65" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="32" y="162" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#0f172a">experiments.parquet</text>
+    <text x="32" y="183" font-family="'Inter', sans-serif" font-size="11" fill="#64748b">145 Verified Spaceflight Burns</text>
 
-    <rect x="20" y="215" width="220" height="60" fill="#060913" stroke="#ffffff" stroke-opacity="0.1" rx="4"/>
-    <text x="30" y="240" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#ffffff">report_corpus/*.json</text>
-    <text x="30" y="260" font-family="'Inter', sans-serif" font-size="10" fill="#8899b8">13 NTRS Report Abstracts</text>
+    <rect x="20" y="215" width="220" height="65" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="32" y="242" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#0f172a">passages_bm25.json</text>
+    <text x="32" y="263" font-family="'Inter', sans-serif" font-size="11" fill="#64748b">78 Semantic Flight Passages</text>
 
-    <rect x="20" y="295" width="220" height="60" fill="#060913" stroke="#ffffff" stroke-opacity="0.1" rx="4"/>
-    <text x="30" y="320" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#ffffff">BM25 Search Index</text>
-    <text x="30" y="340" font-family="'Inter', sans-serif" font-size="10" fill="#8899b8">Passage & Keyword Index</text>
+    <rect x="20" y="295" width="220" height="65" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="32" y="322" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#0f172a">knowledge_graph.json</text>
+    <text x="32" y="343" font-family="'Inter', sans-serif" font-size="11" fill="#64748b">5 Combustion Physics Regimes</text>
   </g>
 
-  <!-- Layer 2: Core Compute & Safeguards -->
-  <g transform="translate(370, 110)">
-    <rect width="260" height="380" fill="#111a30" stroke="#00e5ff" stroke-opacity="0.3" rx="8"/>
-    <text x="130" y="30" font-family="'Orbitron', sans-serif" font-size="13" font-weight="bold" fill="#00e5ff" text-anchor="middle">2. COMPUTE & ENVELOPE</text>
+  <!-- Layer 2: Hybrid Retrieval & Multi-Agent Orchestrator -->
+  <g transform="translate(370, 105)">
+    <rect width="260" height="395" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" rx="10" filter="url(#cardShadow)"/>
+    <rect x="0" y="0" width="260" height="5" rx="2.5" fill="#0284c7"/>
+    <text x="130" y="32" font-family="'Orbitron', sans-serif" font-size="13" font-weight="900" fill="#0284c7" text-anchor="middle">2. AGENTIC RETRIEVAL</text>
+    
+    <rect x="20" y="55" width="220" height="65" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="32" y="82" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#0f172a">Family Router Agent</text>
+    <text x="32" y="103" font-family="'Inter', sans-serif" font-size="11" fill="#64748b">Directs query to physics family</text>
 
-    <rect x="20" y="55" width="220" height="60" fill="#060913" stroke="#ff4d4f" stroke-opacity="0.5" rx="4"/>
-    <text x="30" y="80" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#ff4d4f">Envelope Guard</text>
-    <text x="30" y="100" font-family="'Inter', sans-serif" font-size="10" fill="#8899b8">Non-Negotiable Refusal Firewall</text>
+    <rect x="20" y="135" width="220" height="65" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="32" y="162" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#0f172a">Evidence Scout Agent</text>
+    <text x="32" y="183" font-family="'Inter', sans-serif" font-size="11" fill="#64748b">BM25 + Gower similarity search</text>
 
-    <rect x="20" y="135" width="220" height="60" fill="#060913" stroke="#ffffff" stroke-opacity="0.1" rx="4"/>
-    <text x="30" y="160" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#ffffff">Gradient Boosting Model</text>
-    <text x="30" y="180" font-family="'Inter', sans-serif" font-size="10" fill="#00e5ff">Grouped CV: 79.31% (n=145)</text>
+    <rect x="20" y="215" width="220" height="65" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="32" y="242" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#0f172a">Evidence Auditor Agent</text>
+    <text x="32" y="263" font-family="'Inter', sans-serif" font-size="11" fill="#64748b">Cross-checks NASA flight limits</text>
 
-    <rect x="20" y="215" width="220" height="60" fill="#060913" stroke="#ffffff" stroke-opacity="0.1" rx="4"/>
-    <text x="30" y="240" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#ffffff">Nearest-Neighbor Retriever</text>
-    <text x="30" y="260" font-family="'Inter', sans-serif" font-size="10" fill="#8899b8">Normalized Feature Distance (k=3)</text>
-
-    <rect x="20" y="295" width="220" height="60" fill="#060913" stroke="#ffffff" stroke-opacity="0.1" rx="4"/>
-    <text x="30" y="320" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#ffffff">Counterfactual Engine</text>
-    <text x="30" y="340" font-family="'Inter', sans-serif" font-size="10" fill="#8899b8">O₂ Sweeps & Boundary Search</text>
+    <rect x="20" y="295" width="220" height="65" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="32" y="322" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#0f172a">Synthesizer Agent</text>
+    <text x="32" y="343" font-family="'Inter', sans-serif" font-size="11" fill="#64748b">Epistemic rationale &amp; caveats</text>
   </g>
 
-  <!-- Layer 3: Agentic Governance & UI -->
-  <g transform="translate(680, 110)">
-    <rect width="260" height="380" fill="#111a30" stroke="#00e5ff" stroke-opacity="0.3" rx="8"/>
-    <text x="130" y="30" font-family="'Orbitron', sans-serif" font-size="13" font-weight="bold" fill="#00e5ff" text-anchor="middle">3. AGENTS & INTERFACE</text>
+  <!-- Layer 3: Quantitative Models & Envelope Guard -->
+  <g transform="translate(680, 105)">
+    <rect width="260" height="395" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" rx="10" filter="url(#cardShadow)"/>
+    <rect x="0" y="0" width="260" height="5" rx="2.5" fill="#059669"/>
+    <text x="130" y="32" font-family="'Orbitron', sans-serif" font-size="13" font-weight="900" fill="#059669" text-anchor="middle">3. MODELS &amp; GUARDS</text>
+    
+    <rect x="20" y="55" width="220" height="65" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5" rx="6"/>
+    <text x="32" y="82" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#1d4ed8">BASS-GB (Solid)</text>
+    <text x="32" y="103" font-family="'Inter', sans-serif" font-size="11" font-weight="600" fill="#1d4ed8">79.31% Grouped CV Accuracy</text>
 
-    <rect x="20" y="55" width="220" height="60" fill="#060913" stroke="#ffffff" stroke-opacity="0.1" rx="4"/>
-    <text x="30" y="80" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#ffffff">Agent Orchestrator FSM</text>
-    <text x="30" y="100" font-family="'Inter', sans-serif" font-size="10" fill="#8899b8">Strict State Progression</text>
+    <rect x="20" y="135" width="220" height="65" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="32" y="162" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#0f172a">FLEX-EX (Droplet)</text>
+    <text x="32" y="183" font-family="'Inter', sans-serif" font-size="11" fill="#64748b">Binary Radiative Extinction</text>
 
-    <rect x="20" y="135" width="220" height="60" fill="#060913" stroke="#2ed573" stroke-opacity="0.5" rx="4"/>
-    <text x="30" y="160" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#2ed573">Evidence Auditor</text>
-    <text x="30" y="180" font-family="'Inter', sans-serif" font-size="10" fill="#8899b8">Regex Numerical & Cite Check</text>
+    <rect x="20" y="215" width="220" height="65" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="32" y="242" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#0f172a">SPICE-FL (Gas)</text>
+    <text x="32" y="263" font-family="'Inter', sans-serif" font-size="11" fill="#64748b">Flame Tip Length Regression</text>
 
-    <rect x="20" y="215" width="220" height="60" fill="#060913" stroke="#ffffff" stroke-opacity="0.1" rx="4"/>
-    <text x="30" y="240" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#ffffff">Explanation Composer</text>
-    <text x="30" y="260" font-family="'Inter', sans-serif" font-size="10" fill="#8899b8">Deterministic Safe Fallback</text>
-
-    <rect x="20" y="295" width="220" height="60" fill="#060913" stroke="#00e5ff" stroke-opacity="0.5" rx="4"/>
-    <text x="30" y="320" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" fill="#00e5ff">Mission Control UI</text>
-    <text x="30" y="340" font-family="'Inter', sans-serif" font-size="10" fill="#8899b8">2D Boundary Map & O₂ Sweep</text>
+    <rect x="20" y="295" width="220" height="65" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5" rx="6"/>
+    <text x="32" y="322" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#dc2626">ENVELOPE GUARD 🛡️</text>
+    <text x="32" y="343" font-family="'Inter', sans-serif" font-size="11" font-weight="600" fill="#dc2626">Refusal on Extrapolation</text>
   </g>
 
-  <!-- Connective Arrows -->
-  <line x1="320" y1="300" x2="370" y2="300" stroke="#00e5ff" stroke-width="2" marker-end="url(#arrow)"/>
-  <line x1="630" y1="300" x2="680" y2="300" stroke="#00e5ff" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- Flow Arrows -->
+  <path d="M 320 300 L 370 300" stroke="#1d4ed8" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 630 300 L 680 300" stroke="#0284c7" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
 
-  <!-- Footer Banner -->
-  <text x="500" y="525" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="middle">
-    Apache-2.0 Licensed · Reproducible in One Command: bash scripts/run_local.sh
-  </text>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8"/>
+    </marker>
+  </defs>
 </svg>

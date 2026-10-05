@@ -1,32 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
   <defs>
-    <radialGradient id="bgGlow" cx="50%" cy="45%" r="65%">
-      <stop offset="0%" stop-color="#0f1932"/>
-      <stop offset="60%" stop-color="#060913"/>
-      <stop offset="100%" stop-color="#020408"/>
-    </radialGradient>
-    <radialGradient id="flameGlow" cx="50%" cy="50%" r="50%">
+    <!-- Clean Laboratory Light Theme Gradients -->
+    <linearGradient id="bgLabGrad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="25%" stop-color="#00e5ff"/>
-      <stop offset="60%" stop-color="#0055ff"/>
-      <stop offset="90%" stop-color="#111144" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="60%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <radialGradient id="chamberBackdrop" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#e0f2fe" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#f0f9ff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#f8fafc" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="outerSoot" cx="50%" cy="50%" r="50%">
-      <stop offset="70%" stop-color="#ff7700" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#ff3300" stop-opacity="0"/>
+    <radialGradient id="flameSphere" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#38bdf8"/>
+      <stop offset="60%" stop-color="#0284c7"/>
+      <stop offset="85%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#1e3a8a" stop-opacity="0"/>
     </radialGradient>
-    <filter id="glowEffect" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="18" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    <radialGradient id="haloWarm" cx="50%" cy="50%" r="50%">
+      <stop offset="65%" stop-color="#f97316" stop-opacity="0.12"/>
+      <stop offset="90%" stop-color="#ea580c" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#f8fafc" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="flameGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.06"/>
     </filter>
   </defs>
 
-  <!-- Background -->
-  <rect width="1920" height="1080" fill="url(#bgGlow)"/>
+  <!-- Clean Canvas Background -->
+  <rect width="1920" height="1080" fill="url(#bgLabGrad)"/>
   
-  <!-- Subtle Grid -->
-  <g stroke="#00e5ff" stroke-opacity="0.05" stroke-width="1">
+  <!-- Subtle Technical Grid Lines -->
+  <g stroke="#cbd5e1" stroke-opacity="0.45" stroke-width="1">
     <line x1="0" y1="270" x2="1920" y2="270"/>
     <line x1="0" y1="540" x2="1920" y2="540"/>
     <line x1="0" y1="810" x2="1920" y2="810"/>
@@ -35,59 +45,71 @@
     <line x1="1440" y1="0" x2="1440" y2="1080"/>
   </g>
 
-  <!-- Telemetry Header -->
-  <text x="120" y="100" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="16" fill="#00e5ff" letter-spacing="4" opacity="0.8">
-    // NASA SPACE APPS CHALLENGE 2026 · CHALLENGE #08: FLAME IN FREEFALL
-  </text>
-  <text x="1800" y="100" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="16" fill="#64748b" letter-spacing="2" text-anchor="end">
-    PRESCREENING VIDEO · BLOCK 1: WHO [0:00–0:17]
-  </text>
-
-  <!-- Spherical Microgravity Flame Visual (Centerpiece) -->
-  <g transform="translate(960, 480)">
-    <!-- Chamber Rings -->
-    <circle r="220" fill="none" stroke="#00e5ff" stroke-opacity="0.15" stroke-dasharray="8 6"/>
-    <circle r="190" fill="none" stroke="#64748b" stroke-opacity="0.25" stroke-width="1.5"/>
-    <circle r="160" fill="none" stroke="#00e5ff" stroke-opacity="0.3" stroke-width="2"/>
-    
-    <!-- Outer Soot / Radiative Boundary -->
-    <circle r="150" fill="url(#outerSoot)"/>
-
-    <!-- Core Spherical Diffusion Flame (Buoyancy-Free) -->
-    <circle r="105" fill="url(#flameGlow)" filter="url(#glowEffect)"/>
-    <circle r="45" fill="#ffffff" opacity="0.9" filter="url(#glowEffect)"/>
-
-    <!-- Reticle Crosshairs -->
-    <line x1="-240" y1="0" x2="-180" y2="0" stroke="#00e5ff" stroke-width="2" stroke-opacity="0.6"/>
-    <line x1="180" y1="0" x2="240" y2="0" stroke="#00e5ff" stroke-width="2" stroke-opacity="0.6"/>
-    <line x1="0" y1="-240" x2="0" y2="-180" stroke="#00e5ff" stroke-width="2" stroke-opacity="0.6"/>
-    <line x1="0" y1="180" x2="0" y2="240" stroke="#00e5ff" stroke-width="2" stroke-opacity="0.6"/>
-
-    <!-- Microgravity Marker Callout -->
-    <text x="210" y="-120" font-family="'JetBrains Mono', monospace" font-size="14" fill="#00e5ff" font-weight="bold">g ≈ 10⁻⁴ to 10⁻⁶ m/s²</text>
-    <text x="210" y="-100" font-family="'Inter', sans-serif" font-size="13" fill="#8899b8">Zero Natural Buoyancy</text>
-    <polyline points="200,-115 160,-80" fill="none" stroke="#00e5ff" stroke-width="1" stroke-opacity="0.6"/>
+  <!-- Top Telemetry Header Bar -->
+  <g transform="translate(120, 80)">
+    <rect x="-16" y="-24" width="760" height="42" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="0" cy="-3" r="5" fill="#1d4ed8"/>
+    <text x="18" y="2" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="700" fill="#1d4ed8" letter-spacing="2">
+      NASA SPACE APPS CHALLENGE 2026 · FLAME IN FREEFALL
+    </text>
   </g>
-
-  <!-- Primary Headline -->
-  <text x="960" y="780" font-family="'Orbitron', sans-serif" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="4">
-    FIRE BEHAVES DIFFERENTLY IN MICROGRAVITY.
-  </text>
-  <text x="960" y="830" font-family="'Inter', sans-serif" font-size="24" fill="#8899b8" text-anchor="middle" letter-spacing="1">
-    Without natural buoyancy, flames can spread, extinguish, and produce smoke in ways unknown on Earth.
-  </text>
-
-  <!-- NASA Flight Investigation Badges -->
-  <g transform="translate(960, 920)">
-    <rect x="-560" y="-30" width="1120" height="60" rx="30" fill="#0c1222" stroke="#00e5ff" stroke-opacity="0.3"/>
-    <text x="0" y="8" font-family="'JetBrains Mono', monospace" font-size="20" font-weight="bold" fill="#00e5ff" text-anchor="middle" letter-spacing="6">
-      BASS-II  •  FLEX  •  SPICE  •  SAFFIRE  •  SAME
+  <g transform="translate(1800, 80)">
+    <rect x="-380" y="-24" width="380" height="42" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="-20" y="2" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#64748b" letter-spacing="1.5" text-anchor="end">
+      PRESCREENING VIDEO · BLOCK 1 [0:00–0:18]
     </text>
   </g>
 
-  <!-- Lower Border Safe Zone Indicator -->
-  <rect x="120" y="1020" width="1680" height="2" fill="#00e5ff" opacity="0.3"/>
-  <text x="960" y="1048" font-family="'JetBrains Mono', monospace" font-size="13" fill="#475569" text-anchor="middle">
-    DECEMBER 2008 – PRESENT · NASA PHYSICAL SCIENCES INFORMATICS SYSTEM (PSI) EVIDENCE FOUNDATION
-  </text>
+  <!-- Central Chamber Halo Backdrop -->
+  <circle cx="960" cy="460" r="320" fill="url(#chamberBackdrop)"/>
+
+  <!-- Spherical Microgravity Flame Visual (Centerpiece) -->
+  <g transform="translate(960, 460)">
+    <!-- Stainless CIR Chamber Guide Rings -->
+    <circle r="240" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="10 8"/>
+    <circle r="200" fill="none" stroke="#0284c7" stroke-opacity="0.3" stroke-width="2"/>
+    <circle r="160" fill="none" stroke="#1d4ed8" stroke-opacity="0.4" stroke-width="2.5"/>
+    
+    <!-- Outer Radiative Boundary Layer -->
+    <circle r="165" fill="url(#haloWarm)"/>
+
+    <!-- Core Spherical Microgravity Diffusion Flame -->
+    <circle r="115" fill="url(#flameSphere)" filter="url(#flameGlow)"/>
+    <circle r="46" fill="#ffffff" opacity="0.95" filter="url(#flameGlow)"/>
+
+    <!-- Reticle Crosshair Vectors -->
+    <line x1="-260" y1="0" x2="-200" y2="0" stroke="#0284c7" stroke-width="2.5"/>
+    <line x1="200" y1="0" x2="260" y2="0" stroke="#0284c7" stroke-width="2.5"/>
+    <line x1="0" y1="-260" x2="0" y2="-200" stroke="#0284c7" stroke-width="2.5"/>
+    <line x1="0" y1="200" x2="0" y2="260" stroke="#0284c7" stroke-width="2.5"/>
+
+    <!-- Telemetry Callout Box (Top Right) -->
+    <g transform="translate(200, -140)">
+      <rect x="0" y="0" width="260" height="74" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="0" y="0" width="6" height="74" rx="3" fill="#0284c7"/>
+      <text x="20" y="28" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="800" fill="#0f172a">g ≈ 10⁻⁴ to 10⁻⁶ m/s²</text>
+      <text x="20" y="52" font-family="'Inter', sans-serif" font-size="13" font-weight="600" fill="#0284c7">Buoyancy Vanishes (Freefall)</text>
+      <line x1="0" y1="40" x2="-40" y2="70" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="4 3"/>
+    </g>
+
+    <!-- Duct Flow Callout Box (Bottom Left) -->
+    <g transform="translate(-460, 90)">
+      <rect x="0" y="0" width="280" height="74" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="0" y="0" width="6" height="74" rx="3" fill="#d97706"/>
+      <text x="20" y="28" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="800" fill="#0f172a">VENTILATION DUCT CREEP</text>
+      <text x="20" y="52" font-family="'Inter', sans-serif" font-size="12" font-weight="600" fill="#d97706">Opposed-Flow Flame Propagation</text>
+      <line x1="280" y1="37" x2="330" y2="0" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4 3"/>
+    </g>
+  </g>
+
+  <!-- Bottom Hero Message Banner -->
+  <g transform="translate(960, 890)">
+    <rect x="-700" y="-70" width="1400" height="140" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" filter="url(#cardShadow)"/>
+    <text x="0" y="-18" font-family="'Orbitron', sans-serif" font-size="34" font-weight="900" fill="#0f172a" text-anchor="middle" letter-spacing="1.5">
+      ON EARTH, YOU RUN OUTSIDE. <tspan fill="#dc2626">IN SPACE, YOU ARE LOCKED IN WITH YOUR FIRE.</tspan>
+    </text>
+    <text x="0" y="32" font-family="'Inter', sans-serif" font-size="20" font-weight="500" fill="#334155" text-anchor="middle">
+      No natural buoyancy · Flames form silent, suffocating blue spheres inside ventilation ducts.
+    </text>
+  </g>
 </svg>

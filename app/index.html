@@ -33,6 +33,9 @@
 
     <!-- Central Workspace Navigation Tabs -->
     <nav class="ops-nav-deck" role="tablist" aria-label="Workstation View Navigation">
+      <a href="../project-page/index.html" class="ops-nav-btn" style="text-decoration: none;" title="Return to Public Project Overview">
+        <span class="nav-key">[←]</span> Overview
+      </a>
       <button class="ops-nav-btn active" id="tab-lab-btn" role="tab" aria-selected="true" aria-controls="view-scenario-lab">
         <span class="nav-key">[1]</span> Flammability Deck
       </button>
@@ -202,6 +205,7 @@
               <input type="text" id="nlp-query-input" class="command-input" placeholder="e.g. 18% O2, 101.3 kPa, 5 cm/s PMMA..." aria-label="Scenario conditions search">
               <button type="button" id="nlp-query-submit" class="btn-command" title="Apply Scenario">Apply</button>
             </div>
+            <div id="nlp-feedback" style="display:none; font-size:11.5px; margin-top:6px; color:var(--color-spread); font-family:var(--font-mono);"></div>
           </div>
 
           <!-- Out-of-Range Safety Refusal Switch -->

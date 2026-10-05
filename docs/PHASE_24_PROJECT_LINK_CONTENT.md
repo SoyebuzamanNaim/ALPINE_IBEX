@@ -471,12 +471,12 @@ Scientific Statement: "PMMA exhibits low-flow extinction below 16.5% O₂ at 20 
 
 | Team Member | Public Functional Role | Key Project Contribution |
 | :--- | :--- | :--- |
-| **Saber Hossain Mahim** | **Product & Science Lead** | Mission direction, challenge scoping, scientific thesis, and video narration. |
-| **Ismail Hossen** | **Data & Evidence Lead** | NASA PSI dataset extraction, schema normalization, and source provenance. |
-| **Mahzabin Muntaha** | **ML & Validation Lead** | Quantitative model architecture, leak-free grouped validation, and model cards. |
-| **Abdullah Al Masum** | **AI Systems & Backend Lead** | Agent orchestrator, Envelope Guard boundary service, and FastAPI integration. |
-| **Nahid** | **Frontend & Visualization Lead** | Aerospace UI design, 2D Support Map canvas, and responsive web development. |
-| **Soyebuzaman Naim** | **UX, Media & Submission Lead** | Prescreening video assembly, English subtitles, visual assets, and QA audit. |
+| **Soyebuzaman Naim** | **Full Stack Developer** | Full stack application architecture, reactive components, and system integration. |
+| **Saber Hossain Mahim** | **AI ML Engineer** | Machine learning models, grouped cross-validation, and Experimental Envelope Guard. |
+| **Abdullah Al Masum** | **Researcher** | NASA microgravity combustion research, physics parameters, and scientific validation. |
+| **Mahzabin Muntaha** | **UI UX Designer** | Clean laboratory user interface, visual hierarchy, ergonomics, and accessibility. |
+| **Hamza** | **Backend Developer & Researcher** | Backend APIs, FastAPI microservices, NASA data pipelines, and evidence queries. |
+| **Nahid** | **Video Editor** | Video asset assembly, pacing, cinematic video editing, audio, and subtitle synchronization. |
 
 ---
 

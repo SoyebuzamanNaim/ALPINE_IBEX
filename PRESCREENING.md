@@ -15,12 +15,12 @@ All team members are registered participants from Bangladesh. The team qualifies
 
 | Photo / Callout | Full Name | Space Apps Handle | Role & Mission Focus | Location |
 | :--- | :--- | :--- | :--- | :--- |
-| **Lead** | **Saber Hossain Mahim** | `@sabermahim` | **Team Owner & Mission Strategy** | Bangladesh |
-| **Member** | **Soyebuzaman Naim** | `@soyebuzamannaim` | **Aerospace & Computational Lead** | Bangladesh |
-| **Member** | **Ismail Hossen** | `@ismail-hossen` | **Data Engineering & Ingestion Pipeline** | Bangladesh |
-| **Member** | **Mahzabin Muntaha** | `@muntaha02` | **Scientific Research & Safety Systems** | Bangladesh |
-| **Member** | **Abdullah Al Masum** | `@abdullahalmasum` | **Systems Architecture & Security** | Bangladesh |
-| **Member** | **Nahid** | `@nahid` | **Scientific Visualization & Operations** | Bangladesh |
+| **Developer** | **Soyebuzaman Naim** | `@soyebuzamannaim` | **Full Stack Developer** | Bangladesh |
+| **Engineer** | **Saber Hossain Mahim** | `@sabermahim` | **AI ML Engineer** | Bangladesh |
+| **Researcher** | **Abdullah Al Masum** | `@abdullahalmasum` | **Researcher** | Bangladesh |
+| **Designer** | **Mahzabin Muntaha** | `@muntaha02` | **UI UX Designer** | Bangladesh |
+| **Developer** | **Hamza** | `@hamza` | **Backend Developer & Researcher** | Bangladesh |
+| **Editor** | **Nahid** | `@nahid` | **Video Editor** | Bangladesh |
 
 ---
 
@@ -65,12 +65,12 @@ BLOCK 1: HOOK, TEAM INTRODUCTION & THE PROBLEM STATEMENT [0:00 – 1:00 | 60 SEC
 > *"Greetings judges! We are **Team FLARE-X**, representing Bangladesh at the 2026 NASA Space Apps Challenge.*
 > 
 > *Our multidisciplinary team unites:*
-> * * **Saber Hossain Mahim**, Team Lead and Strategy;*
-> * * **Soyebuzaman Naim**, Aerospace and Computational Modeling;*
-> * * **Ismail Hossen**, Data Engineering and Ingestion;*
-> * * Myself, **Mahzabin Muntaha**, Scientific Research and Mission Safety;*
-> * * **Abdullah Al Masum**, Systems Architecture; and*
-> * * **Nahid**, Scientific Visualization and Operations."*
+> * * **Soyebuzaman Naim**, Full Stack Developer;*
+> * * **Saber Hossain Mahim**, AI ML Engineer;*
+> * * **Abdullah Al Masum**, Researcher;*
+> * * **Mahzabin Muntaha**, UI UX Designer;*
+> * * **Hamza**, Backend Developer & Researcher; and*
+> * * **Nahid**, Video Editor."*
 
 ---
 
@@ -89,7 +89,7 @@ BLOCK 2: THE DATA PARADOX & THE SCIENTIFIC VOID [1:00 – 2:00 | 60 SEC]
 
 ### **1:00 – 1:30 | The Flight Data Dilemma**
 * **Visual Cue:** NASA PSI database interface and flight campaign badges: **BASS**, **BASS-II**, **ACME**, and Cygnus **SAFFIRE**. Specific NTRS document identifiers appear (`NTRS 20160010041`, `NTRS 20140011099`).
-* **Speaker (Ismail Hossen):**
+* **Speaker (Hamza):**
 > *"Obviously, mission controllers cannot light real fires inside crewed spacecraft to test safety limits. Over the past twenty years, NASA Glenn Research Center and international partners conducted heroic microgravity combustion experiments aboard the ISS and unmanned Cygnus resupply vehicles.*
 > 
 > *This precious empirical data lives inside the NASA Physical Sciences Informatics system, or PSI. But today, it sits fragmented across dozens of static technical reports, unstructured tables, and isolated video archives. There is no unified, automated system that mission designers can use to query this body of knowledge before sending new payloads into orbit."*

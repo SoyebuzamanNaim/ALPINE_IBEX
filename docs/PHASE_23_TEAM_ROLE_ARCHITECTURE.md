@@ -37,7 +37,7 @@ FLARE-X establishes **six functional specializations**. These represent operatio
 | **Member E** | **Frontend & Visualization Lead** | React/Next.js interface, 2D Experimental Support Map, counterfactual sweep UI, epistemic badges, and demo execution. |
 | **Member F** | **UX, Media & Submission Lead** | Design system consistency, 240-second video assembly, subtitles, project page, credit manifests, and upload verification. |
 
-*(Reference Roster: In the registered NASA Space Apps Bangladesh regional roster, these functional roles map directly to Saber Hossain Mahim [A], Ismail Hossen [B], Mahzabin Muntaha [C], Abdullah Al Masum [D], Nahid [E], and Soyebuzaman Naim [Technical/Media Integration]. Generic functional identifiers A–F are preserved below as the canonical architecture standard).*
+*(Reference Roster: In the registered NASA Space Apps Bangladesh regional roster, these functional roles map directly to Soyebuzaman Naim [Full Stack Developer], Saber Hossain Mahim [AI ML Engineer], Abdullah Al Masum [Researcher], Mahzabin Muntaha [UI UX Designer], Hamza [Backend Developer & Researcher], and Nahid [Video Editor]).*
 
 ---
 
@@ -490,12 +490,12 @@ The following formal roster template is designated for inclusion across public p
 
 | Full Name | Space Apps Handle | Functional Team Role | Primary Prescreening Contribution |
 | :--- | :--- | :--- | :--- |
-| **Saber Hossain Mahim** | `@sabermahim` | **Product & Science Lead (Member A)** | Mission strategy, challenge scoping, scientific thesis, and video narration. |
-| **Ismail Hossen** | `@ismail-hossen` | **Data & Evidence Lead (Member B)** | NASA PSI ingestion pipeline, data normalization, and source provenance. |
-| **Mahzabin Muntaha** | `@muntaha02` | **ML & Validation Lead (Member C)** | Quantitative model architecture, grouped cross-validation, and model cards. |
-| **Abdullah Al Masum** | `@abdullahalmasum` | **AI Systems & Backend Lead (Member D)** | Agent orchestrator, Envelope Guard service, and FastAPI integration. |
-| **Nahid** | `@nahid` | **Frontend & Visualization Lead (Member E)**| Aerospace UI, 2D Support Map visual design, and responsive layout. |
-| **Soyebuzaman Naim** | `@soyebuzamannaim` | **UX, Media & Submission Lead (Member F)** | Prescreening video assembly, subtitles, visual assets, and submission QA. |
+| **Soyebuzaman Naim** | `@soyebuzamannaim` | **Full Stack Developer** | Full stack application architecture, reactive components, and system integration. |
+| **Saber Hossain Mahim** | `@sabermahim` | **AI ML Engineer** | Machine learning models, grouped cross-validation, and Experimental Envelope Guard. |
+| **Abdullah Al Masum** | `@abdullahalmasum` | **Researcher** | NASA microgravity combustion research, physics parameters, and scientific validation. |
+| **Mahzabin Muntaha** | `@muntaha02` | **UI UX Designer** | Clean laboratory user interface, visual hierarchy, ergonomics, and accessibility. |
+| **Hamza** | `@hamza` | **Backend Developer & Researcher** | Backend APIs, FastAPI microservices, NASA data pipelines, and evidence queries. |
+| **Nahid** | `@nahid` | **Video Editor** | Video asset assembly, pacing, cinematic video editing, audio, and subtitle synchronization. |
 
 ---
 

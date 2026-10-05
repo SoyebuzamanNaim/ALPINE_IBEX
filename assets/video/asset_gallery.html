@@ -3,85 +3,174 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FLARE-X — Video Visual Asset Pack Gallery (1080p Deck)</title>
+  <title>FLARE-X — Video Visual Asset Pack &amp; Live HTML Presentation Deck (3:40 Pitch)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
+    :root {
+      /* Clean Slate Aerospace Laboratory Light Theme (Default) */
+      --bg: #f8fafc;
+      --bg2: #f1f5f9;
+      --panel: #ffffff;
+      --panel-elevated: #ffffff;
+      --line: #e2e8f0;
+      --line-strong: #cbd5e1;
+      --text: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --blue: #1d4ed8;
+      --blue-hover: #2563eb;
+      --blue-subtle: #eff6ff;
+      --cyan: #0284c7;
+      --amber: #d97706;
+      --amber-subtle: #fffbeb;
+      --red: #dc2626;
+      --red-subtle: #fef2f2;
+      --green: #059669;
+      --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+      --shadow-xl: 0 24px 48px -12px rgba(15, 23, 42, 0.12);
+    }
+
+    [data-theme="dark"] {
+      --bg: #060913;
+      --bg2: #0c1624;
+      --panel: #0c1624;
+      --panel-elevated: #101d2d;
+      --line: #203247;
+      --line-strong: #334e6f;
+      --text: #eef5ff;
+      --text-secondary: #cbd5e1;
+      --text-muted: #92a6bc;
+      --blue: #62b7ff;
+      --blue-hover: #8ecbff;
+      --blue-subtle: rgba(98, 183, 255, 0.12);
+      --cyan: #1fe5d0;
+      --amber: #ffb45d;
+      --amber-subtle: rgba(255, 180, 93, 0.12);
+      --red: #ff6b6b;
+      --red-subtle: rgba(255, 107, 107, 0.12);
+      --green: #10b981;
+      --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.45);
+      --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.6);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     body {
-      background-color: #03050a;
-      color: #e2e8f0;
-      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
+
     header {
-      padding: 16px 24px;
-      background: #060913;
-      border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+      padding: 14px 24px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line-strong);
       display: flex;
       align-items: center;
       justify-content: space-between;
       position: sticky;
       top: 0;
       z-index: 100;
+      gap: 16px;
+      flex-wrap: wrap;
     }
+
     .brand-group {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
     }
+
     .brand-title {
       font-family: 'Orbitron', sans-serif;
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 900;
-      letter-spacing: 2px;
-      color: #ffffff;
+      letter-spacing: 1.5px;
+      color: var(--blue);
     }
+
     .brand-tag {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      color: #00e5ff;
-      background: rgba(0, 229, 255, 0.1);
-      padding: 4px 8px;
-      border-radius: 4px;
-      border: 1px solid rgba(0, 229, 255, 0.3);
+      font-weight: 700;
+      color: var(--cyan);
+      background: var(--blue-subtle);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--line-strong);
     }
+
     .controls {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
+
+    .mode-toggle-group {
+      display: flex;
+      background: var(--bg2);
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid var(--line-strong);
+      gap: 4px;
+    }
+
     .btn {
-      background: #111a30;
-      color: #00e5ff;
-      border: 1px solid rgba(0, 229, 255, 0.3);
-      padding: 8px 14px;
+      background: var(--panel);
+      color: var(--text-secondary);
+      border: 1px solid var(--line-strong);
+      padding: 7px 14px;
       border-radius: 6px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11.5px;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: var(--blue-subtle);
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .btn.active {
+      background: var(--blue);
+      color: #ffffff;
+      border-color: var(--blue);
+      box-shadow: 0 2px 6px rgba(29, 78, 216, 0.3);
+    }
+
+    .theme-toggle-btn {
+      background: var(--panel);
+      border: 1px solid var(--line-strong);
+      padding: 7px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text);
+      display: inline-flex;
       align-items: center;
       gap: 6px;
     }
-    .btn:hover {
-      background: rgba(0, 229, 255, 0.2);
-      border-color: #00e5ff;
-      color: #ffffff;
-    }
-    .btn.active {
-      background: #00e5ff;
-      color: #060913;
-    }
+
     main {
       flex: 1;
       display: flex;
@@ -89,67 +178,111 @@
       align-items: center;
       padding: 24px;
       gap: 20px;
+      width: 100%;
     }
+
     .presentation-container {
       width: 100%;
       max-width: 1280px;
       aspect-ratio: 16 / 9;
-      background: #000000;
+      background: var(--panel);
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 229, 255, 0.15);
-      border: 1px solid rgba(0, 229, 255, 0.3);
+      box-shadow: var(--shadow-xl);
+      border: 2px solid var(--line-strong);
       position: relative;
     }
+
     .slide-viewer {
       width: 100%;
       height: 100%;
       object-fit: contain;
       display: block;
+      background: var(--panel);
     }
+
+    .live-workbench-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+      background: var(--bg);
+    }
+
+    .live-overlay-bar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    [data-theme="dark"] .live-overlay-bar {
+      background: rgba(12, 22, 36, 0.92);
+    }
+
     .slide-meta-panel {
       width: 100%;
       max-width: 1280px;
-      background: #0a0f1d;
-      border: 1px solid rgba(0, 229, 255, 0.2);
-      border-radius: 8px;
-      padding: 16px 20px;
+      background: var(--panel);
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      padding: 16px 22px;
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 20px;
+      box-shadow: var(--shadow-lg);
     }
+
     .slide-indicator {
       font-family: 'Orbitron', sans-serif;
-      font-size: 18px;
-      font-weight: 700;
-      color: #00e5ff;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--blue);
     }
+
     .slide-details {
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
+
     .slide-title-text {
-      font-weight: 700;
+      font-weight: 800;
       font-size: 15px;
-      color: #ffffff;
+      color: var(--text);
     }
+
     .slide-cue-text {
-      font-size: 13px;
-      color: #8899b8;
+      font-size: 13.5px;
+      color: var(--text-secondary);
       font-style: italic;
+      line-height: 1.45;
     }
+
     .time-badge {
       font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
-      font-weight: 700;
-      color: #ffb300;
-      background: rgba(255, 179, 0, 0.1);
-      border: 1px solid rgba(255, 179, 0, 0.3);
-      padding: 6px 12px;
+      font-weight: 800;
+      color: var(--amber);
+      background: var(--amber-subtle);
+      border: 1px solid rgba(217, 119, 6, 0.3);
+      padding: 6px 14px;
       border-radius: 6px;
     }
+
     .filmstrip {
       width: 100%;
       max-width: 1280px;
@@ -158,144 +291,324 @@
       gap: 10px;
       margin-bottom: 24px;
     }
+
     .thumb-card {
-      background: #080d1a;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 6px;
+      background: var(--panel);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
       overflow: hidden;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       display: flex;
       flex-direction: column;
     }
+
     .thumb-card:hover {
-      border-color: #00e5ff;
+      border-color: var(--blue);
       transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
     }
+
     .thumb-card.active {
-      border-color: #00e5ff;
-      box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px var(--blue);
     }
+
     .thumb-img {
       width: 100%;
       aspect-ratio: 16 / 9;
       object-fit: cover;
-      background: #000;
+      background: var(--panel);
     }
+
     .thumb-label {
       padding: 6px 4px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
+      font-size: 10.5px;
       text-align: center;
-      color: #8899b8;
+      color: var(--text-muted);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-weight: 600;
     }
+
     .thumb-card.active .thumb-label {
-      color: #00e5ff;
-      font-weight: bold;
+      color: var(--blue);
+      font-weight: 800;
+    }
+
+    .hook-comparison-callout {
+      width: 100%;
+      max-width: 1280px;
+      background: var(--panel);
+      border: 1px solid var(--line-strong);
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-size: 13px;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .hook-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--blue-subtle);
+      color: var(--blue);
     }
   </style>
 </head>
 <body>
   <header>
     <div class="brand-group">
+      <a href="../../project-page/index.html" class="btn" title="Return to Public Project Overview">← OVERVIEW</a>
       <div class="brand-title">FLARE-X</div>
-      <div class="brand-tag">VIDEO ASSET PACK GALLERY · 1080P DECK</div>
+      <div class="brand-tag">3:40 PITCH DECK &amp; LIVE DEMO</div>
     </div>
+
+    <!-- Presentation Mode Toggle: 1080p Deck vs Live Project HTML -->
+    <div class="mode-toggle-group">
+      <button class="btn active" id="btnModeDeck" title="Show 1080p Master Presentation Slides">
+        🖼️ 1080p Master Slides
+      </button>
+      <button class="btn" id="btnModeLive" title="Directly interact with Live HTML Workbench">
+        ⚡ Live Project HTML
+      </button>
+    </div>
+
     <div class="controls">
       <button class="btn" id="prevBtn" title="Previous Slide (Left Arrow)">◀ PREV</button>
       <button class="btn" id="nextBtn" title="Next Slide (Right Arrow / Space)">NEXT ▶</button>
       <button class="btn" id="fullscreenBtn" title="Toggle 16:9 Fullscreen">⛶ FULLSCREEN</button>
+      
+      <!-- Theme Toggle -->
+      <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light / Dark mode">
+        <span id="themeIcon">☀️</span>
+        <span id="themeLabel">Light</span>
+      </button>
+
+      <a href="../../app/index.html" class="btn" title="Open Workstation Deck">APP ↗</a>
     </div>
   </header>
 
   <main>
+    <!-- Master Viewport (Slides OR Live HTML Workbench) -->
     <div class="presentation-container" id="presentationContainer">
+      <!-- 1. Slide Viewer Image -->
       <img id="activeSlide" class="slide-viewer" src="slide_01_opener_microgravity.svg" alt="Active Slide Viewport">
-    </div>
+      
+      <!-- 2. Direct Live Project HTML Workbench Frame -->
+      <iframe id="liveFrame" class="live-workbench-iframe" src="../../project-page/index.html#demo-workbench" title="FLARE-X Live Project HTML Workbench"></iframe>
 
-    <div class="slide-meta-panel">
-      <div class="slide-indicator" id="slideIndexText">SLIDE 01 / 09</div>
-      <div class="slide-details">
-        <div class="slide-title-text" id="slideTitle">Hook &amp; Microgravity Flame Physics</div>
-        <div class="slide-cue-text" id="slideCue">"Fire does not behave in microgravity the way it does on Earth..."</div>
+      <!-- Live Mode Floating Quick-Jumper -->
+      <div class="live-overlay-bar" id="liveOverlayBar">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-weight: 800; color: var(--blue);">LIVE HTML WORKBENCH</span>
+          <span style="color: var(--text-muted); font-size: 11px;">(145 Verified NASA Runs)</span>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn" id="jumpBoundary" style="padding: 4px 8px; font-size: 11px;">[1] 2D Support Map</button>
+          <button class="btn" id="jumpSweep" style="padding: 4px 8px; font-size: 11px;">[2] Oxygen Sweep</button>
+          <button class="btn" id="jumpArchive" style="padding: 4px 8px; font-size: 11px;">[3] 145-Burn Archive</button>
+          <button class="btn" id="jumpMetrics" style="padding: 4px 8px; font-size: 11px;">[4] Model Governance</button>
+        </div>
       </div>
-      <div class="time-badge" id="slideTimestamp">0:00 – 0:17</div>
     </div>
 
+    <!-- Active Metadata Panel -->
+    <div class="slide-meta-panel">
+      <div class="slide-indicator" id="slideIndexText">SCENE 01 / 09</div>
+      <div class="slide-details">
+        <div class="slide-title-text" id="slideTitle">The High-Stakes Astronaut Nightmare Hook</div>
+        <div class="slide-cue-text" id="slideCue">"On Earth, when a building catches fire, you run outside. Three hundred miles above Earth, you are trapped in a sealed tin can with your own fire..."</div>
+      </div>
+      <div class="time-badge" id="slideTimestamp">0:00 – 0:18 (18s)</div>
+    </div>
+
+    <!-- 9 Filmstrip Cards -->
     <div class="filmstrip" id="filmstrip">
-      <!-- 9 Thumbnails generated via JS -->
+      <!-- Generated dynamically -->
+    </div>
+
+    <!-- Engaging Hook Context Callout -->
+    <div class="hook-comparison-callout">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <strong style="color: var(--blue); font-size: 13.5px;">WHY THIS HOOK WINS THE COMPETITION:</strong>
+        <span class="hook-badge">TARGET RUNTIME: 3:38–3:40 (220s)</span>
+      </div>
+      <p style="color: var(--text-secondary); margin: 0;">
+        <strong>The Problem with other submissions:</strong> Almost every team in <em>Flame in Freefall</em> starts with the generic textbook opener: <em>"Fire does not behave like Earth because of buoyancy."</em> Judges hear this 50 times in a row and tune out.
+      </p>
+      <p style="color: var(--text-secondary); margin: 0;">
+        <strong>The FLARE-X Differentiator:</strong> We open immediately on the visceral, life-or-death human reality: <em>"On Earth, you run outside. In space, you are trapped in an airtight pressure vessel with your fire."</em> We then introduce the hidden physical danger: flames forming silent suffocating blue domes crawling inside ventilation ducts. This hooks the judges emotionally, proves deep physical domain knowledge, and grounds the solution in 145 authentic NASA spaceflight burns.
+      </p>
     </div>
   </main>
 
   <script>
+    // 3:40 Calibrated Prescreening Narrative (Total 220s)
     const slides = [
       {
         id: "slide_01_opener_microgravity.svg",
-        title: "Hook & Microgravity Flame Physics",
-        time: "0:00 – 0:17",
-        cue: "“Fire does not behave in microgravity the way it does on Earth...”"
+        title: "The Astronaut Nightmare Hook & Duct Physics",
+        time: "0:00 – 0:18",
+        cue: "“On Earth, when a building catches fire, you run outside. Three hundred miles above Earth, you are trapped in a sealed tin can with your own fire. Microgravity flames don't rise to the ceiling; they creep silently inside ventilation ducts...”"
       },
       {
         id: "slide_02_team_roster.svg",
-        title: "Team FLARE-X Roster & Project Identity",
-        time: "0:17 – 0:42",
-        cue: "“We are Team FLARE-X. I’m Saber Hossain Mahim, joined by Ismail, Mahzabin, Abdullah, Nahid, and Soyeb...”"
+        title: "Team FLARE-X Roster & Scientific Mission",
+        time: "0:18 – 0:52",
+        cue: "“To prevent this, NASA conducted 145 real flight burns. But that evidence is locked in static PDFs. We are Team FLARE-X from Bangladesh: Naim, Mahim, Masum, Muntaha, Hamza, and Nahid...”"
       },
       {
         id: "slide_03_research_bottleneck.svg",
-        title: "The Research Bottleneck & Multidimensional Silos",
-        time: "0:42 – 1:38",
-        cue: "“The problem is not that NASA lacks data. The problem is knowing which experiment actually applies...”"
+        title: "The 145-Burn Research Bottleneck",
+        time: "0:52 – 1:18",
+        cue: "“When an Artemis engineer asks: 'Will this acrylic ignite at 18% oxygen?'—generic AI chatbots hallucinate numbers. Researchers need verifiable, comparable evidence across 5 distinct experimental families...”"
       },
       {
         id: "slide_04_pipeline_routing.svg",
-        title: "6-Step Closed-Loop Pipeline & Family Routing",
-        time: "1:38 – 2:10",
-        cue: "“FLARE-X is designed to bridge that gap. A user describes a scenario in natural language...”"
+        title: "6-Step Closed-Loop Pipeline & Semantic Ranking",
+        time: "1:18 – 1:50",
+        cue: "“FLARE-X parses natural language into verified physical variables, routes to solid polymers, and ranks burns using Gower physical distance across actual NASA flight tests like BASS-Two...”"
       },
       {
         id: "slide_05_model_specialization.svg",
-        title: "Family-Specialized Quantitative Models",
-        time: "2:10 – 2:26",
-        cue: "“FLARE-X then routes supported questions to a compatible quantitative model: SPICE, FLEX, BASS-II...”"
+        title: "Family-Specialized Machine Learning Models",
+        time: "1:50 – 2:05",
+        cue: "“Specialized models like our BASS gradient-boosted classifier achieve an honest 79.3% grouped cross-validation accuracy—a 27.6% lift over baseline...”"
       },
       {
         id: "slide_06_envelope_guard.svg",
-        title: "Experimental Envelope Guard Climax",
-        time: "2:26 – 2:35",
-        cue: "“Before presenting a prediction, an Experimental Envelope Guard checks... FLARE-X knows when not to predict.”"
+        title: "Section 7 Envelope Guard: Zero-Extrapolation",
+        time: "2:05 – 2:20",
+        cue: "“Crucially, FLARE-X does not trust a model simply because it returns a number. Before presenting a prediction, the Envelope Guard checks whether NASA actually explored these conditions...”"
       },
       {
         id: "slide_07_support_map_sweep.svg",
-        title: "2D Support Map & Counterfactual Sweep",
-        time: "2:35 – 3:30",
-        cue: "“Now change oxygen while holding the other variables constant... The prediction is withheld.”"
+        title: "Live 2D Support Map & Killer Abstention Moment",
+        time: "2:20 – 3:15",
+        cue: "“Here is our live Experimental Support Map. Sweep oxygen from 21% down to 18%—re-evaluating evidence live. But push below 15%—FLARE-X halts prediction! Reliable prediction withheld, because the absence of evidence is not evidence of safety.”"
       },
       {
         id: "slide_08_provenance_hierarchy.svg",
-        title: "3-Tier Provenance & Epistemic Hierarchy",
-        time: "3:30 – 3:43",
-        cue: "“Every conclusion carries provenance: direct NASA observations, model inference, and AI synthesis remain distinct.”"
+        title: "Claim-Level Provenance & NASA NTRS DOIs",
+        time: "3:15 – 3:35",
+        cue: "“Every claim separates direct NASA spaceflight observations from model inferences, resolving directly to published NASA NTRS citations and primary PSI DOIs...”"
       },
       {
         id: "slide_09_closing_end_card.svg",
-        title: "Final Mission End Card",
-        time: "3:43 – 3:52",
-        cue: "“FLARE-X. Evidence-bounded AI for microgravity fire science.”"
+        title: "Mission Thesis & Space Apps 2026 Conclusion",
+        time: "3:35 – 3:40",
+        cue: "“FLARE-X: Find the evidence. Know its limits.”"
       }
     ];
 
     let currentIndex = 0;
+    let isLiveMode = false;
+
     const activeSlide = document.getElementById("activeSlide");
+    const liveFrame = document.getElementById("liveFrame");
+    const liveOverlayBar = document.getElementById("liveOverlayBar");
     const slideIndexText = document.getElementById("slideIndexText");
     const slideTitle = document.getElementById("slideTitle");
     const slideCue = document.getElementById("slideCue");
     const slideTimestamp = document.getElementById("slideTimestamp");
     const filmstrip = document.getElementById("filmstrip");
     const container = document.getElementById("presentationContainer");
+
+    const btnModeDeck = document.getElementById("btnModeDeck");
+    const btnModeLive = document.getElementById("btnModeLive");
+
+    // Theme Engine
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+    const themeIcon = document.getElementById("themeIcon");
+    const themeLabel = document.getElementById("themeLabel");
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem("flarex_theme") || "light";
+      applyTheme(savedTheme);
+
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener("click", () => {
+          const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+          const target = current === "light" ? "dark" : "light";
+          applyTheme(target);
+          localStorage.setItem("flarex_theme", target);
+        });
+      }
+    }
+
+    function applyTheme(theme) {
+      if (theme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+        if (themeIcon) themeIcon.textContent = "🌙";
+        if (themeLabel) themeLabel.textContent = "Dark";
+      } else {
+        document.documentElement.removeAttribute("data-theme");
+        if (themeIcon) themeIcon.textContent = "☀️";
+        if (themeLabel) themeLabel.textContent = "Light";
+      }
+    }
+
+    function setPresentationMode(live) {
+      isLiveMode = live;
+      if (live) {
+        activeSlide.style.display = "none";
+        liveFrame.style.display = "block";
+        liveOverlayBar.style.display = "flex";
+        btnModeLive.classList.add("active");
+        btnModeDeck.classList.remove("active");
+      } else {
+        activeSlide.style.display = "block";
+        liveFrame.style.display = "none";
+        liveOverlayBar.style.display = "none";
+        btnModeDeck.classList.add("active");
+        btnModeLive.classList.remove("active");
+      }
+    }
+
+    btnModeDeck.addEventListener("click", () => setPresentationMode(false));
+    btnModeLive.addEventListener("click", () => setPresentationMode(true));
+
+    // Live HTML jump buttons
+    document.getElementById("jumpBoundary").onclick = () => {
+      liveFrame.src = "../../project-page/index.html#demo-workbench";
+    };
+    document.getElementById("jumpSweep").onclick = () => {
+      try {
+        const doc = liveFrame.contentDocument || liveFrame.contentWindow.document;
+        const btn = doc.getElementById("btn-tab-sweep");
+        if (btn) btn.click();
+      } catch (e) {
+        liveFrame.src = "../../project-page/index.html#demo-workbench";
+      }
+    };
+    document.getElementById("jumpArchive").onclick = () => {
+      try {
+        const doc = liveFrame.contentDocument || liveFrame.contentWindow.document;
+        const btn = doc.getElementById("btn-tab-archive");
+        if (btn) btn.click();
+      } catch (e) {
+        liveFrame.src = "../../project-page/index.html#demo-workbench";
+      }
+    };
+    document.getElementById("jumpMetrics").onclick = () => {
+      try {
+        const doc = liveFrame.contentDocument || liveFrame.contentWindow.document;
+        const btn = doc.getElementById("btn-tab-metrics");
+        if (btn) btn.click();
+      } catch (e) {
+        liveFrame.src = "../../project-page/index.html#demo-workbench";
+      }
+    };
 
     function renderFilmstrip() {
       filmstrip.innerHTML = "";
@@ -306,7 +619,10 @@
           <img class="thumb-img" src="${slide.id}" alt="Thumbnail ${idx + 1}">
           <div class="thumb-label">${idx + 1}. ${slide.title.split(" ")[0]}</div>
         `;
-        card.onclick = () => goToSlide(idx);
+        card.onclick = () => {
+          setPresentationMode(false);
+          goToSlide(idx);
+        };
         filmstrip.appendChild(card);
       });
     }
@@ -314,7 +630,7 @@
     function updateSlide() {
       const slide = slides[currentIndex];
       activeSlide.src = slide.id;
-      slideIndexText.textContent = `SLIDE 0${currentIndex + 1} / 09`;
+      slideIndexText.textContent = `SCENE 0${currentIndex + 1} / 09`;
       slideTitle.textContent = slide.title;
       slideCue.textContent = slide.cue;
       slideTimestamp.textContent = slide.time;
@@ -351,14 +667,16 @@
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
-        if (currentIndex < slides.length - 1) goToSlide(currentIndex + 1);
+        if (!isLiveMode && currentIndex < slides.length - 1) goToSlide(currentIndex + 1);
       } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
-        if (currentIndex > 0) goToSlide(currentIndex - 1);
+        if (!isLiveMode && currentIndex > 0) goToSlide(currentIndex - 1);
       } else if (e.key >= "1" && e.key <= "9") {
+        setPresentationMode(false);
         goToSlide(parseInt(e.key) - 1);
       }
     });
 
+    initTheme();
     renderFilmstrip();
     updateSlide();
   </script>

@@ -1,90 +1,77 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 440" width="900" height="440">
   <defs>
-    <linearGradient id="bgC" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#060913"/>
-      <stop offset="100%" stop-color="#0c1222"/>
+    <linearGradient id="bgLabGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
     </linearGradient>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.06"/>
+    </filter>
   </defs>
 
-  <rect width="900" height="440" fill="url(#bgC)" rx="8"/>
-  <rect width="898" height="438" x="1" y="1" fill="none" stroke="#00e5ff" stroke-opacity="0.2" rx="8"/>
+  <rect width="900" height="440" fill="url(#bgLabGrad)" rx="10"/>
+  <rect width="898" height="438" x="1" y="1" fill="none" stroke="#cbd5e1" rx="10"/>
 
-  <text x="450" y="38" font-family="'Orbitron', sans-serif" font-size="18" font-weight="900" fill="#ffffff" text-anchor="middle">
-    ZERO-FABRICATION CITATION & AUDITING FLOW
+  <text x="450" y="38" font-family="'Orbitron', sans-serif" font-size="18" font-weight="900" fill="#0f172a" text-anchor="middle">
+    ZERO-FABRICATION CITATION &amp; AUDITING FLOW
   </text>
-  <text x="450" y="58" font-family="'JetBrains Mono', monospace" font-size="11" fill="#00e5ff" text-anchor="middle">
-    STRICT MATHEMATICAL GUARD: ONLY PERMITTED NUMBERS & REPORT IDs REACH USERS
+  <text x="450" y="60" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">
+    STRICT MATHEMATICAL GUARD: ONLY PERMITTED NUMBERS &amp; REPORT IDs REACH USERS
   </text>
 
   <!-- Step 1: Prediction Object -->
-  <g transform="translate(60, 95)">
-    <rect width="220" height="280" fill="#111a30" stroke="#00e5ff" stroke-opacity="0.3" rx="6"/>
-    <text x="110" y="26" font-family="'Orbitron', sans-serif" font-size="11" font-weight="bold" fill="#00e5ff" text-anchor="middle">
+  <g transform="translate(50, 95)">
+    <rect width="230" height="295" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" rx="8" filter="url(#cardShadow)"/>
+    <text x="115" y="26" font-family="'Orbitron', sans-serif" font-size="12" font-weight="900" fill="#1d4ed8" text-anchor="middle">
       1. PREDICTION OBJECT
     </text>
-    <rect x="15" y="45" width="190" height="215" fill="#060913" rx="4"/>
-    <text x="25" y="70" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8899b8">Authorized Pool:</text>
-    <text x="25" y="90" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ffffff">O₂: 21.0%</text>
-    <text x="25" y="110" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ffffff">Pressure: 101.3 kPa</text>
-    <text x="25" y="130" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ffffff">Flow: 5.0 cm/s</text>
-    <text x="25" y="150" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ffffff">P(spread): 97.7%</text>
-    <text x="25" y="170" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ffffff">CV Acc: 79.31%</text>
-    <text x="25" y="195" font-family="'JetBrains Mono', monospace" font-size="10" fill="#00e5ff">Allowed Report IDs:</text>
-    <text x="25" y="215" font-family="'JetBrains Mono', monospace" font-size="9" fill="#ffffff">NTRS 20160010041</text>
-    <text x="25" y="235" font-family="'JetBrains Mono', monospace" font-size="9" fill="#ffffff">NTRS 20140011099</text>
+    <rect x="15" y="42" width="200" height="235" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="25" y="68" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#64748b">Authorized Numbers:</text>
+    <text x="25" y="90" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">O₂: 21.0%</text>
+    <text x="25" y="112" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">Pressure: 101.3 kPa</text>
+    <text x="25" y="134" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">Flow: 5.0 cm/s</text>
+    <text x="25" y="156" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">P(spread): 97.7%</text>
+    <text x="25" y="178" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#1d4ed8">CV Acc: 79.31%</text>
+    <text x="25" y="208" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#059669">Allowed Report IDs:</text>
+    <text x="25" y="230" font-family="'JetBrains Mono', monospace" font-size="10" fill="#334155">NTRS 20160010041</text>
+    <text x="25" y="250" font-family="'JetBrains Mono', monospace" font-size="10" fill="#334155">NTRS 20140011099</text>
   </g>
 
   <!-- Step 2: Explanation Composer -->
-  <g transform="translate(340, 95)">
-    <rect width="220" height="280" fill="#111a30" stroke="#00e5ff" stroke-opacity="0.3" rx="6"/>
-    <text x="110" y="26" font-family="'Orbitron', sans-serif" font-size="11" font-weight="bold" fill="#00e5ff" text-anchor="middle">
-      2. EXPLANATION LAYER
+  <g transform="translate(335, 95)">
+    <rect width="230" height="295" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" rx="8" filter="url(#cardShadow)"/>
+    <text x="115" y="26" font-family="'Orbitron', sans-serif" font-size="12" font-weight="900" fill="#0284c7" text-anchor="middle">
+      2. LLM SYNTHESIS
     </text>
-    <rect x="15" y="45" width="190" height="215" fill="#060913" rx="4"/>
-    <text x="25" y="70" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8899b8">Candidate Text:</text>
-    <text x="25" y="95" font-family="'Inter', sans-serif" font-size="10" fill="#ffffff">
-      Synthesizes microgravity
-    </text>
-    <text x="25" y="115" font-family="'Inter', sans-serif" font-size="10" fill="#ffffff">
-      combustion mechanics.
-    </text>
-    <rect x="20" y="140" width="180" height="60" fill="rgba(255, 77, 79, 0.15)" stroke="#ff4d4f" rx="4"/>
-    <text x="30" y="160" font-family="'JetBrains Mono', monospace" font-size="9" fill="#ff4d4f">IF HALLUCINATED NUM:</text>
-    <text x="30" y="180" font-family="'JetBrains Mono', monospace" font-size="9" fill="#ffffff">e.g. "99.9%" or "42 cm"</text>
-    <text x="25" y="225" font-family="'JetBrains Mono', monospace" font-size="10" fill="#2ed573">Deterministic Fallback</text>
-    <text x="25" y="245" font-family="'Inter', sans-serif" font-size="9" fill="#8899b8">Auto-replaces with template</text>
+    <rect x="15" y="42" width="200" height="235" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
+    <text x="25" y="68" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#64748b">Draft Response:</text>
+    <text x="25" y="94" font-family="'Inter', sans-serif" font-size="11" fill="#334155" line-height="1.4">"At 21% O₂ and 5 cm/s flow, BASS-II data shows sustained flame with 97.7% likelihood [NTRS 20160010041]. Model accuracy is 79.31%."</text>
+    
+    <rect x="25" y="225" width="180" height="35" rx="4" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text x="115" y="247" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#1d4ed8" text-anchor="middle">Sends to Auditor</text>
   </g>
 
-  <!-- Step 3: Evidence Auditor -->
+  <!-- Step 3: Strict Regex Auditor -->
   <g transform="translate(620, 95)">
-    <rect width="220" height="280" fill="#111a30" stroke="#2ed573" rx="6"/>
-    <text x="110" y="26" font-family="'Orbitron', sans-serif" font-size="11" font-weight="bold" fill="#2ed573" text-anchor="middle">
-      3. EVIDENCE AUDITOR
+    <rect width="230" height="295" fill="#ffffff" stroke="#059669" stroke-width="2" rx="8" filter="url(#cardShadow)"/>
+    <text x="115" y="26" font-family="'Orbitron', sans-serif" font-size="12" font-weight="900" fill="#059669" text-anchor="middle">
+      3. NUMERICAL AUDITOR
     </text>
-    <rect x="15" y="45" width="190" height="215" fill="#060913" rx="4"/>
-    <text x="25" y="70" font-family="'JetBrains Mono', monospace" font-size="10" fill="#2ed573">✓ NUMERICAL AUDIT</text>
-    <text x="25" y="90" font-family="'Inter', sans-serif" font-size="9" fill="#8899b8">Regex extracts every number.</text>
-    <text x="25" y="105" font-family="'Inter', sans-serif" font-size="9" fill="#8899b8">Blocks if not in Pool 1.</text>
+    <rect x="15" y="42" width="200" height="235" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5" rx="6"/>
+    <text x="25" y="68" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="800" fill="#059669">Audit Scan Rules:</text>
+    <text x="25" y="94" font-family="'Inter', sans-serif" font-size="11" fill="#14532d">• Extracts every regex float</text>
+    <text x="25" y="116" font-family="'Inter', sans-serif" font-size="11" fill="#14532d">• Checks against pool</text>
+    <text x="25" y="138" font-family="'Inter', sans-serif" font-size="11" fill="#14532d">• Validates report IDs</text>
 
-    <text x="25" y="135" font-family="'JetBrains Mono', monospace" font-size="10" fill="#2ed573">✓ CITATION AUDIT</text>
-    <text x="25" y="155" font-family="'Inter', sans-serif" font-size="9" fill="#8899b8">Matches NASA report IDs.</text>
-    <text x="25" y="170" font-family="'Inter', sans-serif" font-size="9" fill="#8899b8">Blocks fictitious reports.</text>
-
-    <rect x="25" y="195" width="170" height="50" fill="#2ed573" fill-opacity="0.15" stroke="#2ed573" rx="4"/>
-    <text x="110" y="218" font-family="'Orbitron', sans-serif" font-size="10" font-weight="bold" fill="#2ed573" text-anchor="middle">
-      VERIFIED OUTPUT
-    </text>
-    <text x="110" y="235" font-family="'JetBrains Mono', monospace" font-size="8" fill="#ffffff" text-anchor="middle">
-      Zero Fabrication Guaranteed
-    </text>
+    <rect x="25" y="165" width="180" height="95" rx="6" fill="#ffffff" stroke="#86efac" stroke-width="1.5"/>
+    <text x="35" y="190" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#059669">✓ AUDIT VERIFIED</text>
+    <text x="35" y="210" font-family="'Inter', sans-serif" font-size="10.5" fill="#14532d">Zero fabricated metrics</text>
+    <text x="35" y="230" font-family="'Inter', sans-serif" font-size="10.5" fill="#14532d">100% NTRS citation match</text>
+    <text x="35" y="248" font-family="'Inter', sans-serif" font-size="10.5" font-weight="700" fill="#059669">Approved for User</text>
   </g>
 
-  <!-- Connective Lines -->
-  <line x1="280" y1="230" x2="340" y2="230" stroke="#00e5ff" stroke-width="2"/>
-  <line x1="560" y1="230" x2="620" y2="230" stroke="#00e5ff" stroke-width="2"/>
-
-  <!-- Footer -->
-  <text x="450" y="415" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="middle">
-    Auditor Rule: If LLM is unavailable or fails check, fall back to deterministic template (Brief §8 Rule 4)
-  </text>
+  <!-- Connecting Lines -->
+  <line x1="280" y1="240" x2="335" y2="240" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="565" y1="240" x2="620" y2="240" stroke="#0284c7" stroke-width="2"/>
 </svg>

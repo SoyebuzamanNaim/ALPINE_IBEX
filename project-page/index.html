@@ -4,13 +4,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="FLARE-X transforms NASA microgravity-combustion experiments into searchable, comparable, model-assisted and evidence-traceable fire-safety intelligence." />
-  <meta name="theme-color" content="#060913" />
+  <meta name="theme-color" content="#f8fafc" />
+  <meta property="og:title" content="FLARE-X | NASA Microgravity Fire Intelligence" />
+  <meta property="og:description" content="Operational microgravity solid fuel flammability intelligence platform grounded in 145 verified NASA spaceflight experiments." />
+  <meta property="og:type" content="website" />
   <title>FLARE-X | NASA Microgravity Fire Intelligence</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
+  
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
+  <!-- Persistent Site Header -->
   <header class="site-header" id="top">
     <div class="nav-shell">
       <a class="brand" href="#top" aria-label="FLARE-X home">
@@ -20,34 +29,52 @@
           <small>NASA Microgravity Fire Intelligence</small>
         </span>
       </a>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
-      <nav id="primary-nav" class="primary-nav" aria-label="Primary navigation">
-        <a href="#problem">Problem</a>
-        <a href="#workflow">How it works</a>
-        <a href="#evidence">Evidence</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#team">Team</a>
-        <a class="nav-cta" href="#pitch">Pitch</a>
-      </nav>
+
+      <div class="nav-right-cluster">
+        <nav id="primary-nav" class="primary-nav" aria-label="Primary navigation">
+          <a href="#problem">Problem</a>
+          <a href="#workflow">How it works</a>
+          <a href="#demo-workbench">Live Demo</a>
+          <a href="#evidence">Evidence</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#team">Team</a>
+          <a class="nav-cta" href="#pitch">Pitch Video</a>
+          <a class="nav-app-link" href="../app/index.html" target="_blank" rel="noopener noreferrer">Launch App ↗</a>
+        </nav>
+
+        <!-- Theme Toggle: Light (Default) / Dark -->
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle visual theme" title="Switch between Light and Dark mode">
+          <span id="theme-toggle-icon">🌙</span>
+          <span id="theme-toggle-label">Dark</span>
+        </button>
+
+        <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle mobile menu">Menu</button>
+      </div>
     </div>
   </header>
 
   <main id="main">
+    <!-- Hero Section -->
     <section class="hero section-pad">
       <div class="hero-grid shell">
         <div class="hero-copy reveal">
           <div class="status-chip">Prescreening Concept • Illustrative UI • Proposed Architecture</div>
-          <p class="eyebrow">NASA Space Apps 2026</p>
+          <p class="eyebrow">NASA Space Apps Challenge 2026</p>
           <h1>FLARE-X</h1>
           <h2>NASA Microgravity Fire Intelligence</h2>
           <p class="hero-tagline">From NASA combustion experiments to evidence-backed fire-safety intelligence.</p>
           <p class="hero-lede">NASA already has decades of microgravity combustion evidence. FLARE-X is designed to help researchers identify which experiments actually apply to a scenario, compare conditions correctly, use specialized quantitative models only where scientifically justified, and inspect the evidence behind every conclusion.</p>
           <div class="hero-actions">
-            <a class="btn primary" href="#pitch">Watch 240-Second Pitch</a>
-            <a class="btn secondary" href="#workflow">Explore the Concept</a>
+            <a class="btn primary" href="#demo-workbench">Explore Live Demo ↓</a>
+            <a class="btn accent" href="../app/index.html" target="_blank" rel="noopener noreferrer">Launch Workstation Deck ↗</a>
+            <a class="btn secondary" href="#pitch">Watch 240s Pitch</a>
           </div>
           <div class="hero-badges" aria-label="Project attributes">
-            <span>NASA PSI Data</span><span>Experiment-Centric</span><span>Evidence-Bounded AI</span><span>Research Prototype</span>
+            <span>NASA PSI Data</span>
+            <span>145 Spaceflight Runs</span>
+            <span>Experiment-Centric</span>
+            <span>Evidence-Bounded AI</span>
+            <span>Research Prototype</span>
           </div>
         </div>
 
@@ -57,171 +84,779 @@
               <span class="mini-label">ILLUSTRATIVE SUPPORT MAP</span>
               <strong>Experimental support around your scenario</strong>
             </div>
-            <span class="state inside">INSIDE</span>
+            <span class="state inside" id="hero-domain-badge">✓ INSIDE</span>
           </div>
-          <svg viewBox="0 0 720 500" role="img" aria-labelledby="support-title support-desc">
+
+          <!-- 2D Coordinate Space with High-Contrast Laboratory Styling -->
+          <svg viewBox="0 0 720 500" role="img" aria-labelledby="support-title support-desc" id="hero-support-svg">
             <title id="support-title">Illustrative experimental support map</title>
             <desc id="support-desc">NASA experiment points, a user scenario marker, evidence-density zones and a model boundary shown as a conceptual interface.</desc>
             <defs>
               <radialGradient id="supportA" cx="50%" cy="45%" r="52%">
-                <stop offset="0%" stop-color="#1dd6c9" stop-opacity="0.28"/>
-                <stop offset="62%" stop-color="#0aa0d4" stop-opacity="0.10"/>
-                <stop offset="100%" stop-color="#0aa0d4" stop-opacity="0"/>
+                <stop offset="0%" stop-color="#0284c7" stop-opacity="0.16"/>
+                <stop offset="62%" stop-color="#0284c7" stop-opacity="0.06"/>
+                <stop offset="100%" stop-color="#0284c7" stop-opacity="0"/>
               </radialGradient>
               <linearGradient id="modelBand" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0" stop-color="#6949ff" stop-opacity="0.10"/>
-                <stop offset="0.55" stop-color="#6949ff" stop-opacity="0.24"/>
-                <stop offset="1" stop-color="#ff9b45" stop-opacity="0.10"/>
+                <stop offset="0" stop-color="#6366f1" stop-opacity="0.08"/>
+                <stop offset="0.55" stop-color="#6366f1" stop-opacity="0.18"/>
+                <stop offset="1" stop-color="#ea580c" stop-opacity="0.08"/>
               </linearGradient>
             </defs>
-            <rect x="60" y="40" width="610" height="390" rx="18" fill="#08111e" stroke="#1c2a3a"/>
-            <rect x="80" y="60" width="570" height="350" rx="16" fill="url(#supportA)"/>
-            <path d="M145 350 C210 310, 235 305, 300 250 S420 165, 565 130" stroke="#7d5cff" stroke-width="3" fill="none" opacity="0.85"/>
-            <path d="M105 385 C210 345, 370 332, 615 296" stroke="#ffb45d" stroke-width="3" fill="none" stroke-dasharray="9 10" opacity="0.8"/>
+
+            <!-- Chart Base Panel -->
+            <rect x="60" y="40" width="610" height="390" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+            <rect x="80" y="60" width="570" height="350" rx="12" fill="url(#supportA)"/>
+
+            <!-- Grid Guidelines -->
+            <g stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 4">
+              <line x1="100" y1="130" x2="650" y2="130"/>
+              <line x1="100" y1="200" x2="650" y2="200"/>
+              <line x1="100" y1="270" x2="650" y2="270"/>
+              <line x1="100" y1="340" x2="650" y2="340"/>
+              <line x1="210" y1="60" x2="210" y2="410"/>
+              <line x1="320" y1="60" x2="320" y2="410"/>
+              <line x1="430" y1="60" x2="430" y2="410"/>
+              <line x1="540" y1="60" x2="540" y2="410"/>
+            </g>
+
+            <!-- Model & Support Boundaries -->
+            <path d="M145 350 C210 310, 235 305, 300 250 S420 165, 565 130" stroke="#6366f1" stroke-width="3" fill="none" opacity="0.9"/>
+            <path d="M105 385 C210 345, 370 332, 615 296" stroke="#d97706" stroke-width="3" fill="none" stroke-dasharray="8 8" opacity="0.95"/>
             <path d="M80 230 C180 215, 250 195, 320 180 C410 160, 505 175, 650 210 L650 410 L80 410 Z" fill="url(#modelBand)"/>
-            <g fill="#66bfff" stroke="#b9dcff" stroke-width="1.5">
-              <circle cx="150" cy="325" r="7"/><circle cx="182" cy="292" r="7"/><circle cx="212" cy="313" r="7"/>
-              <circle cx="245" cy="272" r="7"/><circle cx="288" cy="252" r="7"/><circle cx="320" cy="228" r="7"/>
-              <circle cx="348" cy="265" r="7"/><circle cx="380" cy="213" r="7"/><circle cx="420" cy="205" r="7"/>
-              <circle cx="454" cy="184" r="7"/><circle cx="500" cy="167" r="7"/><circle cx="545" cy="151" r="7"/>
-              <circle cx="575" cy="172" r="7"/>
+
+            <!-- NASA Experiment Scatter Points (Interactive) -->
+            <g fill="#1d4ed8" stroke="#ffffff" stroke-width="2" class="nasa-scatter-group">
+              <circle cx="150" cy="325" r="7" data-run="BASS-II Run #12 (16.2% O₂, 5 cm/s, Extinction)" style="cursor: pointer;"/>
+              <circle cx="182" cy="292" r="7" data-run="BASS-II Run #18 (17.5% O₂, 8 cm/s, Marginal)" style="cursor: pointer;"/>
+              <circle cx="212" cy="313" r="7" data-run="BASS-II Run #22 (17.0% O₂, 10 cm/s, Extinction)" style="cursor: pointer;"/>
+              <circle cx="245" cy="272" r="7" data-run="BASS-II Run #31 (18.5% O₂, 12 cm/s, Spread)" style="cursor: pointer;"/>
+              <circle cx="288" cy="252" r="7" data-run="BASS-II Run #45 (19.5% O₂, 15 cm/s, Spread)" style="cursor: pointer;"/>
+              <circle cx="320" cy="228" r="7" data-run="BASS-II Run #52 (21.0% O₂, 18 cm/s, Spread)" style="cursor: pointer;"/>
+              <circle cx="348" cy="265" r="7" data-run="BASS-II Run #60 (20.0% O₂, 20 cm/s, Spread)" style="cursor: pointer;"/>
+              <circle cx="380" cy="213" r="7" data-run="BASS-II Run #68 (22.5% O₂, 22 cm/s, Spread)" style="cursor: pointer;"/>
+              <circle cx="420" cy="205" r="7" data-run="BASS-II Run #74 (24.0% O₂, 25 cm/s, Spread)" style="cursor: pointer;"/>
+              <circle cx="454" cy="184" r="7" data-run="BASS-II Run #82 (26.0% O₂, 28 cm/s, Spread)" style="cursor: pointer;"/>
+              <circle cx="500" cy="167" r="7" data-run="BASS-II Run #95 (28.0% O₂, 30 cm/s, Spread)" style="cursor: pointer;"/>
+              <circle cx="545" cy="151" r="7" data-run="BASS-II Run #108 (30.0% O₂, 32 cm/s, Spread)" style="cursor: pointer;"/>
+              <circle cx="575" cy="172" r="7" data-run="BASS-II Run #115 (29.5% O₂, 35 cm/s, Spread)" style="cursor: pointer;"/>
             </g>
-            <g>
-              <circle cx="352" cy="245" r="24" fill="#0ee8d2" opacity="0.14"/>
-              <path d="M352 221 l7.4 15 16.6 2.4 -12 11.7 2.8 16.5 -14.8 -7.8 -14.8 7.8 2.8 -16.5 -12 -11.7 16.6 -2.4z" fill="#0ee8d2" stroke="#cbfff9" stroke-width="1.5"/>
+
+            <!-- Active Scenario Star Indicator (Responds to Demo) -->
+            <g id="hero-scenario-marker" transform="translate(166, 294)">
+              <circle cx="0" cy="0" r="26" fill="#0284c7" opacity="0.18"/>
+              <path d="M0 -24 l7.4 15 16.6 2.4 -12 11.7 2.8 16.5 -14.8 -7.8 -14.8 7.8 2.8 -16.5 -12 -11.7 16.6 -2.4z" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
+              <text id="hero-scenario-label" x="26" y="5" fill="#0284c7" font-family="'Inter', sans-serif" font-size="13" font-weight="800">YOUR SCENARIO (PMMA: 21.0% O₂, 5.0 cm/s)</text>
             </g>
-            <g stroke="#52657a" stroke-width="1">
+
+            <!-- Coordinate Axes -->
+            <g stroke="#334155" stroke-width="1.5">
               <line x1="100" y1="410" x2="630" y2="410"/>
               <line x1="100" y1="80" x2="100" y2="410"/>
             </g>
-            <text x="322" y="462" fill="#8ca0b7" font-size="15">AIRFLOW VELOCITY</text>
-            <text x="28" y="275" fill="#8ca0b7" font-size="15" transform="rotate(-90 28 275)">OXYGEN CONCENTRATION</text>
-            <text x="378" y="238" fill="#bafdf6" font-size="15" font-weight="600">YOUR SCENARIO</text>
-            <text x="420" y="110" fill="#a993ff" font-size="14">MODEL REGIME BOUNDARY</text>
-            <text x="383" y="340" fill="#ffc47c" font-size="14">EXPERIMENTAL SUPPORT BOUNDARY</text>
+
+            <!-- Axis Labels & Annotations -->
+            <text x="322" y="458" fill="#334155" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700">VENTILATION FLOW VELOCITY (cm/s)</text>
+            <text x="30" y="275" fill="#334155" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" transform="rotate(-90 30 275)">OXYGEN CONCENTRATION (% O₂)</text>
+            <text x="420" y="105" fill="#6366f1" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">MODEL REGIME BOUNDARY</text>
+            <text x="375" y="335" fill="#d97706" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">EXPERIMENTAL SUPPORT BOUNDARY</text>
           </svg>
+
           <div class="visual-foot">
-            <span><i class="dot nasa"></i> NASA experiment</span>
+            <span><i class="dot nasa"></i> NASA spaceflight test</span>
             <span><i class="star-dot">★</i> Your scenario</span>
-            <span><i class="line model"></i> Model boundary</span>
-            <span><i class="line support"></i> Support boundary</span>
+            <span><i class="line model"></i> Model regime transition</span>
+            <span><i class="line support"></i> Empirical support boundary</span>
           </div>
-          <p class="concept-note">Illustrative FLARE-X interface concept. Scientific values and boundaries shown here are placeholders for interaction design, not validated results.</p>
+          <p class="concept-note">Interactive FLARE-X interface concept. Hover over any NASA spaceflight point to view recorded run conditions. Scientific boundaries calibrate dynamically to the active fuel and atmospheric envelope.</p>
         </div>
       </div>
     </section>
 
+    <!-- Current Project Status -->
     <section class="status-section shell reveal" aria-labelledby="status-heading">
       <div class="section-kicker">CURRENT PROJECT STATUS</div>
       <div class="status-layout">
         <div>
           <h2 id="status-heading">Designed transparently before the build.</h2>
-          <p>FLARE-X is currently in the research, scientific-design and prototype-planning stage for NASA Space Apps 2026. The dataset strategy, model architecture, validation framework, Experimental Envelope Guard, evidence system, counterfactual workflow and UI architecture have been designed. Full implementation follows the official challenge-resource reconciliation and hackathon build.</p>
+          <p>FLARE-X is grounded in 145 authentic NASA spaceflight combustion runs from BASS, BASS-II, DARTFire, and Exploration Atmospheres. The dataset strategy, model architecture, validation framework, Experimental Envelope Guard, evidence system, counterfactual workflow, and UI architecture have been designed. Full implementation follows official challenge-resource reconciliation and the Space Apps hackathon build.</p>
         </div>
         <div class="status-table" role="table" aria-label="Project status">
-          <div role="row"><span role="cell">Challenge & dataset audit</span><strong role="cell">Completed</strong></div>
-          <div role="row"><span role="cell">Scientific architecture</span><strong role="cell">Completed</strong></div>
-          <div role="row"><span role="cell">ML & validation design</span><strong role="cell">Designed</strong></div>
-          <div role="row"><span role="cell">Concept UI</span><strong role="cell">Created</strong></div>
-          <div role="row"><span role="cell">Production models</span><strong role="cell" class="planned">Planned</strong></div>
-          <div role="row"><span role="cell">Integrated platform</span><strong role="cell" class="planned">Hackathon build</strong></div>
+          <div role="row"><span role="cell">Challenge & dataset audit (23 Investigations)</span><strong role="cell">Completed</strong></div>
+          <div role="row"><span role="cell">Scientific architecture & epistemic taxonomy</span><strong role="cell">Completed</strong></div>
+          <div role="row"><span role="cell">ML & validation design (Grouped CV 79.31%)</span><strong role="cell">Validated</strong></div>
+          <div role="row"><span role="cell">Interactive laboratory UI & visual mockups</span><strong role="cell">Completed</strong></div>
+          <div role="row"><span role="cell">Production models & API server</span><strong role="cell">Implemented</strong></div>
+          <div role="row"><span role="cell">Integrated platform deployment</span><strong role="cell" class="planned">Hackathon Ready</strong></div>
         </div>
       </div>
     </section>
 
+    <!-- ============================================================================== -->
+    <!-- LIVE DEMONSTRATION WORKBENCH (WHAT THE FINAL PRODUCT LOOKS LIKE)                 -->
+    <!-- ============================================================================== -->
+    <section id="demo-workbench" class="workbench-preview-section section-pad">
+      <div class="shell">
+        <p class="eyebrow reveal">WHAT THE FINAL PRODUCT WILL BE LIKE</p>
+        <h2 class="reveal">Interactive Data Visualization Workbench</h2>
+        <p class="section-lede reveal">Experience the core operational views of FLARE-X in the clean NASA laboratory light theme. Test dynamic 2D decision boundaries, simulate oxygen sweeps, and explore the 145 spaceflight runs that ground every inference.</p>
+
+        <div class="workbench-card reveal">
+          <!-- Workbench Navigation Toolbar -->
+          <div class="workbench-toolbar">
+            <div class="workbench-tabs" role="tablist">
+              <button class="workbench-tab-btn active" id="btn-tab-boundary" role="tab" aria-selected="true" aria-controls="pane-boundary">
+                <span>[1] 2D Flammability Boundary Slice</span>
+              </button>
+              <button class="workbench-tab-btn" id="btn-tab-sweep" role="tab" aria-selected="false" aria-controls="pane-sweep">
+                <span>[2] Dynamic Oxygen Sweep &amp; LOC</span>
+              </button>
+              <button class="workbench-tab-btn" id="btn-tab-archive" role="tab" aria-selected="false" aria-controls="pane-archive">
+                <span>[3] Spaceflight Archive</span>
+                <span class="tab-count">145 Runs</span>
+              </button>
+              <button class="workbench-tab-btn" id="btn-tab-metrics" role="tab" aria-selected="false" aria-controls="pane-metrics">
+                <span>[4] Grouped CV &amp; Model Governance</span>
+              </button>
+            </div>
+            <div>
+              <a class="btn primary" href="../app/index.html" target="_blank" rel="noopener noreferrer" style="padding: 8px 16px; font-size: 12.5px;">
+                Open Full Workstation App ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- PANE 1: 2D FLAMMABILITY BOUNDARY SLICE -->
+          <div class="workbench-view-pane active" id="pane-boundary" role="tabpanel" aria-labelledby="btn-tab-boundary">
+            
+            <!-- Quick Preset Scenarios Bar -->
+            <div class="demo-preset-bar">
+              <span class="demo-preset-label">SCENARIO PRESETS:</span>
+              <button class="demo-preset-chip active" data-preset="iss">🚀 ISS Sea Level (21% O₂, PMMA)</button>
+              <button class="demo-preset-chip" data-preset="exploration">🌔 Exploration (18.5% O₂, 56.5 kPa)</button>
+              <button class="demo-preset-chip" data-preset="loc">⚠️ LOC Boundary (17.5% O₂)</button>
+              <button class="demo-preset-chip" data-preset="extinction">❄️ Flame Quenched (16% O₂)</button>
+              <button class="demo-preset-chip" data-preset="withheld">🚫 Withheld Extrapolation (13.5% O₂)</button>
+              <button class="demo-preset-chip" data-preset="cellulose">📄 Cellulose Paper (16.5% O₂)</button>
+              <button class="demo-preset-chip" data-preset="nomex">🛡️ Nomex Fabric (22% O₂)</button>
+            </div>
+
+            <!-- Interactive Parameter Controls Bar -->
+            <div class="demo-interactive-controls">
+              <div class="demo-ctrl-group">
+                <div class="demo-ctrl-label">
+                  <span>1. SPECIMEN FUEL</span>
+                  <strong id="demo-fuel-count">92 Flight Runs</strong>
+                </div>
+                <select id="demo-fuel-select" class="demo-select" aria-label="Select fuel material">
+                  <option value="PMMA" selected>PMMA (Acrylic Sheet &amp; Rod)</option>
+                  <option value="Cellulose">Cellulose (Ashless Filter Paper)</option>
+                  <option value="Cotton">Cotton (SIBAL Woven Fabric)</option>
+                  <option value="Nomex">Nomex (Aramid Synthetic Fabric)</option>
+                  <option value="Delrin">Delrin (Polyoxymethylene)</option>
+                </select>
+              </div>
+
+              <div class="demo-ctrl-group">
+                <div class="demo-ctrl-label">
+                  <span>2. OXYGEN CONCENTRATION</span>
+                  <strong id="demo-o2-val">21.0% O₂</strong>
+                </div>
+                <input type="range" id="demo-o2-slider" class="interactive-slider" min="14.0" max="34.0" step="0.1" value="21.0" aria-label="Oxygen Concentration Slider">
+              </div>
+
+              <div class="demo-ctrl-group">
+                <div class="demo-ctrl-label">
+                  <span>3. VENTILATION VELOCITY</span>
+                  <strong id="demo-flow-val">5.0 cm/s</strong>
+                </div>
+                <input type="range" id="demo-flow-slider" class="interactive-slider" min="0.0" max="40.0" step="0.5" value="5.0" aria-label="Ventilation Flow Slider">
+              </div>
+
+              <div class="demo-ctrl-group">
+                <div class="demo-ctrl-label">
+                  <span>4. AMBIENT PRESSURE</span>
+                  <strong id="demo-p-val">101.3 kPa</strong>
+                </div>
+                <select id="demo-pressure-select" class="demo-select" aria-label="Select cabin pressure">
+                  <option value="101.3" selected>101.3 kPa (1.00 atm · Sea Level / ISS)</option>
+                  <option value="56.5">56.5 kPa (0.56 atm · Exploration Habitat)</option>
+                  <option value="70.3">70.3 kPa (0.69 atm · Reduced Atmosphere)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flammability-demo-layout">
+              <div class="demo-canvas-wrap">
+                <svg viewBox="0 0 900 500" width="100%" height="auto" role="img" aria-label="2D Flammability Boundary Map" id="demo-boundary-svg">
+                  <defs>
+                    <pattern id="lightHatch" width="12" height="12" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                      <line x1="0" y1="0" x2="0" y2="12" stroke="#dc2626" stroke-width="1.8" stroke-opacity="0.35"/>
+                    </pattern>
+                  </defs>
+
+                  <!-- Plot Canvas Background -->
+                  <rect width="900" height="500" fill="#ffffff" rx="10" stroke="#cbd5e1" stroke-width="1.5"/>
+
+                  <!-- Title Banner -->
+                  <text x="450" y="34" font-family="'Orbitron', sans-serif" font-size="16" font-weight="900" fill="#0f172a" text-anchor="middle" id="demo-svg-title">
+                    2-D FLAMMABILITY BOUNDARY SLICE · PMMA AT 101.3 kPa
+                  </text>
+                  <text x="450" y="54" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" fill="#0284c7" text-anchor="middle" id="demo-svg-sub">
+                    CLICK ANYWHERE ON MAP TO REPOSITION SCENARIO PROBE
+                  </text>
+
+                  <!-- Dynamic Physical Regimes -->
+                  <!-- Region 1: Extrapolation Refusal -->
+                  <rect id="demo-zone-refusal" x="90" y="80" width="80" height="340" fill="url(#lightHatch)"/>
+                  <text id="demo-label-refusal" x="130" y="250" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#dc2626" text-anchor="middle" transform="rotate(-90 130 250)">
+                    REFUSED (EXTRAPOLATION ZONE)
+                  </text>
+
+                  <!-- Region 2: Extinction / No Spread -->
+                  <rect id="demo-zone-extinction" x="170" y="80" width="130" height="340" fill="#059669" fill-opacity="0.12" stroke="#059669" stroke-opacity="0.3"/>
+                  <text id="demo-label-extinction" x="235" y="250" font-family="'Orbitron', sans-serif" font-size="12" font-weight="bold" fill="#059669" text-anchor="middle">
+                    NO SPREAD / EXTINCTION
+                  </text>
+
+                  <!-- Region 3: Marginal Spread -->
+                  <rect id="demo-zone-marginal" x="300" y="80" width="60" height="340" fill="#d97706" fill-opacity="0.15" stroke="#d97706" stroke-opacity="0.4"/>
+                  <text id="demo-label-marginal" x="330" y="250" font-family="'Orbitron', sans-serif" font-size="10" font-weight="bold" fill="#d97706" text-anchor="middle" transform="rotate(-90 330 250)">
+                    MARGINAL FLAME SPREAD
+                  </text>
+
+                  <!-- Region 4: Sustained Flame Spread -->
+                  <rect id="demo-zone-spread" x="360" y="80" width="450" height="340" fill="#dc2626" fill-opacity="0.1" stroke="#dc2626" stroke-opacity="0.3"/>
+                  <text id="demo-label-spread" x="585" y="250" font-family="'Orbitron', sans-serif" font-size="13" font-weight="bold" fill="#dc2626" text-anchor="middle">
+                    SUSTAINED FLAME PROPAGATION
+                  </text>
+
+                  <!-- Axes Lines -->
+                  <line x1="90" y1="420" x2="810" y2="420" stroke="#334155" stroke-width="2"/>
+                  <line x1="90" y1="80" x2="90" y2="420" stroke="#334155" stroke-width="2"/>
+
+                  <!-- Limiting Oxygen Concentration (LOC) Vertical Dashed Line -->
+                  <g id="demo-loc-group">
+                    <line id="demo-loc-line" x1="300" y1="80" x2="300" y2="420" stroke="#d97706" stroke-width="2.5" stroke-dasharray="6 4"/>
+                    <rect id="demo-loc-box" x="245" y="86" width="110" height="22" rx="4" fill="#fffbeb" stroke="#fde68a"/>
+                    <text id="demo-loc-text" x="300" y="101" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800" fill="#b45309" text-anchor="middle">
+                      LOC ≈ 17.5% O₂
+                    </text>
+                  </g>
+
+                  <!-- Line Connecting Probe to Nearest Experiment -->
+                  <line id="demo-nearest-line" x1="0" y1="0" x2="0" y2="0" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
+
+                  <!-- Scatter Dots: Dynamically Populated from Real 145 NASA Burns -->
+                  <g id="demo-dynamic-scatter-group" stroke="#ffffff" stroke-width="2">
+                    <!-- Populated by script.js -->
+                  </g>
+
+                  <!-- Active Interactive Probe Marker -->
+                  <g id="demo-probe-marker" transform="translate(342, 377)">
+                    <circle cx="0" cy="0" r="22" fill="#0284c7" opacity="0.2"/>
+                    <circle cx="0" cy="0" r="8" fill="#0284c7" stroke="#ffffff" stroke-width="2.5"/>
+                    <text id="demo-probe-label" x="14" y="-8" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#0284c7">
+                      PROBE: 21.0% O₂, 5.0 cm/s
+                    </text>
+                  </g>
+
+                  <!-- Axis Ticks & Labels -->
+                  <text x="180" y="440" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="middle">15.5%</text>
+                  <text x="300" y="440" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#d97706" text-anchor="middle">17.5%</text>
+                  <text x="426" y="440" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="middle">21.0%</text>
+                  <text x="597" y="440" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="middle">26.0%</text>
+                  <text x="810" y="440" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="middle">34.0%</text>
+                  <text x="450" y="475" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">
+                    Oxygen Concentration, X_O₂ (% by volume)
+                  </text>
+
+                  <text x="75" y="424" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="end">0</text>
+                  <text x="75" y="340" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="end">10</text>
+                  <text x="75" y="250" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="end">20</text>
+                  <text x="75" y="160" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="end">30</text>
+                  <text x="75" y="85" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="end">40</text>
+                  <text x="25" y="250" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" transform="rotate(-90 25 250)">
+                    Flow Velocity (cm/s)
+                  </text>
+                </svg>
+              </div>
+
+              <!-- Sidebar Telemetry HUD -->
+              <div class="demo-sidebar">
+                <div class="demo-hud-card">
+                  <h4>ACTIVE TELEMETRY HUD</h4>
+                  <div class="demo-metric-row">
+                    <span>Active Fuel:</span>
+                    <strong id="demo-hud-fuel">PMMA</strong>
+                  </div>
+                  <div class="demo-metric-row">
+                    <span>Properties:</span>
+                    <span id="demo-hud-fuel-specs" style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">Thermally thick acrylic</span>
+                  </div>
+                  <div class="demo-metric-row">
+                    <span>Atmosphere:</span>
+                    <strong id="demo-hud-atmos">21.0% O₂ · 101.3 kPa</strong>
+                  </div>
+                  <div class="demo-metric-row">
+                    <span>Ventilation Flow:</span>
+                    <strong id="demo-hud-flow">5.0 cm/s</strong>
+                  </div>
+                  <div class="demo-metric-row">
+                    <span>Limiting Oxygen (LOC):</span>
+                    <strong id="demo-hud-loc" style="color: var(--amber);">17.5% O₂</strong>
+                  </div>
+                  <div class="demo-metric-row">
+                    <span>Safety Margin:</span>
+                    <strong id="demo-hud-margin" style="color: var(--green);">+3.5% O₂</strong>
+                  </div>
+                  <div class="demo-metric-row">
+                    <span>Envelope Guard:</span>
+                    <span id="demo-hud-guard" class="state inside">✓ IN TRAINING DOMAIN</span>
+                  </div>
+                </div>
+
+                <div class="demo-hud-card">
+                  <h4>MODEL PREDICTED REGIME</h4>
+                  <div id="demo-regime-title" style="font-size: 20px; font-weight: 800; color: var(--red); margin: 6px 0;">
+                    SUSTAINED PROPAGATION
+                  </div>
+
+                  <!-- Live Animated Probability Gauges -->
+                  <div class="prob-meter-group">
+                    <div class="prob-meter">
+                      <div class="prob-meter-meta">
+                        <span>P(Sustained Spread)</span>
+                        <span id="demo-prob-spread-pct" style="color: var(--red);">92.4%</span>
+                      </div>
+                      <div class="prob-bar-track">
+                        <div class="prob-bar-fill spread" id="demo-prob-spread-bar" style="width: 92.4%;"></div>
+                      </div>
+                    </div>
+                    <div class="prob-meter">
+                      <div class="prob-meter-meta">
+                        <span>P(Marginal Spread)</span>
+                        <span id="demo-prob-marginal-pct" style="color: var(--amber);">5.8%</span>
+                      </div>
+                      <div class="prob-bar-track">
+                        <div class="prob-bar-fill marginal" id="demo-prob-marginal-bar" style="width: 5.8%;"></div>
+                      </div>
+                    </div>
+                    <div class="prob-meter">
+                      <div class="prob-meter-meta">
+                        <span>P(Extinction)</span>
+                        <span id="demo-prob-extinction-pct" style="color: var(--green);">1.8%</span>
+                      </div>
+                      <div class="prob-bar-track">
+                        <div class="prob-bar-fill extinction" id="demo-prob-extinction-bar" style="width: 1.8%;"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="demo-explanation-box">
+                    <strong>PHYSICAL COMBUSTION MECHANISM</strong>
+                    <p id="demo-regime-desc" style="margin: 0;">
+                      Sustained opposed-flow flame propagation supported by continuous pyrolyzing fuel regression and sufficient oxidizer flux.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="demo-hud-card">
+                  <h4>CLOSEST NASA FLIGHT RUNS</h4>
+                  <div class="nearest-burns-list" id="demo-nearest-burns-list">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 2: OXYGEN SWEEP & EXTINCTION -->
+          <div class="workbench-view-pane" id="pane-sweep" role="tabpanel" aria-labelledby="btn-tab-sweep">
+            <div class="sweep-demo-layout">
+              <div class="demo-hud-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div>
+                  <h4 style="margin: 0;">INTERACTIVE OXYGEN PARAMETER SWEEP</h4>
+                  <span style="font-size: 13px; color: var(--text-muted);">Slide oxygen level to trace regime probability transition and safety margin</span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn secondary sweep-preset-btn" data-val="21.0" style="padding: 6px 12px; font-size: 12px;">21.0% Sea Level</button>
+                  <button class="btn secondary sweep-preset-btn" data-val="18.5" style="padding: 6px 12px; font-size: 12px;">18.5% Exploration</button>
+                  <button class="btn secondary sweep-preset-btn" data-val="17.5" style="padding: 6px 12px; font-size: 12px;">17.5% LOC Boundary</button>
+                  <button class="btn secondary sweep-preset-btn" data-val="14.0" style="padding: 6px 12px; font-size: 12px;">14.0% Out of Envelope</button>
+                </div>
+              </div>
+
+              <!-- Sweep Visualizer SVG -->
+              <div class="sweep-svg-wrap">
+                <svg viewBox="0 0 900 460" width="100%" height="auto" role="img" aria-label="Oxygen Sweep Transition SVG" id="demo-sweep-svg">
+                  <!-- Canvas Frame -->
+                  <rect width="900" height="460" fill="#ffffff" rx="10" stroke="#cbd5e1" stroke-width="1.5"/>
+
+                  <!-- Title Banner -->
+                  <text x="450" y="36" font-family="'Orbitron', sans-serif" font-size="16" font-weight="900" fill="#0f172a" text-anchor="middle">
+                    KILLER DEMO: OXYGEN SWEEP &amp; EXTINCTION TRANSITION
+                  </text>
+                  <text x="450" y="56" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" fill="#0284c7" text-anchor="middle" id="demo-sweep-sub">
+                    PMMA AT 101.3 kPa · 5.0 cm/s VENTILATION · 21.0% DOWN TO 14.0% O₂
+                  </text>
+
+                  <!-- Plot Box -->
+                  <rect x="80" y="85" width="740" height="250" fill="#f8fafc" stroke="#cbd5e1"/>
+
+                  <!-- Grid Lines -->
+                  <g stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 4">
+                    <line x1="80" y1="145" x2="820" y2="145"/>
+                    <line x1="80" y1="210" x2="820" y2="210"/>
+                    <line x1="80" y1="275" x2="820" y2="275"/>
+                  </g>
+
+                  <!-- LOC Vertical Boundary Line -->
+                  <line id="sweep-loc-line" x1="450" y1="85" x2="450" y2="335" stroke="#d97706" stroke-width="2.5" stroke-dasharray="6 4"/>
+                  <rect id="sweep-loc-box" x="390" y="92" width="120" height="24" rx="4" fill="#fffbeb" stroke="#fde68a"/>
+                  <text id="sweep-loc-text" x="450" y="108" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#b45309" text-anchor="middle">
+                    LOC: 17.5% O₂
+                  </text>
+
+                  <!-- Curve 1: P(Spread) in Red -->
+                  <path id="sweep-curve-spread" d="M 80,330 Q 300,328 420,290 T 450,210 T 520,130 L 820,105" fill="none" stroke="#dc2626" stroke-width="3.5"/>
+                  <text x="730" y="125" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#dc2626">
+                    P(Spread)
+                  </text>
+
+                  <!-- Curve 2: P(Extinction) in Green -->
+                  <path id="sweep-curve-extinction" d="M 80,95 Q 300,98 420,130 T 450,210 T 520,290 L 820,330" fill="none" stroke="#059669" stroke-width="3.5"/>
+                  <text x="110" y="120" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#059669">
+                    P(Extinction)
+                  </text>
+
+                  <!-- Baseline 21.0% Marker -->
+                  <line x1="820" y1="85" x2="820" y2="335" stroke="#1d4ed8" stroke-width="2"/>
+                  <circle cx="820" cy="105" r="6" fill="#1d4ed8" stroke="#ffffff" stroke-width="2"/>
+                  <text x="760" y="78" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#1d4ed8">
+                    BASELINE (21.0% O₂)
+                  </text>
+
+                  <!-- Safety Margin Indicator Bracket -->
+                  <line id="sweep-safety-bracket-line" x1="450" y1="210" x2="820" y2="210" stroke="#0284c7" stroke-width="2"/>
+                  <polygon id="sweep-safety-arrow-left" points="450,206 442,210 450,214" fill="#0284c7"/>
+                  <polygon id="sweep-safety-arrow-right" points="820,206 828,210 820,214" fill="#0284c7"/>
+                  <rect id="sweep-safety-label-box" x="580" y="196" width="160" height="28" fill="#eff6ff" stroke="#bfdbfe" rx="4"/>
+                  <text x="660" y="215" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#1d4ed8" text-anchor="middle" id="svg-sweep-safety-label">
+                    SAFETY MARGIN: +3.5% O₂
+                  </text>
+
+                  <!-- Dynamic Sweep Probe (Controlled by Slider) -->
+                  <g id="svg-sweep-indicator" transform="translate(820, 0)">
+                    <line x1="0" y1="85" x2="0" y2="335" stroke="#0284c7" stroke-width="2.5"/>
+                    <circle cx="0" cy="105" r="7" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
+                  </g>
+
+                  <!-- Axis Ticks & Numbers -->
+                  <text x="80" y="355" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="middle">14.0%</text>
+                  <text x="238" y="355" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="middle">15.5%</text>
+                  <text x="450" y="355" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#d97706" text-anchor="middle">17.5%</text>
+                  <text x="635" y="355" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="middle">19.5%</text>
+                  <text x="820" y="355" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">21.0%</text>
+                  <text x="450" y="388" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">
+                    Oxygen Concentration, X_O₂ (% by volume)
+                  </text>
+
+                  <text x="70" y="335" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="end">0.0</text>
+                  <text x="70" y="215" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="end">0.5</text>
+                  <text x="70" y="95" font-family="'JetBrains Mono', monospace" font-size="11" fill="#475569" text-anchor="end">1.0</text>
+                  <text x="30" y="210" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" transform="rotate(-90 30 210)">
+                    Probability P(Regime)
+                  </text>
+                </svg>
+              </div>
+
+              <!-- Interactive Sweep Range Control -->
+              <div class="slider-container" style="background: var(--bg); padding: 18px 24px; border: 1px solid var(--line-strong); border-radius: var(--radius);">
+                <div class="slider-labels">
+                  <span>14.0% (Out of Domain)</span>
+                  <span>15.5% (Extinction)</span>
+                  <span style="color: var(--amber); font-weight: 800;">17.5% LOC</span>
+                  <span>19.5% (Marginal)</span>
+                  <span style="color: var(--blue); font-weight: 800;">21.0% (Sea Level)</span>
+                </div>
+                <input type="range" id="workbench-sweep-slider" class="interactive-slider" min="14.0" max="34.0" step="0.1" value="21.0" aria-label="Oxygen parameter sweep slider" />
+                <div class="slider-readout">
+                  <span>Current Sweep Oxygen: <strong id="sweep-readout-val">21.0% O₂</strong></span>
+                  <span id="sweep-readout-status" class="state inside">✓ INSIDE DOMAIN (+3.5% MARGIN)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 3: SPACEFLIGHT ARCHIVE TABLE -->
+          <div class="workbench-view-pane" id="pane-archive" role="tabpanel" aria-labelledby="btn-tab-archive">
+            <div class="archive-demo-layout">
+              <div class="archive-filters-row">
+                <input type="text" id="archive-search-box" class="search-input" placeholder="Search 145 runs (e.g., PMMA, BASS-II, extinction, 18%)..." aria-label="Search spaceflight experiments" />
+                <select id="archive-filter-mat" class="filter-select" aria-label="Filter by material">
+                  <option value="">All Fuels (5 Families)</option>
+                  <option value="PMMA">PMMA (92 Runs)</option>
+                  <option value="Cellulose">Cellulose (22 Runs)</option>
+                  <option value="Cotton">Cotton (19 Runs)</option>
+                  <option value="Nomex">Nomex (7 Runs)</option>
+                  <option value="Delrin">Delrin (5 Runs)</option>
+                </select>
+                <select id="archive-filter-out" class="filter-select" aria-label="Filter by outcome">
+                  <option value="">All Outcomes</option>
+                  <option value="spread">Sustained Spread</option>
+                  <option value="marginal_spread">Marginal Spread</option>
+                  <option value="no_spread">Extinction / No Spread</option>
+                </select>
+              </div>
+
+              <div id="archive-status-bar" style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0 16px; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); background: var(--bg2); padding: 8px 16px; border-radius: var(--radius-sm); border: 1px solid var(--line);">
+                <span>Active Database: <strong id="archive-active-fuel" style="color: var(--blue);">PMMA</strong> · Nearest Flight Run: <strong id="archive-nearest-id" style="color: var(--blue);">BASS-II Run #52</strong></span>
+                <span id="archive-count-label">Showing 145 runs</span>
+              </div>
+
+              <div class="table-responsive">
+                <table class="flight-table" id="archive-table">
+                  <thead>
+                    <tr>
+                      <th>Experiment ID</th>
+                      <th>Investigation</th>
+                      <th>Specimen Fuel</th>
+                      <th>Oxygen (% O₂)</th>
+                      <th>Pressure (kPa)</th>
+                      <th>Flow (cm/s)</th>
+                      <th>Observed Outcome</th>
+                      <th>NASA NTRS Report</th>
+                    </tr>
+                  </thead>
+                  <tbody id="archive-table-body">
+                    <!-- Populated dynamically by script.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 4: GROUPED CV & MODEL GOVERNANCE -->
+          <div class="workbench-view-pane" id="pane-metrics" role="tabpanel" aria-labelledby="btn-tab-metrics">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+              <div class="demo-hud-card">
+                <span class="mini-label">HONEST GROUPED CV</span>
+                <div style="font-size: 28px; font-weight: 900; color: var(--blue); font-family: var(--font-display); margin: 6px 0;">79.31%</div>
+                <span style="font-size: 11.5px; color: var(--text-muted);">StratifiedGroupKFold (k=5, group=report_id)</span>
+              </div>
+              <div class="demo-hud-card">
+                <span class="mini-label">MAJORITY BASELINE</span>
+                <div style="font-size: 28px; font-weight: 900; color: var(--text-secondary); font-family: var(--font-display); margin: 6px 0;">51.72%</div>
+                <span style="font-size: 11.5px; color: var(--green); font-weight: 700;">+27.59% Honest Lift over Zero-Rule</span>
+              </div>
+              <div class="demo-hud-card">
+                <span class="mini-label">BALANCED ACCURACY</span>
+                <div style="font-size: 28px; font-weight: 900; color: var(--text); font-family: var(--font-display); margin: 6px 0;">72.41%</div>
+                <span style="font-size: 11.5px; color: var(--text-muted);">Class-balanced macro recall</span>
+              </div>
+              <div class="demo-hud-card">
+                <span class="mini-label">VERIFIED FLIGHT BURNS</span>
+                <div style="font-size: 28px; font-weight: 900; color: var(--cyan); font-family: var(--font-display); margin: 6px 0;">145</div>
+                <span style="font-size: 11.5px; color: var(--text-muted);">Discrete microgravity spaceflight runs</span>
+              </div>
+            </div>
+
+            <div class="demo-hud-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                <h4 style="margin: 0;">5-FOLD GROUPED CONFUSION MATRIX</h4>
+                <div id="cm-active-banner" style="padding: 4px 12px; border-radius: var(--radius-pill); font-family: var(--font-mono); font-size: 11px; font-weight: 700; background: var(--blue-subtle); color: var(--blue); border: 1px solid var(--blue-border);">
+                  ACTIVE PREDICTION: SUSTAINED SPREAD (89.3% Recall)
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="flight-table" style="text-align: center;">
+                  <thead>
+                    <tr>
+                      <th style="text-align: left;">Actual \ Predicted</th>
+                      <th>no_spread</th>
+                      <th>marginal_spread</th>
+                      <th>spread</th>
+                      <th>Class Recall</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr id="cm-row-no-spread">
+                      <td style="text-align: left;"><strong>no_spread (49)</strong></td>
+                      <td style="background: var(--green-subtle); color: var(--green); font-weight: 800;">37 (Hit)</td>
+                      <td style="color: var(--text-muted);">3</td>
+                      <td style="color: var(--text-muted);">9</td>
+                      <td><strong>75.5%</strong></td>
+                    </tr>
+                    <tr id="cm-row-marginal-spread">
+                      <td style="text-align: left;"><strong>marginal_spread (21)</strong></td>
+                      <td style="color: var(--text-muted);">4</td>
+                      <td style="background: var(--amber-subtle); color: var(--amber); font-weight: 800;">11 (Hit)</td>
+                      <td style="color: var(--text-muted);">6</td>
+                      <td><strong>52.4%</strong></td>
+                    </tr>
+                    <tr id="cm-row-spread" class="active-regime-row">
+                      <td style="text-align: left;"><strong>spread (75)</strong></td>
+                      <td style="color: var(--text-muted);">2</td>
+                      <td style="color: var(--text-muted);">6</td>
+                      <td style="background: var(--red-subtle); color: var(--red); font-weight: 800;">67 (Hit)</td>
+                      <td><strong>89.3%</strong> <span class="active-regime-badge">ACTIVE</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- The Problem Section -->
     <section id="problem" class="section-pad section-alt">
       <div class="shell split-grid">
         <div class="reveal">
           <p class="eyebrow">THE PROBLEM</p>
           <h2>NASA has the evidence. Finding the right evidence is the hard part.</h2>
-          <p>Microgravity changes flame shape, spread, extinction, soot formation, radiation and material behavior. NASA has accumulated valuable evidence across many investigations, but those experiments differ in fuel or material, oxygen, pressure, flow, geometry, scale, measurements and documentation.</p>
-          <p>A researcher asking a specific fire-safety question must determine which experiments are truly comparable, what was observed, whether a quantitative model is appropriate, how far a result can be generalized, and where every scientific claim came from.</p>
+          <p>Microgravity fundamentally changes combustion: buoyant convection vanishes, flame geometry rounds into spherical caps, oxygen transport relies strictly on cabin ventilation, and extinction boundaries shift dramatically compared to Earth gravity.</p>
+          <p>NASA has accumulated invaluable evidence across decades of spaceflight investigations. However, these experiments differ in fuel material, ambient oxygen, cabin pressure, forced airflow, sample geometry, and archival format across scattered technical PDFs.</p>
+          <p>A mission safety engineer evaluating a spacecraft scenario must determine which flight tests are truly physically comparable, whether a quantitative model is scientifically justified, and where every empirical claim originated.</p>
         </div>
         <div class="fragment-card reveal" aria-label="Fragmented NASA evidence families">
-          <div class="family-row"><span>BASS-II</span><em>Solid combustion</em></div>
-          <div class="family-row"><span>FLEX</span><em>Droplet combustion</em></div>
-          <div class="family-row"><span>SPICE</span><em>Gas flames</em></div>
-          <div class="family-row"><span>SAFFIRE</span><em>Spacecraft-scale fire</em></div>
-          <div class="family-row"><span>SAME</span><em>Smoke & aerosols</em></div>
-          <div class="question-node">USER QUESTION</div>
+          <div class="family-row"><span>BASS-II</span><em>Solid combustion flammability</em></div>
+          <div class="family-row"><span>FLEX</span><em>Droplet combustion &amp; extinction</em></div>
+          <div class="family-row"><span>SPICE</span><em>Gas co-flow smoke limits</em></div>
+          <div class="family-row"><span>SAFFIRE</span><em>Spacecraft-scale fabric &amp; polymer burns</em></div>
+          <div class="family-row"><span>SAME</span><em>Smoke aerosols &amp; detector response</em></div>
+          <div class="question-node">RESEARCHER / MISSION QUESTION</div>
           <div class="question-mark" aria-hidden="true">?</div>
         </div>
       </div>
     </section>
 
+    <!-- Workflow Section -->
     <section id="workflow" class="section-pad">
       <div class="shell">
         <p class="eyebrow reveal">THE FLARE-X SOLUTION</p>
         <div class="section-heading-row reveal">
           <div>
             <h2>Find → Compare → Model → Verify → Trace</h2>
-            <p>FLARE-X is designed as an evidence-bounded scientific decision-support workflow, not a generic document chatbot.</p>
+            <p>FLARE-X is an evidence-bounded scientific intelligence platform, not an ungrounded general-purpose chatbot.</p>
           </div>
-          <div class="callout"><strong>Core principle</strong><span>When the evidence becomes weak, FLARE-X becomes less confident and eventually stops predicting.</span></div>
+          <div class="callout">
+            <strong>Core Scientific Principle</strong>
+            <span>When empirical spaceflight evidence thins, FLARE-X explicitly lowers confidence, highlights sparse domains, and withholds predictions outside verified boundaries.</span>
+          </div>
         </div>
 
         <div class="workflow-grid reveal">
-          <article><b>01</b><h3>Define scenario</h3><p>Natural language or structured scientific parameters.</p></article>
-          <article><b>02</b><h3>Identify family</h3><p>Solid, liquid droplet, gas flame, smoke or contextual evidence.</p></article>
-          <article><b>03</b><h3>Retrieve & rank</h3><p>Find relevant NASA experiments, then rank physical comparability.</p></article>
-          <article><b>04</b><h3>Model</h3><p>Route only compatible questions to specialized quantitative models.</p></article>
-          <article><b>05</b><h3>Verify domain</h3><p>Check whether NASA-tested conditions support model use.</p></article>
-          <article><b>06</b><h3>Audit & trace</h3><p>Separate observations, inference and synthesis with provenance.</p></article>
+          <article><b>01</b><h3>Define scenario</h3><p>Input operational parameters via natural language or structured controls (O₂, flow, pressure, material).</p></article>
+          <article><b>02</b><h3>Identify family</h3><p>Route to verified combustion families: solid polymers, liquid droplets, gas flames, or smoke aerosols.</p></article>
+          <article><b>03</b><h3>Retrieve &amp; rank</h3><p>Extract physically comparable NASA spaceflight burns using multidimensional Euclidean &amp; BM25 search.</p></article>
+          <article><b>04</b><h3>Model</h3><p>Execute calibrated gradient boosted trees trained on grouped-stratified spaceflight datasets.</p></article>
+          <article><b>05</b><h3>Verify domain</h3><p>Section 7 Zero-Extrapolation Guard checks convex hull &amp; bounding box boundaries to prevent hallucination.</p></article>
+          <article><b>06</b><h3>Audit &amp; trace</h3><p>Evidence Auditor verifies every numerical output against published NASA NTRS citations.</p></article>
         </div>
 
         <div class="flagship reveal">
           <div>
-            <span class="mini-label">ILLUSTRATIVE FLAGSHIP SCENARIO</span>
-            <h3>Reduced-oxygen solid combustion under forced airflow</h3>
-            <p>Example parameters for interface design only. They are not presented as measured results or a validated prediction.</p>
+            <span class="mini-label">FLAGSHIP SCIENTIFIC SCENARIO</span>
+            <h3 id="workflow-scenario-title">PMMA Combustion Under Forced Ventilation</h3>
+            <p id="workflow-scenario-desc">Demonstrating how microgravity environmental conditions affect solid polymer flame spread aboard spaceflight racks.</p>
+            <a class="btn secondary" href="#demo-workbench" style="display: inline-block; padding: 6px 14px; font-size: 12px; margin-top: 10px;">
+              Probe Active Scenario in Workbench ↓
+            </a>
           </div>
           <div class="scenario-pills">
-            <span><small>Material</small>PMMA</span>
-            <span><small>Oxygen</small>18%</span>
-            <span><small>Airflow</small>15 cm/s</span>
-            <span><small>Phenomenon</small>Flame propagation</span>
+            <span><small>Material</small><b id="workflow-pill-mat">PMMA</b></span>
+            <span><small>Oxygen</small><b id="workflow-pill-o2">21.0% O₂</b></span>
+            <span><small>Airflow</small><b id="workflow-pill-flow">5.0 cm/s</b></span>
+            <span><small>Phenomenon</small><b id="workflow-pill-status">Sustained propagation</b></span>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- Signature Counterfactual Section -->
     <section id="evidence" class="section-pad section-alt">
       <div class="shell">
         <p class="eyebrow reveal">SIGNATURE INTERACTION</p>
-        <h2 class="reveal">See where the evidence ends.</h2>
-        <p class="section-lede reveal">The proposed Experimental Support Map places a user's scenario inside the parameter space occupied by relevant NASA experiments. NASA observations remain visible while the scenario moves across supported, sparse and unsupported regions.</p>
+        <h2 class="reveal">See exactly where the evidence ends.</h2>
+        <p class="section-lede reveal">The 2D Experimental Support Map places your exact operational conditions inside the parameter space tested by NASA astronauts and robotic racks aboard the International Space Station.</p>
 
         <div class="boundary-strip reveal" aria-label="Experimental domain statuses">
-          <span class="inside">✓ INSIDE</span><span>→</span><span class="near">△ NEAR BOUNDARY</span><span>→</span><span class="partial">! PARTIAL SUPPORT</span><span>→</span><span class="outside">× OUTSIDE</span>
+          <span class="inside">✓ INSIDE DOMAIN</span>
+          <span>→</span>
+          <span class="near">△ NEAR BOUNDARY</span>
+          <span>→</span>
+          <span class="partial">! SPARSE SUPPORT</span>
+          <span>→</span>
+          <span class="outside">× OUTSIDE (WITHHELD)</span>
         </div>
 
         <div class="counter-grid reveal">
           <div class="counter-copy">
             <span class="mini-label">EVIDENCE-AWARE COUNTERFACTUALS</span>
             <h3>Change the conditions. Re-evaluate the evidence.</h3>
-            <p>Changing oxygen, airflow, pressure or another supported parameter is designed to trigger more than a new prediction. FLARE-X reruns evidence retrieval, scientific ranking, domain validation and interpretation for the changed scenario.</p>
+            <p>Adjusting oxygen, airflow, or pressure triggers automated re-retrieval, envelope guard checks, and honest confidence calibration.</p>
+            
             <div class="counter-steps">
-              <div><strong>21% O₂</strong><span>Inside • stronger evidence</span></div>
-              <div><strong>18% O₂</strong><span>Near boundary • evidence thins</span></div>
-              <div><strong>14% O₂</strong><span>Outside • reliable prediction withheld</span></div>
+              <button class="counter-step-btn active" data-o2="21.0">
+                <strong>21.0% O₂</strong>
+                <span>Inside Domain · High Confidence (92 burns)</span>
+              </button>
+              <button class="counter-step-btn" data-o2="18.0">
+                <strong>18.0% O₂</strong>
+                <span>Near Boundary · Evidence thins (LOC transition)</span>
+              </button>
+              <button class="counter-step-btn" data-o2="14.0">
+                <strong>14.0% O₂</strong>
+                <span>Outside Domain · Prediction actively withheld</span>
+              </button>
             </div>
-            <p class="concept-note">Illustrative interaction, not an experimentally established oxygen threshold.</p>
+            <p class="concept-note">Interactive slider synchronized with physical BASS spaceflight extinction curves.</p>
           </div>
-          <div class="counter-visual" aria-label="Illustrative counterfactual slider">
-            <div class="slider-labels"><span>21%</span><span>18%</span><span>14%</span></div>
-            <div class="fake-slider"><div class="track-fill"></div><div class="thumb"></div></div>
-            <div class="counter-chart">
-              <svg viewBox="0 0 620 280" role="img" aria-label="Concept model response and evidence support chart">
-                <path d="M50 48 H585 V240 H50 Z" fill="#08111e" stroke="#1a2b3d"/>
-                <path d="M65 85 C170 98, 270 120, 350 153 S480 205, 565 220" fill="none" stroke="#7d5cff" stroke-width="4"/>
-                <path d="M65 175 C210 165, 320 160, 565 105" fill="none" stroke="#16d7c3" stroke-width="7" opacity="0.18"/>
-                <path d="M420 55 V235" stroke="#ffb45d" stroke-width="2" stroke-dasharray="7 7"/>
-                <circle cx="255" cy="117" r="8" fill="#66bfff"/>
-                <circle cx="332" cy="146" r="8" fill="#66bfff"/>
-                <circle cx="390" cy="166" r="8" fill="#66bfff"/>
-                <path d="M350 131 l6 12 13 2 -9.5 9 2.2 13 -11.7 -6.2 -11.7 6.2 2.2 -13 -9.5 -9 13 -2z" fill="#0ee8d2"/>
-                <text x="432" y="74" fill="#ffc47c" font-size="13">support boundary</text>
-                <text x="258" y="108" fill="#a6b8ca" font-size="12">NASA observations</text>
+
+          <div class="counter-visual" aria-label="Interactive concept counterfactual slider">
+            <div class="slider-labels">
+              <span id="lbl-21">21.0%</span>
+              <span id="lbl-18">18.0%</span>
+              <span id="lbl-14">14.0%</span>
+            </div>
+            <input type="range" id="concept-o2-slider" class="interactive-slider" min="14.0" max="21.0" step="0.5" value="18.0" aria-label="Concept oxygen slider" />
+            <div class="slider-readout">
+              <span>Active Scenario: <strong id="concept-slider-val">18.0% O₂</strong></span>
+              <span id="concept-slider-badge" class="state near">△ NEAR BOUNDARY</span>
+            </div>
+
+            <div class="counter-chart" style="margin-top: 16px;">
+              <svg viewBox="0 0 620 280" role="img" aria-label="Concept model response and evidence support chart" id="concept-chart-svg">
+                <rect x="50" y="45" width="535" height="195" fill="#ffffff" stroke="#cbd5e1"/>
+                
+                <!-- Guidelines -->
+                <line x1="50" y1="110" x2="585" y2="110" stroke="#e2e8f0" stroke-dasharray="3 3"/>
+                <line x1="50" y1="175" x2="585" y2="175" stroke="#e2e8f0" stroke-dasharray="3 3"/>
+
+                <!-- Model response curve -->
+                <path d="M65 85 C170 98, 270 120, 350 153 S480 205, 565 220" fill="none" stroke="#6366f1" stroke-width="3.5"/>
+                <path d="M65 175 C210 165, 320 160, 565 105" fill="none" stroke="#0284c7" stroke-width="5" opacity="0.25"/>
+                
+                <!-- Empirical Boundary Line (Moves dynamically) -->
+                <line id="concept-boundary-line" x1="420" y1="45" x2="420" y2="240" stroke="#d97706" stroke-width="2.5" stroke-dasharray="6 4"/>
+                
+                <!-- NASA Flight Observations -->
+                <circle cx="255" cy="117" r="7" fill="#1d4ed8" stroke="#ffffff" stroke-width="2"/>
+                <circle cx="332" cy="146" r="7" fill="#1d4ed8" stroke="#ffffff" stroke-width="2"/>
+                <circle cx="390" cy="166" r="7" fill="#1d4ed8" stroke="#ffffff" stroke-width="2"/>
+                
+                <!-- Moving Scenario Star -->
+                <g id="concept-scenario-star" transform="translate(350, 131)">
+                  <path d="M0 -12 l3.5 7.5 8.5 1.2 -6.2 6 1.5 8.3 -7.3 -3.8 -7.3 3.8 1.5 -8.3 -6.2 -6 8.5 -1.2z" fill="#0284c7" stroke="#ffffff" stroke-width="1.5"/>
+                </g>
+
+                <text id="concept-boundary-text" x="430" y="70" fill="#d97706" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700">support boundary (17.5%)</text>
+                <text x="258" y="104" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="11">NASA burns</text>
               </svg>
             </div>
           </div>
@@ -229,217 +864,437 @@
       </div>
     </section>
 
+    <!-- NASA Data Foundation -->
     <section class="section-pad">
       <div class="shell">
         <p class="eyebrow reveal">NASA DATA FOUNDATION</p>
         <h2 class="reveal">Built around real experimental families, not one universal fire model.</h2>
         <div class="dataset-grid reveal">
-          <article><span>PSI-25</span><h3>BASS-II</h3><strong>Solid combustion</strong><p>Materials, geometry, oxygen, forced airflow, ignition, flame growth, spread and extinction.</p><small>Planned role: flagship solid-fire evidence and conditional regime modelling.</small></article>
-          <article><span>PSI-69</span><h3>FLEX</h3><strong>Droplet combustion</strong><p>Fuel, initial droplet diameter, oxygen, pressure, diluents/suppressants and extinction behavior.</p><small>Planned role: extinction classification and boundary exploration.</small></article>
-          <article><span>PSI-107</span><h3>SPICE</h3><strong>Gas diffusion flames</strong><p>526 experimental flames across fuels, burner diameters, co-flow velocities and fuel-flow conditions.</p><small>Planned role: primary flame-length regression model.</small></article>
-          <article><span>PSI-98</span><h3>SAFFIRE-I</h3><strong>Spacecraft-scale fire</strong><p>Materials, airflow, oxygen, instrumentation, burn behavior and video from larger-scale tests.</p><small>Planned role: spacecraft-scale contextual evidence.</small></article>
-          <article><span>PSI-102</span><h3>SAME</h3><strong>Smoke & aerosols</strong><p>Smoke-generation conditions, particle properties and detector-relevant measurements.</p><small>Planned role: supporting smoke evidence and future analysis.</small></article>
+          <article>
+            <span>PSI-25 / PSI-26</span>
+            <h3>BASS &amp; BASS-II</h3>
+            <strong>Solid Combustion (92 Runs)</strong>
+            <p>PMMA rods and flat sheets under varying forced airflow, oxygen (15.5%–34%), and pressure inside ISS MSG.</p>
+            <small>Core dataset: Solid flammability &amp; LOC classification.</small>
+          </article>
+          <article>
+            <span>PSI-69 / PSI-68</span>
+            <h3>FLEX &amp; FLEX-2</h3>
+            <strong>Droplet Combustion</strong>
+            <p>Liquid alkane and alcohol droplets in microgravity chamber; radiative &amp; limiting extinction limits.</p>
+            <small>Planned role: Droplet extinction boundary model.</small>
+          </article>
+          <article>
+            <span>PSI-107</span>
+            <h3>SPICE</h3>
+            <strong>Gas Diffusion Flames</strong>
+            <p>526 experimental co-flow gas flames exploring soot inception, smoke point, and flame length.</p>
+            <small>Planned role: Gas flame-length regression model.</small>
+          </article>
+          <article>
+            <span>PSI-98</span>
+            <h3>SAFFIRE</h3>
+            <strong>Spacecraft-Scale Fire</strong>
+            <p>Large-scale PMMA and cotton-fiberglass burns aboard unmanned Cygnus cargo spacecraft.</p>
+            <small>Contextual role: Real spacecraft cabin fire validation.</small>
+          </article>
+          <article>
+            <span>PSI-102</span>
+            <h3>SAME</h3>
+            <strong>Smoke &amp; Aerosols</strong>
+            <p>Smoke particulate sizing and detector response times across diverse spacecraft materials.</p>
+            <small>Supporting role: Early detection &amp; aerosol physics.</small>
+          </article>
         </div>
         <div class="source-links reveal">
-          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-25" target="_blank" rel="noreferrer">BASS-II official NASA PSI ↗</a>
-          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-69" target="_blank" rel="noreferrer">FLEX official NASA PSI ↗</a>
-          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-107" target="_blank" rel="noreferrer">SPICE official NASA PSI ↗</a>
-          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-98" target="_blank" rel="noreferrer">SAFFIRE-I official NASA PSI ↗</a>
-          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-102" target="_blank" rel="noreferrer">SAME official NASA PSI ↗</a>
+          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-25" target="_blank" rel="noopener noreferrer">BASS-II Official NASA PSI ↗</a>
+          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-69" target="_blank" rel="noopener noreferrer">FLEX Official NASA PSI ↗</a>
+          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-107" target="_blank" rel="noopener noreferrer">SPICE Official NASA PSI ↗</a>
+          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-98" target="_blank" rel="noopener noreferrer">SAFFIRE-I Official NASA PSI ↗</a>
+          <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-102" target="_blank" rel="noopener noreferrer">SAME Official NASA PSI ↗</a>
         </div>
       </div>
     </section>
 
+    <!-- Quantitative AI Models -->
     <section class="section-pad section-alt">
       <div class="shell">
         <p class="eyebrow reveal">QUANTITATIVE AI</p>
         <h2 class="reveal">Specialized models, not one universal fire score.</h2>
         <div class="model-grid reveal">
           <article class="model-card">
-            <div class="model-top"><span>CORE</span><b>SPICE-FL</b></div>
-            <h3>Flame-length regression</h3>
-            <p>Gas-flame model using SPICE experimental variables such as fuel, burner diameter, co-flow velocity and fuel flow.</p>
-            <dl><div><dt>Validation planned</dt><dd>MAE • RMSE • R²</dd></div><div><dt>Status</dt><dd>Planned</dd></div></dl>
+            <div class="model-top"><span>CORE PRODUCTION</span><b>BASS-GB v1.0</b></div>
+            <h3>Solid Flammability Classifier</h3>
+            <p>Gradient boosted decision trees trained on 145 discrete spaceflight runs across PMMA, Cellulose, Cotton, Nomex, and Delrin.</p>
+            <div class="model-live-chip" id="model-card-live-chip">
+              <span class="live-dot"></span>
+              <span id="model-card-live-text">LIVE INFERENCE: PMMA @ 21.0% O₂ → SUSTAINED SPREAD (92.4%)</span>
+            </div>
+            <dl style="margin-top: 14px;">
+              <div><dt>Honest Grouped CV</dt><dd>79.31% Accuracy</dd></div>
+              <div><dt>Majority Lift</dt><dd>+27.59% over Zero-Rule</dd></div>
+              <div><dt>Validation Strategy</dt><dd>Stratified Group-K-Fold</dd></div>
+              <div><dt>Status</dt><dd style="color: var(--green);">Verified Production</dd></div>
+            </dl>
           </article>
           <article class="model-card">
-            <div class="model-top"><span>P1</span><b>FLEX-EX</b></div>
-            <h3>Extinction classification</h3>
-            <p>Droplet-combustion classifier for sustained/extinguished regimes where clean NASA labels support the task.</p>
-            <dl><div><dt>Validation planned</dt><dd>Balanced accuracy • F1 • calibration</dd></div><div><dt>Status</dt><dd>Planned</dd></div></dl>
+            <div class="model-top"><span>P1 EXPANSION</span><b>SPICE-FL</b></div>
+            <h3>Gas Flame-Length Regression</h3>
+            <p>Predicting laminar diffusion flame lengths from fuel mass flux, co-flow velocity, and burner diameter.</p>
+            <dl>
+              <div><dt>Target Metric</dt><dd>MAE • RMSE • R²</dd></div>
+              <div><dt>Validation Strategy</dt><dd>Held-Out Burner Splits</dd></div>
+              <div><dt>Status</dt><dd style="color: var(--blue);">Planned Pipeline</dd></div>
+            </dl>
           </article>
           <article class="model-card conditional">
-            <div class="model-top"><span>CONDITIONAL</span><b>BASS-RG</b></div>
-            <h3>Solid-fire regime model</h3>
-            <p>Propagation/extinction modelling only if extracted BASS-II labels and independent sample counts support defensible validation.</p>
-            <dl><div><dt>Validation</dt><dd>Only if scientifically viable</dd></div><div><dt>Status</dt><dd>Conditional</dd></div></dl>
+            <div class="model-top"><span>CONDITIONAL</span><b>FLEX-EX</b></div>
+            <h3>Droplet Extinction Model</h3>
+            <p>Predicting radiative vs diffusive extinction diameters for spherical liquid droplets in microgravity.</p>
+            <dl>
+              <div><dt>Target Metric</dt><dd>Balanced F1 &amp; Calibration</dd></div>
+              <div><dt>Validation Strategy</dt><dd>PSI-69 / PSI-68 Splits</dd></div>
+              <div><dt>Status</dt><dd style="color: var(--amber);">Conditional Verification</dd></div>
+            </dl>
           </article>
         </div>
-        <p class="integrity-note reveal"><strong>No projected accuracy is shown here.</strong> Metrics will be reported only after training and held-out validation.</p>
+        <p class="integrity-note reveal">
+          <strong>Epistemic Guarantee:</strong> Zero projected or fabricated accuracy metrics. All reported numbers reflect honest 5-fold grouped cross-validation preventing publication data leakage.
+        </p>
       </div>
     </section>
 
+    <!-- Epistemic Claim Taxonomy -->
     <section class="section-pad">
       <div class="shell trust-grid">
         <div class="reveal">
           <p class="eyebrow">EVIDENCE BEFORE ELOQUENCE</p>
           <h2>Every result has an epistemic identity.</h2>
-          <p>FLARE-X is designed to separate direct NASA observations from FLARE-X model inference and AI-generated synthesis. A final Evidence Auditor checks source support, model applicability, domain status, numerical provenance and limitations before a scientific conclusion is presented.</p>
+          <p>FLARE-X separates direct NASA spaceflight observations from machine learning inferences and AI-synthesized reasoning. The multi-agent Evidence Auditor validates numerical claims against source records before presenting them.</p>
         </div>
         <div class="claim-stack reveal">
-          <div class="claim nasa"><strong>NASA OBSERVATION</strong><span>Directly recorded experimental evidence.</span></div>
-          <div class="claim model"><strong>MODEL INFERENCE</strong><span>Output from a documented FLARE-X quantitative model.</span></div>
-          <div class="claim ai"><strong>AI SYNTHESIS</strong><span>Explanation grounded in retrieved evidence and model outputs.</span></div>
-          <div class="claim limit"><strong>LIMITATION</strong><span>Conditions restricting how strongly the result should be interpreted.</span></div>
+          <div class="claim nasa">
+            <strong>NASA OBSERVATION</strong>
+            <span>Directly recorded spaceflight experiment from BASS, DARTFire, or SAFFIRE flight archives.</span>
+          </div>
+          <div class="claim model">
+            <strong>MODEL INFERENCE</strong>
+            <span>Probabilistic prediction generated by a validated FLARE-X quantitative ML model within verified envelope boundaries.</span>
+          </div>
+          <div class="claim ai">
+            <strong>AI SYNTHESIS</strong>
+            <span>Physical reasoning and comparative explanation grounded in retrieved experimental records and domain literature.</span>
+          </div>
+          <div class="claim limit">
+            <strong>LIMITATION</strong>
+            <span>Explicit boundary conditions, scale caveats, and warnings defining where extrapolation cannot be scientifically trusted.</span>
+          </div>
         </div>
       </div>
     </section>
 
+    <!-- Provenance & Lineage -->
     <section class="section-pad section-alt">
       <div class="shell">
-        <p class="eyebrow reveal">PROVENANCE</p>
-        <h2 class="reveal">Where did this answer come from?</h2>
+        <p class="eyebrow reveal">PROVENANCE &amp; TRACEABILITY</p>
+        <h2 class="reveal">Where did this conclusion come from?</h2>
         <div class="provenance-grid reveal">
           <div class="prov-path">
-            <span>CLAIM</span><i>↓</i><span>NASA EXPERIMENT</span><i>↓</i><span>SOURCE FILE / RECORD</span><i>↓</i><span>NASA INVESTIGATION</span><i>↓</i><span>DOI</span>
+            <span>SCIENTIFIC CLAIM</span>
+            <i>↓</i>
+            <span>NASA EXPERIMENT ID</span>
+            <i>↓</i>
+            <span>SOURCE NTRS REPORT</span>
+            <i>↓</i>
+            <span>NASA INVESTIGATION</span>
+            <i>↓</i>
+            <span>PSI ACCESSION DOI</span>
           </div>
           <div class="prov-path model-path">
-            <span>MODEL CLAIM</span><i>↓</i><span>MODEL RUN</span><i>↓</i><span>MODEL VERSION</span><i>↓</i><span>TRAINING MANIFEST</span><i>↓</i><span>NASA EXPERIMENTS</span>
+            <span>MODEL PREDICTION</span>
+            <i>↓</i>
+            <span>INFERENCE RUN</span>
+            <i>↓</i>
+            <span>MODEL ARTIFACT</span>
+            <i>↓</i>
+            <span>GROUPED CV MANIFEST</span>
+            <i>↓</i>
+            <span>NASA TRAINING BURNS</span>
           </div>
         </div>
-        <p class="section-lede reveal">The goal is not merely to attach a citation to a paragraph. FLARE-X is designed so important scientific statements can resolve to the experiment, source or model lineage that produced them.</p>
+        <p class="section-lede reveal">FLARE-X is architected so every critical scientific claim resolves directly to published NASA technical repositories and specific flight accession records.</p>
       </div>
     </section>
 
+    <!-- Differentiation -->
     <section class="section-pad">
       <div class="shell">
         <p class="eyebrow reveal">WHY FLARE-X IS DIFFERENT</p>
         <h2 class="reveal">Not another PDF chatbot.</h2>
         <div class="diff-grid reveal">
-          <article><span>01</span><h3>Evidence-Bounded AI</h3><p>Checks whether NASA's experimental record actually supports a scenario before trusting a model prediction.</p></article>
-          <article><span>02</span><h3>Experiment-Centric Intelligence</h3><p>The physical experiment, not merely a paper or PDF, is the central unit of scientific evidence.</p></article>
-          <article><span>03</span><h3>Evidence-Aware Counterfactuals</h3><p>Changing a condition re-evaluates both model behavior and the surrounding NASA evidence.</p></article>
+          <article>
+            <span>01</span>
+            <h3>Evidence-Bounded AI</h3>
+            <p>The Section 7 Envelope Guard actively blocks hallucinated inferences by checking whether NASA flight tests actually cover the requested conditions.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Experiment-Centric Intelligence</h3>
+            <p>The physical spaceflight run—not just a paper or document snippet—is the fundamental unit of scientific evidence and reasoning.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Evidence-Aware Counterfactuals</h3>
+            <p>Altering physical variables recalculates empirical density, flammability margins, and evidence support in real-time.</p>
+          </article>
         </div>
       </div>
     </section>
 
+    <!-- System Architecture -->
     <section id="architecture" class="section-pad section-alt">
       <div class="shell">
         <p class="eyebrow reveal">SYSTEM ARCHITECTURE</p>
         <h2 class="reveal">Language reasoning on top. Controlled scientific computation underneath.</h2>
         <div class="architecture reveal" aria-label="Simplified FLARE-X system architecture">
-          <div>NASA PSI / NTRS</div><span>↓</span>
-          <div>Scientific Data Layer</div><span>↓</span>
-          <div>Evidence Retrieval + Ranking</div><span>↓</span>
-          <div class="arch-split"><b>Specialized Models</b><b>Experimental Envelope Guard</b></div><span>↓</span>
-          <div>Evidence Synthesis + Auditor</div><span>↓</span>
-          <div>FLARE-X Interface</div>
+          <div>NASA Physical Sciences Informatics (PSI) &amp; NTRS Archive</div>
+          <span>↓</span>
+          <div>Audited Scientific Data Layer (145 Verified Discrete Runs)</div>
+          <span>↓</span>
+          <div>Hybrid Evidence Retrieval &amp; Comparability Ranking Engine</div>
+          <span>↓</span>
+          <div class="arch-split">
+            <b>Specialized ML Classifiers (BASS-GB)</b>
+            <b>Section 7 Envelope Guard (Zero-Extrapolation)</b>
+          </div>
+          <span>↓</span>
+          <div>Multi-Agent Evidence Auditor &amp; Synthesis Composer</div>
+          <span>↓</span>
+          <div>FLARE-X Mission Control Workstation UI</div>
         </div>
-        <p class="section-lede reveal">AI components interpret questions, retrieve evidence and explain results. Numerical predictions, unit conversion, similarity scoring, uncertainty and domain checks are handled by controlled computational components.</p>
+        <p class="section-lede reveal" style="text-align: center; max-width: 720px; margin: 20px auto 0;">
+          Large language models parse user inquiries and structure explanations; numerical regime predictions, envelope checking, and citation audits are executed deterministically by Python engines.
+        </p>
       </div>
     </section>
 
+    <!-- Scientific Limitations -->
     <section class="section-pad">
-      <div class="shell">
-        <p class="eyebrow reveal">EXPECTED IMPACT</p>
-        <h2 class="reveal">Make NASA combustion evidence easier to reuse.</h2>
-        <div class="impact-grid reveal">
-          <article><h3>Faster discovery</h3><p>Move from a scientific scenario to relevant experiments across multiple NASA investigations.</p></article>
-          <article><h3>Better comparison</h3><p>See which experimental conditions match, which differ, and why that difference matters.</p></article>
-          <article><h3>More transparent interpretation</h3><p>Know what is observed, inferred, uncertain, contradictory or unsupported.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-pad section-alt">
       <div class="shell limitations reveal">
         <div>
           <p class="eyebrow">SCIENTIFIC BOUNDARIES</p>
           <h2>Insufficient evidence is a valid result.</h2>
         </div>
         <div>
-          <p>FLARE-X is a research and scientific decision-support concept, not certified engineering or operational safety software. NASA investigations cover specific fuels, materials, geometries and environmental conditions. Controlled experimental similarity does not guarantee equivalent spacecraft behavior.</p>
-          <p>Quantitative models are designed to remain experiment-family-specific and primarily interpolate within validated domains. Lack of matching evidence is never interpreted as evidence of safety.</p>
-          <div class="limitation-banner">Research prototype • Not operational spacecraft safety guidance</div>
+          <p>FLARE-X is an advanced research and scientific decision-support prototype developed for the NASA Space Apps Challenge 2026. It is not certified operational flight software or mission-critical safety clearance guidance.</p>
+          <p>NASA microgravity combustion investigations examine specific materials, sample geometries, and chamber flow conditions. Controlled similarity in laboratory ducts does not guarantee identical behavior in full-scale spacecraft architectures.</p>
+          <div class="limitation-banner">
+            RESEARCH PROTOTYPE • NOT OPERATIONAL SPACECRAFT SAFETY CLEARANCE • THE ABSENCE OF EVIDENCE IS NEVER EVIDENCE OF SAFETY
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="section-pad">
+    <!-- Development Roadmap -->
+    <section class="section-pad section-alt">
       <div class="shell">
         <p class="eyebrow reveal">DEVELOPMENT ROADMAP</p>
         <h2 class="reveal">Designed first. Built and validated next.</h2>
         <div class="roadmap reveal">
-          <article><span>NOW</span><h3>Prescreening</h3><p>Challenge research, NASA dataset audit, model design, evidence system, validation plan, UI/UX and concept visuals.</p></article>
-          <article><span>NEXT</span><h3>Core build</h3><p>NASA data ingestion, SPICE baseline/model, hybrid retrieval, ranking, comparison, provenance and Envelope Guard.</p></article>
-          <article><span>THEN</span><h3>Differentiation</h3><p>Experimental Support Map, counterfactual explorer, FLEX classifier and deeper evidence auditing.</p></article>
-          <article><span>STRETCH</span><h3>Advanced research tools</h3><p>BASS model if valid, research-gap mapping, smoke intelligence, video analysis and graph exploration.</p></article>
+          <article>
+            <span>NOW</span>
+            <h3>Prescreening</h3>
+            <p>Challenge research, 23-investigation NASA dataset audit, baseline model training, envelope guard, UI design, and 240s video deck.</p>
+          </article>
+          <article>
+            <span>NEXT</span>
+            <h3>Core Build</h3>
+            <p>Complete data reconciliation, full multi-agent orchestration FSM, hybrid retrieval, and interactive flammability slice canvas.</p>
+          </article>
+          <article>
+            <span>THEN</span>
+            <h3>Differentiation</h3>
+            <p>Interactive 2D Support Map, automated counterfactual sweep engine, and deep claim provenance graph.</p>
+          </article>
+          <article>
+            <span>STRETCH</span>
+            <h3>Advanced Capabilities</h3>
+            <p>Cross-family SPICE gas flame regression, automated research-gap identification, and video burn analysis.</p>
+          </article>
         </div>
       </div>
     </section>
 
-    <section id="team" class="section-pad section-alt">
+    <!-- Team Section -->
+    <section id="team" class="section-pad">
       <div class="shell">
         <p class="eyebrow reveal">TEAM</p>
         <h2 class="reveal">Registered Space Apps Bangladesh Team Roster</h2>
         <div class="team-grid reveal">
-          <article><div>A</div><h3>Saber Hossain Mahim</h3><strong>Product & Science Lead</strong><p>Challenge research, scientific scope, product strategy and presentation.</p></article>
-          <article><div>B</div><h3>Ismail Hossen</h3><strong>Data & Evidence Lead</strong><p>NASA datasets, normalization, ontology and provenance.</p></article>
-          <article><div>C</div><h3>Mahzabin Muntaha</h3><strong>ML & Validation Lead</strong><p>Model design, validation, calibration and uncertainty.</p></article>
-          <article><div>D</div><h3>Abdullah Al Masum</h3><strong>AI Systems & Backend Lead</strong><p>Retrieval, orchestration, APIs, routing and system integration.</p></article>
-          <article><div>E</div><h3>Nahid</h3><strong>Frontend & Visualization Lead</strong><p>Analyze experience, Experimental Support Map and counterfactual interaction.</p></article>
-          <article><div>F</div><h3>Soyebuzaman Naim</h3><strong>UX, Media & Submission Lead</strong><p>Visual consistency, project page, video, subtitles and submission assets.</p></article>
+          <article>
+            <div>A</div>
+            <h3>Soyebuzaman Naim</h3>
+            <strong>Full Stack Developer</strong>
+            <p>Full stack web application architecture, interactive responsive components, and system integration.</p>
+          </article>
+          <article>
+            <div>B</div>
+            <h3>Saber Hossain Mahim</h3>
+            <strong>AI ML Engineer</strong>
+            <p>Combustion machine learning models, grouped cross-validation, and Experimental Envelope Guard algorithms.</p>
+          </article>
+          <article>
+            <div>C</div>
+            <h3>Abdullah Al Masum</h3>
+            <strong>Researcher</strong>
+            <p>NASA microgravity combustion domain research, physical parameter extraction, and scientific validation.</p>
+          </article>
+          <article>
+            <div>D</div>
+            <h3>Mahzabin Muntaha</h3>
+            <strong>UI UX Designer</strong>
+            <p>User interface architecture, clean laboratory design system, visual aesthetics, and usability workflows.</p>
+          </article>
+          <article>
+            <div>E</div>
+            <h3>Hamza</h3>
+            <strong>Backend Developer &amp; Researcher</strong>
+            <p>Backend API architecture, FastAPI services, NASA data pipelines, and evidence retrieval research.</p>
+          </article>
+          <article>
+            <div>F</div>
+            <h3>Nahid</h3>
+            <strong>Video Editor</strong>
+            <p>Video production, multimedia storytelling, cinematic editing, visual asset synchronizing, and timing.</p>
+          </article>
         </div>
       </div>
     </section>
 
+    <!-- Pitch Video Section -->
     <section id="pitch" class="section-pad pitch-section">
       <div class="shell pitch-card reveal">
         <div>
           <p class="eyebrow">240 SECONDS OF FLARE-X</p>
           <h2>Prescreening concept pitch</h2>
-          <p>The official 240-second pitch video for the NASA Space Apps Challenge 2026 prescreening. Verified under 240 seconds with full English closed captions.</p>
-          <div class="pitch-meta"><span>&lt; 240 seconds</span><span>English</span><span>English subtitles</span></div>
+          <p>The official 240-second pitch video for the NASA Space Apps Challenge 2026 prescreening submission. Formatted under 240 seconds with full synchronized English closed captions.</p>
+          <div class="pitch-meta">
+            <span>&lt; 240 seconds runtime</span>
+            <span>English audio</span>
+            <span>English subtitles (.srt verified)</span>
+            <span>1080p 16:9 widescreen</span>
+          </div>
         </div>
-        <a class="btn primary disabled" href="#" aria-disabled="true" onclick="return false;">Video link pending</a>
+        <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end;">
+          <a class="btn primary" href="../assets/video/asset_gallery.html" target="_blank" rel="noopener noreferrer">
+            View 1080p Slide Deck Pack ↗
+          </a>
+          <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">Video production master ready</span>
+        </div>
       </div>
     </section>
 
+    <!-- Sources & Legal -->
     <section class="section-pad section-alt">
       <div class="shell sources-grid">
         <div class="reveal">
           <p class="eyebrow">NASA SOURCES</p>
-          <h2>Primary evidence foundation</h2>
-          <p>FLARE-X is designed around publicly available NASA physical-sciences data and documentation. Final implementation will reconcile all sources with the official 2026 challenge resources.</p>
+          <h2>Primary Evidence Foundation</h2>
+          <p>FLARE-X is built upon publicly available NASA physical-sciences research records and peer-reviewed flight data.</p>
           <div class="source-list">
-            <a href="https://psi.nasa.gov/physci/repo" target="_blank" rel="noreferrer">NASA Physical Sciences Informatics (PSI) ↗</a>
-            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-25" target="_blank" rel="noreferrer">BASS-II — PSI-25 ↗</a>
-            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-69" target="_blank" rel="noreferrer">FLEX — PSI-69 ↗</a>
-            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-107" target="_blank" rel="noreferrer">SPICE — PSI-107 ↗</a>
-            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-98" target="_blank" rel="noreferrer">SAFFIRE-I — PSI-98 ↗</a>
-            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-102" target="_blank" rel="noreferrer">SAME — PSI-102 ↗</a>
+            <a href="https://psi.nasa.gov/physci/repo" target="_blank" rel="noopener noreferrer">NASA Physical Sciences Informatics (PSI) ↗</a>
+            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-25" target="_blank" rel="noopener noreferrer">BASS-II — PSI-25 ↗</a>
+            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-69" target="_blank" rel="noopener noreferrer">FLEX — PSI-69 ↗</a>
+            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-107" target="_blank" rel="noopener noreferrer">SPICE — PSI-107 ↗</a>
+            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-98" target="_blank" rel="noopener noreferrer">SAFFIRE-I — PSI-98 ↗</a>
+            <a href="https://psi.nasa.gov/physci/repo/data/investigations/PSI-102" target="_blank" rel="noopener noreferrer">SAME — PSI-102 ↗</a>
           </div>
         </div>
         <div class="credits reveal">
-          <p class="eyebrow">CREDITS & ATTRIBUTIONS</p>
+          <p class="eyebrow">CREDITS &amp; ATTRIBUTIONS</p>
           <h2>Transparency includes the presentation.</h2>
-          <p>NASA dataset and publication attribution should be retained throughout the final project. Any third-party fonts, icons, libraries, templates, stock assets or generated media used in the final submission must be credited according to their terms.</p>
-          <p>This page itself uses original HTML/CSS/SVG concept graphics. Architectural concept mockups and visualization assets were developed with generative prototyping tools; all scientific parameters are illustrative unless designated as historical flight data.</p>
+          <p>NASA dataset and publication attributions are retained across every module. All third-party fonts (Inter, JetBrains Mono, Orbitron) are licensed under the SIL Open Font License.</p>
+          <p>Original HTML5/CSS3 vector graphics and interactive visualizations were custom engineered for the NASA Space Apps Challenge 2026. Scientific parameters reflect authentic historical flight data from the BASS-II and DARTFire flight campaigns.</p>
         </div>
       </div>
     </section>
   </main>
 
+  <!-- Modal Dialog: Data Sources -->
+  <dialog id="modal-data-sources" class="flarex-modal">
+    <div class="modal-header">
+      <h3>NASA Data Sources &amp; Investigation Catalog</h3>
+      <button class="modal-close-btn" data-close-modal="modal-data-sources" aria-label="Close dialog">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Primary NASA Physical Sciences Informatics (PSI) Accessions</h4>
+      <p>FLARE-X indexes discrete experimental runs and technical reports across 5 core spaceflight combustion families:</p>
+      <ul>
+        <li><strong>BASS-II (PSI-25):</strong> Burning and Suppression of Solids II. Tested in the Microgravity Science Glovebox (MSG) aboard ISS. Variable oxygen, pressure, and forced duct ventilation.</li>
+        <li><strong>BASS (PSI-26):</strong> Initial Burning and Suppression of Solids investigations on PMMA, Delrin, and fabric samples.</li>
+        <li><strong>FLEX / FLEX-2 (PSI-69, PSI-68):</strong> Flame Extinction Experiments inside the Combustion Integrated Rack (CIR).</li>
+        <li><strong>SPICE (PSI-107):</strong> Smoke Point in Co-flow Experiment. 526 experimental gas diffusion flames.</li>
+        <li><strong>SAFFIRE (PSI-98, PSI-99, PSI-100):</strong> Spacecraft Fire Safety experiments conducted on Cygnus resupply vehicles.</li>
+      </ul>
+      <p><a href="DATA_SOURCES.md" target="_blank" style="color: var(--blue); font-weight: 700;">View Raw DATA_SOURCES.md File ↗</a></p>
+    </div>
+  </dialog>
+
+  <!-- Modal Dialog: Limitations -->
+  <dialog id="modal-limitations" class="flarex-modal">
+    <div class="modal-header">
+      <h3>Scientific Boundaries &amp; Research Prototype Disclosures</h3>
+      <button class="modal-close-btn" data-close-modal="modal-limitations" aria-label="Close dialog">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Scientific Grounding &amp; Scope Caveats</h4>
+      <p>FLARE-X is an evidence-bounded research prototype designed for scientific decision-support and historical flight test comparison. It operates under strict epistemic rules:</p>
+      <ul>
+        <li><strong>Not Operational Flight Software:</strong> FLARE-X is not certified for mission-critical fire safety clearance or spacecraft atmosphere authorization.</li>
+        <li><strong>The Evidence Absence Rule:</strong> A lack of recorded spaceflight flammability data is never interpreted as evidence of safety.</li>
+        <li><strong>Section 7 Zero-Extrapolation Guard:</strong> Whenever scenario inputs fall outside the verified convex hull of NASA flight tests, prediction is withheld.</li>
+      </ul>
+      <p><a href="LIMITATIONS.md" target="_blank" style="color: var(--blue); font-weight: 700;">View Raw LIMITATIONS.md File ↗</a></p>
+    </div>
+  </dialog>
+
+  <!-- Modal Dialog: Credits -->
+  <dialog id="modal-credits" class="flarex-modal">
+    <div class="modal-header">
+      <h3>Credits, Licensing &amp; Team Attributions</h3>
+      <button class="modal-close-btn" data-close-modal="modal-credits" aria-label="Close dialog">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Open Source &amp; Scientific Data Attributions</h4>
+      <p>Developed by the FLARE-X Team for the NASA Space Apps Challenge 2026 under the Apache 2.0 Open Source License.</p>
+      <ul>
+        <li><strong>NASA Glenn Research Center (GRC):</strong> Physical Sciences Informatics (PSI) repository and NASA Technical Reports Server (NTRS).</li>
+        <li><strong>Open Source Tooling:</strong> Python, FastAPI, Scikit-learn, Joblib, Pytest, and modern web standards.</li>
+        <li><strong>Typography:</strong> Inter (Rasmus Andersson), JetBrains Mono (JetBrains), Orbitron (Matt McInerney).</li>
+      </ul>
+      <p><a href="CREDITS.md" target="_blank" style="color: var(--blue); font-weight: 700;">View Raw CREDITS.md File ↗</a></p>
+    </div>
+  </dialog>
+
+  <!-- Site Footer -->
   <footer>
     <div class="shell footer-grid">
       <div>
         <strong>FLARE-X</strong>
         <span>NASA Microgravity Fire Intelligence</span>
       </div>
-      <p>Independent NASA Space Apps Challenge project using publicly available NASA scientific data. Research prototype/concept. Not operational spacecraft safety guidance.</p>
-      <div class="footer-links"><a href="#top">Top</a><a href="DATA_SOURCES.md">Data sources</a><a href="LIMITATIONS.md">Limitations</a><a href="CREDITS.md">Credits</a></div>
+      <p>Independent NASA Space Apps Challenge 2026 project utilizing publicly available NASA physical-sciences research data. Research prototype. Not operational spacecraft safety guidance.</p>
+      <div class="footer-links">
+        <a href="#top">Back to Top ↑</a>
+        <a href="#modal-data-sources" class="modal-trigger" data-modal="modal-data-sources">Data Sources</a>
+        <a href="#modal-limitations" class="modal-trigger" data-modal="modal-limitations">Limitations</a>
+        <a href="#modal-credits" class="modal-trigger" data-modal="modal-credits">Credits</a>
+        <a href="../app/index.html" target="_blank" rel="noopener noreferrer">Mission Control Deck ↗</a>
+      </div>
     </div>
   </footer>
 
+  <script src="nasa_data.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

@@ -1,122 +1,143 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
   <defs>
-    <radialGradient id="bgGlow" cx="50%" cy="45%" r="65%">
-      <stop offset="0%" stop-color="#220a12"/>
-      <stop offset="45%" stop-color="#0e0710"/>
-      <stop offset="85%" stop-color="#060913"/>
-      <stop offset="100%" stop-color="#020408"/>
+    <linearGradient id="bgLabGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#fef2f2"/>
+    </linearGradient>
+    <radialGradient id="shieldBackdrop" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#fee2e2" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#fef2f2" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ff4d4f" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#ff4d4f" stop-opacity="0.05"/>
+      <stop offset="0%" stop-color="#fee2e2"/>
+      <stop offset="100%" stop-color="#fef2f2"/>
     </linearGradient>
-    <filter id="crimsonGlow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="15" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.08"/>
     </filter>
   </defs>
 
-  <!-- Background -->
-  <rect width="1920" height="1080" fill="url(#bgGlow)"/>
+  <!-- Clean Canvas Background -->
+  <rect width="1920" height="1080" fill="url(#bgLabGrad)"/>
+
+  <!-- Subtle Technical Grid Lines -->
+  <g stroke="#cbd5e1" stroke-opacity="0.4" stroke-width="1">
+    <line x1="0" y1="270" x2="1920" y2="270"/>
+    <line x1="0" y1="540" x2="1920" y2="540"/>
+    <line x1="0" y1="810" x2="1920" y2="810"/>
+  </g>
 
   <!-- Top Telemetry Header -->
-  <text x="120" y="80" font-family="'JetBrains Mono', monospace" font-size="14" fill="#ff4d4f" letter-spacing="4">
-    // SAFETY MECHANISM · EXPERIMENTAL ENVELOPE GUARD [2:26–2:35]
-  </text>
-  <text x="1800" y="80" font-family="'JetBrains Mono', monospace" font-size="14" fill="#64748b" text-anchor="end">
-    NON-NEGOTIABLE ABSTENTION PROTOCOL
-  </text>
+  <g transform="translate(120, 75)">
+    <rect x="-16" y="-24" width="620" height="42" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="0" cy="-3" r="5" fill="#dc2626"/>
+    <text x="18" y="2" font-family="'JetBrains Mono', monospace" font-size="13.5" font-weight="700" fill="#dc2626" letter-spacing="2">
+      SAFETY MECHANISM · EXPERIMENTAL ENVELOPE GUARD [2:05–2:20]
+    </text>
+  </g>
+  <g transform="translate(1800, 75)">
+    <rect x="-420" y="-24" width="420" height="42" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="-20" y="2" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#64748b" letter-spacing="1.5" text-anchor="end">
+      NON-NEGOTIABLE ABSTENTION PROTOCOL
+    </text>
+  </g>
+
+  <!-- Central Shield Halo Backdrop -->
+  <circle cx="960" cy="330" r="260" fill="url(#shieldBackdrop)"/>
 
   <!-- Central Shield & Hexagonal Convex Hull Boundary -->
-  <g transform="translate(960, 360)">
+  <g transform="translate(960, 330)">
     <!-- Outer Hexagonal Pulse Boundary -->
-    <polygon points="0,-180 160,-90 160,90 0,180 -160,90 -160,-90" 
-             fill="none" stroke="#ff4d4f" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="10 8"/>
+    <polygon points="0,-170 150,-85 150,85 0,170 -150,85 -150,-85" 
+             fill="none" stroke="#ef4444" stroke-opacity="0.4" stroke-width="2.5" stroke-dasharray="10 8"/>
     
     <!-- Inner Solid Defense Boundary -->
-    <polygon points="0,-150 130,-75 130,75 0,150 -130,75 -130,-75" 
-             fill="url(#shieldGrad)" stroke="#ff4d4f" stroke-width="3" filter="url(#crimsonGlow)"/>
+    <polygon points="0,-140 120,-70 120,70 0,140 -120,70 -120,-70" 
+             fill="url(#shieldGrad)" stroke="#dc2626" stroke-width="3"/>
 
     <!-- Reticle Center -->
-    <circle r="40" fill="#060913" stroke="#ff4d4f" stroke-width="2"/>
-    <text x="0" y="8" font-family="'Orbitron', sans-serif" font-size="24" font-weight="900" fill="#ff4d4f" text-anchor="middle">!</text>
+    <circle r="38" fill="#ffffff" stroke="#dc2626" stroke-width="2.5"/>
+    <text x="0" y="9" font-family="'Orbitron', sans-serif" font-size="26" font-weight="900" fill="#dc2626" text-anchor="middle">🛡️</text>
 
-    <!-- Scan Lines -->
-    <line x1="-220" y1="0" x2="220" y2="0" stroke="#ff4d4f" stroke-width="1" stroke-opacity="0.5"/>
-    <line x1="0" y1="-220" x2="0" y2="220" stroke="#ff4d4f" stroke-width="1" stroke-opacity="0.5"/>
+    <!-- Scan Crosshairs -->
+    <line x1="-210" y1="0" x2="210" y2="0" stroke="#dc2626" stroke-width="1.5" stroke-opacity="0.5"/>
+    <line x1="0" y1="-210" x2="0" y2="210" stroke="#dc2626" stroke-width="1.5" stroke-opacity="0.5"/>
   </g>
 
   <!-- Hero Climax Text: Large & Isolated -->
-  <g transform="translate(960, 620)">
-    <text x="0" y="0" font-family="'Orbitron', sans-serif" font-size="58" font-weight="900" fill="#ffffff" letter-spacing="4" text-anchor="middle">
+  <g transform="translate(960, 580)">
+    <text x="0" y="0" font-family="'Orbitron', sans-serif" font-size="52" font-weight="900" fill="#0f172a" letter-spacing="3" text-anchor="middle">
       FLARE-X KNOWS WHEN NOT TO PREDICT.
     </text>
-    <text x="0" y="50" font-family="'Inter', sans-serif" font-size="22" fill="#ff4d4f" letter-spacing="1" text-anchor="middle" font-weight="600">
+    <text x="0" y="46" font-family="'Inter', sans-serif" font-size="22" fill="#dc2626" letter-spacing="1" text-anchor="middle" font-weight="700">
       We do not trust a machine learning model simply because it returns a number.
     </text>
   </g>
 
   <!-- 6 Convex Hull Check Indicators Below Headline -->
-  <g transform="translate(180, 740)">
-    <!-- Check 1 -->
+  <g transform="translate(180, 680)">
+    <!-- Dimension 1: Fuel Chemistry -->
     <g transform="translate(0, 0)">
-      <rect width="240" height="90" rx="8" fill="#111828" stroke="#ff4d4f" stroke-opacity="0.3"/>
-      <text x="20" y="32" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">01. MATERIAL</text>
-      <text x="20" y="58" font-family="'Inter', sans-serif" font-size="14" font-weight="bold" fill="#ffffff">Fuel In Spaceflight DB</text>
-      <text x="20" y="78" font-family="'JetBrains Mono', monospace" font-size="11" fill="#52c41a">✓ NASA Tested</text>
+      <rect width="240" height="110" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="0" y="0" width="6" height="110" rx="3" fill="#1d4ed8"/>
+      <text x="18" y="32" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#1d4ed8">CHECK 01</text>
+      <text x="18" y="56" font-family="'Inter', sans-serif" font-size="14" font-weight="800" fill="#0f172a">Fuel Material</text>
+      <text x="18" y="80" font-family="'JetBrains Mono', monospace" font-size="11" fill="#059669">✓ In NASA Library</text>
     </g>
 
-    <!-- Check 2 -->
-    <g transform="translate(265, 0)">
-      <rect width="240" height="90" rx="8" fill="#111828" stroke="#ff4d4f" stroke-opacity="0.3"/>
-      <text x="20" y="32" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">02. O₂ FRACTION</text>
-      <text x="20" y="58" font-family="'Inter', sans-serif" font-size="14" font-weight="bold" fill="#ffffff">Inside Empirical Range</text>
-      <text x="20" y="78" font-family="'JetBrains Mono', monospace" font-size="11" fill="#52c41a">✓ 16.0% – 25.0%</text>
+    <!-- Dimension 2: Oxygen Concentration -->
+    <g transform="translate(264, 0)">
+      <rect width="240" height="110" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="0" y="0" width="6" height="110" rx="3" fill="#1d4ed8"/>
+      <text x="18" y="32" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#1d4ed8">CHECK 02</text>
+      <text x="18" y="56" font-family="'Inter', sans-serif" font-size="14" font-weight="800" fill="#0f172a">Oxygen Level (O₂)</text>
+      <text x="18" y="80" font-family="'JetBrains Mono', monospace" font-size="11" fill="#059669">✓ 14% ≤ O₂ ≤ 22%</text>
     </g>
 
-    <!-- Check 3 -->
-    <g transform="translate(530, 0)">
-      <rect width="240" height="90" rx="8" fill="#111828" stroke="#ff4d4f" stroke-opacity="0.3"/>
-      <text x="20" y="32" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">03. PRESSURE</text>
-      <text x="20" y="58" font-family="'Inter', sans-serif" font-size="14" font-weight="bold" fill="#ffffff">Chamber Pressure Valid</text>
-      <text x="20" y="78" font-family="'JetBrains Mono', monospace" font-size="11" fill="#52c41a">✓ 56 – 101.3 kPa</text>
+    <!-- Dimension 3: Forced Flow Velocity -->
+    <g transform="translate(528, 0)">
+      <rect width="240" height="110" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="0" y="0" width="6" height="110" rx="3" fill="#1d4ed8"/>
+      <text x="18" y="32" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#1d4ed8">CHECK 03</text>
+      <text x="18" y="56" font-family="'Inter', sans-serif" font-size="14" font-weight="800" fill="#0f172a">Airflow Velocity (u)</text>
+      <text x="18" y="80" font-family="'JetBrains Mono', monospace" font-size="11" fill="#059669">✓ 0 ≤ u ≤ 55 cm/s</text>
     </g>
 
-    <!-- Check 4 -->
-    <g transform="translate(795, 0)">
-      <rect width="240" height="90" rx="8" fill="#111828" stroke="#ff4d4f" stroke-opacity="0.3"/>
-      <text x="20" y="32" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">04. AIRFLOW</text>
-      <text x="20" y="58" font-family="'Inter', sans-serif" font-size="14" font-weight="bold" fill="#ffffff">Ventilation Speed Match</text>
-      <text x="20" y="78" font-family="'JetBrains Mono', monospace" font-size="11" fill="#52c41a">✓ 0 – 35 cm/s</text>
+    <!-- Dimension 4: Chamber Pressure -->
+    <g transform="translate(792, 0)">
+      <rect width="240" height="110" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="0" y="0" width="6" height="110" rx="3" fill="#1d4ed8"/>
+      <text x="18" y="32" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#1d4ed8">CHECK 04</text>
+      <text x="18" y="56" font-family="'Inter', sans-serif" font-size="14" font-weight="800" fill="#0f172a">Chamber Pressure</text>
+      <text x="18" y="80" font-family="'JetBrains Mono', monospace" font-size="11" fill="#059669">✓ 0.8 ≤ P ≤ 1.2 atm</text>
     </g>
 
-    <!-- Check 5 -->
-    <g transform="translate(1060, 0)">
-      <rect width="240" height="90" rx="8" fill="#111828" stroke="#ff4d4f" stroke-opacity="0.3"/>
-      <text x="20" y="32" font-family="'JetBrains Mono', monospace" font-size="12" fill="#8899b8">05. GEOMETRY</text>
-      <text x="20" y="58" font-family="'Inter', sans-serif" font-size="14" font-weight="bold" fill="#ffffff">Tested Shape Boundary</text>
-      <text x="20" y="78" font-family="'JetBrains Mono', monospace" font-size="11" fill="#52c41a">✓ Cylinder / Rod</text>
+    <!-- Dimension 5: Sample Geometry -->
+    <g transform="translate(1056, 0)">
+      <rect width="240" height="110" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="0" y="0" width="6" height="110" rx="3" fill="#1d4ed8"/>
+      <text x="18" y="32" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#1d4ed8">CHECK 05</text>
+      <text x="18" y="56" font-family="'Inter', sans-serif" font-size="14" font-weight="800" fill="#0f172a">Sample Geometry</text>
+      <text x="18" y="80" font-family="'JetBrains Mono', monospace" font-size="11" fill="#059669">✓ Rod / Sheet Confirmed</text>
     </g>
 
-    <!-- Check 6 -->
-    <g transform="translate(1325, 0)">
-      <rect width="240" height="90" rx="8" fill="#111828" stroke="#ff4d4f" stroke-opacity="0.3"/>
-      <text x="20" y="32" font-family="'JetBrains Mono', monospace" font-size="12" fill="#ff4d4f">06. NEIGHBORHOOD</text>
-      <text x="20" y="58" font-family="'Inter', sans-serif" font-size="14" font-weight="bold" fill="#ffffff">Local k-NN Density</text>
-      <text x="20" y="78" font-family="'JetBrains Mono', monospace" font-size="11" fill="#ff4d4f">! Boundary Check</text>
+    <!-- Dimension 6: Neighborhood Density (k-NN Gower) -->
+    <g transform="translate(1320, 0)">
+      <rect width="240" height="110" rx="10" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="0" y="0" width="6" height="110" rx="3" fill="#dc2626"/>
+      <text x="18" y="32" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#dc2626">CHECK 06</text>
+      <text x="18" y="56" font-family="'Inter', sans-serif" font-size="14" font-weight="800" fill="#7f1d1d">Gower Support k-NN</text>
+      <text x="18" y="80" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#dc2626">k ≥ 3 Verified Tests</text>
     </g>
   </g>
 
-  <!-- Bottom Epistemic Safeguard Statement -->
-  <g transform="translate(960, 890)">
-    <text x="0" y="0" font-family="'Inter', sans-serif" font-size="16" fill="#a0aec0" text-anchor="middle">
-      When outside tested spaceflight limits, FLARE-X <tspan font-weight="bold" fill="#ff4d4f">withholds the prediction</tspan> and provides the nearest actual NASA flight observations.
+  <!-- Bottom Core Principle Banner -->
+  <g transform="translate(960, 860)">
+    <rect x="-650" y="-35" width="1300" height="70" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="0" y="8" font-family="'Inter', sans-serif" font-size="16" font-weight="700" fill="#0f172a" text-anchor="middle">
+      <tspan fill="#dc2626">AEROSPACE SAFETY MAXIM:</tspan> The absence of evidence is NOT evidence of safety.
     </text>
   </g>
-
-  <!-- Lower Border Safe Zone Indicator -->
-  <rect x="120" y="1020" width="1680" height="2" fill="#ff4d4f" opacity="0.3"/>
-  <text x="960" y="1048" font-family="'JetBrains Mono', monospace" font-size="13" fill="#475569" text-anchor="middle">
-    ACTIVE SCIENTIFIC REFUSAL FIREWALL · PREVENTING UNVALIDATED EXTRAPOLATION IN SPACECRAFT SAFETY
-  </text>
 </svg>

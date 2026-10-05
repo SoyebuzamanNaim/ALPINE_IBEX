@@ -62,16 +62,16 @@ VIDEO TECHNICAL SPECIFICATIONS:
   * Subtitle: Decades of NASA spaceflight combustion research.
 
 ### 28.3.2 Slide 02 — FLARE-X Brand & Team Roster (0:17–0:42)
-* **Audio Cue:** *"We are Team FLARE-X. I’m Saber Hossain Mahim..."*
+* **Audio Cue:** *"We are Team FLARE-X from Bangladesh: Naim, Mahim, Masum, Muntaha, Hamza, and Nahid..."*
 * **Visual Structure:**
   * FLARE-X Wordmark with orbital tracking rings and mission identity badge.
   * 6-Card Team Grid with real registered names, roles, and functional responsibilities:
-    1. **Saber Hossain Mahim** — Product & Science Lead
-    2. **Ismail Hossen** — Data & Evidence Lead
-    3. **Mahzabin Muntaha** — ML & Validation Lead
-    4. **Abdullah Al Masum** — AI Systems Lead
-    5. **Nahid** — Frontend & Visualization Lead
-    6. **Soyebuzaman Naim** — Media & Submission Lead
+    1. **Soyebuzaman Naim** — Full Stack Developer
+    2. **Saber Hossain Mahim** — AI ML Engineer
+    3. **Abdullah Al Masum** — Researcher
+    4. **Mahzabin Muntaha** — UI UX Designer
+    5. **Hamza** — Backend Developer & Researcher
+    6. **Nahid** — Video Editor
   * Mandatory disclaimer: *Research Decision-Support Concept · NASA Space Apps Challenge 2026*.
 
 ### 28.3.3 Slide 03 — The Research Bottleneck (0:42–1:38)

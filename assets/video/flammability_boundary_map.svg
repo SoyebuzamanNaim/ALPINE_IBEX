@@ -1,87 +1,88 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" width="900" height="500">
   <defs>
-    <linearGradient id="bgG" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#060913"/>
-      <stop offset="100%" stop-color="#0c1222"/>
+    <linearGradient id="bgLabGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
     </linearGradient>
-    <pattern id="hatch" width="10" height="10" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-      <line x1="0" y1="0" x2="0" y2="10" stroke="#ff4d4f" stroke-width="1.5" stroke-opacity="0.4"/>
+    <pattern id="hatchLight" width="10" height="10" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="10" stroke="#fca5a5" stroke-width="1.5"/>
     </pattern>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.06"/>
+    </filter>
   </defs>
 
-  <rect width="900" height="500" fill="url(#bgG)" rx="8"/>
-  <rect width="898" height="498" x="1" y="1" fill="none" stroke="#00e5ff" stroke-opacity="0.2" rx="8"/>
+  <rect width="900" height="500" fill="url(#bgLabGrad)" rx="10"/>
+  <rect width="898" height="498" x="1" y="1" fill="none" stroke="#cbd5e1" rx="10"/>
 
-  <text x="450" y="38" font-family="'Orbitron', sans-serif" font-size="18" font-weight="900" fill="#ffffff" text-anchor="middle">
+  <text x="450" y="38" font-family="'Orbitron', sans-serif" font-size="18" font-weight="900" fill="#0f172a" text-anchor="middle">
     2-D FLAMMABILITY BOUNDARY SLICE · PMMA AT 101.3 kPa
   </text>
-  <text x="450" y="58" font-family="'JetBrains Mono', monospace" font-size="11" fill="#00e5ff" text-anchor="middle">
+  <text x="450" y="60" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">
     OVERLAID WITH HISTORICAL NASA BASS FLIGHT OBSERVATIONS
   </text>
 
-  <!-- Plot Area: x from 100 to 800 (700px), y from 80 to 420 (340px) -->
-  <!-- Left hatched region: Extrapolation (< 15.0% O2) -->
-  <rect x="100" y="80" width="80" height="340" fill="url(#hatch)"/>
-  <text x="140" y="250" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ff4d4f" text-anchor="middle" transform="rotate(-90 140 250)">
-    REFUSED (EXTRAPOLATION)
-  </text>
+  <!-- Plot Area -->
+  <g transform="translate(0, 5)">
+    <!-- Refused hatched region (< 15.0% O₂) -->
+    <rect x="100" y="80" width="80" height="340" fill="url(#hatchLight)" stroke="#fca5a5"/>
+    <text x="140" y="250" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="800" fill="#dc2626" text-anchor="middle" transform="rotate(-90 140 250)">
+      REFUSED (EXTRAPOLATION)
+    </text>
 
-  <!-- Blue region: Extinction / No Spread (15.5% to 17.5% O2) -->
-  <rect x="180" y="80" width="120" height="340" fill="#00b4d8" fill-opacity="0.3"/>
-  <text x="240" y="250" font-family="'Orbitron', sans-serif" font-size="12" font-weight="bold" fill="#00e5ff" text-anchor="middle">
-    NO SPREAD / EXTINCTION
-  </text>
+    <!-- Emerald region: Extinction / No Spread (15.0% to 17.5% O₂) -->
+    <rect x="180" y="80" width="120" height="340" fill="#ecfdf5" stroke="#a7f3d0"/>
+    <text x="240" y="250" font-family="'Orbitron', sans-serif" font-size="12" font-weight="800" fill="#059669" text-anchor="middle">
+      NO SPREAD / EXTINCTION
+    </text>
 
-  <!-- Amber strip: Marginal Spread (17.5% to 18.2% O2) -->
-  <rect x="300" y="80" width="60" height="340" fill="#ffb300" fill-opacity="0.35"/>
-  <text x="330" y="250" font-family="'Orbitron', sans-serif" font-size="10" font-weight="bold" fill="#ffb300" text-anchor="middle" transform="rotate(-90 330 250)">
-    MARGINAL SPREAD
-  </text>
+    <!-- Amber strip: Marginal Spread (17.5% to 18.2% O₂) -->
+    <rect x="300" y="80" width="60" height="340" fill="#fffbeb" stroke="#fde68a"/>
+    <text x="330" y="250" font-family="'Orbitron', sans-serif" font-size="10.5" font-weight="800" fill="#d97706" text-anchor="middle" transform="rotate(-90 330 250)">
+      MARGINAL SPREAD
+    </text>
 
-  <!-- Red-orange region: Sustained Flame Spread (18.2% to 34.0% O2) -->
-  <rect x="360" y="80" width="440" height="340" fill="#ff3366" fill-opacity="0.3"/>
-  <text x="580" y="250" font-family="'Orbitron', sans-serif" font-size="14" font-weight="bold" fill="#ff3366" text-anchor="middle">
-    SUSTAINED FLAME PROPAGATION
-  </text>
+    <!-- Blue region: Sustained Flame (> 18.2% O₂) -->
+    <rect x="360" y="80" width="440" height="340" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text x="580" y="250" font-family="'Orbitron', sans-serif" font-size="13" font-weight="800" fill="#1d4ed8" text-anchor="middle">
+      SUSTAINED FLAME PROPAGATION
+    </text>
 
-  <!-- Axes -->
-  <line x1="100" y1="420" x2="800" y2="420" stroke="#00e5ff" stroke-width="2"/>
-  <line x1="100" y1="80" x2="100" y2="420" stroke="#00e5ff" stroke-width="2"/>
+    <!-- Plot Frame -->
+    <rect x="100" y="80" width="700" height="340" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
 
-  <!-- Ticks X -->
-  <text x="180" y="440" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="middle">15.5%</text>
-  <text x="300" y="440" font-family="'JetBrains Mono', monospace" font-size="11" fill="#ffb300" text-anchor="middle">17.5% (LOC)</text>
-  <text x="440" y="440" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="middle">21.0%</text>
-  <text x="600" y="440" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="middle">26.0%</text>
-  <text x="800" y="440" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="middle">34.0%</text>
-  <text x="450" y="470" font-family="'Inter', sans-serif" font-size="12" fill="#ffffff" text-anchor="middle">Oxygen Concentration (% O₂ by vol)</text>
+    <!-- NASA BASS Observation Dots -->
+    <g stroke="#ffffff" stroke-width="1">
+      <!-- Sustained Burns -->
+      <circle cx="480" cy="180" r="5" fill="#1d4ed8"/>
+      <circle cx="540" cy="220" r="5" fill="#1d4ed8"/>
+      <circle cx="620" cy="160" r="5" fill="#1d4ed8"/>
+      <circle cx="690" cy="280" r="5" fill="#1d4ed8"/>
+      <circle cx="420" cy="310" r="5" fill="#1d4ed8"/>
+      <circle cx="510" cy="260" r="5" fill="#1d4ed8"/>
+      <circle cx="580" cy="340" r="5" fill="#1d4ed8"/>
+      <circle cx="660" cy="190" r="5" fill="#1d4ed8"/>
+      <circle cx="730" cy="230" r="5" fill="#1d4ed8"/>
 
-  <!-- Ticks Y -->
-  <text x="85" y="424" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="end">0</text>
-  <text x="85" y="340" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="end">10</text>
-  <text x="85" y="250" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="end">20</text>
-  <text x="85" y="160" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="end">30</text>
-  <text x="85" y="85" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8899b8" text-anchor="end">40</text>
-  <text x="45" y="250" font-family="'Inter', sans-serif" font-size="12" fill="#ffffff" text-anchor="middle" transform="rotate(-90 45 250)">Ventilation Velocity (cm/s)</text>
+      <!-- Extinction Burns -->
+      <circle cx="210" cy="210" r="5" fill="#059669"/>
+      <circle cx="230" cy="290" r="5" fill="#059669"/>
+      <circle cx="260" cy="170" r="5" fill="#059669"/>
+      <circle cx="280" cy="330" r="5" fill="#059669"/>
+      <circle cx="240" cy="240" r="5" fill="#059669"/>
 
-  <!-- Overlaid Real NASA Scatter Points -->
-  <!-- Spread points -->
-  <circle cx="440" cy="380" r="5" fill="#ff3366" stroke="#ffffff" stroke-width="1.5"/>
-  <circle cx="440" cy="350" r="5" fill="#ff3366" stroke="#ffffff" stroke-width="1.5"/>
-  <circle cx="480" cy="320" r="5" fill="#ff3366" stroke="#ffffff" stroke-width="1.5"/>
-  <circle cx="550" cy="280" r="5" fill="#ff3366" stroke="#ffffff" stroke-width="1.5"/>
-  <circle cx="620" cy="220" r="5" fill="#ff3366" stroke="#ffffff" stroke-width="1.5"/>
-  <!-- Marginal points -->
-  <circle cx="310" cy="370" r="5" fill="#ffb300" stroke="#ffffff" stroke-width="1.5"/>
-  <circle cx="320" cy="340" r="5" fill="#ffb300" stroke="#ffffff" stroke-width="1.5"/>
-  <!-- Extinction points -->
-  <circle cx="210" cy="390" r="5" fill="#00e5ff" stroke="#ffffff" stroke-width="1.5"/>
-  <circle cx="220" cy="360" r="5" fill="#00e5ff" stroke="#ffffff" stroke-width="1.5"/>
-  <circle cx="240" cy="320" r="5" fill="#00e5ff" stroke="#ffffff" stroke-width="1.5"/>
+      <!-- Marginal Burns -->
+      <circle cx="320" cy="200" r="5" fill="#d97706"/>
+      <circle cx="340" cy="270" r="5" fill="#d97706"/>
+    </g>
 
-  <!-- Active Query Reticle at 21% O2, 5 cm/s -->
-  <circle cx="440" cy="380" r="14" fill="none" stroke="#00e5ff" stroke-width="2.5" stroke-dasharray="4,2"/>
-  <text x="460" y="375" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="bold" fill="#00e5ff">
-    QUERY: PMMA 21.0% O₂ · 5 cm/s
-  </text>
+    <!-- Axis Labels -->
+    <text x="450" y="450" font-family="'Inter', sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle">
+      Ambient Oxygen Concentration (% O₂) ──►
+    </text>
+    <text x="50" y="250" font-family="'Inter', sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" transform="rotate(-90 50 250)">
+      Forced Velocity u (cm/s) ──►
+    </text>
+  </g>
 </svg>
