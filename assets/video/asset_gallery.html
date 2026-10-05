@@ -69,6 +69,7 @@
       display: flex;
       flex-direction: column;
       transition: background-color 0.25s ease, color 0.25s ease;
+      overflow-x: hidden;
     }
 
     header {
@@ -184,6 +185,7 @@
     .presentation-container {
       width: 100%;
       max-width: 1280px;
+      max-height: calc(100vh - 240px);
       aspect-ratio: 16 / 9;
       background: var(--panel);
       border-radius: 12px;
@@ -191,6 +193,7 @@
       box-shadow: var(--shadow-xl);
       border: 2px solid var(--line-strong);
       position: relative;
+      margin: 0 auto;
     }
 
     .slide-viewer {
@@ -287,9 +290,40 @@
       width: 100%;
       max-width: 1280px;
       display: grid;
-      grid-template-columns: repeat(9, 1fr);
+      grid-template-columns: repeat(9, minmax(110px, 1fr));
       gap: 10px;
       margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--line-strong) var(--bg2);
+    }
+
+    .filmstrip::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .filmstrip::-webkit-scrollbar-track {
+      background: var(--bg2);
+      border-radius: 3px;
+    }
+
+    .filmstrip::-webkit-scrollbar-thumb {
+      background: var(--line-strong);
+      border-radius: 3px;
+    }
+
+    @media (max-width: 900px) {
+      .slide-meta-panel {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .slide-meta-panel .time-badge {
+        justify-self: start;
+      }
+      header {
+        padding: 10px 16px;
+      }
     }
 
     .thumb-card {
@@ -401,8 +435,8 @@
   <main>
     <!-- Master Viewport (Slides OR Live HTML Workbench) -->
     <div class="presentation-container" id="presentationContainer">
-      <!-- 1. Slide Viewer Image -->
-      <img id="activeSlide" class="slide-viewer" src="slide_01_opener_microgravity.svg" alt="Active Slide Viewport">
+      <!-- 1. Slide Viewer Object (supports embedded raster images inside SVGs) -->
+      <object id="activeSlide" class="slide-viewer" type="image/svg+xml" data="slide_01_opener_microgravity.svg" title="Active Slide Viewport"></object>
       
       <!-- 2. Direct Live Project HTML Workbench Frame -->
       <iframe id="liveFrame" class="live-workbench-iframe" src="../../project-page/index.html#demo-workbench" title="FLARE-X Live Project HTML Workbench"></iframe>
@@ -463,9 +497,9 @@
       },
       {
         id: "slide_02_team_roster.svg",
-        title: "Team FLARE-X Roster & Scientific Mission",
+        title: "Team Alpine Ibex Roster & Scientific Mission",
         time: "0:18 – 0:52",
-        cue: "“To prevent this, NASA conducted 145 real flight burns. But that evidence is locked in static PDFs. We are Team FLARE-X from Bangladesh: Naim, Mahim, Masum, Muntaha, Hamza, and Nahid...”"
+        cue: "“To prevent this, NASA conducted 145 real flight burns. But that evidence is locked in static PDFs. We are Team Alpine Ibex from Bangladesh: Naim, Mahim, Masum, Muntaha, Hamza, and Nahid...”"
       },
       {
         id: "slide_03_research_bottleneck.svg",
@@ -629,7 +663,11 @@
 
     function updateSlide() {
       const slide = slides[currentIndex];
-      activeSlide.src = slide.id;
+      if (activeSlide.tagName.toLowerCase() === "object") {
+        activeSlide.data = slide.id;
+      } else {
+        activeSlide.src = slide.id;
+      }
       slideIndexText.textContent = `SCENE 0${currentIndex + 1} / 09`;
       slideTitle.textContent = slide.title;
       slideCue.textContent = slide.cue;

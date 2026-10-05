@@ -74,12 +74,12 @@ AUDIO ENERGY ARC
 | **0:11–0:17** | 5 discrete tiles illuminate sequentially: BASS-II, FLEX, SPICE, SAFFIRE, and SAME with flight mission badges. | `SOLID • LIQUID • GAS • SPACECRAFT FIRE • SMOKE` | Showcase the multi-decade breadth of NASA flight research. | **Relevance** |
 | **0:17–0:23** | The 5 investigation tiles drift apart into separate isolated silos across a dark coordinate grid. | **Different experiments. Different conditions. Dispersed formats.** | Introduce the core evidence fragmentation problem. | **Impact** |
 | **0:23–0:29** | Clean, illuminated FLARE-X logo animates into the center, drawing connecting vector lines to the 5 datasets. | **FLARE-X**<br>*NASA Microgravity Fire Intelligence* | Introduce the project name, descriptor, and core mission. | **Presentation** |
-| **0:29–0:36** | High-density Team Roster panel displays all registered members with their functional leadership titles. | **Team FLARE-X · Bangladesh**<br>`Naim · Mahim · Masum · Muntaha · Hamza · Nahid` | Fulfill Space Apps team identification requirement. | **Presentation** |
+| **0:29–0:36** | High-density Team Roster panel displays all registered members with their functional leadership titles. | **Team Alpine Ibex · Bangladesh**<br>`Naim · Mahim · Masum · Muntaha · Hamza · Nahid` | Fulfill Space Apps team identification requirement. | **Presentation** |
 | **0:36–0:42** | Cut to high-fidelity Mission Control UI mockup featuring Earth horizon visual and primary action CTAs. | **From NASA combustion experiments to evidence-backed fire-safety intelligence.** | Close Block 1 (WHO) with the unified value proposition. | **Impact** |
 | **0:42–0:50** | Analyze scenario box opens. A realistic aerospace researcher inquiry types into the natural language console. | *"Which NASA experiments actually apply to this scenario?"* | Begin Block 2 (WHY) with the primary operational research question. | **Relevance** |
 | **0:50–0:58** | Screen splits: user query in center; BASS, FLEX, and SPICE parameter tables highlighted to show divergence. | `BASS-II (Solid) · FLEX (Droplet) · SPICE (Gas) · SAFFIRE (Cabin)` | Demonstrate physical heterogeneity across experimental families. | **Validity** |
 | **0:58–1:06** | Animated physical parameter tags cascade: oxygen %, pressure, airflow vector, sample geometry, and fuel type. | `O₂ % · Pressure · Airflow · Geometry · Fuel Type` | Illustrate why flammability cannot be evaluated by keywords alone. | **Validity** |
-| **1:06–1:14** | Fast visual representation of raw PSI spreadsheets, 300-page NTRS PDFs, and unindexed video files. | **Tables · Reports · Telemetry · Video · Unstructured PDFs** | Expose the multi-week manual overhead currently required. | **Impact** |
+| **1:06–1:14** | Fast visual representation of raw PSI spreadsheets, 300-page NTRS PDFs, and unstructured flight video archives. | **Tables · Reports · Telemetry · Video · Unstructured PDFs** | Expose the multi-week manual overhead currently required. | **Impact** |
 | **1:14–1:22** | A generic "PDF chatbot" interface types a confident, hallucinated paragraph; a red audit strike-through crosses it out. | **Finding a document ≠ Finding a comparable experiment** | Contrast generic LLM/RAG failure modes against scientific rigor. | **Creativity** |
 | **1:22–1:30** | Irrelevant flight records fade away; only physically comparable solid fuel tests remain highlighted. | **Find ──► Compare ──► Understand** | Clarify the core researcher requirement: finding comparable burns. | **Relevance** |
 | **1:30–1:38** | The 6-step FLARE-X scientific pipeline animates across the bottom of the viewport with glowing node links. | **Evidence must be scientifically comparable.** | Transition from WHY to WHAT. | **Presentation** |
@@ -111,7 +111,7 @@ AUDIO ENERGY ARC
 * **Spoken Script (84 Words):**
   > *"Fire does not behave on a spacecraft the way it does on Earth. Without gravity, hot air doesn’t rise, buoyancy vanishes, and flames form quiet, suffocating domes fed strictly by forced ventilation fans.  
   > NASA has spent over twenty years studying this phenomenon across the Space Shuttle, the ISS, and Cygnus spacecraft.  
-  > We are Team FLARE-X: six researchers and engineers from Bangladesh. Our mission is to transform NASA's accumulated microgravity combustion archives into searchable, evidence-bounded fire-safety intelligence."*
+  > We are Team Alpine Ibex: six researchers and engineers from Bangladesh. Our mission is to transform NASA's accumulated microgravity combustion archives into searchable, evidence-bounded fire-safety intelligence."*
 
 ---
 

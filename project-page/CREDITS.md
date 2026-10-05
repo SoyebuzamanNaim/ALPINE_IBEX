@@ -6,7 +6,7 @@
 - NASA Physical Sciences Informatics (PSI) System
 - BASS-II / FLEX / SPICE / SAFFIRE / SAME scientific investigation teams, principal investigators, and associated NASA flight centers (Glenn Research Center, Johnson Space Center).
 
-## Team Roster (Space Apps Bangladesh)
+## Team Alpine Ibex (Space Apps Bangladesh)
 
 - **Soyebuzaman Naim (Naim)** — Full Stack Developer
 - **Saber Hossain Mahim (Mahim)** — AI ML Engineer

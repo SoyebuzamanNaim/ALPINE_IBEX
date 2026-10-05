@@ -58,7 +58,7 @@ FLARE-X PUBLIC PROJECT LINK (Single-Page Scroll)
 <meta name="title" content="FLARE-X | NASA Microgravity Fire Intelligence" />
 <meta name="description" content="FLARE-X transforms decades of NASA microgravity combustion flight archives into evidence-bounded, searchable, model-assisted, and traceable fire-safety intelligence." />
 <meta name="keywords" content="NASA Space Apps, Microgravity Combustion, BASS-II, SAFFIRE, SPICE, FLEX, Spacecraft Fire Safety, Exploration Atmospheres, Machine Learning, Open Science" />
-<meta name="author" content="Team FLARE-X (NASA Space Apps Challenge 2026)" />
+<meta name="author" content="Team Alpine Ibex (NASA Space Apps Challenge 2026)" />
 
 <!-- OpenGraph / Social Embeds -->
 <meta property="og:type" content="website" />

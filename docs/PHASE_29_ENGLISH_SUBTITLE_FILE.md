@@ -9,8 +9,7 @@
 ## 29.1 Subtitle Track Architecture & Metrics
 
 The subtitle file is provided in SubRip (`.srt`) format at:
-* Primary: [`assets/video/subtitles.srt`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/subtitles.srt)
-* Standalone Alias: [`assets/video/flare_x_prescreening_subtitles.srt`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/flare_x_prescreening_subtitles.srt)
+* Primary Track: [`assets/video/subtitles.srt`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/subtitles.srt)
 
 ### Key Metrics Summary
 
@@ -19,11 +18,11 @@ SUBTITLE TRACK METRICS (CALIBRATED TO 3:40 RUNTIME):
 ├── Total Subtitle Blocks: 39 sequential cues
 ├── First Subtitle Onset: 00:00:01,000 (1.00s in)
 ├── Final Subtitle Clear: 00:02:58,000 (Followed by title card to 03:38–03:40)
-├── Total Spoken Words Subtitled: 448 words
+├── Total Spoken Words Subtitled: 426 words (Natural, easy human English)
 ├── Max Line Length: 37 characters (Enforces 1080p title-safe zone)
 ├── Max Lines Per Card: 2 lines
-├── Mean Reading Speed: 14.2 characters per second (cps)
-├── Max Reading Speed: 17.8 cps (Well within 21.0 cps broadcast threshold)
+├── Mean Reading Speed: 13.8 characters per second (cps)
+├── Max Reading Speed: 17.5 cps (Well within 21.0 cps broadcast threshold)
 └── Buffer Below 220.0s (3:40) Hard Limit: 2.0s buffer; 22.0s below 240s competition limit.
 ```
 
@@ -35,15 +34,15 @@ SUBTITLE TRACK METRICS (CALIBRATED TO 3:40 RUNTIME):
 
 | # | Timecode (Start $\rightarrow$ End) | Duration | Subtitle Text (Line 1 / Line 2) | Chars | CPS |
 |---|:---:|:---:|---|:---:|:---:|
-| **01** | `00:00:01,000 --> 00:00:04,500` | 3.5s | On Earth, when a building catches fire,<br>you run outside. | 54 | 15.4 |
-| **02** | `00:00:04,800 --> 00:00:08,800` | 4.0s | Three hundred miles above Earth, you are locked<br>in an airtight pressure vessel with your fire. | 93 | 23.2 |
-| **03** | `00:00:09,000 --> 00:00:11,200` | 2.2s | There is no outside. | 21 | 9.5 |
-| **04** | `00:00:11,500 --> 00:00:15,500` | 4.0s | And microgravity fire doesn't rise to the ceiling<br>where smoke detectors are mounted. | 82 | 20.5 |
-| **05** | `00:00:15,800 --> 00:00:18,500` | 2.7s | Buoyancy vanishes. | 18 | 6.7 |
-| **06** | `00:00:18,800 --> 00:00:23,200` | 4.4s | Flames form silent, suffocating blue spheres<br>that creep backward inside ventilation ducts— | 88 | 20.0 |
-| **07** | `00:00:23,500 --> 00:00:27,500` | 4.0s | fed by the crew's own life-support fans. | 40 | 10.0 |
-| **08** | `00:00:27,800 --> 00:00:32,200` | 4.4s | To protect future lunar and Martian crews,<br>NASA conducted 145 real flight burns. | 80 | 18.2 |
-| **09** | `00:00:32,500 --> 00:00:36,500` | 4.0s | We are Team FLARE-X from Bangladesh:<br>Naim, Mahim, Masum, Muntaha, Hamza, and Nahid. | 86 | 21.5 |
+| **01** | `00:00:01,000 --> 00:00:04,200` | 3.2s | Imagine a single electrical spark<br>on a spacecraft. | 49 | 15.3 |
+| **02** | `00:00:04,500 --> 00:00:08,200` | 3.7s | Without gravity, the flame doesn’t rise.<br>It forms a silent, hovering blue sphere. | 77 | 20.8 |
+| **03** | `00:00:08,500 --> 00:00:12,500` | 4.0s | Feeding on the cabin's oxygen,<br>it creeps slowly across surfaces | 61 | 15.2 |
+| **04** | `00:00:12,800 --> 00:00:15,800` | 3.0s | and straight into the air ducts. | 32 | 10.7 |
+| **05** | `00:00:16,200 --> 00:00:19,500` | 3.3s | Three hundred miles above Earth,<br>you can't run outside. | 52 | 15.8 |
+| **06** | `00:00:19,800 --> 00:00:22,800` | 3.0s | You are locked in with it. | 26 | 8.7 |
+| **07** | `00:00:23,200 --> 00:00:28,000` | 4.8s | To protect Artemis crews, NASA conducted<br>more than 1,500 fire experiments in orbit. | 81 | 16.9 |
+| **08** | `00:00:28,500 --> 00:00:32,500` | 4.0s | We are Team Alpine Ibex from Bangladesh:<br>Naim, Mahim, Masum, | 56 | 14.0 |
+| **09** | `00:00:32,800 --> 00:00:36,500` | 3.7s | Muntaha, Hamza, and Nahid. | 27 | 7.3 |
 | **10** | `00:00:36,800 --> 00:00:39,000` | 2.2s | And this is FLARE-X. | 21 | 9.5 |
 
 ---
@@ -52,8 +51,8 @@ SUBTITLE TRACK METRICS (CALIBRATED TO 3:40 RUNTIME):
 
 | # | Timecode (Start $\rightarrow$ End) | Duration | Subtitle Text (Line 1 / Line 2) | Chars | CPS |
 |---|:---:|:---:|---|:---:|:---:|
-| **11** | `00:00:39,500 --> 00:00:44,000` | 4.5s | When Artemis engineers evaluate a new cabin material<br>at eighteen percent oxygen, where do they look? | 98 | 21.7 |
-| **12** | `00:00:44,300 --> 00:00:48,800` | 4.5s | NASA's combustion data is scattered across<br>300-page reports, spreadsheets, and unindexed videos. | 94 | 20.8 |
+| **11** | `00:00:39,500 --> 00:00:44,000` | 4.5s | When Artemis engineers choose materials for a new Moon habitat<br>at eighteen percent oxygen, where do they look? | 106 | 23.5 |
+| **12** | `00:00:44,300 --> 00:00:48,800` | 4.5s | NASA's fire data is buried inside 300-page PDFs,<br>unstructured spreadsheets, and raw flight archives. | 97 | 21.5 |
 | **13** | `00:00:49,200 --> 00:00:53,800` | 4.6s | Worse, generic AI chatbots hallucinate numbers<br>because they don't understand combustion physics. | 97 | 21.0 |
 | **14** | `00:00:54,200 --> 00:00:58,500` | 4.3s | Droplet burning in FLEX does not behave like<br>solid polymer flame-spread in BASS-Two. | 82 | 19.0 |
 | **15** | `00:00:58,800 --> 00:01:03,500` | 4.7s | Different fuels, different chamber pressures,<br>and different geometries. | 71 | 15.1 |
@@ -93,5 +92,5 @@ SUBTITLE TRACK METRICS (CALIBRATED TO 3:40 RUNTIME):
 | **35** | `00:02:33,000 --> 00:02:36,500` | 3.5s | It triggered an Envelope Refusal. | 33 | 9.4 |
 | **36** | `00:02:37,000 --> 00:02:42,200` | 5.2s | It withholds the prediction because NASA never tested<br>these flow conditions at thirteen percent oxygen. | 97 | 18.6 |
 | **37** | `00:02:43,000 --> 00:02:48,000` | 5.0s | Every output links to primary NASA NTRS papers<br>and PSI datasets. | 65 | 13.0 |
-| **38** | `00:02:48,500 --> 00:02:53,500` | 5.0s | Because in deep space,<br>the absence of evidence is not evidence of safety. | 71 | 14.2 |
-| **39** | `00:02:54,000 --> 00:02:58,000` | 4.0s | FLARE-X:<br>Evidence-bounded AI for microgravity fire science. | 57 | 14.2 |
+| **38** | `00:02:48,500 --> 00:02:53,500` | 5.0s | Because on the way to the Moon and Mars,<br>untested data is unsafe data. | 69 | 13.8 |
+| **39** | `00:02:54,000 --> 00:02:58,000` | 4.0s | We are Team Alpine Ibex.<br>Safe fire science for the next frontier. | 64 | 16.0 |

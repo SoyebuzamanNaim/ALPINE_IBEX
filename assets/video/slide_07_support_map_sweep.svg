@@ -82,7 +82,8 @@
       
       <!-- Extinction Quench Transition Boundary -->
       <path d="M 120 330 Q 320 280 620 200" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="8 6"/>
-      <text x="380" y="250" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#d97706">
+      <rect x="360" y="210" width="230" height="24" rx="5" fill="#fffbeb" stroke="#fde68a" stroke-width="1"/>
+      <text x="475" y="226" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#b45309" text-anchor="middle">
         LIMITING OXYGEN BOUNDARY (LOC)
       </text>
 
@@ -98,10 +99,11 @@
       </g>
 
       <!-- Current Scenario Point (Swept to 13% O₂ - Outside Hull) -->
-      <polygon points="90,440 93,448 101,448 95,453 97,461 90,456 83,461 85,453 79,448 87,448" fill="#dc2626"/>
-      <circle cx="90" cy="452" r="16" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="4 4"/>
-      <text x="115" y="456" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#dc2626">
-        ★ Scenario: 13.0% O₂ (OUTSIDE HULL)
+      <polygon points="75,442 78,450 86,450 80,455 82,463 75,458 68,463 70,455 64,450 72,450" fill="#dc2626"/>
+      <circle cx="75" cy="454" r="16" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="4 4"/>
+      <rect x="105" y="440" width="225" height="28" rx="6" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+      <text x="115" y="458" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#dc2626">
+        Scenario: 13.0% O₂ (OUTSIDE)
       </text>
 
       <!-- Axis Labels -->

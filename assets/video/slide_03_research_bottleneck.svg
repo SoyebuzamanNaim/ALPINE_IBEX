@@ -66,7 +66,7 @@
       <rect x="15" y="14" width="160" height="32" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
       <text x="95" y="35" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="800" fill="#1d4ed8" text-anchor="middle">SOLID POLYMERS</text>
       <text x="195" y="36" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#0f172a">BASS-II (Flame Spread Over Solids)</text>
-      <text x="560" y="36" font-family="'JetBrains Mono', monospace" font-size="12" fill="#64748b">PMMA, Cotton, Nomex</text>
+      <text x="680" y="36" font-family="'JetBrains Mono', monospace" font-size="11.5" fill="#64748b" text-anchor="end">PMMA, Cotton, Nomex</text>
     </g>
 
     <!-- Silo 2: Droplet Combustion -->
@@ -75,7 +75,7 @@
       <rect x="15" y="14" width="160" height="32" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
       <text x="95" y="35" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="800" fill="#1d4ed8" text-anchor="middle">LIQUID DROPLETS</text>
       <text x="195" y="36" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#0f172a">FLEX (Droplet Extinction)</text>
-      <text x="560" y="36" font-family="'JetBrains Mono', monospace" font-size="12" fill="#64748b">Decane, Heptane Drops</text>
+      <text x="680" y="36" font-family="'JetBrains Mono', monospace" font-size="11.5" fill="#64748b" text-anchor="end">Decane, Heptane Drops</text>
     </g>
 
     <!-- Silo 3: Gaseous Jets -->
@@ -84,7 +84,7 @@
       <rect x="15" y="14" width="160" height="32" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
       <text x="95" y="35" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="800" fill="#1d4ed8" text-anchor="middle">GASEOUS JETS</text>
       <text x="195" y="36" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#0f172a">SPICE (Gaseous Jet Diffusion)</text>
-      <text x="560" y="36" font-family="'JetBrains Mono', monospace" font-size="12" fill="#64748b">Methane, Hydrogen Jets</text>
+      <text x="680" y="36" font-family="'JetBrains Mono', monospace" font-size="11.5" fill="#64748b" text-anchor="end">Methane, Hydrogen Jets</text>
     </g>
 
     <!-- Silo 4: Spacecraft Scale -->
@@ -93,7 +93,7 @@
       <rect x="15" y="14" width="160" height="32" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
       <text x="95" y="35" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="800" fill="#1d4ed8" text-anchor="middle">SPACECRAFT FIRES</text>
       <text x="195" y="36" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#0f172a">SAFFIRE (Large Spacecraft Fires)</text>
-      <text x="560" y="36" font-family="'JetBrains Mono', monospace" font-size="12" fill="#64748b">Cygnus Cargo Capsule</text>
+      <text x="680" y="36" font-family="'JetBrains Mono', monospace" font-size="11.5" fill="#64748b" text-anchor="end">Cygnus Cargo Capsule</text>
     </g>
 
     <!-- Silo 5: Smoke Dynamics -->
@@ -102,7 +102,7 @@
       <rect x="15" y="14" width="160" height="32" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
       <text x="95" y="35" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="800" fill="#1d4ed8" text-anchor="middle">SMOKE DYNAMICS</text>
       <text x="195" y="36" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#0f172a">SAME (Smoke Aerosol Detection)</text>
-      <text x="560" y="36" font-family="'JetBrains Mono', monospace" font-size="12" fill="#64748b">Particulate Transport</text>
+      <text x="680" y="36" font-family="'JetBrains Mono', monospace" font-size="11.5" fill="#64748b" text-anchor="end">Particulate Transport</text>
     </g>
   </g>
 

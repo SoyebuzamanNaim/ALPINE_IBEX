@@ -62,7 +62,7 @@ VIDEO TECHNICAL SPECIFICATIONS:
   * Subtitle: Decades of NASA spaceflight combustion research.
 
 ### 28.3.2 Slide 02 — FLARE-X Brand & Team Roster (0:17–0:42)
-* **Audio Cue:** *"We are Team FLARE-X from Bangladesh: Naim, Mahim, Masum, Muntaha, Hamza, and Nahid..."*
+* **Audio Cue:** *"We are Team Alpine Ibex from Bangladesh: Naim, Mahim, Masum, Muntaha, Hamza, and Nahid..."*
 * **Visual Structure:**
   * FLARE-X Wordmark with orbital tracking rings and mission identity badge.
   * 6-Card Team Grid with real registered names, roles, and functional responsibilities:

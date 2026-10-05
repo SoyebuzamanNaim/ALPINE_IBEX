@@ -46,11 +46,13 @@
       <text x="82" y="51" font-family="'Orbitron', sans-serif" font-size="16" font-weight="900" fill="#0f172a">DEFINE</text>
       <line x1="20" y1="80" x2="245" y2="80" stroke="#e2e8f0" stroke-width="1.5"/>
       <text x="20" y="112" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#0f172a">Scenario Input</text>
-      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="12.5" fill="#64748b">Natural language prompt or structured parameters.</text>
+      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">Natural language prompt or</text>
+      <text x="20" y="156" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">structured cabin parameters.</text>
       
       <rect x="15" y="240" width="235" height="230" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
       <text x="25" y="270" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#1d4ed8">User Prompt:</text>
-      <text x="25" y="300" font-family="'Inter', sans-serif" font-size="12" fill="#334155" line-height="1.4">"PMMA rod in ISS duct, 18% O₂, 15 cm/s airflow."</text>
+      <text x="25" y="298" font-family="'Inter', sans-serif" font-size="11" fill="#334155">"PMMA rod in ISS duct,</text>
+      <text x="25" y="318" font-family="'Inter', sans-serif" font-size="11" fill="#334155">18% O₂, 15 cm/s airflow."</text>
       <rect x="25" y="415" width="215" height="30" rx="6" fill="#f0fdf4" stroke="#bbf7d0"/>
       <text x="35" y="435" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#059669">✓ Parsed 5 variables</text>
     </g>
@@ -63,7 +65,8 @@
       <text x="82" y="51" font-family="'Orbitron', sans-serif" font-size="16" font-weight="900" fill="#0f172a">IDENTIFY</text>
       <line x1="20" y1="80" x2="245" y2="80" stroke="#e2e8f0" stroke-width="1.5"/>
       <text x="20" y="112" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#0f172a">Family Classifier</text>
-      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="12.5" fill="#64748b">Assigns question to exact combustion physics regime.</text>
+      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">Assigns scenario to exact</text>
+      <text x="20" y="156" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">combustion physics regime.</text>
 
       <rect x="15" y="240" width="235" height="230" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
       <text x="25" y="270" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#1d4ed8">Family Routing:</text>
@@ -82,7 +85,8 @@
       <text x="82" y="51" font-family="'Orbitron', sans-serif" font-size="16" font-weight="900" fill="#0f172a">RETRIEVE</text>
       <line x1="20" y1="80" x2="245" y2="80" stroke="#e2e8f0" stroke-width="1.5"/>
       <text x="20" y="112" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#0f172a">Evidence Scout</text>
-      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="12.5" fill="#64748b">Multi-dimensional Gower similarity across 145 burns.</text>
+      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">Multi-dimensional Gower</text>
+      <text x="20" y="156" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">similarity across flight burns.</text>
 
       <rect x="15" y="240" width="235" height="230" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
       <text x="25" y="270" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#1d4ed8">Ranked Evidence:</text>
@@ -101,7 +105,8 @@
       <text x="82" y="51" font-family="'Orbitron', sans-serif" font-size="16" font-weight="900" fill="#0f172a">MODEL</text>
       <line x1="20" y1="80" x2="245" y2="80" stroke="#e2e8f0" stroke-width="1.5"/>
       <text x="20" y="112" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#0f172a">Family Specialization</text>
-      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="12.5" fill="#64748b">Routes to verified ML model with honest CV metrics.</text>
+      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">Routes to verified ML model</text>
+      <text x="20" y="156" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">with honest CV metrics.</text>
 
       <rect x="15" y="240" width="235" height="230" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
       <text x="25" y="270" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#1d4ed8">Active Model:</text>
@@ -120,13 +125,15 @@
       <text x="82" y="51" font-family="'Orbitron', sans-serif" font-size="16" font-weight="900" fill="#0f172a">GUARD</text>
       <line x1="20" y1="80" x2="245" y2="80" stroke="#e2e8f0" stroke-width="1.5"/>
       <text x="20" y="112" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#0f172a">Envelope Guard</text>
-      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="12.5" fill="#64748b">Zero-extrapolation rule. Withholds unverified output.</text>
+      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">Zero-extrapolation rule.</text>
+      <text x="20" y="156" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">Withholds unverified output.</text>
 
       <rect x="15" y="240" width="235" height="230" rx="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
       <text x="25" y="270" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#dc2626">Refusal Engine:</text>
-      <text x="25" y="300" font-family="'Inter', sans-serif" font-size="11.5" fill="#7f1d1d">Convex hull &amp; Gower threshold check.</text>
-      <text x="25" y="340" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#dc2626">"PREDICTION WITHHELD"</text>
-      <text x="25" y="365" font-family="'Inter', sans-serif" font-size="11" fill="#7f1d1d">Prevents hallucination.</text>
+      <text x="25" y="298" font-family="'Inter', sans-serif" font-size="11" fill="#7f1d1d">Convex hull &amp; Gower</text>
+      <text x="25" y="318" font-family="'Inter', sans-serif" font-size="11" fill="#7f1d1d">support threshold check.</text>
+      <text x="25" y="348" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#dc2626">"PREDICTION WITHHELD"</text>
+      <text x="25" y="372" font-family="'Inter', sans-serif" font-size="11" fill="#7f1d1d">Prevents hallucination.</text>
       <rect x="25" y="415" width="215" height="30" rx="6" fill="#ffffff" stroke="#fca5a5"/>
       <text x="35" y="435" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#dc2626">🛡️ Safe Refusal Active</text>
     </g>
@@ -139,7 +146,8 @@
       <text x="82" y="51" font-family="'Orbitron', sans-serif" font-size="16" font-weight="900" fill="#0f172a">TRACE</text>
       <line x1="20" y1="80" x2="245" y2="80" stroke="#e2e8f0" stroke-width="1.5"/>
       <text x="20" y="112" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#0f172a">Provenance Tree</text>
-      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="12.5" fill="#64748b">Direct traceability to primary NASA PSI &amp; NTRS DOIs.</text>
+      <text x="20" y="136" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">Direct traceability to NASA</text>
+      <text x="20" y="156" font-family="'Inter', sans-serif" font-size="11.5" fill="#64748b">PSI &amp; NTRS primary DOIs.</text>
 
       <rect x="15" y="240" width="235" height="230" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
       <text x="25" y="270" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#1d4ed8">Audit Lineage:</text>

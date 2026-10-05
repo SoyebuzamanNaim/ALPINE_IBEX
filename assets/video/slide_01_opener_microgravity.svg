@@ -104,11 +104,11 @@
 
   <!-- Bottom Hero Message Banner -->
   <g transform="translate(960, 890)">
-    <rect x="-700" y="-70" width="1400" height="140" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" filter="url(#cardShadow)"/>
-    <text x="0" y="-18" font-family="'Orbitron', sans-serif" font-size="34" font-weight="900" fill="#0f172a" text-anchor="middle" letter-spacing="1.5">
+    <rect x="-830" y="-70" width="1660" height="140" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" filter="url(#cardShadow)"/>
+    <text x="0" y="-16" font-family="'Orbitron', sans-serif" font-size="28" font-weight="900" fill="#0f172a" text-anchor="middle" letter-spacing="1">
       ON EARTH, YOU RUN OUTSIDE. <tspan fill="#dc2626">IN SPACE, YOU ARE LOCKED IN WITH YOUR FIRE.</tspan>
     </text>
-    <text x="0" y="32" font-family="'Inter', sans-serif" font-size="20" font-weight="500" fill="#334155" text-anchor="middle">
+    <text x="0" y="32" font-family="'Inter', sans-serif" font-size="19" font-weight="500" fill="#334155" text-anchor="middle">
       No natural buoyancy · Flames form silent, suffocating blue spheres inside ventilation ducts.
     </text>
   </g>

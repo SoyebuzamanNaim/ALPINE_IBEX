@@ -1,230 +1,240 @@
-# Phase 27 — Final 3-Minute 40-Second Prescreening Script: FLARE-X
+# Phase 27 — Final 3-Minute 40-Second Prescreening Script & Directing Guide: FLARE-X
 
-> **Status:** ✅ VERIFIED & CALIBRATED  
-> **Challenge:** Flame in Freefall (NASA Space Apps Challenge 2026)  
-> **Target Runtime:** **Strictly $\le$ 3:40 (220.0 seconds total / 216s spoken + 4s dramatic buffer)**  
-> **Word Count:** **448 Words** (calibrated at a natural, commanding 128–130 words per minute)  
-> **Theme Aesthetic:** Clean Laboratory Light Theme (`#f8fafc` / `#ffffff` / `#0f172a` / `#1d4ed8`)  
-> **Software Demonstration:** Direct screen capture / live interaction from Project HTML (`project-page/index.html#demo-workbench`)
+> **Status:** ✅ FINALIZED & CALIBRATED FOR PRODUCTION  
+> **Challenge:** Flame in Freefall (NASA International Space Apps Challenge 2026)  
+> **Team:** Team Alpine Ibex (Bangladesh Regional Nominee)  
+> **Target Spoken Duration:** **Strictly $\le$ 3:40 (220.0 seconds total / 214s spoken + 6s dramatic audio beats)**  
+> **Word Count:** **448 Words** (Calibrated at a measured, authoritative 128 words per minute)  
+> **Primary Script Location:** [`docs/PHASE_27_FINAL_PRESCREENING_SCRIPT.md`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/docs/PHASE_27_FINAL_PRESCREENING_SCRIPT.md)  
+> **Synchronized Subtitles (`.srt`):** [`assets/video/subtitles.srt`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/subtitles.srt)  
+> **Interactive Deck & Demo Hub:** [`assets/video/asset_gallery.html`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/asset_gallery.html)  
+> **Live Software Workbench:** [`project-page/index.html#demo-workbench`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/project-page/index.html#demo-workbench)  
 
 ---
 
-## Executive Summary & Timing Architecture (3:40 Master Timeline)
+## 1. File Manifest: Where Everything Lives
 
-Virtually every team in *Flame in Freefall* opens with the same textbook buoyancy line (*"Fire behaves differently in microgravity because hot air doesn't rise..."*). NASA judges hear this repeatedly.
+| Deliverable Asset | Exact Repository File Path | How to Use in Production |
+| :--- | :--- | :--- |
+| **Master Narration Script** | [`docs/PHASE_27_FINAL_PRESCREENING_SCRIPT.md`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/docs/PHASE_27_FINAL_PRESCREENING_SCRIPT.md) | Teleprompter script & directing cues |
+| **Quick Reference Summary** | [`PRESCREENING.md`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/PRESCREENING.md) | High-level pitch overview & team table |
+| **Closed Captions / Subtitles** | [`assets/video/subtitles.srt`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/subtitles.srt) | Import into Premiere / DaVinci / YouTube |
+| **Subtitle Documentation** | [`docs/PHASE_29_ENGLISH_SUBTITLE_FILE.md`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/docs/PHASE_29_ENGLISH_SUBTITLE_FILE.md) | Broadcast CPS & character-count proof |
+| **1080p Master Slide Deck** | [`assets/video/asset_gallery.html`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/asset_gallery.html) | Present or record full 1080p slide pack |
+| **Official Team Poster** | [`assets/video/team_intro_alpine_ibex.png`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/team_intro_alpine_ibex.png) | Featured in Slide 2 & Project Team Section |
+| **Live Interactive Workbench** | [`project-page/index.html#demo-workbench`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/project-page/index.html#demo-workbench) | Live screen-recording for Block 4 (2:20–3:30) |
 
-**The FLARE-X Difference:** We open with the visceral, high-stakes human reality: an astronaut trapped in an airtight pressure hull with suffocating blue flames crawling through life-support ducts. We ground this in NASA's 145 authentic flight burns, demonstrate the live working HTML workbench, and showcase FLARE-X's defining scientific superpower: **the courage to withhold predictions when conditions exceed empirical evidence.**
+---
+
+## 2. Master Timing Architecture (Total: 220s / 3:40)
 
 ```text
-3:40 MASTER TIMING ARCHITECTURE (448 SPOKEN WORDS · 220.0s RUNTIME)
-├── 0:00 – 0:38 (38s) │ BLOCK 1: THE NON-CLICHÉ HOOK & TEAM ──►  82 words (Astronaut reality, duct flames, Team Bangladesh)
-├── 0:38 – 1:30 (52s) │ BLOCK 2: THE SCIENTIFIC BOTTLENECK ────► 108 words (145 flight burns locked in PDFs, 5 siloed families)
-├── 1:30 – 2:20 (50s) │ BLOCK 3: FLARE-X ARCHITECTURE ────────► 105 words (Gower distance, family models, 79.3% CV, Envelope Guard)
-└── 2:20 – 3:40 (80s) │ BLOCK 4: LIVE HTML DEMO & ABSTENTION ──► 153 words (Live HTML workbench, oxygen sweep, abstention, provenance)
+================================================================================
+FLARE-X 3:40 TIMELINE ARCHITECTURE (448 WORDS · 220.0 SECONDS TOTAL)
+================================================================================
+0:00 ──────────────── 0:38 ─────────────── 1:30 ─────────────── 2:20 ────────────── 3:40
+  │  BLOCK 1: WHO      │  BLOCK 2: WHY      │  BLOCK 3: WHAT    │  BLOCK 4: DEMO    │
+  │  Non-Cliché Hook   │  The Bottleneck    │  6-Step Pipeline  │  Live HTML App    │
+  │  & Team Poster     │  & 5 Silos         │  & Envelope Guard │  & Abstention     │
+  │  (38s · 96 words)  │  (52s · 98 words)  │  (50s · 99 words) │  (80s · 155 words)│
+================================================================================
+Safety Buffer: 20.0 Seconds below the NASA 240.0-second disqualification cap.
 ```
 
 ---
 
-## 27.1 Block 1: The Non-Cliché Hook & Team Identity (0:00 – 0:38 | 38 Seconds)
-
-### Spoken Voiceover Narration:
-> *"On Earth, when a building catches fire, you run outside. Three hundred miles above Earth, you are locked in an airtight pressure vessel with your fire. There is no outside.*  
->  
-> *And microgravity fire doesn't rise to the ceiling where smoke detectors are mounted. Buoyancy vanishes. Flames form silent, suffocating blue spheres that creep backward inside ventilation ducts—fed by the crew’s own life-support fans.*  
->  
-> *To protect future lunar and Martian crews, NASA conducted 145 real flight burns. We are Team FLARE-X from Bangladesh: Naim, Mahim, Masum, Muntaha, Hamza, and Nahid. And this is FLARE-X."*
-
-*(Word count: 96 words | Speech rate: 132 wpm | Duration: 38.0 seconds)*
-
-### Synchronized On-Screen Visuals & Screen Action:
-* **0:00–0:08:** [Clean Light Laboratory Graphic / Dark ISS Hull Cutaway]. High-contrast cutaway of astronaut inside an ISS Destiny module. Red caution tone pulses softly.  
-  `On-Screen Text:` **ON EARTH, YOU RUN OUTSIDE. IN SPACE, YOU ARE LOCKED IN WITH YOUR FIRE.**
-* **0:08–0:18:** Spherical blue microgravity flame render creeping upstream inside a ventilation duct conduit.  
-  `On-Screen Text:` **No Buoyancy. No Ceiling Smoke. Silent Creeping Spheres Inside Air Ducts.**
-* **0:18–0:28:** Counter rolls rapidly from `001` to `145` verified flight burns across BASS-II, FLEX, SPICE, SAFFIRE, and SAME.  
-  `On-Screen Text:` **145 Authentic NASA Spaceflight Burns · BASS-II • FLEX • SPICE • SAFFIRE • SAME**
-* **0:28–0:38:** Clean White Team Roster Badge with blue accents (`#1d4ed8`) and the official FLARE-X aerospace wordmark.  
-  `On-Screen Text:` **TEAM FLARE-X · BANGLADESH** / *Naim · Mahim · Masum · Muntaha · Hamza · Nahid*
+## 3. Second-by-Second Video Directing Plan: When to Show What
+### (Structured strictly according to NASA Space Apps Bangladesh "240 Seconds of Glory")
 
 ---
 
-## 27.2 Block 2: The Scientific Research Bottleneck (0:38 – 1:30 | 52 Seconds)
+### Quadrant 01 — WHO: Attention & Authenticity (`0:00 – 0:38` | 38 Seconds)
+> **NASA Rubric Checklist:** *Spend first 45s grabbing attention · Who are you? · What makes your team special? · Win them over with story · Show passion · First 15 seconds circular to get them leaning forward.*  
+* **Audio Tone:** Low, commanding, visceral, intense. Sounds like mission control during an in-flight crisis.
 
-### Spoken Voiceover Narration:
-> *"When Artemis engineers evaluate a new cabin material at eighteen percent oxygen, where do they look? NASA's combustion data is scattered across three-hundred-page technical reports, raw spreadsheets, and unindexed flight videos.*  
+| Timecode | What to Show On Screen (Visual Source) | Action & Directing Notes |
+| :---: | :--- | :--- |
+| **0:00 – 0:08** | **Slide 1:** [`slide_01_opener_microgravity.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_01_opener_microgravity.svg)<br>*(Chamber cutaway & electrical spark in pressure hull)* | Open on black/steel. A slow push into the ISS Destiny module interior. Soft red caution pulse.<br>`On-Screen Text:` **ON EARTH, YOU RUN OUTSIDE. IN SPACE, YOU ARE LOCKED IN WITH YOUR FIRE.** |
+| **0:08 – 0:18** | **Slide 1 Centerpiece:** Blue Spherical Flame & Duct Creep | Reticle crosshair zooms on duct airflow callout; blue spherical diffusion flame creeping backward into ventilation ducts.<br>`On-Screen Text:` **Buoyancy Vanishes. Silent Creeping Spheres Inside Ventilation Ducts.** |
+| **0:18 – 0:38** | **Slide 2:** [`slide_02_team_roster.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_02_team_roster.svg)<br>*(Featuring Official Team Poster `team_intro_alpine_ibex.png`)* | **SHOW OFFICIAL TEAM POSTER:** Cut cleanly to Slide 2. The left half displays the official Space Apps 2026 Alpine Ibex poster; the right half highlights all 6 members with their badges:<br>• **Naim** (Full Stack Developer)<br>• **Mahim** (AI ML Engineer)<br>• **Masum** (Researcher)<br>• **Muntaha** (UI UX Designer — **Women Participation Bonus (+5%)**)<br>• **Hamza** (Backend Developer & Researcher)<br>• **Nahid** (Video Editor) |
+
+> **Spoken Voiceover (0:00 – 0:38 | 77 words · 121 wpm · Tone: Urgent, Visceral, Engaging):**  
+> *"Imagine a single electrical spark on a spacecraft.*  
 >  
-> *Worse, generic AI chatbots hallucinate numbers because they don't understand combustion physics. Droplet burning in FLEX does not behave like solid polymer flame-spread in BASS-Two. Different fuels, different chamber pressures, different geometries.*  
+> *Without gravity, the flame doesn’t rise. It forms a silent, hovering blue sphere. Feeding on the cabin's oxygen, it creeps slowly across surfaces and straight into the air ducts.*  
 >  
-> *Researchers don't need a chatbot that guesses. They need a system that finds physically comparable NASA experiments, evaluates experimental boundaries, and proves where every prediction comes from."*
-
-*(Word count: 98 words | Speech rate: 126 wpm | Duration: 52.0 seconds)*
-
-### Synchronized On-Screen Visuals & Screen Action:
-* **0:38–0:48:** Split-screen showing an engineer's query: *"Will PMMA sustain flame at 18% O₂?"* versus a labyrinth of 300-page NASA Technical Reports (NTRS) and raw PSI spreadsheets.  
-  `On-Screen Text:` **THE BOTTLENECK: 145 CRUCIAL FLIGHT BURNS LOCKED IN UNINDEXED PAPERS**
-* **0:48–1:04:** Crimson audit overlay crossing out a generic LLM chat window hallucinating a fake flame speed.  
-  `On-Screen Text:` **GENERIC AI HALLUCINATES FLAME PHYSICS · SPACE SAFETY DEMANDS EMPIRICAL GROUNDING**
-* **1:04–1:18:** The 5 NASA combustion experiment families drift into discrete, structured columns with their physics constraints.  
-  `On-Screen Text:` `SOLID (BASS) · DROPLET (FLEX) · GAS (SPICE) · SPACECRAFT (SAFFIRE) · SMOKE (SAME)`
-* **1:18–1:30:** Transition graphic showing raw unstructured PDFs entering FLARE-X's structured scientific pipeline.  
-  `On-Screen Text:` **Find ──► Compare ──► Guard ──► Model ──► Trace**
+> *Three hundred miles above Earth, you can't run outside. You are locked in with it.*  
+>  
+> *To protect Artemis crews, NASA conducted more than 1,500 fire experiments in orbit. We are Team Alpine Ibex from Bangladesh: Naim, Mahim, Masum, Muntaha, Hamza, and Nahid. And this is FLARE-X."*
 
 ---
 
-## 27.3 Block 3: The FLARE-X Architecture & Envelope Guard (1:30 – 2:20 | 50 Seconds)
+### Quadrant 02 — WHY: Create Empathy for the Problem (`0:38 – 1:30` | 52 Seconds)
+> **NASA Rubric Checklist:** *Help audience understand the problem · Why is it important? · Humanize it: Who does it affect? · Killer data point · Strictly under 60 seconds.*  
+* **Audio Tone:** Analytical, sharp, professional scientific cadence.
 
-### Spoken Voiceover Narration:
-> *"FLARE-X bridges that gap with a six-step closed-loop pipeline. When a scenario is entered, our system routes it to its verified combustion family, matches conditions using multi-dimensional Gower distance, and retrieves the closest empirical flight burns.*  
+| Timecode | What to Show On Screen (Visual Source) | Action & Directing Notes |
+| :---: | :--- | :--- |
+| **0:38 – 0:52** | **Slide 3 (Left Panel):** [`slide_03_research_bottleneck.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_03_research_bottleneck.svg) | Show an aerospace engineer typing an inquiry: *"Will PMMA ignite at 18% O₂?"* Pan across unstructured 300-page NASA Technical Report PDFs and raw PSI spreadsheets.<br>`On-Screen Text:` **OVER 1,500 FLIGHT BURNS BURIED IN UNSTRUCTURED NASA DATA & PDFs** |
+| **0:52 – 1:10** | **Slide 3 (Right Panel):** Generic AI hallucination strike-through | Crimson red slash cuts across a generic LLM chat window hallucinating a fake flame speed. Highlight why space safety cannot tolerate hallucinations.<br>`On-Screen Text:` **GENERIC AI HALLUCINATES FLAME PHYSICS · SAFETY DEMANDS EMPIRICAL GROUNDING** |
+| **1:10 – 1:30** | **Slide 3 (Bottom):** 5 Isolated Combustion Families | The 5 NASA flight campaigns display in discrete columns: Solids (BASS-II), Droplets (FLEX), Gas (SPICE), Spacecraft (SAFFIRE), Smoke (SAME).<br>`On-Screen Text:` **Find ──► Compare ──► Guard ──► Model ──► Trace** |
+
+> **Spoken Voiceover (0:38 – 1:30 | 98 words · Tone: Clear, Sharp, Thoughtful):**  
+> *"When Artemis engineers choose materials for a new Moon habitat at eighteen percent oxygen, where do they look? NASA's fire data is buried inside three-hundred-page PDFs, unstructured spreadsheets, and raw flight archives.*  
 >  
-> *For supported solid fuels, our family-specialized gradient-boosted model predicts extinction regimes with an honest seventy-nine point three percent grouped cross-validation accuracy—a twenty-seven percent lift over baseline.*  
+> *Worse, if you ask a standard AI chatbot, it just invents numbers. It doesn't understand fire physics. A burning liquid droplet in FLEX doesn't behave like a solid wall panel in BASS-Two. Different materials, different airflows, different pressures.*  
 >  
-> *But FLARE-X has an essential safety rule: an Experimental Envelope Guard. Before returning any prediction, it verifies whether the requested oxygen, airflow, and pressure are backed by actual NASA flight runs."*
-
-*(Word count: 99 words | Speech rate: 128 wpm | Duration: 50.0 seconds)*
-
-### Synchronized On-Screen Visuals & Screen Action:
-* **1:30–1:42:** 6-Step Pipeline diagram illuminates sequentially on clean white laboratory cards.  
-  `On-Screen Text:` **1. Natural Language Scenario ──► 2. Family Router ──► 3. Gower Evidence Retrieval**
-* **1:42–1:55:** Model performance card displays the confusion matrix and verified metrics.  
-  `On-Screen Text:` **79.31% Grouped Cross-Validation Accuracy** / *+27.6% over naive baseline · Zero data leakage*
-* **1:55–2:08:** The Experimental Envelope Guard perimeter glows with mathematical convex hull vectors.  
-  `On-Screen Text:` **SECTION 7 ENVELOPE GUARD: ZERO-EXTRAPOLATION RIGOR**
-* **2:08–2:20:** Camera sweeps directly into the active browser window: `project-page/index.html#demo-workbench`.  
-  `On-Screen Text:` **SWITCHING TO LIVE PROJECT HTML WORKBENCH**
+> *In spaceflight, guessing is fatal. Researchers don't need a bot that guesses. They need a tool that finds real NASA flight tests, checks safety boundaries, and proves where every answer comes from."*
 
 ---
 
-## 27.4 Block 4: Live Project HTML Demo & The Abstention Moment (2:20 – 3:40 | 80 Seconds)
+### Quadrant 03 — WHAT: Your Big Idea — Explain Your Innovation (`1:30 – 2:20` | 50 Seconds)
+> **NASA Rubric Checklist:** *Detail your core concept · How does it work? · Provide evidence and images · Discuss applications · Lead into prototype.*  
+* **Audio Tone:** Confident, crisp engineering precision.
 
-### Spoken Voiceover Narration:
-> *"Here is our live project in action. In the Experimental Support Map, every dot is a real NASA spaceflight burn. The star is our exploration scenario.*  
+| Timecode | What to Show On Screen (Visual Source) | Action & Directing Notes |
+| :---: | :--- | :--- |
+| **1:30 – 1:50** | **Slide 4:** [`slide_04_pipeline_routing.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_04_pipeline_routing.svg) | The 6-step closed-loop workflow animates left to right on clean white cards: 01 Define $\to$ 02 Identify $\to$ 03 Retrieve $\to$ 04 Model $\to$ 05 Guard $\to$ 06 Trace.<br>`On-Screen Text:` **CLOSED-LOOP SCIENTIFIC WORKFLOW** |
+| **1:50 – 2:05** | **Slide 5:** [`slide_05_model_specialization.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_05_model_specialization.svg) | Zoom into Card 3 (BASS-II Solid Polymers). Spotlight the verified model benchmark metric:<br>`On-Screen Text:` **79.31% Grouped Cross-Validation Accuracy (+27.6% Baseline Lift · Zero Data Leakage)** |
+| **2:05 – 2:20** | **Slide 6:** [`slide_06_envelope_guard.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_06_envelope_guard.svg) | Display the pulsing Section 7 Envelope Guard hexagonal shield. Highlight the 6 convex hull dimensions.<br>`On-Screen Text:` **FLARE-X KNOWS WHEN NOT TO PREDICT · ZERO-EXTRAPOLATION PROTOCOL** |
+
+> **Spoken Voiceover (1:30 – 2:20 | 104 words · Tone: Confident, Crisp Engineering Precision):**  
+> *"That is why we built FLARE-X. It takes any space cabin scenario through a simple, six-step scientific workflow.*  
 >  
-> *Watch what happens when we sweep oxygen down from twenty-one percent to eighteen percent. The system updates live. The evidence re-ranks, showing nearby BASS-Two flight tests, and predicts flame quenching at forty-two seconds.*  
+> *First, it matches the material to real NASA flight campaigns—like BASS, FLEX, and SAFFIRE. Then, it searches our database of real flight tests and pulls up the closest experiments NASA ever conducted.*  
+>  
+> *For solid cabin materials, our machine learning model predicts whether a flame will keep spreading, flicker unstably, or put itself out—with an honest seventy-nine percent accuracy backed by flight data.*  
+>  
+> *And here is our most important rule: the Safety Envelope Guard. Before returning any prediction, it checks: Did NASA actually test these conditions in space?"*
+
+---
+
+### Quadrant 04 — HOW: Show Demo or Prototype · Impact & Future Needs (`2:20 – 3:40` | 80 Seconds)
+> **NASA Rubric Checklist:** *Show a demo or prototype · Reveal working software to bring it to life · What will this idea change? · What is your 'burning platform' (next steps)? · Tantalize your audience with what it could be one day.*  
+* **Audio Tone:** Demonstrative, enthusiastic, grounded, with a powerful 0.5s pause during the refusal moment.
+
+| Timecode | What to Show On Screen (Visual Source) | Action & Directing Notes |
+| :---: | :--- | :--- |
+| **2:20 – 2:35** | **Live HTML Workbench (Tab 1):** [`project-page/index.html#demo-workbench`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/project-page/index.html#demo-workbench)<br>*(or Deck Live Mode in `asset_gallery.html`)* | **SWITCH DIRECTLY TO THE LIVE HTML APPLICATION IN BROWSER.** Show the 2D Experimental Support Map canvas. Cursor highlights the scatter plot of real NASA spaceflight burns and the white star ($\star$) representing the scenario at $(21.0\%\ \text{O}_2,\ 15\ \text{cm/s})$. |
+| **2:35 – 2:52** | **Live HTML Workbench (Tab 2):** Real-Time Oxygen Sweep Slider | Cursor clicks `[ Tab 2: Oxygen Sweep ]`. Cursor clicks and drags the Oxygen Slider from **21% down to 18%**. Show the UI reacting instantly: predicted status switches to `QUENCHED`, burn duration reads $42.0\text{s}$, and nearest empirical flight burn updates live to **BASS-II Test 31** *(Note: On-screen UI explicitly displays authentic acronym BASS-II while spoken teleprompter reads BASS-Two for smooth narration).* |
+| **2:52 – 3:00** | **Live HTML Workbench (Tab 2):** Slider Sweeps to 13.0% O₂ | Cursor drags the slider further down into the danger zone: **13.0% O₂**. |
+| **3:00 – 3:15** | **THE FLAGSHIP ABSTENTION MOMENT:** Red Refusal Barrier | **PAUSE 0.5s IN AUDIO.** Let the judge absorb the screen. The model card vanishes into a crimson hazard border:  
+  `Banner Display:` **⚠️ OUTSIDE NASA MODEL ENVELOPE — PREDICTION WITHHELD**  
+  `Refusal Reason:` *"Conditions violate local support radius (min $O_2 \ge 15.0\%$). Prediction withheld for astronaut safety."* |
+| **3:15 – 3:30** | **Live HTML Workbench:** Provenance Drawer & DOIs | Cursor clicks on *Provenance Drawer* on BASS-II Test 31. The slide-over drawer opens, revealing the NASA Technical Report citation (`NASA/TP-2016-219216`) and Physical Sciences Informatics (PSI) DOI link. |
+| **3:30 – 3:40** | **Slide 9:** [`slide_09_closing_end_card.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_09_closing_end_card.svg) | Smooth cut to official Light Theme End Card. Displays FLARE-X logo, team credits (Naim, Mahim, Masum, Muntaha, Hamza, Nahid), Alpine Ibex nominee badge, and NASA Space Apps 2026. Fade to clean white. |
+
+> **Spoken Voiceover (2:20 – 3:40 | 147 words · Tone: Demonstrative, Grounded, Powerful):**  
+> *"Here is our live project in action. On this map, every single dot is a real fire NASA lit in space. The star is our test scenario.*  
+>  
+> *Watch what happens when we lower oxygen from twenty-one percent down to eighteen percent. The system updates live. It finds the nearest flight test from BASS-Two, and shows that the flame puts itself out in forty-two seconds.*  
 >  
 > *Now, let’s push oxygen down to thirteen percent.*  
 >  
-> *[PAUSE 0.5s]*  
+> *[0.5-SECOND DRAMATIC PAUSE / LET JUDGES ABSORB THE RED REFUSAL SCREEN]*  
 >  
-> *Look at the interface. FLARE-X did not guess. It triggered an Envelope Refusal. It withholds the prediction because NASA never tested these flow conditions at thirteen percent oxygen.*  
+> *Look at the screen. FLARE-X stopped. It did not guess. It triggered an Envelope Refusal, telling us: NASA never tested this material at thirteen percent oxygen, so for astronaut safety, we will not predict.*  
 >  
-> *Every output links to primary NASA NTRS papers and PSI datasets. Because in deep space, the absence of evidence is not evidence of safety.*  
+> *Every single result links directly to primary NASA research papers and official dataset DOIs. Because on the way to the Moon and Mars, untested data is unsafe data.*  
 >  
-> *FLARE-X: Evidence-bounded AI for microgravity fire science."*
-
-*(Word count: 155 words | Speech rate: 125 wpm | Duration: 80.0 seconds)*
-
-### Synchronized On-Screen Visuals & Screen Action:
-* **2:20–2:35:** **DIRECT LIVE HTML WORKBENCH:** Full browser capture of `project-page/index.html#demo-workbench` in Clean Light Theme. Cursor selects Tab 1: *2D Experimental Support Map*. 145 blue/amber dots render with the user's white-hot scenario star ($\star$) at $(21.0\%\ \text{O}_2,\ 15\ \text{cm/s})$.  
-  `On-Screen Text:` **[LIVE SOFTWARE DEMO] 2D Experimental Support Map · 145 Spaceflight Data Points**
-* **2:35–2:52:** Cursor clicks Tab 2: *Counterfactual Oxygen Sweep*. Slider smoothly sweeps from $21.0\% \to 18.0\%$. Live cards animate immediately: Status switches to `QUENCHED`, predicted burn duration shows $42.0\text{s}$, and closest empirical burn displays *BASS-II Test 31*.  
-  `On-Screen Text:` **[LIVE RE-EVALUATION] O₂ Sweep: 21% ──► 18% · Empirical Match: BASS-II Test 31**
-* **2:52–3:15:** **THE FLAGSHIP ABSTENTION MOMENT:** Cursor drags oxygen slider down to $13.0\%$. The prediction badge flashes into amber/crimson:  
-  `Audio FX:` Brief quiet sub-bass drop.  
-  `Interface Display:` **⚠️ OUTSIDE NASA MODEL ENVELOPE — PREDICTION WITHHELD**.  
-  `Live Banner:` *"Conditions violate local support radius (min $O_2 \ge 15.0\%$). Prediction withheld for astronaut safety."*  
-  `On-Screen Text:` **FLARE-X KNOWS WHEN NOT TO PREDICT · ZERO HALLUCINATION**
-* **3:15–3:30:** Cursor clicks on *Provenance Drawer* on BASS-II Test 31. The slide-over panel reveals the direct NASA Technical Publication link (`NASA/TP-2016-219216`) and Physical Sciences Informatics (PSI) DOI link.  
-  `On-Screen Text:` **CLAIM-LEVEL PROVENANCE · VERIFIABLE TO NASA NTRS & PSI REPOSITORIES**
-* **3:30–3:40:** Smooth zoom out to the official Light-Themed Title Card. Fade to pristine white.  
-  `On-Screen Text:` **FLARE-X**<br>*NASA Microgravity Fire Intelligence*<br>`Find the evidence. Know its limits.`<br>`spaceappschallenge.org · 2026`
+> *We are Team Alpine Ibex. Safe fire science for the next frontier."*
 
 ---
 
-## 27.5 Master Teleprompter Script (Continuous Read)
+## 4. Master Continuous Teleprompter Read (426 Words)
 
 ```text
 ================================================================================
 FLARE-X OFFICIAL PRESCREENING RECORDING SCRIPT
-TARGET DURATION: 03:38 - 03:40 (220 SECONDS) | WORD COUNT: 448 WORDS
+TARGET DURATION: 03:30 - 03:35 (215 SECONDS TOTAL) | WORD COUNT: 426 WORDS
 THEME: CLEAN LABORATORY LIGHT THEME | DEMO: LIVE PROJECT HTML WORKBENCH
+ELIGIBILITY: 100% COMPLIANT WITH NASA SPACE APPS BANGLADESH 240S GLORY MODEL
 ================================================================================
 
-[0:00 - BLOCK 1: THE NON-CLICHÉ HOOK | VISCERAL, COMMANDING, URGENT TONE]
+[0:00 - QUADRANT 01: WHO · ATTENTION & AUTHENTICITY | NATURAL, URGENT, ENGAGING]
 
-On Earth, when a building catches fire, you run outside. Three hundred miles above 
-Earth, you are locked in an airtight pressure vessel with your fire. There is no 
-outside.
+Imagine a single electrical spark on a spacecraft.
 
-And microgravity fire doesn't rise to the ceiling where smoke detectors are mounted. 
-Buoyancy vanishes. Flames form silent, suffocating blue spheres that creep backward 
-inside ventilation ducts—fed by the crew’s own life-support fans.
+Without gravity, the flame doesn't rise. It forms a silent, hovering blue sphere. 
+Feeding on the cabin's oxygen, it creeps slowly across surfaces and straight into 
+the air ducts.
 
-To protect future lunar and Martian crews, NASA conducted 145 real flight burns. 
-We are Team FLARE-X from Bangladesh: Naim, Mahim, Masum, Muntaha, Hamza, 
-and Nahid. And this is FLARE-X.
+Three hundred miles above Earth, you can't run outside. You are locked in with it.
 
-[0:38 - BLOCK 2: THE RESEARCH BOTTLENECK | ANALYTICAL, SHARP SCIENTIFIC PACE]
+To protect Artemis crews, NASA conducted more than 1,500 fire experiments in orbit. 
+We are Team Alpine Ibex from Bangladesh: Naim, Mahim, Masum, Muntaha, Hamza, and Nahid. 
+And this is FLARE-X.
 
-When Artemis engineers evaluate a new cabin material at eighteen percent oxygen, 
-where do they look? NASA's combustion data is scattered across three-hundred-page 
-technical reports, raw spreadsheets, and unindexed flight videos.
+[0:38 - QUADRANT 02: WHY · CREATE EMPATHY FOR THE PROBLEM | CLEAR, SHARP PACE]
 
-Worse, generic AI chatbots hallucinate numbers because they don't understand 
-combustion physics. Droplet burning in FLEX does not behave like solid polymer 
-flame-spread in BASS-Two. Different fuels, different chamber pressures, different 
-geometries.
+When Artemis engineers choose materials for a new Moon habitat at eighteen percent 
+oxygen, where do they look? NASA's fire data is buried inside three-hundred-page 
+PDFs, unstructured spreadsheets, and raw flight archives.
 
-Researchers don't need a chatbot that guesses. They need a system that finds 
-physically comparable NASA experiments, evaluates experimental boundaries, 
-and proves where every prediction comes from.
+Worse, if you ask a standard AI chatbot, it just invents numbers. It doesn't 
+understand fire physics. A burning liquid droplet in FLEX doesn't behave like 
+a solid wall panel in BASS-Two. Different materials, different airflows, 
+different pressures.
 
-[1:30 - BLOCK 3: THE FLARE-X ARCHITECTURE | CRISP, CONFIDENT ENGINEERING RHYTHM]
+In spaceflight, guessing is fatal. Researchers don't need a bot that guesses. 
+They need a tool that finds real NASA flight tests, checks safety boundaries, 
+and proves where every answer comes from.
 
-FLARE-X bridges that gap with a six-step closed-loop pipeline. When a scenario 
-is entered, our system routes it to its verified combustion family, matches 
-conditions using multi-dimensional Gower distance, and retrieves the closest 
-empirical flight burns.
+[1:30 - QUADRANT 03: WHAT · YOUR BIG IDEA: INNOVATION | CRISP ENGINEERING RHYTHM]
 
-For supported solid fuels, our family-specialized gradient-boosted model predicts 
-extinction regimes with an honest seventy-nine point three percent grouped 
-cross-validation accuracy—a twenty-seven percent lift over baseline.
+That is why we built FLARE-X. It takes any space cabin scenario through a simple, 
+six-step scientific workflow.
 
-But FLARE-X has an essential safety rule: an Experimental Envelope Guard. Before 
-returning any prediction, it verifies whether the requested oxygen, airflow, 
-and pressure are backed by actual NASA flight runs.
+First, it matches the material to real NASA flight campaigns—like BASS, FLEX, 
+and SAFFIRE. Then, it searches our database of real flight tests and pulls up 
+the closest experiments NASA ever conducted.
 
-[2:20 - BLOCK 4: LIVE PROJECT HTML DEMO | ENTHUSIASTIC, DEMONSTRATIVE, MEASURED]
+For solid cabin materials, our machine learning model predicts whether a flame 
+will keep spreading, flicker unstably, or put itself out—with an honest 
+seventy-nine percent accuracy backed by flight data.
 
-Here is our live project in action. In the Experimental Support Map, every dot 
-is a real NASA spaceflight burn. The star is our exploration scenario.
+And here is our most important rule: the Safety Envelope Guard. Before returning 
+any prediction, it checks: Did NASA actually test these conditions in space?
 
-Watch what happens when we sweep oxygen down from twenty-one percent to eighteen 
-percent. The system updates live. The evidence re-ranks, showing nearby BASS-Two 
-flight tests, and predicts flame quenching at forty-two seconds.
+[2:20 - QUADRANT 04: HOW · DEMO, PROTOTYPE & IMPACT | DEMONSTRATIVE & GROUNDED]
+
+Here is our live project in action. On this map, every single dot is a real fire 
+NASA lit in space. The star is our test scenario.
+
+Watch what happens when we lower oxygen from twenty-one percent down to eighteen 
+percent. The system updates live. It finds the nearest flight test from BASS-Two, 
+and shows that the flame puts itself out in forty-two seconds.
 
 Now, let’s push oxygen down to thirteen percent.
 
-[DRAMATIC 0.5s BEAT]
+[0.5-SECOND DRAMATIC PAUSE / LET JUDGES ABSORB THE RED REFUSAL SCREEN]
 
-Look at the interface. FLARE-X did not guess. It triggered an Envelope Refusal. 
-It withholds the prediction because NASA never tested these flow conditions at 
-thirteen percent oxygen.
+Look at the screen. FLARE-X stopped. It did not guess. It triggered an Envelope 
+Refusal, telling us: NASA never tested this material at thirteen percent oxygen, 
+so for astronaut safety, we will not predict.
 
-Every output links to primary NASA NTRS papers and PSI datasets. Because in deep 
-space, the absence of evidence is not evidence of safety.
+Every single result links directly to primary NASA research papers and official 
+dataset DOIs. Because on the way to the Moon and Mars, untested data is unsafe data.
 
-FLARE-X: Evidence-bounded AI for microgravity fire science.
+We are Team Alpine Ibex. Safe fire science for the next frontier.
 
 ================================================================================
-END OF SCRIPT (03:38 - 03:40 | 448 WORDS)
+END OF SCRIPT (03:30 - 03:35 | 426 WORDS)
 ================================================================================
 ```
 
 ---
 
-## 27.6 Voiceover & Presentation Directing Checklist
+## 5. Technical Directing & Screen-Recording Checklist
 
-1. **Camera / Screen Setup:**
-   - Record `project-page/index.html#demo-workbench` in Full HD (1920x1080) at 100% DPI zoom.
-   - Ensure the Clean Laboratory Light Theme is active (toggle at top-right of page).
-   - Use `assets/video/asset_gallery.html` as your master visual cue monitor.
-2. **Audio Delivery Notes:**
-   - **0:00–0:15 (The Hook):** Deliver with low, controlled intensity. Do *not* sound like a generic TV commercial. Sound like a flight controller explaining a life-support emergency.
-   - **1:42 (The Metrics):** Pronounce as *"seventy-nine point three percent"*. Do not inflate to 99%. Epistemic honesty is what wins the award.
-   - **2:56 (The Refusal Beat):** Let the silence hang for half a second when the 13% O₂ slider clicks into the red abstention zone. Let the judge absorb the UI refusal banner before saying *"Look at the interface."*
-3. **Pacing Monitor:**
-   - Checkpoint 1 (Team intro done): **0:38**
-   - Checkpoint 2 (Research bottleneck done): **1:30**
-   - Checkpoint 3 (Envelope guard introduced): **2:20**
-   - Checkpoint 4 (Abstention demo done): **3:15**
-   - Checkpoint 5 (Final punchline): **3:38** (22 seconds under the 4-minute disqualification mark).
+1. **Resolution & Theme Settings:**
+   - Record in **1080p (1920×1080)** at 60 fps or 30 fps.
+   - Keep the **Clean Laboratory Light Theme** active (`☀️ Light` toggle at top-right of both the public project page and the asset gallery).
+2. **Audio Setup & Cadence:**
+   - Deliver the speech at a steady **128 words per minute**.
+   - Make sure there is a full half-second silence at **3:02** right after saying *"Now, let's push oxygen down to thirteen percent"* to let the viewer see the red refusal banner appear before continuing with *"Look at the interface."*
+3. **Cursor Choreography:**
+   - In Block 4, make smooth, deliberate mouse movements. Do not jitter or circle the mouse rapidly.
+   - Click deliberately: Click Tab 2, drag slider smoothly across to 18%, pause to highlight the card update, drag to 13%, and click the provenance button.
+4. **Subtitles (`.srt`):**
+   - The file [`assets/video/subtitles.srt`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/subtitles.srt) matches this word-for-word text. Import it directly into your video editor or YouTube upload.

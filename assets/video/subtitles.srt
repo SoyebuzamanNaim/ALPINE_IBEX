@@ -1,44 +1,44 @@
 1
-00:00:01,000 --> 00:00:04,500
-On Earth, when a building catches fire,
-you run outside.
+00:00:01,000 --> 00:00:04,200
+Imagine a single electrical spark
+on a spacecraft.
 
 2
-00:00:04,800 --> 00:00:08,800
-Three hundred miles above Earth, you are locked
-in an airtight pressure vessel with your fire.
+00:00:04,500 --> 00:00:08,200
+Without gravity, the flame doesn’t rise.
+It forms a silent, hovering blue sphere.
 
 3
-00:00:09,000 --> 00:00:11,200
-There is no outside.
+00:00:08,500 --> 00:00:12,500
+Feeding on the cabin's oxygen,
+it creeps slowly across surfaces
 
 4
-00:00:11,500 --> 00:00:15,500
-And microgravity fire doesn't rise to the ceiling
-where smoke detectors are mounted.
+00:00:12,800 --> 00:00:15,800
+and straight into the air ducts.
 
 5
-00:00:15,800 --> 00:00:18,500
-Buoyancy vanishes.
+00:00:16,200 --> 00:00:19,500
+Three hundred miles above Earth,
+you can't run outside.
 
 6
-00:00:18,800 --> 00:00:23,200
-Flames form silent, suffocating blue spheres
-that creep backward inside ventilation ducts—
+00:00:19,800 --> 00:00:22,800
+You are locked in with it.
 
 7
-00:00:23,500 --> 00:00:27,500
-fed by the crew's own life-support fans.
+00:00:23,200 --> 00:00:28,000
+To protect Artemis crews, NASA conducted
+more than 1,500 fire experiments in orbit.
 
 8
-00:00:27,800 --> 00:00:32,200
-To protect future lunar and Martian crews,
-NASA conducted 145 real flight burns.
+00:00:28,500 --> 00:00:32,500
+We are Team Alpine Ibex from Bangladesh:
+Naim, Mahim, Masum,
 
 9
-00:00:32,500 --> 00:00:36,500
-We are Team FLARE-X from Bangladesh:
-Naim, Mahim, Masum, Muntaha, Hamza, and Nahid.
+00:00:32,800 --> 00:00:36,500
+Muntaha, Hamza, and Nahid.
 
 10
 00:00:36,800 --> 00:00:39,000
@@ -46,115 +46,116 @@ And this is FLARE-X.
 
 11
 00:00:39,500 --> 00:00:44,000
-When Artemis engineers evaluate a new cabin material
+When Artemis engineers choose materials for a new Moon habitat
 at eighteen percent oxygen, where do they look?
 
 12
 00:00:44,300 --> 00:00:48,800
-NASA's combustion data is scattered across
-300-page reports, spreadsheets, and unindexed videos.
+NASA's fire data is buried inside 300-page PDFs,
+unstructured spreadsheets, and raw flight archives.
 
 13
 00:00:49,200 --> 00:00:53,800
-Worse, generic AI chatbots hallucinate numbers
-because they don't understand combustion physics.
+Worse, if you ask a standard AI chatbot,
+it just invents numbers.
 
 14
 00:00:54,200 --> 00:00:58,500
-Droplet burning in FLEX does not behave like
-solid polymer flame-spread in BASS-Two.
+It doesn't understand fire physics.
+A burning liquid droplet in FLEX
 
 15
 00:00:58,800 --> 00:01:03,500
-Different fuels, different chamber pressures,
-and different geometries.
+doesn't behave like a solid wall panel in BASS-Two.
+Different materials, airflows, and pressures.
 
 16
 00:01:04,000 --> 00:01:07,800
-Researchers don't need a chatbot that guesses.
+In spaceflight, guessing is fatal.
+Researchers don't need a bot that guesses.
 
 17
 00:01:08,200 --> 00:01:13,200
-They need a system that finds physically comparable
-experiments, checks boundaries, and proves provenance.
+They need a tool that finds real NASA flight tests,
+checks safety boundaries, and proves provenance.
 
 18
 00:01:13,800 --> 00:01:17,800
-FLARE-X bridges that gap
-with a six-step closed-loop pipeline.
+That is why we built FLARE-X.
+It uses a simple, six-step scientific workflow.
 
 19
 00:01:18,200 --> 00:01:23,000
-When a scenario is entered, our system routes it
-to its verified combustion family,
+First, it matches the material
+to real NASA flight campaigns—like BASS, FLEX, and SAFFIRE.
 
 20
 00:01:23,300 --> 00:01:27,500
-matches conditions using multi-dimensional Gower distance,
-and retrieves the closest empirical flight burns.
+Then, it searches our database of real flight tests
+and pulls up the closest experiments NASA ever conducted.
 
 21
 00:01:28,000 --> 00:01:33,000
-For supported solid fuels, our family-specialized
-gradient-boosted model predicts extinction regimes
+For solid cabin materials, our machine learning model
+predicts whether a flame will keep spreading,
 
 22
 00:01:33,300 --> 00:01:38,500
-with an honest 79.3% grouped cross-validation accuracy—
-a 27% lift over baseline.
+flicker unstably, or put itself out—
+with an honest 79% accuracy backed by flight data.
 
 23
 00:01:39,000 --> 00:01:43,500
-But FLARE-X has an essential safety rule:
-an Experimental Envelope Guard.
+And here is our most important rule:
+the Safety Envelope Guard.
 
 24
 00:01:44,000 --> 00:01:48,800
-Before returning any prediction, it verifies whether
-the requested oxygen, airflow, and pressure
+Before returning any prediction, it checks:
+Did NASA actually test these conditions in space?
 
 25
 00:01:49,000 --> 00:01:52,800
-are backed by actual NASA flight runs.
+If not, it refuses to guess.
 
 26
 00:01:53,500 --> 00:01:57,200
 Here is our live project in action.
 
 27
-00:01:57,500 --> 00:02:02,200
-In the Experimental Support Map, every dot
-is a real NASA spaceflight burn.
+00:02:00,000 --> 00:02:04,200
+On this map, every single dot
+is a real fire NASA lit in space.
 
 28
-00:02:02,500 --> 00:02:06,000
-The star is our exploration scenario.
+00:02:04,500 --> 00:02:07,500
+The star is our test scenario.
 
 29
-00:02:06,500 --> 00:02:11,500
-Watch what happens when we sweep oxygen down
-from twenty-one percent to eighteen percent.
+00:02:07,800 --> 00:02:12,500
+Watch what happens when we lower oxygen
+from twenty-one percent down to eighteen percent.
 
 30
-00:02:12,000 --> 00:02:15,500
+00:02:12,800 --> 00:02:15,500
 The system updates live.
 
 31
 00:02:15,800 --> 00:02:20,500
-The evidence re-ranks, showing nearby BASS-Two tests,
-and predicts flame quenching at forty-two seconds.
+It finds the nearest flight test from BASS-Two,
+and shows that the flame puts itself out in 42 seconds.
 
 32
 00:02:21,000 --> 00:02:25,500
-Now, let's push oxygen down to thirteen percent.
+Now, let’s push oxygen down to thirteen percent.
 
 33
 00:02:26,500 --> 00:02:29,200
-Look at the interface.
+Look at the screen.
 
 34
 00:02:29,500 --> 00:02:32,800
-FLARE-X did not guess.
+FLARE-X stopped. It did not guess.
 
 35
 00:02:33,000 --> 00:02:36,500
@@ -162,20 +163,20 @@ It triggered an Envelope Refusal.
 
 36
 00:02:37,000 --> 00:02:42,200
-It withholds the prediction because NASA never tested
-these flow conditions at thirteen percent oxygen.
+Telling us: NASA never tested this material at 13% oxygen,
+so for astronaut safety, we will not predict.
 
 37
 00:02:43,000 --> 00:02:48,000
-Every output links to primary NASA NTRS papers
-and PSI datasets.
+Every single result links directly to primary
+NASA research papers and official dataset DOIs.
 
 38
 00:02:48,500 --> 00:02:53,500
-Because in deep space,
-the absence of evidence is not evidence of safety.
+Because on the way to the Moon and Mars,
+untested data is unsafe data.
 
 39
 00:02:54,000 --> 00:02:58,000
-FLARE-X:
-Evidence-bounded AI for microgravity fire science.
+We are Team Alpine Ibex.
+Safe fire science for the next frontier.
