@@ -23,8 +23,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Assemble static site
+        run: |
+          mkdir -p _site/assets
+          cp -R app/. _site/
+          cp -R project-page _site/project-page
+          cp -R assets/video _site/assets/video
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: app
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
