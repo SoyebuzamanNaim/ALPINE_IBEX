@@ -82,3 +82,95 @@ Dataset: `data/processed/experiments_bass2_relabelled.csv`,
 `data/processed/experiments_saffire_verified.csv`.
 Scheme: `LeaveOneGroupOut` grouped by source test (BASS-II) or flight (Saffire), means over
 seeds; logistic 1 seed (deterministic), boosting and forest 2 to 3 seeds.
+
+---
+
+# Addendum: why the ceiling exists — `no_spread` is three phenomena, not one
+
+Added after testing NASA's own published flammability boundary against the rebuilt rows.
+
+## The published boundary
+
+NTRS `20210011385` (BASS-II Summary Report) gives the boundary in closed form, Eq (6.1),
+fitted to cast-PMMA rods over 13.6–22.2 % O2 and normalised to a base rod radius
+`r_o = 0.318 cm` (the 1/4-inch rod):
+
+```
+X_O2 = 6*exp(-0.5*a) + 0.0167*a + 13.4          [vol %,  a in 1/s]
+       |__ quenching __|  |blowoff|  |_ LOC _|
+
+a = (3/2)*(U/r)*(r/r_o)**0.5                     size-normalised stretch rate
+U/U_D = 1,  U_D = 2 cm/s                         quench / blowoff regime separator
+```
+
+Reproducing its stated minimum is a useful check: the equation bottoms out at
+**13.61 % O2 for a = 8–12 1/s**, and the paper says *"The minimum in this boundary occurs at
+a = 8 to 12 s–1 at approximately 13.5 percent O2."* The implementation is correct.
+
+## Testing it against our 55 verified PMMA-rod rows
+
+With **zero fitted parameters**, the published boundary agrees with our independently
+transcribed outcomes on 50 of 55 rows — 90.9 %. That number is worthless:
+
+```
+true spread    -> pred spread  50 | pred no_spread   0
+true no_spread -> pred spread   5 | pred no_spread   0
+```
+
+It predicts `spread` for every row. 90.9 % is exactly the base rate (50 of 55 rod rows are
+`spread`), and the boundary catches **none** of the five negatives. This is the same trap as the
+84.18 % majority baseline, one layer deeper.
+
+## Why it misses — and this is the real finding
+
+Reading the five negatives' own observations shows they are not boundary events at all:
+
+| Row | O2 | Observation |
+|---|---|---|
+| `BASS2_O5b_5` | 14.2 | "Would not sustain a flame without igniter on" |
+| `BASS2_P8_5/10/15` | 16.4 | "would not stay lit" |
+| `BASS2_O3a_3` | 18.0 | "extinguished as soon as he turned flow down, probably overshot" |
+
+Eq (6.1) describes **extinction of an established flame**. Four of those five never established
+one. Classifying all 28 negatives by failure mode, read from each row's own observation text:
+
+| Failure mode | Count | Share |
+|---|---|---|
+| **`ignition_failure`** — flame never established or never propagated | **17** | **61 %** |
+| `quench_extinction` — established flame died as flow was reduced | 8 | 29 % |
+| `blowoff_extinction` — established flame died as flow was raised | 3 | 11 % |
+
+Only **11 of 28 (39 %)** are extinction-boundary events, and those split across two
+**opposite** branches: 8 quench, 3 blowoff.
+
+The mode is recorded per row in `failure_mode` with its evidence in
+`failure_mode_evidence`, in both `experiments_bass2_relabelled.csv` and
+`experiments_saffire_verified.csv`.
+
+## What this means
+
+`no_spread` is not a class. It pools at least three physical questions:
+
+1. **Will it ignite at all?** — 61 % of the negative evidence. A materials-screening question.
+2. **Once lit, will it survive reduced flow?** — the quenching branch, 8 rows.
+3. **Once lit, will it survive increased flow?** — the blowoff branch, 3 rows.
+
+A single classifier asked to separate `spread` from this mixture is being asked to learn three
+different boundaries, in opposite directions in flow, from 28 examples. The 0.40 precision is
+an average over one tractable sub-problem and two that are starved.
+
+This supersedes the earlier framing in this report. The ceiling is not mainly "only 28
+negatives" — it is that the 28 are not measurements of the same thing.
+
+## Consequences for the product
+
+- **Do not pool the modes.** Report them separately even if a model is only built for one.
+- **Eq (6.1) is directly usable and citable** for the extinction question on PMMA rods, with no
+  training and no accuracy claim. Report the user's **O2 margin above the boundary**, which is
+  the operator-relevant quantity, rather than a class label.
+- **Ignition is a separate model** and the current feature set
+  (`oxygen_pct`, `pressure_kpa`, `flow_cm_s`, `material`) omits what governs it: igniter energy,
+  duration, and sample preheat. Those are recorded in the PSI table (`Radiometer gain`,
+  ignition power and time in the Saffire tables) and are not yet features.
+- **The envelope guard remains the honest core.** It answers "is this condition inside anything
+  NASA has measured?" — a question the data can settle, unlike "is it safe?".
