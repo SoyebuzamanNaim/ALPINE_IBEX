@@ -93,3 +93,13 @@ class SweepRequest(BaseModel):
 
 class ParseRequest(BaseModel):
     query: str
+
+
+class ConflictStudiesRequest(BaseModel):
+    study_a: str = Field(..., description="Canonical study profile key A (e.g. 'BASS-II')")
+    study_b: str = Field(..., description="Canonical study profile key B (e.g. 'Saffire')")
+
+
+class ConflictExperimentsRequest(BaseModel):
+    experiment_id_a: str = Field(..., description="Authoritative experiment ID A")
+    experiment_id_b: str = Field(..., description="Authoritative experiment ID B")

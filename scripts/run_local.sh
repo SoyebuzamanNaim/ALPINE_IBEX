@@ -31,7 +31,7 @@ MODEL_PATH="models/flame_spread_gb.joblib"
 
 if [ ! -f "$DATA_PATH" ]; then
     echo "⚠️ Warning: $DATA_PATH not found. Ingesting raw NASA records..."
-    $PYTHON_BIN -c "from src.ingestion.extract import build_all; build_all()"
+    $PYTHON_BIN -c "from src.ingestion.build_table import build_full_dataset, save_and_report; save_and_report(build_full_dataset())"
 fi
 
 if [ ! -f "$MODEL_PATH" ]; then

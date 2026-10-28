@@ -1,7 +1,7 @@
 # System Boundaries, Scientific Limitations & Ethics: FLARE-X
 
 > **Document Status:** Public, honest scientific disclosure of system scope, data concentration, physical model boundaries, and ethical safeguards for the FLARE-X prototype.  
-> **Master Specification:** See complete canonical document at [`docs/PHASE_22_LIMITATIONS_AND_SCIENTIFIC_ETHICS.md`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/docs/PHASE_22_LIMITATIONS_AND_SCIENTIFIC_ETHICS.md).
+> **Master Specification:** See complete project requirements in [docs/REQUIREMENTS.md](file:///home/naim/Codebase/Projects/ALPINE_IBEX/docs/REQUIREMENTS.md).
 
 ---
 
@@ -91,4 +91,4 @@ All data, predictions, and text displayed across FLARE-X carry explicit epistemi
 8. ❌ Operating as an active real-time fire emergency response tool.
 9. ❌ Claiming NASA institutional endorsement or approval.
 
-For complete architectural details, Q&A defense playbooks, and adversarial test suites, refer to [`docs/PHASE_22_LIMITATIONS_AND_SCIENTIFIC_ETHICS.md`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/docs/PHASE_22_LIMITATIONS_AND_SCIENTIFIC_ETHICS.md).
+For complete architectural details, Q&A defense playbooks, and adversarial test suites, refer to [`docs/PHASE_22_LIMITATIONS_AND_SCIENTIFIC_ETHICS.md`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/docs/PHASE_22_LIMITATIONS_AND_SCIENTIFIC_ETHICS.md).

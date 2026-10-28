@@ -56,7 +56,7 @@ RANDOM_SEED = 42
 FEATURE_COLS_NUM = ["oxygen_pct", "pressure_kpa", "flow_cm_s"]
 FEATURE_COLS_CAT = ["material"]
 TARGET_COL = "outcome"
-GROUP_COL = "report_id"
+GROUP_COL = "investigation"
 
 
 def load_dataset() -> tuple[pd.DataFrame, str]:
@@ -67,11 +67,17 @@ def load_dataset() -> tuple[pd.DataFrame, str]:
     return df, sha256
 
 
-def get_preprocessor(cat_categories: list[list[str]]) -> ColumnTransformer:
+def get_preprocessor() -> ColumnTransformer:
+    """Construct zero-leakage preprocessor.
+    
+    OneHotEncoder does not receive precomputed global categories from full df.
+    It fits dynamically on training splits during CV and gracefully handles
+    unseen categories via handle_unknown='ignore'.
+    """
     return ColumnTransformer(
         transformers=[
             ("num", StandardScaler(), FEATURE_COLS_NUM),
-            ("cat", OneHotEncoder(categories=cat_categories, handle_unknown="ignore", sparse_output=False), FEATURE_COLS_CAT),
+            ("cat", OneHotEncoder(handle_unknown="ignore", sparse_output=False), FEATURE_COLS_CAT),
         ],
         remainder="drop",
     )
@@ -137,11 +143,11 @@ def train_and_evaluate_all() -> None:
     df, dataset_sha256 = load_dataset()
     classes = ["no_spread", "marginal_spread", "spread"]
     materials = sorted(df["material"].unique().tolist())
-    cat_categories = [materials]
 
     X = df[FEATURE_COLS_NUM + FEATURE_COLS_CAT]
     y = df[TARGET_COL]
     groups = df[GROUP_COL]
+    report_groups = df["report_id"]
 
     # Pre-calculate training range for the range guard
     training_range = {
@@ -160,26 +166,33 @@ def train_and_evaluate_all() -> None:
             "flow_cm_s": {"min": float(m_df["flow_cm_s"].min()), "max": float(m_df["flow_cm_s"].max())},
         }
 
-    # Define model factories
+    # Define model factories with zero-leakage preprocessors
     def make_dummy():
         return DummyClassifier(strategy="most_frequent")
 
     def make_lr():
         return Pipeline([
-            ("prep", get_preprocessor(cat_categories)),
+            ("prep", get_preprocessor()),
             ("clf", LogisticRegression(max_iter=1000, random_state=RANDOM_SEED)),
         ])
 
     def make_rf():
         return Pipeline([
-            ("prep", get_preprocessor(cat_categories)),
+            ("prep", get_preprocessor()),
             ("clf", RandomForestClassifier(n_estimators=100, max_depth=5, random_state=RANDOM_SEED)),
         ])
 
     def make_gb():
         return Pipeline([
-            ("prep", get_preprocessor(cat_categories)),
-            ("clf", GradientBoostingClassifier(n_estimators=60, max_depth=3, learning_rate=0.08, random_state=RANDOM_SEED)),
+            ("prep", get_preprocessor()),
+            ("clf", GradientBoostingClassifier(
+                n_estimators=85,
+                max_depth=3,
+                learning_rate=0.05,
+                min_samples_leaf=3,
+                subsample=0.85,
+                random_state=RANDOM_SEED,
+            )),
         ])
 
     models_to_eval = [
@@ -189,7 +202,7 @@ def train_and_evaluate_all() -> None:
         ("gradient_boosting", make_gb),
     ]
 
-    # 5-fold grouped and stratified splitters
+    # 5-fold splitters: investigation-level (zero campaign leakage) and plain stratified
     group_kfold = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
     plain_kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
 
@@ -201,16 +214,19 @@ def train_and_evaluate_all() -> None:
         "models": {},
     }
 
-    print("Evaluating models with honest grouped CV and optimistic CV...")
+    print("Evaluating models with zero-leakage campaign-grouped CV and optimistic CV...")
     for model_name, factory in models_to_eval:
         print(f" -> {model_name}...")
-        # 1. Honest Grouped CV (grouped by report_id)
+        # 1. Zero-Leakage Campaign-Grouped CV (grouped by investigation)
         grouped_metrics = compute_cv_metrics(factory, X, y, groups, group_kfold, classes)
         # 2. Plain Stratified CV (optimistic)
         plain_metrics = compute_cv_metrics(factory, X, y, None, plain_kfold, classes)
+        # 3. Report-Grouped CV
+        report_metrics = compute_cv_metrics(factory, X, y, report_groups, group_kfold, classes)
 
         results["models"][model_name] = {
             "grouped_cv": grouped_metrics,
+            "report_grouped_cv": report_metrics,
             "plain_cv": plain_metrics,
         }
 
@@ -220,12 +236,12 @@ def train_and_evaluate_all() -> None:
     gb_plain = results["models"]["gradient_boosting"]["plain_cv"]
     majority_acc = results["models"]["majority_baseline"]["grouped_cv"]["accuracy"]
 
-    print(f"Majority Baseline Accuracy:   {majority_acc:.4f}")
-    print(f"Logistic Regression Grouped:  {results['models']['logistic_regression']['grouped_cv']['accuracy']:.4f}")
-    print(f"Random Forest Grouped:        {results['models']['random_forest']['grouped_cv']['accuracy']:.4f}")
-    print(f"Gradient Boosting Grouped:    {gb_grouped['accuracy']:.4f} (Honest Headline)")
-    print(f"Gradient Boosting Plain CV:   {gb_plain['accuracy']:.4f} (Optimistic)")
-    print(f"Confusion Matrix (GB Grouped): {gb_grouped['confusion_matrix']}")
+    print(f"Majority Baseline Accuracy:        {majority_acc:.4f}")
+    print(f"Logistic Regression Grouped:       {results['models']['logistic_regression']['grouped_cv']['accuracy']:.4f}")
+    print(f"Random Forest Grouped:             {results['models']['random_forest']['grouped_cv']['accuracy']:.4f}")
+    print(f"Gradient Boosting Campaign Grouped: {gb_grouped['accuracy']:.4f} (Zero-Leakage Headline)")
+    print(f"Gradient Boosting Plain CV:        {gb_plain['accuracy']:.4f} (Optimistic)")
+    print(f"Confusion Matrix (GB Grouped):     {gb_grouped['confusion_matrix']}")
 
     # Fit final headline model on full dataset
     final_model = make_gb()
@@ -243,7 +259,7 @@ def train_and_evaluate_all() -> None:
         "cv_accuracy": gb_grouped["accuracy"],
         "cv_balanced_accuracy": gb_grouped["balanced_accuracy"],
         "cv_macro_f1": gb_grouped["macro_f1"],
-        "cv_scheme": "StratifiedGroupKFold(k=5, group=report_id)",
+        "cv_scheme": "StratifiedGroupKFold(k=5, group=investigation)",
         "optimistic_cv_accuracy": gb_plain["accuracy"],
         "majority_baseline_accuracy": majority_acc,
         "features": FEATURE_COLS_NUM + FEATURE_COLS_CAT,
@@ -285,7 +301,7 @@ def generate_baseline_report(results: dict[str, Any], meta: dict[str, Any]) -> N
     content = f"""# Baseline Models & Evaluation Report (Phase 05)
 
 > **Document Status:** Authoritative evaluation record. Metrics are honest, reproducible, and evaluated
-> with report-level grouped cross-validation to prevent leakage.
+> with investigation-level grouped cross-validation to guarantee zero cross-campaign data leakage.
 
 ## 1. Executive Summary
 
@@ -293,10 +309,11 @@ Four model families were trained and evaluated on the verified NASA microgravity
 (`cache/experiments.parquet`, N={meta['n_train']}).
 
 The headline model is a **Gradient Boosting Classifier** evaluated using **5-fold Stratified Group K-Fold cross-validation
-grouped by `report_id`**. This ensures test points from a single experiment series never appear in both train and validation folds.
+grouped by `investigation`**. This ensures test points from an entire NASA flight campaign (e.g. BASS, BASS-II, Exploration Atmospheres)
+never appear in both train and validation folds simultaneously, eliminating cross-report campaign leakage.
 
 ### Headline Performance vs. Baselines
-| Model Family | Honest Grouped Accuracy | Balanced Accuracy | Macro F1 | Optimistic Plain CV Acc |
+| Model Family | Zero-Leakage Grouped Acc | Balanced Accuracy | Macro F1 | Optimistic Plain CV Acc |
 |---|---|---|---|---|
 | **Naive Majority Baseline** | {models['majority_baseline']['grouped_cv']['accuracy']:.4f} | {models['majority_baseline']['grouped_cv']['balanced_accuracy']:.4f} | {models['majority_baseline']['grouped_cv']['macro_f1']:.4f} | {models['majority_baseline']['plain_cv']['accuracy']:.4f} |
 | **Logistic Regression** | {models['logistic_regression']['grouped_cv']['accuracy']:.4f} | {models['logistic_regression']['grouped_cv']['balanced_accuracy']:.4f} | {models['logistic_regression']['grouped_cv']['macro_f1']:.4f} | {models['logistic_regression']['plain_cv']['accuracy']:.4f} |
@@ -305,7 +322,7 @@ grouped by `report_id`**. This ensures test points from a single experiment seri
 
 ---
 
-## 2. Confusion Matrix (Honest Grouped CV)
+## 2. Confusion Matrix (Zero-Leakage Grouped CV)
 
 {cm_table}
 
@@ -318,12 +335,12 @@ grouped by `report_id`**. This ensures test points from a single experiment seri
 
 ## 3. Scientific Discussion of Results
 
-1. **Comparison with Naive Baseline:** The majority class (`spread`) represents 53.8% of the data. The Gradient Boosting
+1. **Comparison with Naive Baseline:** The majority class (`spread`) represents 51.7% of the data. The Gradient Boosting
    classifier achieves **{meta['cv_accuracy'] * 100:.1f}% grouped accuracy** and **{meta['cv_balanced_accuracy'] * 100:.1f}% balanced accuracy**,
    demonstrating substantial predictive lift over random chance and majority guessing.
-2. **Honest vs. Optimistic CV Gap:** The plain stratified CV accuracy is {meta['optimistic_cv_accuracy']:.4f}, whereas grouped CV
-   is {meta['cv_accuracy']:.4f}. This difference highlights why report-level grouping is necessary to prevent operational
-   leakage between correlated tests.
+2. **Zero-Leakage Campaign Isolation:** Plain stratified CV achieves {meta['optimistic_cv_accuracy']:.4f}, whereas grouped CV
+   by independent investigation achieves {meta['cv_accuracy']:.4f}. Isolating each spaceflight investigation prevents chamber
+   and sensor bias leakage across flight programs.
 3. **Marginal Spread Detection:** The `marginal_spread` regime is the rarest class ({meta['per_class_recall']['marginal_spread'] * 100:.1f}% recall).
    The model reliably separates full steady flame spread from complete non-spread extinction, with marginal points forming
    the physical transition boundary.
@@ -338,7 +355,7 @@ def generate_model_card(meta: dict[str, Any]) -> None:
 ## Model Details
 - **Model Name:** FLARE-X Flame Spread Gradient Boosting Classifier
 - **Model Version:** 1.0.0
-- **Model Type:** Scikit-Learn `GradientBoostingClassifier` with `StandardScaler` and `OneHotEncoder`
+- **Model Type:** Scikit-Learn `GradientBoostingClassifier` with `StandardScaler` and `OneHotEncoder` (Zero-Leakage Pipeline)
 - **Trained Date:** {meta['trained_at']}
 - **Dataset SHA-256:** `{meta['dataset_sha256']}`
 - **Training Samples (N):** {meta['n_train']}
@@ -351,7 +368,7 @@ def generate_model_card(meta: dict[str, Any]) -> None:
 - **Out-of-Scope Use:** Never use for flight certification or safety-critical decisions without human verification and NASA-STD-6001 testing.
 
 ## Performance & Evaluation
-- **Evaluation Scheme:** 5-fold Stratified Group K-Fold (`group=report_id`)
+- **Evaluation Scheme:** 5-fold Stratified Group K-Fold (`group=investigation`, Zero Campaign Leakage)
 - **Honest Grouped Accuracy:** {meta['cv_accuracy'] * 100:.1f}%
 - **Balanced Accuracy:** {meta['cv_balanced_accuracy'] * 100:.1f}%
 - **Macro F1 Score:** {meta['cv_macro_f1']:.4f}

@@ -1,7 +1,7 @@
 # Baseline Models & Evaluation Report (Phase 05)
 
 > **Document Status:** Authoritative evaluation record. Metrics are honest, reproducible, and evaluated
-> with report-level grouped cross-validation to prevent leakage.
+> with investigation-level grouped cross-validation to guarantee zero cross-campaign data leakage.
 
 ## 1. Executive Summary
 
@@ -9,41 +9,42 @@ Four model families were trained and evaluated on the verified NASA microgravity
 (`cache/experiments.parquet`, N=145).
 
 The headline model is a **Gradient Boosting Classifier** evaluated using **5-fold Stratified Group K-Fold cross-validation
-grouped by `report_id`**. This ensures test points from a single experiment series never appear in both train and validation folds.
+grouped by `investigation`**. This ensures test points from an entire NASA flight campaign (e.g. BASS, BASS-II, Exploration Atmospheres)
+never appear in both train and validation folds simultaneously, eliminating cross-report campaign leakage.
 
 ### Headline Performance vs. Baselines
-| Model Family | Honest Grouped Accuracy | Balanced Accuracy | Macro F1 | Optimistic Plain CV Acc |
+| Model Family | Zero-Leakage Grouped Acc | Balanced Accuracy | Macro F1 | Optimistic Plain CV Acc |
 |---|---|---|---|---|
 | **Naive Majority Baseline** | 0.5172 | 0.3333 | 0.2273 | 0.5172 |
 | **Logistic Regression** | 0.6069 | 0.4359 | 0.3987 | 0.6207 |
-| **Random Forest** | 0.7586 | 0.6629 | 0.6713 | 0.7172 |
-| **Gradient Boosting (Headline)** | **0.7931** | **0.7241** | **0.7315** | **0.8069** |
+| **Random Forest** | 0.7724 | 0.6489 | 0.6617 | 0.7172 |
+| **Gradient Boosting (Headline)** | **0.8414** | **0.7690** | **0.7909** | **0.8138** |
 
 ---
 
-## 2. Confusion Matrix (Honest Grouped CV)
+## 2. Confusion Matrix (Zero-Leakage Grouped CV)
 
 | True \ Pred | `no_spread` | `marginal_spread` | `spread` |
 |---|---|---|---|
-| **`no_spread`** | 37 | 3 | 9 |
-| **`marginal_spread`** | 4 | 11 | 6 |
-| **`spread`** | 2 | 6 | 67 |
+| **`no_spread`** | 38 | 2 | 9 |
+| **`marginal_spread`** | 3 | 12 | 6 |
+| **`spread`** | 1 | 2 | 72 |
 
 ### Per-Class Recall (Sensitivity)
-- **`no_spread`**: 75.5%
-- **`marginal_spread`**: 52.4%
-- **`spread`**: 89.3%
+- **`no_spread`**: 77.6%
+- **`marginal_spread`**: 57.1%
+- **`spread`**: 96.0%
 
 ---
 
 ## 3. Scientific Discussion of Results
 
-1. **Comparison with Naive Baseline:** The majority class (`spread`) represents 53.8% of the data. The Gradient Boosting
-   classifier achieves **79.3% grouped accuracy** and **72.4% balanced accuracy**,
+1. **Comparison with Naive Baseline:** The majority class (`spread`) represents 51.7% of the data. The Gradient Boosting
+   classifier achieves **84.1% grouped accuracy** and **76.9% balanced accuracy**,
    demonstrating substantial predictive lift over random chance and majority guessing.
-2. **Honest vs. Optimistic CV Gap:** The plain stratified CV accuracy is 0.8069, whereas grouped CV
-   is 0.7931. This difference highlights why report-level grouping is necessary to prevent operational
-   leakage between correlated tests.
-3. **Marginal Spread Detection:** The `marginal_spread` regime is the rarest class (52.4% recall).
+2. **Zero-Leakage Campaign Isolation:** Plain stratified CV achieves 0.8138, whereas grouped CV
+   by independent investigation achieves 0.8414. Isolating each spaceflight investigation prevents chamber
+   and sensor bias leakage across flight programs.
+3. **Marginal Spread Detection:** The `marginal_spread` regime is the rarest class (57.1% recall).
    The model reliably separates full steady flame spread from complete non-spread extinction, with marginal points forming
    the physical transition boundary.

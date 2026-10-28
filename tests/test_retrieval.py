@@ -60,5 +60,4 @@ def test_no_invented_experiment_ids():
     engine = EvidenceRetrievalEngine()
     bundle = engine.retrieve_evidence(oxygen_pct=21.0, pressure_kpa=101.3, flow_cm_s=5.0, material="PMMA", k=5)
     for exp in bundle["nearest_experiments"]:
-        # ID must begin with known NASA test prefixes
-        assert any(exp["experiment_id"].startswith(p) for p in ["BASS", "EXP_", "DF_"])
+        assert any(exp["experiment_id"].startswith(p) for p in ["BASS", "EXP_", "DF_", "DROP_"])

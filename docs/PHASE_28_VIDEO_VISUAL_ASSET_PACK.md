@@ -14,15 +14,15 @@ The FLARE-X Video Visual Asset Pack translates the 232-second scientific narrati
 
 | Slide ID | Timestamp | Scene Title | Asset File | Primary Visual Purpose |
 | :--- | :---: | :--- | :--- | :--- |
-| **SLIDE-01** | `0:00–0:17` | Hook & NASA Microgravity Context | [`slide_01_opener_microgravity.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_01_opener_microgravity.svg) | Microgravity flame physics & 5 NASA flight programs. |
-| **SLIDE-02** | `0:17–0:42` | FLARE-X Brand & Team Roster | [`slide_02_team_roster.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_02_team_roster.svg) | Full registered 6-member team roster and official roles. |
-| **SLIDE-03** | `0:42–1:38` | The Research Bottleneck | [`slide_03_research_bottleneck.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_03_research_bottleneck.svg) | Multi-parameter silos & "Finding doc ≠ Finding experiment". |
-| **SLIDE-04** | `1:38–2:10` | 6-Step Closed-Loop Pipeline | [`slide_04_pipeline_routing.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_04_pipeline_routing.svg) | Scenario parsing, family routing, and semantic ranking. |
-| **SLIDE-05** | `2:10–2:26` | Specialized Model Triad | [`slide_05_model_specialization.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_05_model_specialization.svg) | SPICE-FL, FLEX-EX, BASS-RG (conditional data rules). |
-| **SLIDE-06** | `2:26–2:35` | Experimental Envelope Guard | [`slide_06_envelope_guard.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_06_envelope_guard.svg) | 6-parameter firewall: "FLARE-X knows when not to predict". |
-| **SLIDE-07** | `2:35–3:30` | Support Map & Counterfactual Sweep | [`slide_07_support_map_sweep.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_07_support_map_sweep.svg) | 4-state oxygen progression to Active Refusal / Withheld. |
-| **SLIDE-08** | `3:30–3:43` | 3-Tier Provenance Hierarchy | [`slide_08_provenance_hierarchy.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_08_provenance_hierarchy.svg) | Separation of NASA Obs, Model Runs, and AI Synthesis. |
-| **SLIDE-09** | `3:43–3:52` | Final Mission End Card | [`slide_09_closing_end_card.svg`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/slide_09_closing_end_card.svg) | Motto, research disclaimer, project link, and Space Apps 2026. |
+| **SLIDE-01** | `0:00–0:17` | Hook & NASA Microgravity Context | [`slide_01_opener_microgravity.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_01_opener_microgravity.svg) | Microgravity flame physics & 5 NASA flight programs. |
+| **SLIDE-02** | `0:17–0:42` | FLARE-X Brand & Team Roster | [`slide_02_team_roster.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_02_team_roster.svg) | Full registered 6-member team roster and official roles. |
+| **SLIDE-03** | `0:42–1:38` | The Research Bottleneck | [`slide_03_research_bottleneck.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_03_research_bottleneck.svg) | Multi-parameter silos & "Finding doc ≠ Finding experiment". |
+| **SLIDE-04** | `1:38–2:10` | 6-Step Closed-Loop Pipeline | [`slide_04_pipeline_routing.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_04_pipeline_routing.svg) | Scenario parsing, family routing, and semantic ranking. |
+| **SLIDE-05** | `2:10–2:26` | Specialized Model Triad | [`slide_05_model_specialization.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_05_model_specialization.svg) | SPICE-FL, FLEX-EX, BASS-RG (conditional data rules). |
+| **SLIDE-06** | `2:26–2:35` | Experimental Envelope Guard | [`slide_06_envelope_guard.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_06_envelope_guard.svg) | 6-parameter firewall: "FLARE-X knows when not to predict". |
+| **SLIDE-07** | `2:35–3:30` | Support Map & Counterfactual Sweep | [`slide_07_support_map_sweep.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_07_support_map_sweep.svg) | 4-state oxygen progression to Active Refusal / Withheld. |
+| **SLIDE-08** | `3:30–3:43` | 3-Tier Provenance Hierarchy | [`slide_08_provenance_hierarchy.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_08_provenance_hierarchy.svg) | Separation of NASA Obs, Model Runs, and AI Synthesis. |
+| **SLIDE-09** | `3:43–3:52` | Final Mission End Card | [`slide_09_closing_end_card.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_09_closing_end_card.svg) | Motto, research disclaimer, project link, and Space Apps 2026. |
 
 ---
 
@@ -152,7 +152,7 @@ VIDEO TECHNICAL SPECIFICATIONS:
 ## 28.4 Interactive Gallery Deck
 
 To facilitate instant previewing, review, and frame extraction by the video production lead without complex desktop software, all 9 slides are compiled into a unified HTML5 presentation deck:
-* File: [`assets/video/asset_gallery.html`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/asset_gallery.html)
+* File: [`assets/video/asset_gallery.html`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/asset_gallery.html)
 * Features: Keyboard navigation (Left/Right arrows, Space, 1–9 keys), native 16:9 fullscreen toggle, high-resolution rendering, and visual telemetry timer simulation.
 
 ---

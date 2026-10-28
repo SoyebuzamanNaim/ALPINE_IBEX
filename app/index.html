@@ -39,14 +39,20 @@
       <button class="ops-nav-btn active" id="tab-lab-btn" role="tab" aria-selected="true" aria-controls="view-scenario-lab">
         <span class="nav-key">[1]</span> Flammability Deck
       </button>
+      <button class="ops-nav-btn" id="tab-conflict-btn" role="tab" aria-selected="false" aria-controls="view-conflict-explorer">
+        <span class="nav-key">[2]</span> Conflict Explorer
+      </button>
+      <button class="ops-nav-btn" id="tab-coverage-btn" role="tab" aria-selected="false" aria-controls="view-coverage-map">
+        <span class="nav-key">[3]</span> Coverage Map
+      </button>
       <button class="ops-nav-btn" id="tab-sweep-btn" role="tab" aria-selected="false" aria-controls="view-counterfactual-sweep">
-        <span class="nav-key">[2]</span> Oxygen Sweep &amp; LOI
+        <span class="nav-key">[4]</span> Oxygen Sweep &amp; LOI
       </button>
       <button class="ops-nav-btn" id="tab-atlas-btn" role="tab" aria-selected="false" aria-controls="view-experiment-atlas">
-        <span class="nav-key">[3]</span> Flight Archive <span class="nav-count-badge">145</span>
+        <span class="nav-key">[5]</span> Flight Archive <span class="nav-count-badge">145</span>
       </button>
       <button class="ops-nav-btn" id="tab-model-btn" role="tab" aria-selected="false" aria-controls="view-model-transparency">
-        <span class="nav-key">[4]</span> Model Provenance
+        <span class="nav-key">[6]</span> Model Provenance
       </button>
     </nav>
 
@@ -244,6 +250,13 @@
           <div class="flammability-status-hud" id="prediction-hero-card">
             <div class="hud-top-split">
               <div class="regime-readout-cell">
+                <div class="scientific-state-tier" id="scientific-state-tier">
+                  <span class="state-tier-pill tier-estimate" id="state-tier-pill">
+                    <span class="tier-dot">●</span>
+                    <span class="tier-label" id="state-tier-label">MODEL ESTIMATE</span>
+                  </span>
+                  <span class="tier-explainer" id="state-tier-explainer">Supervised GBDT · Honest Grouped CV 79.31%</span>
+                </div>
                 <span class="hud-category-label">CLASSIFIED FLAMMABILITY REGIME</span>
                 <div class="regime-indicator-wrap">
                   <div class="regime-status-badge regime-spread" id="regime-badge">Sustained Flame Spread</div>
@@ -599,7 +612,261 @@
       </div>
     </section>
 
+    <!-- ========================================================================== -->
+    <!-- VIEW: SCIENTIFIC EVIDENCE CONFLICT EXPLORER (STANDOUT CAPABILITY)           -->
+    <!-- ========================================================================== -->
+    <section class="view-panel" id="view-conflict-explorer" role="tabpanel" aria-labelledby="tab-conflict-btn" hidden>
+      <div class="panel-inner-container">
+        <div class="panel-header-block">
+          <div class="header-tag-row">
+            <span class="hero-tag">FLARE-X EVIDENCE ATLAS</span>
+            <span class="hero-tag tag-accent">CROSS-STUDY COMPARABILITY ENGINE</span>
+          </div>
+          <h2 class="view-heading">Scientific Evidence Conflict Explorer</h2>
+          <p class="view-description">
+            NASA microgravity combustion experiments investigate fire physics across vastly different scales, durations, and aerodynamic regimes. 
+            This engine evaluates whether two disparate investigations can meaningfully be compared, reconciling apparent contradictions through non-dimensional scaling and physical mechanics.
+          </p>
+        </div>
+
+        <!-- Case Selection Bar -->
+        <div class="conflict-selection-card">
+          <div class="case-presets-row">
+            <label for="select-conflict-case" class="control-label">Canonical Research Conflict Case Studies:</label>
+            <select id="select-conflict-case" class="styled-select-input">
+              <option value="bass2_vs_saffire">Case 1: BASS-II (Glovebox Microscale) vs. Saffire (Cygnus Vehicle-Scale)</option>
+              <option value="drop_tower_vs_bass2">Case 2: 5.18s Drop Tower (Olson CR-182264) vs. BASS-II (ISS Steady State)</option>
+              <option value="normobaric_vs_exploration">Case 3: Normobaric Sea Level (101.3 kPa, 21% O2) vs. Exploration Atmosphere (56.5 kPa, 34% O2)</option>
+              <option value="sofie_vs_drop_tower">Case 4: SoFIE-MIST (CIR Extended Burn) vs. 5.18s Drop Tower (Radiative Loss)</option>
+            </select>
+            <button type="button" id="btn-load-case" class="btn-execute-analysis">Load Case Study</button>
+          </div>
+
+          <div class="custom-study-row">
+            <span class="custom-label">OR COMPARE CUSTOM STUDIES:</span>
+            <div class="study-picker-duo">
+              <div class="picker-half">
+                <label for="select-study-a" class="sub-label">Investigation A:</label>
+                <select id="select-study-a" class="styled-select-input"></select>
+              </div>
+              <div class="vs-divider">VS</div>
+              <div class="picker-half">
+                <label for="select-study-b" class="sub-label">Investigation B:</label>
+                <select id="select-study-b" class="styled-select-input"></select>
+              </div>
+            </div>
+            <button type="button" id="btn-compare-studies" class="btn-execute-analysis">Analyze Comparability</button>
+          </div>
+        </div>
+
+        <!-- Dynamic Conflict Output Deck -->
+        <div class="conflict-results-deck" id="conflict-results-container">
+          <!-- Top Verdict & Comparability Gauge Card -->
+          <div class="comparability-verdict-card">
+            <div class="gauge-col">
+              <span class="gauge-label">COMPARABILITY SCORE</span>
+              <div class="score-circle-wrap">
+                <div class="score-number" id="conflict-score-val">0.45</div>
+                <div class="score-max">/ 1.00</div>
+              </div>
+            </div>
+            <div class="verdict-col">
+              <div class="verdict-badge-wrap">
+                <span class="verdict-badge" id="conflict-verdict-badge">COMPLEMENTARY DIFFERENT REGIMES</span>
+              </div>
+              <p class="verdict-summary-text" id="conflict-verdict-summary">
+                Studies investigate distinct but complementary regimes of spacecraft fire safety. Scale and flow direction differences prevent direct numerical pooling, but comparing them provides vital bounding envelope insights.
+              </p>
+              <div class="cautionary-strip" id="conflict-caution-box">
+                <span class="caution-icon">⚠️</span>
+                <span class="caution-text" id="conflict-caution-text">Do NOT aggregate numerical measurements directly into an unstratified regression model.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multi-Dimensional Divergence Matrix -->
+          <div class="dimensions-card">
+            <h3 class="card-inner-title">Multi-Dimensional Physical Comparison</h3>
+            <div class="dimensions-table-wrap">
+              <table class="dimensions-table">
+                <thead>
+                  <tr>
+                    <th>Physical Dimension</th>
+                    <th id="dim-th-study-a">Study A</th>
+                    <th id="dim-th-study-b">Study B</th>
+                    <th>Comparability Status</th>
+                    <th>Physical Mechanism &amp; Discrepancy Driver</th>
+                  </tr>
+                </thead>
+                <tbody id="conflict-dimensions-tbody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Deep Physical Reconciliation Narrative -->
+          <div class="reconciliation-card">
+            <div class="reconciliation-header">
+              <span class="reconcile-symbol">🔬</span>
+              <h3 class="card-inner-title">Authoritative Scientific Reconciliation</h3>
+            </div>
+            <p class="reconciliation-body-text" id="conflict-reconciliation-text">
+              Loading authoritative NASA combustion physics reconciliation...
+            </p>
+          </div>
+
+          <!-- Cited NASA Documentation Cards -->
+          <div class="citations-split-deck">
+            <div class="study-citation-card" id="citation-card-a">
+              <span class="card-tag">STUDY A CITATION</span>
+              <h4 class="citation-title" id="cite-title-a">BASS-II (NASA/TM-20210011385)</h4>
+              <p class="citation-meta" id="cite-meta-a">NASA NTRS 20210011385 · Subrata Bhattacharjee et al.</p>
+              <a href="https://ntrs.nasa.gov/citations/20210011385" target="_blank" rel="noopener noreferrer" class="btn-ntrs-external" id="cite-link-a">
+                Open Official NASA NTRS Report ↗
+              </a>
+            </div>
+            <div class="study-citation-card" id="citation-card-b">
+              <span class="card-tag">STUDY B CITATION</span>
+              <h4 class="citation-title" id="cite-title-b">Saffire-I / Saffire-II (NASA/TM-20180002167)</h4>
+              <p class="citation-meta" id="cite-meta-b">NASA NTRS 20180002167 · David L. Urban et al.</p>
+              <a href="https://ntrs.nasa.gov/citations/20180002167" target="_blank" rel="noopener noreferrer" class="btn-ntrs-external" id="cite-link-b">
+                Open Official NASA NTRS Report ↗
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================== -->
+    <!-- VIEW: RESEARCH COVERAGE MAP & EMPIRICAL WHITE SPACES (STANDOUT CAPABILITY)  -->
+    <!-- ========================================================================== -->
+    <section class="view-panel" id="view-coverage-map" role="tabpanel" aria-labelledby="tab-coverage-btn" hidden>
+      <div class="panel-inner-container">
+        <div class="panel-header-block">
+          <div class="header-tag-row">
+            <span class="hero-tag">FLARE-X EVIDENCE ATLAS</span>
+            <span class="hero-tag tag-accent">LITERATURE COVERAGE DENSITY</span>
+          </div>
+          <h2 class="view-heading">NASA Research Coverage Map &amp; Empirical White Spaces</h2>
+          <p class="view-description">
+            Exposes the multi-dimensional density of all 145 verified NASA microgravity combustion experiments. 
+            Highlighting empirical white spaces reveals where scientific flight data are robust versus critical mission regimes where zero flight data exist.
+          </p>
+        </div>
+
+        <!-- Metric KPI Tiles -->
+        <div class="coverage-kpi-bar">
+          <div class="cov-kpi-tile">
+            <span class="kpi-num" id="cov-total-runs">145</span>
+            <span class="kpi-lbl">VERIFIED FLIGHT EXPERIMENTS</span>
+          </div>
+          <div class="cov-kpi-tile">
+            <span class="kpi-num" id="cov-materials-count">5</span>
+            <span class="kpi-lbl">POLYMERS TESTED</span>
+          </div>
+          <div class="cov-kpi-tile">
+            <span class="kpi-num highlight-cyan" id="cov-completeness-pct">75.0%</span>
+            <span class="kpi-lbl">GRID SPACE COMPLETENESS</span>
+          </div>
+          <div class="cov-kpi-tile">
+            <span class="kpi-num highlight-amber" id="cov-gaps-count">5</span>
+            <span class="kpi-lbl">UNTESTED KNOWLEDGE VOIDS</span>
+          </div>
+        </div>
+
+        <!-- Interactive Heatmap Matrix -->
+        <div class="coverage-heatmap-card">
+          <div class="matrix-header-strip">
+            <h3 class="card-inner-title">Microgravity Flammability Parameter Density (Oxygen % vs. Forced Convective Flow)</h3>
+            <div class="heatmap-legend">
+              <span class="legend-unit"><span class="cell-swatch swatch-high"></span> High Density (&ge;10 tests)</span>
+              <span class="legend-unit"><span class="cell-swatch swatch-mod"></span> Moderate (3-9 tests)</span>
+              <span class="legend-unit"><span class="cell-swatch swatch-sparse"></span> Sparse (1-2 tests)</span>
+              <span class="legend-unit"><span class="cell-swatch swatch-gap"></span> Untested Gap (0 tests)</span>
+            </div>
+          </div>
+
+          <div class="heatmap-grid-scroll" id="coverage-matrix-container">
+            <!-- Dynamically populated from /api/coverage-map -->
+          </div>
+
+          <div class="heatmap-footnote">
+            <strong>CRITICAL SCIENTIFIC PRINCIPLE:</strong> Empty space on this map indicates an empirical absence of NASA microgravity flight observations, <em>NOT a safe non-flammable condition</em>.
+          </div>
+        </div>
+
+        <!-- Empirical White Spaces (Critical NASA Safety Research Gaps) -->
+        <div class="white-spaces-deck">
+          <div class="ws-header-row">
+            <span class="ws-icon">🛰️</span>
+            <div>
+              <h3 class="card-inner-title">Identified NASA Empirical White Spaces (Mission Knowledge Gaps)</h3>
+              <p class="section-sub">High-priority operational flight regimes lacking empirical microgravity combustion data.</p>
+            </div>
+          </div>
+
+          <div class="gap-cards-grid" id="empirical-gaps-list">
+            <!-- Dynamically populated from /api/coverage-map -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </main>
+
+  <!-- ============================================================================== -->
+  <!-- CLAIM-LEVEL CITATION INSPECTOR MODAL                                           -->
+  <!-- ============================================================================== -->
+  <div class="citation-inspector-modal hidden" id="modal-citation-inspector" role="dialog" aria-modal="true" aria-labelledby="inspect-exp-id">
+    <div class="modal-backdrop" id="modal-backdrop-close"></div>
+    <div class="modal-dialog-card">
+      <div class="modal-header-strip">
+        <div class="modal-tag-row">
+          <span class="modal-pill-tier" id="inspect-tier-pill">VERIFIED_FLIGHT_TABLE</span>
+          <span class="modal-pill-origin" id="inspect-origin-pill">direct_measurement</span>
+        </div>
+        <button type="button" class="btn-modal-close" id="btn-close-inspector" aria-label="Close Inspector">&times;</button>
+      </div>
+
+      <div class="modal-body-content">
+        <h3 class="modal-exp-title" id="inspect-exp-id">Test BASS2_B1</h3>
+        <p class="modal-exp-sub" id="inspect-report-title">NASA Technical Memorandum 20210011385</p>
+
+        <div class="citation-details-table">
+          <div class="detail-row">
+            <span class="detail-label">Exact Source Citation:</span>
+            <span class="detail-val highlight" id="inspect-citation">NASA/TM-20210011385, Table A.1, p. 111, Test BASS2_B1</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">NASA Investigation:</span>
+            <span class="detail-val" id="inspect-investigation">BASS-II (Burning and Suppression of Solids - II)</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Material &amp; Conditions:</span>
+            <span class="detail-val" id="inspect-conditions">PMMA · 20.6% O₂ · 101.3 kPa · 5.0 cm/s</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Observed Outcome:</span>
+            <span class="detail-val" id="inspect-outcome">spread (Steady opposed flow spread)</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Principal Investigator &amp; Facility:</span>
+            <span class="detail-val" id="inspect-notes">PI: Subrata Bhattacharjee. MSG flow duct.</span>
+          </div>
+        </div>
+
+        <div class="modal-actions-row">
+          <a href="#" target="_blank" rel="noopener noreferrer" class="btn-inspect-open-ntrs" id="inspect-ntrs-url">
+            Open in NASA Technical Reports Server (NTRS) ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ============================================================================== -->
   <!-- DOCKED STATUS STRIP                                                            -->

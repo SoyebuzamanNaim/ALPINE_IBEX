@@ -7,7 +7,7 @@
 
 | Source | What was used | Verification status |
 |---|---|---|
-| `Prompt/22_CHALLENGE_BRIEF_FLAME_IN_FREEFALL.md` | Authoritative product spec for this prototype | Read in full |
+| `docs/CHALLENGE_BRIEF.md` | Authoritative product spec for this prototype | Read in full |
 | NASA Space Apps 2026 challenge listing "Flame in Freefall: AI-Powered Fire Safety Insights from Microgravity Combustion Data" (spaceappschallenge.org) | Challenge summary | **Partially verified**: the challenge page is client-rendered and could not be fetched as text by the build agent (the direct slug returned 404 to a static fetch). The summary below was cross-checked against search-engine snippets of the official page. Re-verify by hand before submission. |
 
 ## A. Challenge requirements (Brief §1 — the challenge statement)

@@ -563,7 +563,7 @@ function updateDemoSimulation() {
 
   const svgTitleEl = document.getElementById('demo-svg-title');
   if (svgTitleEl) {
-    svgTitleEl.textContent = `2-D FLAMMABILITY BOUNDARY SLICE · ${demoState.material.toUpperCase()} AT ${pressure.toFixed(1)} kPa`;
+    svgTitleEl.textContent = `2-D FLAMMABILITY BOUNDARY SLICE · ${demoState.material.toUpperCase()} AT ${pressure.toFixed(1)} kPa · [ILLUSTRATIVE DEMO]`;
   }
 
   // 2. Convert (O2, Flow) into SVG Coordinates (Plot: X: 90 to 810, Y: 420 to 80)
@@ -719,7 +719,7 @@ function updateDemoSimulation() {
   // Update Inferred Regime Title & Description
   const titleEl = document.getElementById('demo-regime-title');
   if (titleEl) {
-    titleEl.textContent = regimeTitle;
+    titleEl.textContent = `${regimeTitle} (Illustrative Preview)`;
     titleEl.style.color = regimeColor;
   }
 

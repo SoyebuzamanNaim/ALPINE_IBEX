@@ -9,7 +9,7 @@
 ## 29.1 Subtitle Track Architecture & Metrics
 
 The subtitle file is provided in SubRip (`.srt`) format at:
-* Primary Track: [`assets/video/subtitles.srt`](file:///home/naiminator/Codebase/Project/FLARE_X/flare-x-prototype/assets/video/subtitles.srt)
+* Primary Track: [`assets/video/subtitles.srt`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/subtitles.srt)
 
 ### Key Metrics Summary
 

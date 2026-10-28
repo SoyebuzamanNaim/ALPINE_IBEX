@@ -18,7 +18,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.agents.interpreter import ScenarioInterpreter
 from src.agents.orchestrator import AgentOrchestrator
+from src.analysis.conflict_explorer import ConflictExplorerEngine
+from src.analysis.coverage_map import ResearchCoverageEngine
+from src.analysis.provenance_service import ProvenanceService
 from src.api.schemas import (
+    ConflictExperimentsRequest,
+    ConflictStudiesRequest,
     CounterfactualRequest,
     ParseRequest,
     PredictRequest,
@@ -60,6 +65,9 @@ orchestrator = AgentOrchestrator(meta_path=META_PATH, data_path=DATA_PATH)
 cf_engine = CounterfactualEngine(data_path=DATA_PATH, meta_path=META_PATH)
 interpreter = ScenarioInterpreter()
 corpus_searcher = ReportCorpusSearcher(corpus_dir=CORPUS_DIR)
+conflict_engine = ConflictExplorerEngine(data_path=DATA_PATH)
+coverage_engine = ResearchCoverageEngine(data_path=DATA_PATH)
+provenance_service = ProvenanceService(data_path=DATA_PATH, corpus_dir=CORPUS_DIR)
 
 
 @app.get("/health", tags=["System"])
@@ -296,6 +304,83 @@ def get_source_document(report_id: str) -> dict[str, Any]:
     if not doc:
         raise HTTPException(status_code=404, detail=f"Report '{report_id}' not found in corpus.")
     return doc
+
+
+# ============================================================================
+# FLARE-X Evidence Atlas: Conflict Explorer & Comparability Endpoints
+# ============================================================================
+
+@app.get("/api/conflict/cases", tags=["Conflict Explorer"])
+def list_conflict_cases() -> dict[str, Any]:
+    """List canonical NASA research conflict case studies."""
+    return {"cases": conflict_engine.list_canonical_cases()}
+
+
+@app.get("/api/conflict/profiles", tags=["Conflict Explorer"])
+def list_conflict_profiles() -> dict[str, Any]:
+    """List canonical NASA investigation profiles available for comparability analysis."""
+    return {"profiles": conflict_engine.list_study_profiles()}
+
+
+@app.post("/api/conflict/compare-studies", tags=["Conflict Explorer"])
+def compare_studies(request: ConflictStudiesRequest) -> dict[str, Any]:
+    """Deep physical comparability analysis between two NASA research investigations."""
+    try:
+        return conflict_engine.compare_canonical_studies(request.study_a, request.study_b)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/conflict/compare-experiments", tags=["Conflict Explorer"])
+def compare_experiments(request: ConflictExperimentsRequest) -> dict[str, Any]:
+    """Deep comparability and divergence analysis between two specific experiment runs."""
+    try:
+        return conflict_engine.compare_experiments(request.experiment_id_a, request.experiment_id_b)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+# ============================================================================
+# FLARE-X Evidence Atlas: Research Coverage Map & Knowledge Gaps
+# ============================================================================
+
+@app.get("/api/coverage-map", tags=["Coverage Map"])
+def get_research_coverage() -> dict[str, Any]:
+    """Retrieve multi-dimensional NASA combustion coverage matrix and empirical white spaces."""
+    return coverage_engine.get_coverage_summary()
+
+
+# ============================================================================
+# FLARE-X Evidence Atlas: Claim-Level Provenance & Citation Tracing
+# ============================================================================
+
+@app.get("/api/provenance/{experiment_id}", tags=["Provenance"])
+def get_experiment_provenance(experiment_id: str) -> dict[str, Any]:
+    """Retrieve full traceable provenance and original document citation for an experiment."""
+    rec = provenance_service.get_provenance(experiment_id)
+    if not rec:
+        raise HTTPException(status_code=404, detail=f"Experiment '{experiment_id}' not found in provenance registry.")
+    return rec
+
+
+@app.get("/api/provenance", tags=["Provenance"])
+def query_provenance(
+    material: str | None = Query(None, description="Filter by solid material"),
+    verification_tier: str | None = Query(None, description="Filter by verification tier"),
+    investigation: str | None = Query(None, description="Filter by NASA investigation"),
+    search: str | None = Query(None, description="Search keyword in citations/notes"),
+    limit: int = Query(200, ge=1, le=1000),
+    offset: int = Query(0, ge=0),
+) -> dict[str, Any]:
+    """Query and filter fine-grained provenance records across the NASA corpus."""
+    return provenance_service.query_provenance(
+        material=material,
+        verification_tier=verification_tier,
+        investigation=investigation,
+        search_query=search,
+        limit=limit,
+        offset=offset,
+    )
 
 
 from fastapi.staticfiles import StaticFiles

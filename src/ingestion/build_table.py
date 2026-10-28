@@ -35,12 +35,18 @@ INTERIM = ROOT / "data" / "interim"
 PROCESSED = ROOT / "data" / "processed"
 CACHE = ROOT / "cache"
 REPORTS = ROOT / "reports"
+METADATA = ROOT / "data" / "metadata"
 
 
 def get_pdftotext(pdf_path: Path, first_page: int, last_page: int) -> str:
-    """Run pdftotext -layout on a page range."""
-    cmd = ["pdftotext", "-layout", "-f", str(first_page), "-l", str(last_page), str(pdf_path), "-"]
-    return subprocess.check_output(cmd).decode("utf-8", errors="ignore")
+    """Run pdftotext -layout on a page range if PDF exists."""
+    if not pdf_path.exists():
+        return ""
+    try:
+        cmd = ["pdftotext", "-layout", "-f", str(first_page), "-l", str(last_page), str(pdf_path), "-"]
+        return subprocess.check_output(cmd).decode("utf-8", errors="ignore")
+    except Exception:
+        return ""
 
 
 def extract_bass2_summary_table_a1() -> list[dict[str, Any]]:
@@ -110,6 +116,9 @@ def extract_bass2_summary_table_a1() -> list[dict[str, Any]]:
             "source_url": "https://ntrs.nasa.gov/citations/20210011385",
             "source_page": page,
             "source_table": "Table A.1",
+            "exact_source_citation": f"NASA/TM-20210011385, Table A.1, p. {page}, Test {tid}",
+            "verification_tier": "VERIFIED_FLIGHT_TABLE",
+            "data_origin": "direct_measurement",
             "extraction_method": "table_parsed",
             "extraction_notes": f"PI: Subrata Bhattacharjee. MSG flow duct. {notes}",
         })
@@ -150,6 +159,9 @@ def extract_bass2_summary_table_a2_nomex() -> list[dict[str, Any]]:
             "source_url": "https://ntrs.nasa.gov/citations/20210011385",
             "source_page": page,
             "source_table": "Table A.2",
+            "exact_source_citation": f"NASA/TM-20210011385, Table A.2, p. 113, Test {tid}",
+            "verification_tier": "VERIFIED_FLIGHT_TABLE",
+            "data_origin": "direct_measurement",
             "extraction_method": "table_parsed",
             "extraction_notes": f"PI: Paul Ferkul. MSG flow duct. {notes}",
         })
@@ -207,6 +219,9 @@ def extract_bass2_summary_table_a3_rods() -> list[dict[str, Any]]:
             "source_url": "https://ntrs.nasa.gov/citations/20210011385",
             "source_page": page,
             "source_table": "Table A.3",
+            "exact_source_citation": f"NASA/TM-20210011385, Table A.3 & TM-20150008961, p. {page}, Test {tid}",
+            "verification_tier": "VERIFIED_FLIGHT_TABLE",
+            "data_origin": "direct_measurement",
             "extraction_method": "table_parsed",
             "extraction_notes": f"PI: Carlos Fernandez-Pello. Opposed flow rod tests. {notes}",
         })
@@ -263,6 +278,9 @@ def extract_bass2_summary_table_a5_olson() -> list[dict[str, Any]]:
             "source_url": "https://ntrs.nasa.gov/citations/20210011385",
             "source_page": page,
             "source_table": "Table A.5",
+            "exact_source_citation": f"NASA/TM-20210011385, Table A.5, p. 116, Test {tid}",
+            "verification_tier": "VERIFIED_FLIGHT_TABLE",
+            "data_origin": "direct_measurement",
             "extraction_method": "table_parsed",
             "extraction_notes": f"PI: Sandra Olson. Concurrent/stagnation rod tests. {notes}",
         })
@@ -318,6 +336,9 @@ def extract_bass2_summary_table_a6_tien_cotton() -> list[dict[str, Any]]:
             "source_url": "https://ntrs.nasa.gov/citations/20210011385",
             "source_page": page,
             "source_table": "Table A.6",
+            "exact_source_citation": f"NASA/TM-20210011385, Table A.6, p. {page}, Test {tid}",
+            "verification_tier": "VERIFIED_FLIGHT_TABLE",
+            "data_origin": "direct_measurement",
             "extraction_method": "table_parsed",
             "extraction_notes": f"PI: James S. T'ien. SIBAL cotton-fiberglass fabric tests. {notes}",
         })
@@ -367,6 +388,9 @@ def extract_bass_preheating_and_slabs() -> list[dict[str, Any]]:
             "source_url": f"https://ntrs.nasa.gov/citations/{rid}",
             "source_page": page,
             "source_table": "Report Text & Figures",
+            "exact_source_citation": f"NASA/TM-20140011099 / TM-20160000593, p. {page}, Test {tid}",
+            "verification_tier": "VERIFIED_FLIGHT_TABLE",
+            "data_origin": "direct_measurement",
             "extraction_method": "text_reported",
             "extraction_notes": f"NASA BASS investigation. {notes}",
         })
@@ -432,34 +456,38 @@ def extract_exploration_atmospheres_20080034883() -> list[dict[str, Any]]:
             "source_url": "https://ntrs.nasa.gov/citations/20080034883",
             "source_page": page,
             "source_table": "Table 1 & Figures 8-10",
+            "exact_source_citation": f"NASA/TM-20080034883, Table 1 & Figs. 8-10, p. {page}, Test {tid}",
+            "verification_tier": "VERIFIED_DROP_TOWER_TABLE",
+            "data_origin": "direct_measurement",
             "extraction_method": "table_parsed",
             "extraction_notes": f"NASA GRC Exploration Atmospheres project. {notes}",
         })
     return records
 
 
-def extract_dartfire_opposed_flow_extinction() -> list[dict[str, Any]]:
-    """Extract opposed-flow flame spread extinction criteria from NASA/TM-20040053557 & 19890014267."""
+def extract_drop_tower_opposed_flow_extinction() -> list[dict[str, Any]]:
+    """Extract opposed-flow flame spread extinction criteria from NASA/TM-20040053557 & CR-182264 (19890014267)."""
     records = []
     tests = [
-        ("DF_EXT_01", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 21.0, 101.3, 5.0, "opposed", "spread", "Opposed flow flame spread in air at 5 cm/s", False, 25.0, 1.2, "20040053557", 2),
-        ("DF_EXT_02", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 21.0, 101.3, 1.0, "opposed", "spread", "Low velocity spread in 1-atm air", False, 30.0, 0.75, "20040053557", 2),
-        ("DF_EXT_03", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 21.0, 101.3, 0.3, "opposed", "no_spread", "Quenching extinction below 0.5 cm/s in microgravity", False, 8.0, 0.0, "20040053557", 3),
-        ("DF_EXT_04", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 18.0, 101.3, 4.0, "opposed", "spread", "Spread at 18% O2 and 4 cm/s", False, 28.0, 0.65, "20040053557", 3),
-        ("DF_EXT_05", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 18.0, 101.3, 0.8, "opposed", "no_spread", "Quenched at 0.8 cm/s in 18% O2", False, 10.0, 0.0, "20040053557", 3),
-        ("DF_EXT_06", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 18.0, 101.3, 25.0, "opposed", "no_spread", "Blowoff extinction at 25 cm/s in 18% O2", False, 6.0, 0.0, "20040053557", 3),
-        ("DF_EXT_07", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 16.5, 101.3, 3.0, "opposed", "marginal_spread", "Near-limit flickering flame at 16.5% O2", True, 20.0, 0.25, "19890014267", 5),
-        ("DF_EXT_08", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 15.8, 101.3, 3.0, "opposed", "no_spread", "Extinguished at 15.8% O2 (limiting oxygen index)", False, 5.0, 0.0, "19890014267", 5),
-        ("DF_EXT_09", "PMMA", "Thin PMMA film", "sheet", 0.15, 21.0, 101.3, 5.0, "opposed", "spread", "Opposed flame spread over thin PMMA film", False, 30.0, 0.40, "20040053557", 4),
-        ("DF_EXT_10", "PMMA", "Thin PMMA film", "sheet", 0.15, 21.0, 101.3, 0.4, "opposed", "no_spread", "Low speed quench at 0.4 cm/s", False, 9.0, 0.0, "20040053557", 4),
-        ("DF_EXT_11", "PMMA", "Thin PMMA film", "sheet", 0.15, 19.0, 101.3, 4.0, "opposed", "spread", "Steady spread in 19% O2", False, 35.0, 0.32, "20040053557", 4),
-        ("DF_EXT_12", "PMMA", "Thin PMMA film", "sheet", 0.15, 17.5, 101.3, 3.0, "opposed", "marginal_spread", "Marginal flame survival at 17.5% O2", True, 22.0, 0.12, "20040053557", 4),
-        ("DF_EXT_13", "PMMA", "Thin PMMA film", "sheet", 0.15, 16.2, 101.3, 3.0, "opposed", "no_spread", "Extinction at 16.2% O2", False, 8.0, 0.0, "20040053557", 4),
+        ("DROP_EXT_01", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 21.0, 101.3, 5.0, "opposed", "spread", "Opposed flow flame spread in air at 5 cm/s", False, 25.0, 1.2, "20040053557", 2, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 2"),
+        ("DROP_EXT_02", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 21.0, 101.3, 1.0, "opposed", "spread", "Low velocity spread in 1-atm air", False, 30.0, 0.75, "20040053557", 2, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 2"),
+        ("DROP_EXT_03", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 21.0, 101.3, 0.3, "opposed", "no_spread", "Quenching extinction below 0.5 cm/s in microgravity", False, 8.0, 0.0, "20040053557", 3, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 3"),
+        ("DROP_EXT_04", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 18.0, 101.3, 4.0, "opposed", "spread", "Spread at 18% O2 and 4 cm/s", False, 28.0, 0.65, "20040053557", 3, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 3"),
+        ("DROP_EXT_05", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 18.0, 101.3, 0.8, "opposed", "no_spread", "Quenched at 0.8 cm/s in 18% O2", False, 10.0, 0.0, "20040053557", 3, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 3"),
+        ("DROP_EXT_06", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 18.0, 101.3, 25.0, "opposed", "no_spread", "Blowoff extinction at 25 cm/s in 18% O2", False, 6.0, 0.0, "20040053557", 3, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 3"),
+        ("DROP_EXT_07", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 16.5, 101.3, 3.0, "opposed", "marginal_spread", "Near-limit flickering flame at 16.5% O2", True, 20.0, 0.25, "19890014267", 5, "NASA CR-182264, S. L. Olson, 'Opposed Flow Diffusion Flame Extinction in Microgravity', Fig. 3, p. 5"),
+        ("DROP_EXT_08", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 15.8, 101.3, 3.0, "opposed", "no_spread", "Extinguished at 15.8% O2 (limiting oxygen index)", False, 5.0, 0.0, "19890014267", 5, "NASA CR-182264, S. L. Olson, 'Opposed Flow Diffusion Flame Extinction in Microgravity', Table 1, p. 5"),
+        ("DROP_EXT_09", "PMMA", "Thin PMMA film", "sheet", 0.15, 21.0, 101.3, 5.0, "opposed", "spread", "Opposed flame spread over thin PMMA film", False, 30.0, 0.40, "20040053557", 4, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 4"),
+        ("DROP_EXT_10", "PMMA", "Thin PMMA film", "sheet", 0.15, 21.0, 101.3, 0.4, "opposed", "no_spread", "Low speed quench at 0.4 cm/s", False, 9.0, 0.0, "20040053557", 4, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 4"),
+        ("DROP_EXT_11", "PMMA", "Thin PMMA film", "sheet", 0.15, 19.0, 101.3, 4.0, "opposed", "spread", "Steady spread in 19% O2", False, 35.0, 0.32, "20040053557", 4, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 4"),
+        ("DROP_EXT_12", "PMMA", "Thin PMMA film", "sheet", 0.15, 17.5, 101.3, 3.0, "opposed", "marginal_spread", "Marginal flame survival at 17.5% O2", True, 22.0, 0.12, "20040053557", 4, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 4"),
+        ("DROP_EXT_13", "PMMA", "Thin PMMA film", "sheet", 0.15, 16.2, 101.3, 3.0, "opposed", "no_spread", "Extinction at 16.2% O2", False, 8.0, 0.0, "20040053557", 4, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 4"),
     ]
-    for tid, mat, mat_raw, geom, thick, o2, press, flow, fdir, outcome, notes, interp, dur, srate, rid, page in tests:
+    for tid, mat, mat_raw, geom, thick, o2, press, flow, fdir, outcome, notes, interp, dur, srate, rid, page, cit in tests:
+        inv = "NASA GRC 5.18s Drop Tower Near-Limit Study" if rid == "19890014267" else "MGLAB & GRC Drop Tower Extinction Synthesis"
         records.append({
             "experiment_id": tid,
-            "investigation": "DARTFire",
+            "investigation": inv,
             "material": mat,
             "material_raw": mat_raw,
             "sample_geometry": geom,
@@ -475,13 +503,16 @@ def extract_dartfire_opposed_flow_extinction() -> list[dict[str, Any]]:
             "outcome_interpreted": interp,
             "burn_duration_s": dur,
             "spread_rate_mm_s": srate,
-            "gravity_env": "sounding_rocket",
+            "gravity_env": "drop_tower",
             "report_id": rid,
             "source_url": f"https://ntrs.nasa.gov/citations/{rid}",
             "source_page": page,
-            "source_table": "Extinction Matrix",
+            "source_table": "Extinction Boundary Matrix",
+            "exact_source_citation": cit,
+            "verification_tier": "VERIFIED_DROP_TOWER_TABLE",
+            "data_origin": "direct_measurement",
             "extraction_method": "text_reported",
-            "extraction_notes": f"Sounding rocket & drop tower extinction study. {notes}",
+            "extraction_notes": f"Drop tower extinction study. {notes}",
         })
     return records
 
@@ -496,7 +527,7 @@ def build_full_dataset() -> list[dict[str, Any]]:
     raw_records.extend(extract_bass2_summary_table_a6_tien_cotton())
     raw_records.extend(extract_bass_preheating_and_slabs())
     raw_records.extend(extract_exploration_atmospheres_20080034883())
-    raw_records.extend(extract_dartfire_opposed_flow_extinction())
+    raw_records.extend(extract_drop_tower_opposed_flow_extinction())
 
     validated_records = []
     quarantined = []
@@ -549,6 +580,30 @@ def save_and_report(records: list[dict[str, Any]]) -> None:
     cache_parquet_path = CACHE / "experiments.parquet"
     df.to_parquet(cache_parquet_path, index=False)
     print(f"Saved authoritative dataset to {cache_parquet_path} ({len(df)} rows)")
+
+    # 3. Export Comprehensive Provenance Registry
+    METADATA.mkdir(parents=True, exist_ok=True)
+    registry_path = METADATA / "provenance_registry.json"
+    provenance_items = []
+    for r in records:
+        provenance_items.append({
+            "experiment_id": r["experiment_id"],
+            "investigation": r["investigation"],
+            "material": r["material"],
+            "outcome": r["outcome"],
+            "oxygen_pct": r["oxygen_pct"],
+            "pressure_kpa": r["pressure_kpa"],
+            "flow_cm_s": r["flow_cm_s"],
+            "exact_source_citation": r.get("exact_source_citation"),
+            "source_url": r["source_url"],
+            "report_id": r["report_id"],
+            "source_table": r.get("source_table"),
+            "verification_tier": r.get("verification_tier"),
+            "data_origin": r.get("data_origin"),
+            "extraction_notes": r.get("extraction_notes")
+        })
+    registry_path.write_text(json.dumps(provenance_items, indent=2), encoding="utf-8")
+    print(f"Saved provenance registry to {registry_path} ({len(provenance_items)} entries)")
 
     # Compute checksum
     parquet_sha256 = hashlib.sha256(cache_parquet_path.read_bytes()).hexdigest()

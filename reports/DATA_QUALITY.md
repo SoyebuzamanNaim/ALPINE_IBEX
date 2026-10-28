@@ -1,7 +1,7 @@
 # Data Quality & Ingestion Report (Phase 04)
 
 > **File:** `cache/experiments.parquet` & `data/processed/experiments.parquet`
-> **SHA-256:** `d5a06d2d0cce4e2fe2207bd490df4ec1213ca6eeabc1436243eb8d49dafd0be0`
+> **SHA-256:** `428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6`
 > **Total Records:** 145
 > **Status:** PASS (100% Schema Validated)
 

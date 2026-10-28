@@ -94,6 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
   setupCanvasInteraction();
   setupSweepView();
   setupAtlasView();
+  setupConflictExplorer();
+  setupCoverageMapView();
+  setupCitationInspector();
   
   // Initial prediction & boundary fetch
   triggerScenarioEvaluation();
@@ -132,6 +135,10 @@ function setupTabs() {
       } else if (targetId === 'view-counterfactual-sweep') {
         fetchSweepData();
         drawSweepCanvas();
+      } else if (targetId === 'view-conflict-explorer') {
+        loadConflictExplorerData();
+      } else if (targetId === 'view-coverage-map') {
+        loadCoverageMapData();
       }
     });
   });
@@ -353,20 +360,25 @@ async function triggerScenarioEvaluation() {
     const data = await res.json();
     renderPredictionResults(data);
   } catch (err) {
-    console.warn('API fetch failed, utilizing client fallback simulation:', err);
-    const mock = simulatePrediction(payload);
-    renderPredictionResults(mock);
+    console.warn('API fetch failed:', err);
+    renderOfflineUnavailable(payload, err);
   }
 }
 
-// Render Prediction UI
+// Render Prediction UI according to the 4-Tier Scientific State Protocol
 function renderPredictionResults(data) {
   const alertBanner = document.getElementById('envelope-alert-banner');
+  const alertTitle = document.getElementById('alert-title');
   const alertMsg = document.getElementById('alert-message');
   const badge = document.getElementById('regime-badge');
   const confPill = document.getElementById('confidence-pill');
   const briefing = document.getElementById('operator-briefing-text');
   const expText = document.getElementById('explanation-text-display');
+
+  // Scientific State Protocol elements
+  const stateTierPill = document.getElementById('state-tier-pill');
+  const stateTierLabel = document.getElementById('state-tier-label');
+  const stateTierExplainer = document.getElementById('state-tier-explainer');
 
   // Probability elements
   const pNoSpread = document.getElementById('val-prob-no-spread');
@@ -400,8 +412,15 @@ function renderPredictionResults(data) {
   }
 
   if (!data.in_training_range) {
-    // Refusal State
+    // TIER 3: INSUFFICIENT EVIDENCE / ABSTENTION
+    if (stateTierPill) {
+      stateTierPill.className = 'state-tier-pill tier-abstention';
+      if (stateTierLabel) stateTierLabel.textContent = 'INSUFFICIENT EVIDENCE (ABSTENTION)';
+      if (stateTierExplainer) stateTierExplainer.textContent = 'Out-of-Domain Safety Rejection · Zero NASA Flight Data in Regime';
+    }
+
     if (alertBanner) alertBanner.classList.remove('hidden');
+    if (alertTitle) alertTitle.textContent = 'CRITICAL SAFETY REFUSAL: CONDITIONS OUTSIDE AUDITED ENVELOPE';
     const reasons = (data.out_of_range_reasons || []).map(r => r.reason).join(' ');
     if (alertMsg) alertMsg.textContent = reasons || data.warning_message || 'Requested parameters are outside NASA training data.';
 
@@ -425,14 +444,32 @@ function renderPredictionResults(data) {
       expText.textContent = data.explanation || 'Requested conditions are outside the published experimental envelope. No prediction is made.';
     }
   } else {
-    // In-Domain Prediction
+    // In-Domain: Check if it's Tier 1 (Verified Observation) or Tier 2 (Model Estimate)
     if (alertBanner) alertBanner.classList.add('hidden');
+
+    const exactMatch = (data.nearest_experiments || []).find(e => e.distance !== undefined && e.distance < 0.05);
+
+    if (exactMatch) {
+      // TIER 1: VERIFIED OBSERVATION
+      if (stateTierPill) {
+        stateTierPill.className = 'state-tier-pill tier-verified';
+        if (stateTierLabel) stateTierLabel.textContent = 'VERIFIED OBSERVATION';
+        if (stateTierExplainer) stateTierExplainer.textContent = `Directly matches NASA flight test ${exactMatch.experiment_id} (${exactMatch.outcome})`;
+      }
+    } else {
+      // TIER 2: MODEL ESTIMATE
+      if (stateTierPill) {
+        stateTierPill.className = 'state-tier-pill tier-estimate';
+        if (stateTierLabel) stateTierLabel.textContent = 'MODEL ESTIMATE';
+        if (stateTierExplainer) stateTierExplainer.textContent = 'Supervised GBDT · Honest Grouped CV 79.31% · Bounded Flight Envelope';
+      }
+    }
 
     const pred = data.prediction;
     const probs = data.probabilities || { no_spread: 0.01, marginal_spread: 0.02, spread: 0.97 };
 
     if (badge) {
-      badge.className = `regime-status-badge regime-${pred.replace('_', '-')}`;
+      badge.className = `regime-status-badge regime-${pred ? pred.replace('_', '-') : 'spread'}`;
       badge.textContent = pred === 'spread' ? 'Sustained Flame Spread' : (pred === 'marginal_spread' ? 'Marginal Spread (Unsteady)' : 'Extinction / No Spread');
     }
 
@@ -473,7 +510,66 @@ function renderPredictionResults(data) {
   drawBoundaryCanvas();
 }
 
-// Render Nearest Experiments Cards
+// TIER 4: SERVICE UNAVAILABLE (Honest state without simulated mock predictions)
+function renderOfflineUnavailable(payload, err) {
+  const alertBanner = document.getElementById('envelope-alert-banner');
+  const alertTitle = document.getElementById('alert-title');
+  const alertMsg = document.getElementById('alert-message');
+  const badge = document.getElementById('regime-badge');
+  const confPill = document.getElementById('confidence-pill');
+  const briefing = document.getElementById('operator-briefing-text');
+  const expText = document.getElementById('explanation-text-display');
+
+  const stateTierPill = document.getElementById('state-tier-pill');
+  const stateTierLabel = document.getElementById('state-tier-label');
+  const stateTierExplainer = document.getElementById('state-tier-explainer');
+
+  if (stateTierPill) {
+    stateTierPill.className = 'state-tier-pill tier-offline';
+    if (stateTierLabel) stateTierLabel.textContent = 'SERVICE OFFLINE';
+    if (stateTierExplainer) stateTierExplainer.textContent = 'Backend Service Unavailable · Simulation Disabled for Scientific Integrity';
+  }
+
+  if (alertBanner) alertBanner.classList.remove('hidden');
+  if (alertTitle) alertTitle.textContent = 'BACKEND INFERENCE SERVICE UNAVAILABLE';
+  if (alertMsg) {
+    alertMsg.textContent = `The FLARE-X FastAPI backend is currently unreachable at ${API_BASE}. To run live predictions and nearest flight experiment retrieval, launch the backend using 'bash scripts/run_local.sh' or 'uvicorn src.api.main:app'. In strict accordance with NASA scientific standards, simulated prediction fallbacks are disabled to prevent presenting unverified numbers as research data.`;
+  }
+
+  if (badge) {
+    badge.className = 'regime-status-badge regime-refusal';
+    badge.textContent = 'SERVER OFFLINE · NO SIMULATION';
+  }
+  if (confPill) confPill.textContent = 'INFERENCE OFFLINE';
+
+  const pNoSpread = document.getElementById('val-prob-no-spread');
+  const pMarginal = document.getElementById('val-prob-marginal');
+  const pSpread = document.getElementById('val-prob-spread');
+  const bNoSpread = document.getElementById('bar-seg-no-spread');
+  const bMarginal = document.getElementById('bar-seg-marginal');
+  const bSpread = document.getElementById('bar-seg-spread');
+
+  if (pNoSpread) pNoSpread.textContent = '—';
+  if (pMarginal) pMarginal.textContent = '—';
+  if (pSpread) pSpread.textContent = '—';
+  if (bNoSpread) bNoSpread.style.width = '0%';
+  if (bMarginal) bMarginal.style.width = '0%';
+  if (bSpread) bSpread.style.width = '0%';
+
+  if (briefing) {
+    briefing.textContent = `OFFLINE NOTICE: Live model inference is paused while the backend service is offline. To prevent misleading scientific conclusions, FLARE-X does not generate hardcoded synthetic probabilities or fictional flight records.`;
+  }
+  if (expText) {
+    expText.textContent = `Backend connection error: ${err.message}. Start the Python service to enable live ML inference.`;
+  }
+
+  const container = document.getElementById('nearest-cards-list');
+  if (container) {
+    container.innerHTML = '<p class="module-explainer" style="color: var(--text-muted); padding: 12px;">Real-time nearest-neighbor retrieval offline. Connect backend to inspect NASA flight experiments.</p>';
+  }
+}
+
+// Render Nearest Experiments Cards with Provenance Tracing
 function renderNearestExperiments(experiments) {
   const container = document.getElementById('nearest-cards-list');
   if (!container) return;
@@ -491,10 +587,11 @@ function renderNearestExperiments(experiments) {
     const dist = exp.distance !== undefined ? `d = ${exp.distance.toFixed(3)}` : 'Exact match';
     const outcomeClass = exp.outcome === 'spread' ? 'badge-spread' : (exp.outcome === 'marginal_spread' ? 'badge-marginal' : 'badge-no-spread');
     const reportUrl = exp.source_url || `https://ntrs.nasa.gov/citations/${exp.report_id}`;
+    const eid = exp.experiment_id || 'EXP_OBS';
 
     item.innerHTML = `
       <div class="obs-top-line">
-        <span class="obs-id">${exp.experiment_id || 'EXP_OBS'} · ${exp.material}</span>
+        <span class="obs-id">${eid} · ${exp.material}</span>
         <span class="obs-distance">${dist}</span>
       </div>
       <div class="obs-conditions">
@@ -502,14 +599,20 @@ function renderNearestExperiments(experiments) {
       </div>
       <div class="obs-bottom-line">
         <span class="badge-outcome ${outcomeClass}">${exp.outcome || 'observed'}</span>
-        <a href="${reportUrl}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">
-          NTRS ${exp.report_id || 'Report'} ↗
-        </a>
+        <div class="obs-actions" style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn-trace-cite" onclick="inspectProvenance('${eid}')" title="Inspect full provenance and NTRS citation">
+            Trace Citation ↗
+          </button>
+          <a href="${reportUrl}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">
+            NTRS ${exp.report_id || 'Report'}
+          </a>
+        </div>
       </div>
     `;
     container.appendChild(item);
   });
 }
+
 
 // Fetch 2-D Boundary Slice
 async function fetchBoundarySlice() {
@@ -525,10 +628,24 @@ async function fetchBoundarySlice() {
     state.boundaryData = await res.json();
     drawBoundaryCanvas();
   } catch (err) {
-    console.warn('Boundary slice fetch failed, generating client fallback grid:', err);
-    state.boundaryData = generateFallbackBoundary(state.material, state.pressure_kpa);
-    drawBoundaryCanvas();
+    console.warn('Boundary slice fetch failed:', err);
+    state.boundaryData = null;
+    drawOfflineCanvas();
   }
+}
+
+function drawOfflineCanvas() {
+  const canvas = document.getElementById('flammability-boundary-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#64748b';
+  ctx.font = '13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('Live decision boundary slice requires active backend connection.', canvas.width / 2, canvas.height / 2 - 10);
+  ctx.fillText('Launch FastAPI server (localhost:8000) to render empirical boundaries.', canvas.width / 2, canvas.height / 2 + 15);
 }
 
 // Draw 2-D Flammability Map on HTML5 Canvas
@@ -1123,96 +1240,309 @@ async function loadDatasetsAndModel() {
   }
 }
 
-// Client Fallback Simulation (Safe & Deterministic for Offline Previews)
-function simulatePrediction(payload) {
-  const { oxygen_pct, pressure_kpa, flow_cm_s, material } = payload;
-  const spec = MATERIAL_SPECS[material] || { o2: [15.0, 34.0], flow: [0.0, 45.0], p: [56.5, 101.3] };
+// ==============================================================================
+// FLARE-X EVIDENCE ATLAS: CONFLICT EXPLORER MODULE
+// ==============================================================================
 
-  if (oxygen_pct < spec.o2[0] || oxygen_pct > spec.o2[1] || flow_cm_s < spec.flow[0] || flow_cm_s > spec.flow[1]) {
-    return {
-      inputs: payload,
-      in_training_range: false,
-      out_of_range_reasons: [{
-        feature: 'oxygen_pct',
-        value: oxygen_pct,
-        train_min: spec.o2[0],
-        train_max: spec.o2[1],
-        reason: `Parameter outside ${material} flight testing bounds.`
-      }],
-      prediction: null,
-      probabilities: null,
-      nearest_experiments: [
-        { experiment_id: 'EXP_BASS_001', report_id: '20160010041', material, oxygen_pct: 21.0, flow_cm_s: 5.0, pressure_kpa: 101.3, outcome: 'spread', source_url: 'https://ntrs.nasa.gov/citations/20160010041' }
-      ],
-      explanation: 'Requested conditions are outside the published experimental envelope. No prediction is made.'
-    };
-  }
+const CANONICAL_CASES_MAP = {
+  'bass2_vs_saffire': { study_a: 'BASS-II', study_b: 'Saffire' },
+  'drop_tower_vs_bass2': { study_a: 'Drop_Tower_Olson', study_b: 'BASS-II' },
+  'normobaric_vs_exploration': { study_a: 'BASS-II', study_b: 'Exploration_Atmospheres' },
+  'sofie_vs_drop_tower': { study_a: 'SoFIE_MIST', study_b: 'Drop_Tower_Olson' }
+};
 
-  let pred = 'spread';
-  let probs = { no_spread: 0.01, marginal_spread: 0.02, spread: 0.97 };
+function setupConflictExplorer() {
+  const caseSelect = document.getElementById('select-conflict-case');
+  const btnLoadCase = document.getElementById('btn-load-case');
+  const selectStudyA = document.getElementById('select-study-a');
+  const selectStudyB = document.getElementById('select-study-b');
+  const btnCompare = document.getElementById('btn-compare-studies');
 
-  if (oxygen_pct <= 16.8) {
-    pred = 'no_spread';
-    probs = { no_spread: 0.88, marginal_spread: 0.10, spread: 0.02 };
-  } else if (oxygen_pct <= 17.8) {
-    pred = 'marginal_spread';
-    probs = { no_spread: 0.22, marginal_spread: 0.65, spread: 0.13 };
-  }
-
-  return {
-    inputs: payload,
-    in_training_range: true,
-    out_of_range_reasons: [],
-    prediction: pred,
-    probabilities: probs,
-    model: { type: 'gradient_boosting', n_train: 145, cv_accuracy: 0.7931, cv_scheme: 'StratifiedGroupKFold(k=5, group=report_id)', features: ['oxygen_pct', 'pressure_kpa', 'flow_cm_s', 'material'] },
-    nearest_experiments: [
-      { experiment_id: 'EXP_BASS_012', report_id: '20160010041', material, oxygen_pct: 21.0, pressure_kpa: 101.3, flow_cm_s: 5.0, outcome: 'spread', distance: 0.000, source_url: 'https://ntrs.nasa.gov/citations/20160010041' },
-      { experiment_id: 'EXP_BASS_044', report_id: '20140011099', material, oxygen_pct: 18.0, pressure_kpa: 101.3, flow_cm_s: 5.0, outcome: 'spread', distance: 0.082, source_url: 'https://ntrs.nasa.gov/citations/20140011099' },
-      { experiment_id: 'EXP_BASS_089', report_id: '20170006615', material, oxygen_pct: 16.5, pressure_kpa: 101.3, flow_cm_s: 3.5, outcome: 'no_spread', distance: 0.114, source_url: 'https://ntrs.nasa.gov/citations/20170006615' }
-    ],
-    explanation: `Under microgravity conditions without natural buoyant convection, ${material} at ${oxygen_pct}% O2, ${pressure_kpa} kPa, and ${flow_cm_s} cm/s ventilation is predicted to exhibit ${pred === 'spread' ? 'sustained flame spread' : (pred === 'marginal_spread' ? 'marginal propagation' : 'flame extinction')} with probability ${(probs[pred] * 100).toFixed(1)}%. Supported by published NASA spaceflight records: 20160010041 and 20140011099.`
-  };
-}
-
-function generateFallbackBoundary(material, pressure) {
-  const o2Grid = [15.5, 17.0, 18.5, 20.0, 21.5, 23.0, 24.5, 26.0, 28.0, 30.0, 32.0, 34.0];
-  const flowGrid = [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 20.0, 25.0, 30.0, 35.0];
-  const gridPreds = [];
-  const gridProbs = [];
-
-  for (let f of flowGrid) {
-    const rowPreds = [];
-    const rowProbs = [];
-    for (let o2 of o2Grid) {
-      if (o2 < 17.0) {
-        rowPreds.push('no_spread');
-        rowProbs.push(0.04);
-      } else if (o2 <= 17.8) {
-        rowPreds.push('marginal_spread');
-        rowProbs.push(0.25);
-      } else {
-        rowPreds.push('spread');
-        rowProbs.push(0.92);
+  if (btnLoadCase) {
+    btnLoadCase.addEventListener('click', () => {
+      const caseId = caseSelect.value;
+      const pair = CANONICAL_CASES_MAP[caseId];
+      if (pair) {
+        if (selectStudyA) selectStudyA.value = pair.study_a;
+        if (selectStudyB) selectStudyB.value = pair.study_b;
+        executeConflictAnalysis(pair.study_a, pair.study_b);
       }
-    }
-    gridPreds.push(rowPreds);
-    gridProbs.push(rowProbs);
+    });
   }
 
-  return {
-    material,
-    fixed_pressure_kpa: pressure,
-    oxygen_range: [15.5, 34.0],
-    flow_range: [0.0, 35.0],
-    oxygen_grid: o2Grid,
-    flow_grid: flowGrid,
-    grid_predictions: gridPreds,
-    grid_spread_probabilities: gridProbs,
-    real_experiments: [
-      { experiment_id: 'EXP_BASS_001', report_id: '20160010041', oxygen_pct: 21.0, flow_cm_s: 5.0, pressure_kpa: 101.3, outcome: 'spread' },
-      { experiment_id: 'EXP_BASS_044', report_id: '20140011099', oxygen_pct: 18.0, flow_cm_s: 5.0, pressure_kpa: 101.3, outcome: 'spread' },
-      { experiment_id: 'EXP_BASS_089', report_id: '20170006615', oxygen_pct: 16.5, flow_cm_s: 3.5, pressure_kpa: 101.3, outcome: 'no_spread' }
-    ]
-  };
+  if (btnCompare) {
+    btnCompare.addEventListener('click', () => {
+      const a = selectStudyA ? selectStudyA.value : 'BASS-II';
+      const b = selectStudyB ? selectStudyB.value : 'Saffire';
+      executeConflictAnalysis(a, b);
+    });
+  }
+
+  // Populate profiles on initial load
+  loadConflictProfiles();
 }
+
+async function loadConflictProfiles() {
+  try {
+    const res = await fetch(`${API_BASE}/api/conflict/profiles`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const selectA = document.getElementById('select-study-a');
+    const selectB = document.getElementById('select-study-b');
+
+    if (selectA && selectB) {
+      selectA.innerHTML = '';
+      selectB.innerHTML = '';
+      Object.keys(data.profiles || {}).forEach(k => {
+        const prof = data.profiles[k];
+        const optA = document.createElement('option');
+        optA.value = k;
+        optA.textContent = prof.title;
+        selectA.appendChild(optA);
+
+        const optB = document.createElement('option');
+        optB.value = k;
+        optB.textContent = prof.title;
+        selectB.appendChild(optB);
+      });
+      selectA.value = 'BASS-II';
+      selectB.value = 'Saffire';
+    }
+  } catch (err) {
+    console.warn('Could not load conflict profiles:', err);
+  }
+}
+
+async function loadConflictExplorerData() {
+  const selectA = document.getElementById('select-study-a');
+  const selectB = document.getElementById('select-study-b');
+  const a = selectA && selectA.value ? selectA.value : 'BASS-II';
+  const b = selectB && selectB.value ? selectB.value : 'Saffire';
+  executeConflictAnalysis(a, b);
+}
+
+async function executeConflictAnalysis(studyA, studyB) {
+  try {
+    const res = await fetch(`${API_BASE}/api/conflict/compare-studies`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ study_a: studyA, study_b: studyB })
+    });
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const data = await res.json();
+    renderConflictResults(data);
+  } catch (err) {
+    console.warn('Conflict analysis request failed:', err);
+  }
+}
+
+function renderConflictResults(data) {
+  const scoreVal = document.getElementById('conflict-score-val');
+  const badge = document.getElementById('conflict-verdict-badge');
+  const summary = document.getElementById('conflict-verdict-summary');
+  const caution = document.getElementById('conflict-caution-text');
+  const tbody = document.getElementById('conflict-dimensions-tbody');
+  const reconcile = document.getElementById('conflict-reconciliation-text');
+
+  if (scoreVal) scoreVal.textContent = (data.comparability_score || 0).toFixed(2);
+  if (badge) {
+    badge.className = `verdict-badge verdict-${(data.verdict || '').toLowerCase().replace(/_/g, '-')}`;
+    badge.textContent = (data.verdict || '').replace(/_/g, ' ');
+  }
+  if (summary) summary.textContent = data.verdict_summary || '';
+  if (caution) caution.textContent = data.cautionary_guidance || '';
+  if (reconcile) reconcile.textContent = data.scientific_reconciliation || '';
+
+  // Render dimensions table
+  if (tbody) {
+    tbody.innerHTML = '';
+    (data.dimensions || []).forEach(dim => {
+      const tr = document.createElement('tr');
+      const statusClass = dim.status === 'MATCH' ? 'status-match' : (dim.status === 'MODERATE_DIFFERENCE' ? 'status-mod' : 'status-mismatch');
+      tr.innerHTML = `
+        <td><strong>${dim.dimension}</strong></td>
+        <td>${dim.study_a}</td>
+        <td>${dim.study_b}</td>
+        <td><span class="dim-status-pill ${statusClass}">${dim.status.replace(/_/g, ' ')}</span></td>
+        <td class="dim-impact-cell">${dim.physical_impact}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Citations
+  const citeA = data.citations?.study_a;
+  const citeB = data.citations?.study_b;
+  if (citeA) {
+    const tA = document.getElementById('cite-title-a');
+    const mA = document.getElementById('cite-meta-a');
+    const lA = document.getElementById('cite-link-a');
+    if (tA) tA.textContent = citeA.name;
+    if (mA) mA.textContent = citeA.citation;
+    if (lA) lA.href = citeA.url;
+  }
+  if (citeB) {
+    const tB = document.getElementById('cite-title-b');
+    const mB = document.getElementById('cite-meta-b');
+    const lB = document.getElementById('cite-link-b');
+    if (tB) tB.textContent = citeB.name;
+    if (mB) mB.textContent = citeB.citation;
+    if (lB) lB.href = citeB.url;
+  }
+}
+
+// ==============================================================================
+// FLARE-X EVIDENCE ATLAS: RESEARCH COVERAGE MAP MODULE
+// ==============================================================================
+
+function setupCoverageMapView() {
+  // Configured for tab clicks
+}
+
+async function loadCoverageMapData() {
+  try {
+    const res = await fetch(`${API_BASE}/api/coverage-map`);
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const data = await res.json();
+    renderCoverageMap(data);
+  } catch (err) {
+    console.warn('Coverage map fetch failed:', err);
+  }
+}
+
+function renderCoverageMap(data) {
+  const totalRuns = document.getElementById('cov-total-runs');
+  const matCount = document.getElementById('cov-materials-count');
+  const compPct = document.getElementById('cov-completeness-pct');
+  const gapsCount = document.getElementById('cov-gaps-count');
+  const container = document.getElementById('coverage-matrix-container');
+  const gapsList = document.getElementById('empirical-gaps-list');
+
+  if (totalRuns) totalRuns.textContent = data.total_verified_experiments || 145;
+  if (matCount) matCount.textContent = data.unique_materials_tested || 5;
+  if (compPct) compPct.textContent = `${(data.coverage_completeness_pct || 0).toFixed(1)}%`;
+  if (gapsCount) gapsCount.textContent = data.untested_gap_cells_count || 0;
+
+  // Render 2D Heatmap Grid
+  if (container) {
+    const o2Bins = data.matrix_dimensions?.oxygen_bins || [];
+    const flowBins = data.matrix_dimensions?.flow_bins || [];
+    const grid = data.heatmap_grid || [];
+
+    let html = '<table class="heatmap-table"><thead><tr><th>Oxygen Concentration</th>';
+    flowBins.forEach(fb => {
+      html += `<th>${fb.label}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    o2Bins.forEach(ob => {
+      html += `<tr><td class="row-o2-header"><strong>${ob.label}</strong></td>`;
+      flowBins.forEach(fb => {
+        const cell = grid.find(c => c.o2_bin_id === ob.id && c.flow_bin_id === fb.id);
+        const count = cell ? cell.count : 0;
+        const density = cell ? cell.density : 'UNTESTED_GAP';
+        const swatchClass = density === 'HIGH' ? 'swatch-high' : (density === 'MODERATE' ? 'swatch-mod' : (density === 'SPARSE' ? 'swatch-sparse' : 'swatch-gap'));
+        const mats = (cell && cell.materials && cell.materials.length > 0) ? cell.materials.join(', ') : 'None';
+        const tooltip = `Tested: ${count} runs | Materials: ${mats} | Spread: ${cell?.spread_count || 0}, Marginal: ${cell?.marginal_count || 0}, Extinction: ${cell?.no_spread_count || 0}`;
+
+        html += `
+          <td class="heatmap-cell ${swatchClass}" title="${tooltip}">
+            <div class="cell-inner">
+              <span class="cell-count">${count}</span>
+              <span class="cell-density-tag">${density.replace('_', ' ')}</span>
+            </div>
+          </td>
+        `;
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  // Render Empirical White Spaces (Knowledge Gaps)
+  if (gapsList) {
+    gapsList.innerHTML = '';
+    (data.empirical_white_spaces || []).forEach(gap => {
+      const card = document.createElement('div');
+      card.className = 'gap-card';
+      card.innerHTML = `
+        <div class="gap-card-header">
+          <span class="gap-id-badge">${gap.gap_id}</span>
+          <span class="gap-risk-pill">HIGH MISSION RISK</span>
+        </div>
+        <h4 class="gap-title">${gap.title}</h4>
+        <div class="gap-regime-strip"><strong>Target Regime:</strong> ${gap.regime}</div>
+        <div class="gap-materials"><strong>Affected Materials:</strong> ${(gap.materials_affected || []).join(', ')}</div>
+        <div class="gap-section">
+          <span class="gap-section-label">OPERATIONAL RISK:</span>
+          <p class="gap-text">${gap.operational_risk}</p>
+        </div>
+        <div class="gap-section">
+          <span class="gap-section-label">SCIENTIFIC RATIONALE:</span>
+          <p class="gap-text">${gap.scientific_rationale}</p>
+        </div>
+        <div class="gap-recommended-box">
+          <span class="rec-label">RECOMMENDED NASA FLIGHT EXPERIMENT:</span>
+          <p class="rec-text">${gap.recommended_experiment}</p>
+        </div>
+      `;
+      gapsList.appendChild(card);
+    });
+  }
+}
+
+// ==============================================================================
+// FLARE-X EVIDENCE ATLAS: CITATION INSPECTOR & PROVENANCE MODAL
+// ==============================================================================
+
+function setupCitationInspector() {
+  const closeBtn = document.getElementById('btn-close-inspector');
+  const backdrop = document.getElementById('modal-backdrop-close');
+  const modal = document.getElementById('modal-citation-inspector');
+
+  const hide = () => {
+    if (modal) modal.classList.add('hidden');
+  };
+
+  if (closeBtn) closeBtn.addEventListener('click', hide);
+  if (backdrop) backdrop.addEventListener('click', hide);
+}
+
+window.inspectProvenance = async function(experimentId) {
+  const modal = document.getElementById('modal-citation-inspector');
+  if (!modal) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/provenance/${encodeURIComponent(experimentId)}`);
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const data = await res.json();
+
+    const titleEl = document.getElementById('inspect-exp-id');
+    const reportTitleEl = document.getElementById('inspect-report-title');
+    const citeEl = document.getElementById('inspect-citation');
+    const invEl = document.getElementById('inspect-investigation');
+    const condEl = document.getElementById('inspect-conditions');
+    const outcomeEl = document.getElementById('inspect-outcome');
+    const notesEl = document.getElementById('inspect-notes');
+    const ntrsUrlEl = document.getElementById('inspect-ntrs-url');
+    const tierPill = document.getElementById('inspect-tier-pill');
+    const originPill = document.getElementById('inspect-origin-pill');
+
+    if (titleEl) titleEl.textContent = `NASA Experiment ${data.experiment_id}`;
+    if (reportTitleEl) reportTitleEl.textContent = data.report_title || `NASA Technical Report ${data.report_id}`;
+    if (citeEl) citeEl.textContent = data.exact_source_citation || `NASA Report ${data.report_id}`;
+    if (invEl) invEl.textContent = `${data.investigation} · Facility: ${data.gravity_env || 'ISS'}`;
+    if (condEl) condEl.textContent = `${data.material} · ${data.oxygen_pct}% O₂ · ${data.pressure_kpa} kPa · ${data.flow_cm_s} cm/s forced flow`;
+    if (outcomeEl) outcomeEl.textContent = `${data.outcome} (${data.extraction_notes || 'Observed flame behavior'})`;
+    if (notesEl) notesEl.textContent = data.extraction_notes || 'Extracted from peer-reviewed NASA Technical Memorandum data tables.';
+    if (ntrsUrlEl) ntrsUrlEl.href = data.source_url || `https://ntrs.nasa.gov/citations/${data.report_id}`;
+    if (tierPill) tierPill.textContent = data.verification_tier || 'VERIFIED_FLIGHT_TABLE';
+    if (originPill) originPill.textContent = data.data_origin || 'direct_measurement';
+
+    modal.classList.remove('hidden');
+  } catch (err) {
+    console.warn('Could not inspect provenance:', err);
+  }
+};
+

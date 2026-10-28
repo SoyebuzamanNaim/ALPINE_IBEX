@@ -15,6 +15,8 @@ FlowDirectionType = Literal["opposed", "concurrent", "quiescent"]
 RegimeType = Literal["no_spread", "marginal_spread", "spread"]
 GravityEnvType = Literal["ISS", "drop_tower", "sounding_rocket", "parabolic"]
 ExtractionMethodType = Literal["table_parsed", "digitized_figure", "text_reported"]
+VerificationTierType = Literal["VERIFIED_FLIGHT_TABLE", "VERIFIED_DROP_TOWER_TABLE", "VERIFIED_FIGURE_DIGITIZED", "HISTORICAL_SYNTHESIS"]
+DataOriginType = Literal["direct_measurement", "digitized_point", "interpreted_regime"]
 
 
 class ExperimentRecord(BaseModel):
@@ -41,6 +43,9 @@ class ExperimentRecord(BaseModel):
     source_url: str = Field(..., description="Resolvable URL.")
     source_page: Optional[int] = None
     source_table: Optional[str] = None
+    exact_source_citation: Optional[str] = None
+    verification_tier: VerificationTierType = Field(default="VERIFIED_FLIGHT_TABLE")
+    data_origin: DataOriginType = Field(default="direct_measurement")
     extraction_method: ExtractionMethodType = Field(default="table_parsed")
     extraction_notes: Optional[str] = None
 
