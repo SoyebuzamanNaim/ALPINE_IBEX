@@ -21,7 +21,7 @@
 ┌──────────────────────────────┐             ┌───────────────────────────┐
 │     GRADIENT BOOSTING        │             │   RETRIEVAL & CITATION    │
 │  src/compute/model.py        │             │  src/retrieval/nearest.py │
-│  Honest Grouped CV: 79.31%   │             │  BM25 corpus_search.py    │
+│  Honest Grouped CV: 83.45%   │             │  BM25 corpus_search.py    │
 └──────────────┬───────────────┘             └──────────────┬────────────┘
                │                                            │
                └──────────────────────┬─────────────────────┘
@@ -66,4 +66,4 @@
 1. **Strict Rejection of Extrapolation:** In standard spacecraft fire safety, silent model extrapolation into unverified regimes is unacceptable. The `EnvelopeGuard` acts as an immutable firewall. If conditions fall outside tested limits, `prediction` and `probabilities` are returned as `null`, accompanied by explicit parameter-level reason dictionaries.
 2. **Nearest Evidence Retention:** Whenever extrapolation refusal occurs, the top 3 nearest historical NASA experiments are still attached to the response. This ensures engineers and flight controllers see exactly what has been tested.
 3. **Regex Numerical Hallucination Check:** Explanation texts are parsed with regular expressions. Any number or citation not matching an authorized value in the prediction payload is flagged and rejected, instantly triggering fallback to a verified deterministic template.
-4. **Zero Mocked Metrics:** All evaluation scores (79.31% grouped accuracy, 51.72% baseline) are computed dynamically from `models/flame_spread_gb.joblib` and persisted in `models/model_meta.json`.
+4. **Zero Mocked Metrics:** All evaluation scores (83.45% grouped accuracy, 51.72% baseline) are computed dynamically from `models/flame_spread_gb.joblib` and persisted in `models/model_meta.json`.

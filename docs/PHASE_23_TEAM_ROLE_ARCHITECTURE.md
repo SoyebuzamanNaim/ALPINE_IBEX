@@ -77,7 +77,7 @@ Own the ground-truth scientific evidence layer. If anyone on the team or a judge
 
 ### Key Deliverables
 * Canonical Experiment Schema (`experiments.parquet` / `extracted_records.json`).
-* Master Data Manifest and [DATA_SOURCES.md](file:///home/naim/Codebase/Projects/ALPINE_IBEX/docs/DATA_SOURCES.md).
+* Master Data Manifest and [DATA_SOURCES.md](docs/DATA_SOURCES.md).
 * Clean Gold modeling datasets for SPICE-FL and FLEX-EX.
 * BASS-II experiment/evidence reference tables.
 * Provenance metadata nodes linking test accessions to NASA DOIs.
@@ -112,8 +112,8 @@ Own every quantitative estimate and mathematical prediction FLARE-X generates. G
 ### Key Deliverables
 * Serialized model pipelines (`pipeline.joblib`).
 * Empirical training domain envelopes (`domain.json`).
-* Standardized Model Cards ([MODEL_CARDS.md](file:///home/naim/Codebase/Projects/ALPINE_IBEX/docs/MODEL_CARDS.md)).
-* Validation reports with residual plots and confusion matrices ([reports/PHASE_05_REPORT.md](file:///home/naim/Codebase/Projects/ALPINE_IBEX/reports/PHASE_05_REPORT.md)).
+* Standardized Model Cards ([MODEL_CARDS.md](docs/MODEL_CARDS.md)).
+* Validation reports with residual plots and confusion matrices ([reports/PHASE_05_REPORT.md](reports/PHASE_05_REPORT.md)).
 
 ### The Independent No-Go Authority
 > **Member C possesses absolute authority to enforce a "No-Go" decision on any model.** If a model fails to meaningfully beat simple baselines under grouped evaluation or exhibits high variance, Member C blocks deployment. A flawed model is never deployed simply to populate a UI card.

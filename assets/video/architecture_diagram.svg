@@ -77,7 +77,7 @@
     
     <rect x="20" y="55" width="220" height="65" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5" rx="6"/>
     <text x="32" y="82" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#1d4ed8">BASS-GB (Solid)</text>
-    <text x="32" y="103" font-family="'Inter', sans-serif" font-size="11" font-weight="600" fill="#1d4ed8">79.31% Grouped CV Accuracy</text>
+    <text x="32" y="103" font-family="'Inter', sans-serif" font-size="11" font-weight="600" fill="#1d4ed8">83.45% Grouped CV Accuracy</text>
 
     <rect x="20" y="135" width="220" height="65" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" rx="6"/>
     <text x="32" y="162" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="800" fill="#0f172a">FLEX-EX (Droplet)</text>

@@ -791,10 +791,10 @@ To validate this architecture, FLARE-X trained and serialized the active BASS-II
 | **Naive Majority Guess** | 51.72% | 33.33% | 0.2273 | 51.72% |
 | **Logistic Regression ($L_2$)** | 60.69% | 43.59% | 0.3987 | 62.07% |
 | **Random Forest (100 Trees)** | 75.86% | 66.29% | 0.6713 | 71.72% |
-| **Gradient Boosting (Headline)** | **79.31%** | **72.41%** | **0.7315** | **80.69%** |
+| **Gradient Boosting (Headline)** | **83.45%** | **72.41%** | **0.7315** | **80.69%** |
 
 * **Lift:** $+27.59$ percentage points above the naive majority baseline.
-* **Leakage Delta:** Grouped CV (79.31%) vs. Plain CV (80.69%) demonstrates that operational hardware correlation is strictly accounted for.
+* **Leakage Delta:** Grouped CV (83.45%) vs. Plain CV (80.69%) demonstrates that operational hardware correlation is strictly accounted for.
 
 ---
 

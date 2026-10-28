@@ -18,7 +18,7 @@ never appear in both train and validation folds simultaneously, eliminating cros
 | **Naive Majority Baseline** | 0.5172 | 0.3333 | 0.2273 | 0.5172 |
 | **Logistic Regression** | 0.6069 | 0.4359 | 0.3987 | 0.6207 |
 | **Random Forest** | 0.7724 | 0.6489 | 0.6617 | 0.7172 |
-| **Gradient Boosting (Headline)** | **0.8414** | **0.7690** | **0.7909** | **0.8138** |
+| **Gradient Boosting (Headline)** | **0.8345** | **0.7622** | **0.7809** | **0.8138** |
 
 ---
 
@@ -26,12 +26,12 @@ never appear in both train and validation folds simultaneously, eliminating cros
 
 | True \ Pred | `no_spread` | `marginal_spread` | `spread` |
 |---|---|---|---|
-| **`no_spread`** | 38 | 2 | 9 |
+| **`no_spread`** | 37 | 3 | 9 |
 | **`marginal_spread`** | 3 | 12 | 6 |
 | **`spread`** | 1 | 2 | 72 |
 
 ### Per-Class Recall (Sensitivity)
-- **`no_spread`**: 77.6%
+- **`no_spread`**: 75.5%
 - **`marginal_spread`**: 57.1%
 - **`spread`**: 96.0%
 
@@ -40,10 +40,10 @@ never appear in both train and validation folds simultaneously, eliminating cros
 ## 3. Scientific Discussion of Results
 
 1. **Comparison with Naive Baseline:** The majority class (`spread`) represents 51.7% of the data. The Gradient Boosting
-   classifier achieves **84.1% grouped accuracy** and **76.9% balanced accuracy**,
+   classifier achieves **83.5% grouped accuracy** and **76.2% balanced accuracy**,
    demonstrating substantial predictive lift over random chance and majority guessing.
 2. **Zero-Leakage Campaign Isolation:** Plain stratified CV achieves 0.8138, whereas grouped CV
-   by independent investigation achieves 0.8414. Isolating each spaceflight investigation prevents chamber
+   by independent investigation achieves 0.8345. Isolating each spaceflight investigation prevents chamber
    and sensor bias leakage across flight programs.
 3. **Marginal Spread Detection:** The `marginal_spread` regime is the rarest class (57.1% recall).
    The model reliably separates full steady flame spread from complete non-spread extinction, with marginal points forming

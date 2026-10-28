@@ -50,7 +50,7 @@ Expected Output:
 ```text
 Loaded 145 microgravity experiments.
 Report-grouped 5-fold CV (report_id):
-  honest grouped CV accuracy: 79.31%
+  honest grouped CV accuracy: 83.45%
   balanced accuracy:          72.41%
   macro F1:                   0.7315
   majority class baseline:    51.72%

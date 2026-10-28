@@ -214,7 +214,7 @@ FLARE-X machine learning models (SPICE-FL, FLEX-EX, BASS-GB) learn statistical s
 ### 22.15.2 Performance Metrics are Dataset-Specific
 * Validation accuracy on BASS-II applies strictly to BASS-II test geometries, PMMA materials, and tested flow velocities.
 * **Forbidden Claim:** *"Our model has 85% accuracy on spacecraft fires."*
-* **Approved Wording:** *"The model achieves 79.31% grouped cross-validation accuracy across 145 discrete BASS-II flight runs under held-out experiment grouping."*
+* **Approved Wording:** *"The model achieves 83.45% grouped cross-validation accuracy across 145 discrete BASS-II flight runs under held-out experiment grouping."*
 
 ---
 

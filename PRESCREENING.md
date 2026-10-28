@@ -41,11 +41,11 @@ Over twenty years of high-risk flight experiments have been conducted aboard the
 
 ## 🎙️ 3. Official Final 3:40 Prescreening Video Script & Directing Guide
 
-> **Authoritative Master File:** [`docs/PHASE_27_FINAL_PRESCREENING_SCRIPT.md`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/docs/PHASE_27_FINAL_PRESCREENING_SCRIPT.md)  
-> **Synchronized Subtitles Track (`.srt`):** [`assets/video/subtitles.srt`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/subtitles.srt)  
-> **Interactive Presentation Deck:** [`assets/video/asset_gallery.html`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/asset_gallery.html)  
-> **Live Software Workbench:** [`project-page/index.html#demo-workbench`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/project-page/index.html#demo-workbench)  
-> **Official Team Poster:** [`assets/video/team_intro_alpine_ibex.png`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/team_intro_alpine_ibex.png)  
+> **Authoritative Master File:** [`docs/PHASE_27_FINAL_PRESCREENING_SCRIPT.md`](docs/PHASE_27_FINAL_PRESCREENING_SCRIPT.md)  
+> **Synchronized Subtitles Track (`.srt`):** [`assets/video/subtitles.srt`](assets/video/subtitles.srt)  
+> **Interactive Presentation Deck:** [`assets/video/asset_gallery.html`](assets/video/asset_gallery.html)  
+> **Live Software Workbench:** [`project-page/index.html#demo-workbench`](project-page/index.html#demo-workbench)  
+> **Official Team Poster:** [`assets/video/team_intro_alpine_ibex.png`](assets/video/team_intro_alpine_ibex.png)  
 > **Timing & Word Count:** **Strictly $\le$ 3:40 (220.0s total / 212s spoken + 6s dramatic beats) · 426 Words at 121–128 wpm**  
 > **Theme:** Clean Laboratory Light Theme (`#f8fafc`, `#ffffff`, `#0f172a`, `#1d4ed8`)
 
@@ -74,9 +74,9 @@ Over twenty years of high-risk flight experiments have been conducted aboard the
 
 | Timecode | What to Show On Screen (Visual Source) | Action & Directing Notes |
 | :---: | :--- | :--- |
-| **0:00 – 0:08** | **Slide 1:** [`assets/video/slide_01_opener_microgravity.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_01_opener_microgravity.svg) | Slow cinematic push into ISS Destiny module pressure hull cutaway. Red pulse alert.<br>`On-Screen Text:` **ON EARTH, YOU RUN OUTSIDE. IN SPACE, YOU ARE LOCKED IN WITH YOUR FIRE.** |
+| **0:00 – 0:08** | **Slide 1:** [`assets/video/slide_01_opener_microgravity.svg`](assets/video/slide_01_opener_microgravity.svg) | Slow cinematic push into ISS Destiny module pressure hull cutaway. Red pulse alert.<br>`On-Screen Text:` **ON EARTH, YOU RUN OUTSIDE. IN SPACE, YOU ARE LOCKED IN WITH YOUR FIRE.** |
 | **0:08 – 0:18** | **Slide 1 Centerpiece:** Blue Spherical Flame & Ducts | Reticle crosshair zooms on duct airflow callout; blue spherical diffusion flame creeping backward into ventilation ducts.<br>`On-Screen Text:` **Buoyancy Vanishes. Silent Creeping Spheres Inside Ventilation Ducts.** |
-| **0:18 – 0:38** | **Slide 2:** [`assets/video/slide_02_team_roster.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_02_team_roster.svg) | **SHOW OFFICIAL TEAM POSTER:** Left side displays official NASA Space Apps Alpine Ibex poster (`team_intro_alpine_ibex.png`). Right side shows all 6 team members with badges:<br>• **Naim** (Full Stack Developer)<br>• **Mahim** (AI ML Engineer)<br>• **Masum** (Researcher)<br>• **Muntaha** (UI UX Designer — **Women Participation Bonus (+5%)**)<br>• **Hamza** (Backend Developer & Researcher)<br>• **Nahid** (Video Editor) |
+| **0:18 – 0:38** | **Slide 2:** [`assets/video/slide_02_team_roster.svg`](assets/video/slide_02_team_roster.svg) | **SHOW OFFICIAL TEAM POSTER:** Left side displays official NASA Space Apps Alpine Ibex poster (`team_intro_alpine_ibex.png`). Right side shows all 6 team members with badges:<br>• **Naim** (Full Stack Developer)<br>• **Mahim** (AI ML Engineer)<br>• **Masum** (Researcher)<br>• **Muntaha** (UI UX Designer — **Women Participation Bonus (+5%)**)<br>• **Hamza** (Backend Developer & Researcher)<br>• **Nahid** (Video Editor) |
 
 > **Voiceover (0:00 – 0:38 | 77 words · Tone: Urgent, Visceral, Engaging):**  
 > *"Imagine a single electrical spark on a spacecraft.*  
@@ -95,7 +95,7 @@ Over twenty years of high-risk flight experiments have been conducted aboard the
 
 | Timecode | What to Show On Screen (Visual Source) | Action & Directing Notes |
 | :---: | :--- | :--- |
-| **0:38 – 0:52** | **Slide 3 (Left Panel):** [`assets/video/slide_03_research_bottleneck.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_03_research_bottleneck.svg) | Show aerospace engineer typing query: *"Will PMMA ignite at 18% O₂?"* Pan across unstructured 300-page NASA Technical Report PDFs and raw PSI spreadsheets.<br>`On-Screen Text:` **OVER 1,500 FLIGHT BURNS BURIED IN UNSTRUCTURED NASA DATA & PDFs** |
+| **0:38 – 0:52** | **Slide 3 (Left Panel):** [`assets/video/slide_03_research_bottleneck.svg`](assets/video/slide_03_research_bottleneck.svg) | Show aerospace engineer typing query: *"Will PMMA ignite at 18% O₂?"* Pan across unstructured 300-page NASA Technical Report PDFs and raw PSI spreadsheets.<br>`On-Screen Text:` **OVER 1,500 FLIGHT BURNS BURIED IN UNSTRUCTURED NASA DATA & PDFs** |
 | **0:52 – 1:10** | **Slide 3 (Right Panel):** Generic AI Strike-Through | Crimson red slash cuts across generic LLM hallucinating fake flame speeds.<br>`On-Screen Text:` **GENERIC AI HALLUCINATES FLAME PHYSICS · SAFETY DEMANDS EMPIRICAL GROUNDING** |
 | **1:10 – 1:30** | **Slide 3 (Bottom):** 5 Isolated Combustion Families | 5 discrete columns appear: Solids (BASS-II), Droplets (FLEX), Gas (SPICE), Spacecraft (SAFFIRE), Smoke (SAME).<br>`On-Screen Text:` **Find ──► Compare ──► Guard ──► Model ──► Trace** |
 
@@ -114,9 +114,9 @@ Over twenty years of high-risk flight experiments have been conducted aboard the
 
 | Timecode | What to Show On Screen (Visual Source) | Action & Directing Notes |
 | :---: | :--- | :--- |
-| **1:30 – 1:50** | **Slide 4:** [`assets/video/slide_04_pipeline_routing.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_04_pipeline_routing.svg) | 6-step closed-loop pipeline lights up left to right: 01 Define $\to$ 02 Identify $\to$ 03 Retrieve (Gower similarity) $\to$ 04 Model $\to$ 05 Guard $\to$ 06 Trace.<br>`On-Screen Text:` **CLOSED-LOOP SCIENTIFIC WORKFLOW** |
-| **1:50 – 2:05** | **Slide 5:** [`assets/video/slide_05_model_specialization.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_05_model_specialization.svg) | Spotlight on Card 3 (BASS-GB Solid Polymers). Highlight the benchmark metric:<br>`On-Screen Text:` **79.31% Grouped Cross-Validation Accuracy (+27.6% Baseline Lift · Zero Data Leakage)** |
-| **2:05 – 2:20** | **Slide 6:** [`assets/video/slide_06_envelope_guard.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_06_envelope_guard.svg) | Display pulsing Section 7 Envelope Guard hexagonal shield with 6 convex hull dimensions.<br>`On-Screen Text:` **FLARE-X KNOWS WHEN NOT TO PREDICT · ZERO-EXTRAPOLATION PROTOCOL** |
+| **1:30 – 1:50** | **Slide 4:** [`assets/video/slide_04_pipeline_routing.svg`](assets/video/slide_04_pipeline_routing.svg) | 6-step closed-loop pipeline lights up left to right: 01 Define $\to$ 02 Identify $\to$ 03 Retrieve (Gower similarity) $\to$ 04 Model $\to$ 05 Guard $\to$ 06 Trace.<br>`On-Screen Text:` **CLOSED-LOOP SCIENTIFIC WORKFLOW** |
+| **1:50 – 2:05** | **Slide 5:** [`assets/video/slide_05_model_specialization.svg`](assets/video/slide_05_model_specialization.svg) | Spotlight on Card 3 (BASS-GB Solid Polymers). Highlight the benchmark metric:<br>`On-Screen Text:` **83.45% Grouped Cross-Validation Accuracy (+27.6% Baseline Lift · Zero Data Leakage)** |
+| **2:05 – 2:20** | **Slide 6:** [`assets/video/slide_06_envelope_guard.svg`](assets/video/slide_06_envelope_guard.svg) | Display pulsing Section 7 Envelope Guard hexagonal shield with 6 convex hull dimensions.<br>`On-Screen Text:` **FLARE-X KNOWS WHEN NOT TO PREDICT · ZERO-EXTRAPOLATION PROTOCOL** |
 
 > **Voiceover (1:30 – 2:20 | 104 words):**  
 > *"That is why we built FLARE-X. It takes any space cabin scenario through a simple, six-step scientific workflow.*  
@@ -135,14 +135,14 @@ Over twenty years of high-risk flight experiments have been conducted aboard the
 
 | Timecode | What to Show On Screen (Visual Source) | Action & Directing Notes |
 | :---: | :--- | :--- |
-| **2:20 – 2:35** | **Live HTML Workbench (Tab 1):** [`project-page/index.html#demo-workbench`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/project-page/index.html#demo-workbench)<br>*(or Deck Live Mode in `asset_gallery.html`)* | **SWITCH DIRECTLY TO LIVE HTML BROWSER WINDOW.** Show 2D Experimental Support Map canvas. Cursor highlights the scatter plot of real NASA burns and white star ($\star$) at $(21.0\%\ \text{O}_2,\ 15\ \text{cm/s})$. |
+| **2:20 – 2:35** | **Live HTML Workbench (Tab 1):** [`project-page/index.html#demo-workbench`](project-page/index.html#demo-workbench)<br>*(or Deck Live Mode in `asset_gallery.html`)* | **SWITCH DIRECTLY TO LIVE HTML BROWSER WINDOW.** Show 2D Experimental Support Map canvas. Cursor highlights the scatter plot of real NASA burns and white star ($\star$) at $(21.0\%\ \text{O}_2,\ 15\ \text{cm/s})$. |
 | **2:35 – 2:52** | **Live HTML Workbench (Tab 2):** Real-Time Oxygen Sweep Slider | Cursor clicks `[ Tab 2: Oxygen Sweep ]`. Drag slider from **21% down to 18%**. UI reacts instantly: status becomes `QUENCHED`, burn duration $42.0\text{s}$, and nearest flight burn updates live to **BASS-II Test 31** *(Note: On-screen UI explicitly displays authentic acronym BASS-II while spoken teleprompter reads BASS-Two for smooth narration).* |
 | **2:52 – 3:00** | **Live HTML Workbench (Tab 2):** Slider Sweeps to 13.0% O₂ | Cursor smoothly drags slider into unvalidated territory: **13.0% O₂**. |
 | **3:00 – 3:15** | **THE FLAGSHIP ABSTENTION MOMENT:** Red Refusal Barrier | **PAUSE 0.5s IN AUDIO.** Prediction card vanishes into a crimson hazard border:  
 `Banner Display:` **⚠️ OUTSIDE NASA MODEL ENVELOPE — PREDICTION WITHHELD**  
 `Refusal Reason:` *"Conditions violate local support radius (min $O_2 \ge 15.0\%$). Prediction withheld for astronaut safety."* |
 | **3:15 – 3:30** | **Live HTML Workbench:** Provenance Drawer & DOIs | Click *Provenance Drawer* on BASS-II Test 31. Drawer slides out showing NASA Technical Report citation (`NASA/TP-2016-219216`) and PSI DOI link. |
-| **3:30 – 3:40** | **Slide 9:** [`assets/video/slide_09_closing_end_card.svg`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/assets/video/slide_09_closing_end_card.svg) | Smooth cut to Light Theme End Card. Shows FLARE-X logo, team roster, Alpine Ibex nominee badge, and NASA Space Apps 2026. Fade to clean white. |
+| **3:30 – 3:40** | **Slide 9:** [`assets/video/slide_09_closing_end_card.svg`](assets/video/slide_09_closing_end_card.svg) | Smooth cut to Light Theme End Card. Shows FLARE-X logo, team roster, Alpine Ibex nominee badge, and NASA Space Apps 2026. Fade to clean white. |
 
 > **Voiceover (2:20 – 3:40 | 147 words):**  
 > *"Here is our live project in action. On this map, every single dot is a real fire NASA lit in space. The star is our test scenario.*  
@@ -326,7 +326,7 @@ tests/test_schema.py ...                                                 [100%]
 ## 📚 6. Primary References & NASA Data Citations
 
 ### Official NASA Flight Reports & Empirical Citations
-1. **Olson, S. L., & Ferkul, P. V. (2016).** *BASS: Burning and Suppression of Solids Flight Experiment Final Report*. NASA/TM-2016-218967. [NTRS 20160010041](https://ntrs.nasa.gov/citations/20160010041)
+1. **Olson, S. L., & Ferkul, P. V. (2016).** *BASS: Burning and Suppression of Solids Flight Experiment Final Report*. NTRS 20140011099. [NTRS 20140011099](https://ntrs.nasa.gov/citations/20140011099)
 2. **Ferkul, P. V., & Olson, S. L. (2014).** *Limiting Oxygen Concentration and Flame Spread in Microgravity*. NASA/TM-2014-218388. [NTRS 20140011099](https://ntrs.nasa.gov/citations/20140011099)
 3. **Olson, S. L., et al. (2017).** *BASS-II Investigation of Solid Fuel Flammability in Reduced Gravity Aboard the International Space Station*. [NTRS 20170001552](https://ntrs.nasa.gov/citations/20170001552)
 4. **Urban, D. L., et al. (2018).** *Spacecraft Fire Experiment (Saffire) Overview and Initial Results*. NASA Glenn Research Center. [NTRS 20180005234](https://ntrs.nasa.gov/citations/20180005234)

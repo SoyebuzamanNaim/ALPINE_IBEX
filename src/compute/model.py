@@ -9,7 +9,8 @@ Trains:
 4. Gradient Boosting Classifier (Headline Model)
 
 Evaluates using:
-- Honest CV: StratifiedGroupKFold(k=5, group=report_id) (headline number)
+- Honest CV: StratifiedGroupKFold(k=5, group=report_id) (headline number, Challenge Brief S6)
+- Secondary, stricter: StratifiedGroupKFold(k=5, group=investigation)
 - Optimistic CV: StratifiedKFold(k=5)
 Outputs:
 - models/flame_spread_gb.joblib
@@ -95,6 +96,7 @@ def compute_cv_metrics(
     oof_preds = []
     oof_trues = []
     fold_accuracies = []
+    fold_sizes = []
 
     splits = cv_splitter.split(X, y, groups=groups) if groups is not None else cv_splitter.split(X, y)
 
@@ -109,6 +111,7 @@ def compute_cv_metrics(
         oof_preds.extend(val_pred)
         oof_trues.extend(y_val)
         fold_accuracies.append(accuracy_score(y_val, val_pred))
+        fold_sizes.append(int(len(val_idx)))
 
     oof_preds_arr = np.array(oof_preds)
     oof_trues_arr = np.array(oof_trues)
@@ -129,6 +132,8 @@ def compute_cv_metrics(
         "balanced_accuracy": round(float(bal_acc), 4),
         "macro_f1": round(float(macro_f1), 4),
         "fold_accuracies": [round(float(a), 4) for a in fold_accuracies],
+        "fold_sizes": fold_sizes,
+        "n_groups": int(groups.nunique()) if groups is not None else None,
         "std_accuracy": round(float(np.std(fold_accuracies)), 4),
         "confusion_matrix": cm,
         "per_class_recall": per_class_recall,
@@ -232,14 +237,16 @@ def train_and_evaluate_all() -> None:
 
     # Print summary
     print("\n--- RESULTS SUMMARY ---")
+    gb_report = results["models"]["gradient_boosting"]["report_grouped_cv"]
     gb_grouped = results["models"]["gradient_boosting"]["grouped_cv"]
     gb_plain = results["models"]["gradient_boosting"]["plain_cv"]
-    majority_acc = results["models"]["majority_baseline"]["grouped_cv"]["accuracy"]
+    majority_acc = results["models"]["majority_baseline"]["report_grouped_cv"]["accuracy"]
 
     print(f"Majority Baseline Accuracy:        {majority_acc:.4f}")
     print(f"Logistic Regression Grouped:       {results['models']['logistic_regression']['grouped_cv']['accuracy']:.4f}")
     print(f"Random Forest Grouped:             {results['models']['random_forest']['grouped_cv']['accuracy']:.4f}")
-    print(f"Gradient Boosting Campaign Grouped: {gb_grouped['accuracy']:.4f} (Zero-Leakage Headline)")
+    print(f"Gradient Boosting report_id Grouped: {gb_report['accuracy']:.4f} (Headline, Brief S6)")
+    print(f"Gradient Boosting investigation Grouped: {gb_grouped['accuracy']:.4f} (Secondary, stricter)")
     print(f"Gradient Boosting Plain CV:        {gb_plain['accuracy']:.4f} (Optimistic)")
     print(f"Confusion Matrix (GB Grouped):     {gb_grouped['confusion_matrix']}")
 
@@ -256,16 +263,32 @@ def train_and_evaluate_all() -> None:
     model_meta = {
         "type": "gradient_boosting",
         "n_train": len(df),
-        "cv_accuracy": gb_grouped["accuracy"],
-        "cv_balanced_accuracy": gb_grouped["balanced_accuracy"],
-        "cv_macro_f1": gb_grouped["macro_f1"],
-        "cv_scheme": "StratifiedGroupKFold(k=5, group=investigation)",
+        "cv_accuracy": gb_report["accuracy"],
+        "cv_balanced_accuracy": gb_report["balanced_accuracy"],
+        "cv_macro_f1": gb_report["macro_f1"],
+        "cv_scheme": "StratifiedGroupKFold(k=5, group=report_id)",
+        "secondary_cv": {
+            "scheme": "StratifiedGroupKFold(k=5, group=investigation)",
+            "accuracy": gb_grouped["accuracy"],
+            "balanced_accuracy": gb_grouped["balanced_accuracy"],
+            "rationale": "Coarser grouping: isolates whole flight campaigns.",
+        },
+        "cv_fold_accuracies": gb_report["fold_accuracies"],
+        "cv_fold_sizes": gb_report["fold_sizes"],
+        "cv_caveat": (
+            "Accuracy is pooled out-of-fold over all rows, not a mean of folds. "
+            "Group sizes are highly uneven, so per-fold accuracies on the smallest "
+            "groups rest on very few samples and std_accuracy is not meaningful. "
+            "Grouped accuracy exceeding plain stratified accuracy is a real effect of "
+            "this clustering, not a leak: grouped folds give each fit a more "
+            "homogeneous training set."
+        ),
         "optimistic_cv_accuracy": gb_plain["accuracy"],
         "majority_baseline_accuracy": majority_acc,
         "features": FEATURE_COLS_NUM + FEATURE_COLS_CAT,
         "classes": classes,
-        "confusion_matrix": gb_grouped["confusion_matrix"],
-        "per_class_recall": gb_grouped["per_class_recall"],
+        "confusion_matrix": gb_report["confusion_matrix"],
+        "per_class_recall": gb_report["per_class_recall"],
         "trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "dataset_sha256": dataset_sha256,
         "training_range": training_range,

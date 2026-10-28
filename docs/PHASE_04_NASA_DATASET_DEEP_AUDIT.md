@@ -105,7 +105,7 @@ The tabular training core currently ingested in FLARE-X contains **145 discrete 
 * **Materials (5):** PMMA (92 tests, 63.4%), Cellulose (22 tests, 15.2%), Cotton fabric (19 tests, 13.1%), Nomex (7 tests, 4.8%), Delrin (5 tests, 3.4%).
 * **Regimes (3):** `spread` (75 tests, 51.7%), `no_spread` (49 tests, 33.8%), `marginal_spread` (21 tests, 14.5%).
 * **4-D Bounding Box:** Oxygen ($15.0\%\text{ to }34.0\%$), Pressure ($56.5\text{ to }101.3\text{ kPa}$), Flow ($0.0\text{ to }45.0\text{ cm/s}$).
-* **Model Baseline Performance:** Gradient Boosting classifier achieves **79.31% CV accuracy** grouped by `report_id` (against a majority baseline of 51.72%).
+* **Model Baseline Performance:** Gradient Boosting classifier achieves **83.45% CV accuracy** grouped by `report_id` (against a majority baseline of 51.72%).
 
 ---
 

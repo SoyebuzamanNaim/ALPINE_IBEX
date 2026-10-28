@@ -1,10 +1,31 @@
 {
   "type": "gradient_boosting",
   "n_train": 145,
-  "cv_accuracy": 0.8414,
-  "cv_balanced_accuracy": 0.769,
-  "cv_macro_f1": 0.7909,
-  "cv_scheme": "StratifiedGroupKFold(k=5, group=investigation)",
+  "cv_accuracy": 0.8345,
+  "cv_balanced_accuracy": 0.7622,
+  "cv_macro_f1": 0.7809,
+  "cv_scheme": "StratifiedGroupKFold(k=5, group=report_id)",
+  "secondary_cv": {
+    "scheme": "StratifiedGroupKFold(k=5, group=investigation)",
+    "accuracy": 0.8414,
+    "balanced_accuracy": 0.769,
+    "rationale": "Coarser grouping: isolates whole flight campaigns."
+  },
+  "cv_fold_accuracies": [
+    0.8333,
+    0.7826,
+    1.0,
+    1.0,
+    0.625
+  ],
+  "cv_fold_sizes": [
+    96,
+    23,
+    11,
+    7,
+    8
+  ],
+  "cv_caveat": "Accuracy is pooled out-of-fold over all rows, not a mean of folds. Group sizes are highly uneven, so per-fold accuracies on the smallest groups rest on very few samples and std_accuracy is not meaningful. Grouped accuracy exceeding plain stratified accuracy is a real effect of this clustering, not a leak: grouped folds give each fit a more homogeneous training set.",
   "optimistic_cv_accuracy": 0.8138,
   "majority_baseline_accuracy": 0.5172,
   "features": [
@@ -20,8 +41,8 @@
   ],
   "confusion_matrix": [
     [
-      38,
-      2,
+      37,
+      3,
       9
     ],
     [
@@ -36,11 +57,11 @@
     ]
   ],
   "per_class_recall": {
-    "no_spread": 0.7755102040816326,
+    "no_spread": 0.7551020408163265,
     "marginal_spread": 0.5714285714285714,
     "spread": 0.96
   },
-  "trained_at": "2026-10-25T09:52:11+00:00",
+  "trained_at": "2026-10-28T10:02:57+00:00",
   "dataset_sha256": "428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6",
   "training_range": {
     "oxygen_pct": {

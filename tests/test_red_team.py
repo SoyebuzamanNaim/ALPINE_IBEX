@@ -97,7 +97,7 @@ def test_red_team_auditor_blocks_fabricated_numbers(auditor, composer):
         "probabilities": {"spread": 0.977, "marginal_spread": 0.015, "no_spread": 0.008},
         "model": {"n_train": 145, "cv_accuracy": 0.7931},
         "nearest_experiments": [
-            {"report_id": "20160010041", "experiment_id": "EXP_BASS_001", "oxygen_pct": 21.0, "distance": 0.02}
+            {"report_id": "20140011099", "experiment_id": "BASS_T1", "oxygen_pct": 21.0, "distance": 0.02}
         ]
     }
 
@@ -127,7 +127,7 @@ def test_red_team_auditor_blocks_fabricated_citations(auditor, composer):
         "prediction": "spread",
         "probabilities": {"spread": 0.977, "marginal_spread": 0.015, "no_spread": 0.008},
         "nearest_experiments": [
-            {"report_id": "20160010041", "experiment_id": "EXP_BASS_001"}
+            {"report_id": "20140011099", "experiment_id": "BASS_T1"}
         ]
     }
 

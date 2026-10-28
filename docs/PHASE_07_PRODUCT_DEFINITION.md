@@ -162,7 +162,7 @@ FLARE-X explicitly rejects treating probability as absolute truth. If a model pr
 │ MODEL CONFIDENCE:       82% (Calibrated Gradient Boosting)             │
 │ EXPERIMENTAL MATCH:     High Similarity to BASS2_B10 & BASS2_B11       │
 │ DOMAIN STATUS:          Inside tested range [15.0%, 34.0%]             │
-│ PRIMARY NASA EVIDENCE:  BASS-II (PSI-25, NASA/TM-2017-219503)          │
+│ PRIMARY NASA EVIDENCE:  BASS-II (PSI-25, NTRS 20170006615)          │
 │ SUPPORTING CONTEXT:     SAFFIRE-I (Large-scale burn S1)                │
 │ IMPORTANT DIFFERENCE:   Sample thickness differs (0.1 mm vs 1.0 mm)    │
 │ [VIEW NASA EVIDENCE]    [INSPECT MODEL METRICS]                        │

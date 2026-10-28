@@ -84,7 +84,7 @@
   "model": {
     "type": "gradient_boosting",
     "n_train": 145,
-    "cv_accuracy": 0.7931,
+    "cv_accuracy": 0.8345,
     "cv_scheme": "StratifiedGroupKFold(k=5, group=report_id)",
     "features": ["oxygen_pct", "pressure_kpa", "flow_cm_s", "material"]
   }
@@ -104,8 +104,8 @@
   "query": {"oxygen_pct": 21.0, "pressure_kpa": 101.3, "flow_cm_s": 5.0, "material": "PMMA"},
   "nearest_experiments": [
     {
-      "experiment_id": "EXP_BASS_001",
-      "report_id": "NASA/TM-2016-219077",
+      "experiment_id": "BASS_T1",
+      "report_id": "NTRS 20140011099",
       "oxygen_pct": 21.0,
       "pressure_kpa": 101.3,
       "flow_cm_s": 5.0,
@@ -113,7 +113,7 @@
       "sample_thickness_mm": 1.2,
       "outcome": "spread",
       "distance": 0.012,
-      "source_url": "https://ntrs.nasa.gov/citations/20160010041"
+      "source_url": "https://ntrs.nasa.gov/citations/20140011099"
     }
   ],
   "supporting_passages": [...]
@@ -163,7 +163,7 @@ Matches Section 7 API contract:
   "model": {
     "type": "gradient_boosting",
     "n_train": 145,
-    "cv_accuracy": 0.7931,
+    "cv_accuracy": 0.8345,
     "cv_scheme": "StratifiedGroupKFold(k=5, group=report_id)",
     "features": ["oxygen_pct", "pressure_kpa", "flow_cm_s", "material"]
   },

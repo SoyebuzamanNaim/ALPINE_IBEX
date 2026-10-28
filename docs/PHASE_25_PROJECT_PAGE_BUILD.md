@@ -23,17 +23,17 @@ DEPLOYMENT PHILOSOPHY
 
 ## 25.1 Deliverables Package & File Manifest
 
-The complete deployable project package is stored in the repository under [`project-page/`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/project-page/):
+The complete deployable project package is stored in the repository under [`project-page/`](project-page/):
 
 | File Name | Purpose & Contents |
 | :--- | :--- |
-| [`index.html`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/project-page/index.html) | Complete single-page scrolling structure, semantic sections, and inline SVG concept visualizations. |
-| [`styles.css`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/project-page/styles.css) | Dark scientific mission-control design system, CSS custom properties, grid layouts, and media queries. |
-| [`script.js`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/project-page/script.js) | Accessible mobile navigation toggle and high-performance `IntersectionObserver` scroll animations. |
-| [`README.md`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/project-page/README.md) | Deployment runbook, incognito test instructions, and publication checklists. |
-| [`DATA_SOURCES.md`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/project-page/DATA_SOURCES.md) | Complete NASA PSI (PSI-25, PSI-69, PSI-98, PSI-102, PSI-107) accession references. |
-| [`LIMITATIONS.md`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/project-page/LIMITATIONS.md) | Official scientific limitations disclosure, scale caveats, and the Evidence Absence Rule. |
-| [`CREDITS.md`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/project-page/CREDITS.md) | Formal attributions for NASA, open-source resources, and generative design prototyping disclosures. |
+| [`index.html`](project-page/index.html) | Complete single-page scrolling structure, semantic sections, and inline SVG concept visualizations. |
+| [`styles.css`](project-page/styles.css) | Dark scientific mission-control design system, CSS custom properties, grid layouts, and media queries. |
+| [`script.js`](project-page/script.js) | Accessible mobile navigation toggle and high-performance `IntersectionObserver` scroll animations. |
+| [`README.md`](project-page/README.md) | Deployment runbook, incognito test instructions, and publication checklists. |
+| [`DATA_SOURCES.md`](project-page/DATA_SOURCES.md) | Complete NASA PSI (PSI-25, PSI-69, PSI-98, PSI-102, PSI-107) accession references. |
+| [`LIMITATIONS.md`](project-page/LIMITATIONS.md) | Official scientific limitations disclosure, scale caveats, and the Evidence Absence Rule. |
+| [`CREDITS.md`](project-page/CREDITS.md) | Formal attributions for NASA, open-source resources, and generative design prototyping disclosures. |
 
 ---
 
@@ -145,6 +145,6 @@ Before publishing the link in the Space Apps submission portal:
 
 ## ✅ Phase 25 Status: COMPLETE
 
-The **Project Page Build** for FLARE-X is formally compiled, tested, and stored in [`project-page/`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/project-page/).
+The **Project Page Build** for FLARE-X is formally compiled, tested, and stored in [`project-page/`](project-page/).
 
 *Next Phase:* **Phase 26 — 240-Second Video Storyboard** (locking the prescreening video second-by-second across the 45s WHO / 60s WHY / 60s WHAT / 75s SO WHAT structure, with exact scene directions, on-screen graphics, b-roll footage cues, and subtitle anchors).

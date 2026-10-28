@@ -399,14 +399,17 @@ function renderPredictionResults(data) {
   const peEl = document.getElementById('telemetry-peclet');
   const mgEl = document.getElementById('telemetry-margin');
 
-  if (daEl) daEl.textContent = `Da ≈ ${da} (${parseFloat(da) > 5 ? 'Reaction-dominated' : 'Flow-dominated'})`;
-  if (peEl) peEl.textContent = `Pe ≈ ${pe} (Laminar airflow)`;
+  // These are coarse scaling heuristics for operator intuition only. They are NOT model
+  // outputs and are not fitted to the NASA data. Ferkul (NTRS 19890014267) reports that the
+  // Damkohler number alone does not predict spread or extinction near the quench limit.
+  if (daEl) daEl.textContent = `Da ~ ${da} — illustrative scaling only, not a model output`;
+  if (peEl) peEl.textContent = `Pe ~ ${pe} — illustrative scaling only, not a model output`;
   if (mgEl) {
     if (parseFloat(margin) >= 0) {
-      mgEl.textContent = `+${margin}% above LOC (17.5%)`;
+      mgEl.textContent = `+${margin}% vs nominal 17.5% LOC reference (literature value, not model-derived)`;
       mgEl.className = 'phys-val highlight-green';
     } else {
-      mgEl.textContent = `${margin}% below LOC (Extinction)`;
+      mgEl.textContent = `${margin}% vs nominal 17.5% LOC reference (literature value, not model-derived)`;
       mgEl.className = 'phys-val';
     }
   }
@@ -461,7 +464,7 @@ function renderPredictionResults(data) {
       if (stateTierPill) {
         stateTierPill.className = 'state-tier-pill tier-estimate';
         if (stateTierLabel) stateTierLabel.textContent = 'MODEL ESTIMATE';
-        if (stateTierExplainer) stateTierExplainer.textContent = 'Supervised GBDT · Honest Grouped CV 79.31% · Bounded Flight Envelope';
+        if (stateTierExplainer) stateTierExplainer.textContent = 'Supervised GBDT · Honest Grouped CV 83.45% · Bounded Flight Envelope';
       }
     }
 
@@ -738,7 +741,7 @@ function drawBoundaryCanvas() {
     ctx.fillStyle = '#b45309';
     ctx.font = '10px "JetBrains Mono", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('LOC ≈ 17.5%', locX + 6, padTop + 14);
+    ctx.fillText('nominal LOC 17.5% (reference)', locX + 6, padTop + 14);
   }
 
   // Outer Plot Border
@@ -1012,7 +1015,7 @@ function updateSweepPoint(o2Val) {
     if (exp) {
       evAbove.innerHTML = `<strong>Real NASA ${exp.investigation || 'Flight'} Test:</strong> ${exp.oxygen_pct}% O₂, ${exp.pressure_kpa} kPa, ${exp.flow_cm_s} cm/s → <em>${exp.outcome}</em> (<a href="${exp.source_url || '#'}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${exp.report_id} ↗</a>, ${state.material})`;
     } else {
-      evAbove.innerHTML = `<strong>Real NASA BASS Test:</strong> 20.8% O₂, 101.3 kPa, 5.0 cm/s → <em>spread</em> (<a href="https://ntrs.nasa.gov/citations/20160010041" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS 20160010041 ↗</a>, ${state.material})`;
+      evAbove.innerHTML = `<span class="evidence-unavailable">No flight test on the spread side of this boundary is available for ${state.material} at the current pressure and flow. Adjust the slice to a region with coverage.</span>`;
     }
   }
   if (evBelow) {

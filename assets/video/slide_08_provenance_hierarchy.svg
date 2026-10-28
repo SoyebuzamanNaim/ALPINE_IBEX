@@ -114,7 +114,7 @@
 
         <text x="0" y="65" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">Model Family &amp; Metric:</text>
         <text x="0" y="89" font-family="'JetBrains Mono', monospace" font-size="12.5" fill="#1d4ed8">BASS Gradient-Boosted Classifier v1.2</text>
-        <text x="0" y="111" font-family="'Inter', sans-serif" font-size="12.5" fill="#334155">79.31% Grouped Cross-Validation Accuracy</text>
+        <text x="0" y="111" font-family="'Inter', sans-serif" font-size="12.5" fill="#334155">83.45% Grouped Cross-Validation Accuracy</text>
 
         <text x="0" y="152" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#0f172a">Safety Boundary Check:</text>
         <text x="0" y="174" font-family="'JetBrains Mono', monospace" font-size="12" fill="#334155">• Envelope Guard: Convex Hull Verified</text>

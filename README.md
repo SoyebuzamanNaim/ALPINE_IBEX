@@ -2,10 +2,10 @@
 
 [![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
-[![Grouped CV Accuracy](https://img.shields.io/badge/Grouped%20CV%20Accuracy-79.31%25-brightgreen.svg)](reports/PHASE_05_REPORT.md)
-[![Majority Baseline](https://img.shields.io/badge/Majority%20Baseline-51.72%25-orange.svg)](reports/PHASE_05_REPORT.md)
+[![Grouped CV Accuracy](https://img.shields.io/badge/Grouped%20CV%20Accuracy-83.45%25-brightgreen.svg)](reports/BASELINE_RESULTS.md)
+[![Majority Baseline](https://img.shields.io/badge/Majority%20Baseline-51.72%25-orange.svg)](reports/BASELINE_RESULTS.md)
 [![Flight Tests](https://img.shields.io/badge/NASA%20Flight%20Tests-145%20Ingested-blue.svg)](cache/experiments.parquet)
-[![Tests](https://img.shields.io/badge/Automated%20Tests-68%2F68%20Passing-success.svg)](tests/)
+[![Tests](https://img.shields.io/badge/Automated%20Tests-78%2F78%20Passing-success.svg)](tests/)
 
 > **NASA International Space Apps Challenge — Challenge #08: "Flame in Freefall"**  
 > *Autonomous Research Prototype & Interactive Decision-Support Tool for Spacecraft Fire Safety.*
@@ -76,7 +76,7 @@ Under microgravity conditions:
    - Refuses predictions when environmental parameters lie outside the empirical flight domain.
    - For out-of-range scenarios, the system explicitly returns `prediction: null`, provides structured refusal reasons, and retrieves the 3 nearest real historical spaceflight experiments.
 2. **Machine Learning Classifier with Honest Evaluation:**
-   - 5-Fold Grouped Stratified Cross-Validation (`StratifiedGroupKFold(k=5, group=report_id)`) achieves **79.31% accuracy** against a **51.72% majority-class baseline**.
+   - 5-Fold Grouped Stratified Cross-Validation (`StratifiedGroupKFold(k=5, group=report_id)`) achieves **83.45% pooled out-of-fold accuracy** against a **51.72% majority-class baseline**.
    - Model parameters, confusion matrix, and feature importances are fully serialized and published in [model_meta.json](models/model_meta.json).
 3. **Counterfactual Engine & Regime Boundary Detection:**
    - Perturbs individual parameters (e.g. oxygen concentration, forced flow velocity) to calculate distance to flammability extinction boundaries and safety margins.
@@ -100,8 +100,12 @@ To install dependencies, start the FastAPI backend server, and serve the Mission
 
 ```bash
 # Clone the repository
-git clone https://github.com/flame-in-freefall/flare-x-prototype.git
-cd flare-x-prototype
+git clone https://github.com/SoyebuzamanNaim/ALPINE_IBEX.git
+cd ALPINE_IBEX
+
+# Create an environment and install dependencies
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
 
 # Execute single-command launcher
 ./scripts/run_local.sh
@@ -116,20 +120,31 @@ Once running:
 
 ## 4. Dataset Provenance & Curation
 
-FLARE-X relies on **145 discrete, verified microgravity flight observations** extracted from published NASA Technical Reports and Physical Sciences Informatics (PSI) repositories.
+FLARE-X relies on **145 discrete microgravity combustion test conditions** extracted from six published NASA
+technical reports. Every `report_id` below has been resolved against the live NASA Technical Reports Server
+and its title verified; none is constructed.
 
-| Investigation / Mission | Platform | Fuel Materials | Validated Tests | Primary Literature Citation |
-|---|---|---|---|---|
-| **BASS** (Burning and Suppression of Solids) | ISS Microgravity Science Glovebox | PMMA (Cast Acrylic), Cotton Fabric | 68 | NASA/TP-2015-218497 |
-| **BASS-II** | ISS Microgravity Science Glovebox | PMMA, Cotton Fabric, Delrin | 42 | NASA/TM-2018-220038 |
-| **DARTFire** | KC-135 Reduced Gravity / Drop Tower | Ashless Filter Paper (Cellulose) | 22 | NASA/CR-2002-211568 |
-| **Exploration Atmospheres Flammability** | 5.18-Second Zero-G Facility | Nomex, Cast Acrylic (PMMA) | 13 | NASA/TM-2019-220211 |
+| Investigation | NTRS ID | Platform | Materials | Rows | Verified Source |
+|---|---|---|---|---|---|
+| **BASS-II** | `20210011385` | ISS | Cotton, Nomex, PMMA | 96 | [Burning and Suppression of Solids-II (BASS-II) Summary Report](https://ntrs.nasa.gov/citations/20210011385) · Olson, Ferkul, Bhattacharjee et al. |
+| **ExplorationAtmospheres** | `20080034883` | drop_tower | Cellulose, Nomex, PMMA | 23 | [Microgravity Flame Spread in Exploration Atmospheres: Pressure, Oxygen, and Velocity Effects](https://ntrs.nasa.gov/citations/20080034883) · Olson, Ruff & Miller |
+| **MGLAB & GRC Drop Tower Extinction Synthesis** | `20040053557` | drop_tower | Cellulose, PMMA | 11 | [Extinction Criteria for Opposed-Flow Flame Spread in a Microgravity Environment](https://ntrs.nasa.gov/citations/20040053557) · Bhattacharjee, Paolini, Wakai & Takahashi |
+| **BASS** | `20140011099` | ISS | PMMA | 8 | [Thickness and Fuel Preheating Effects on Material Flammability in Microgravity from the BASS Experiment](https://ntrs.nasa.gov/citations/20140011099) · Ferkul, Olson, Takahashi et al. |
+| **BASS** | `20160000593` | ISS | Delrin | 5 | [Combustion of Solids in Microgravity: Results from the BASS-II Experiment](https://ntrs.nasa.gov/citations/20160000593) · Ferkul, Bhattacharjee, Fernandez-Pello et al. |
+| **NASA GRC 5.18s Drop Tower Near-Limit Study** | `19890014267` | drop_tower | Cellulose | 2 | [An experimental study of opposed flow diffusion flame extinction over a thin fuel in microgravity](https://ntrs.nasa.gov/citations/19890014267) · Ferkul |
+
+**Outcome distribution:** `spread` 75, `no_spread` 49, `marginal_spread` 21
+**Material distribution:** PMMA 92, Cellulose 22, Cotton 19, Nomex 7, Delrin 5
 
 - **Canonical Parquet Store:** [cache/experiments.parquet](cache/experiments.parquet)
-- **Data Integrity SHA-256:** `d5a06d2d0cce4e2fe2207bd490df4ec1213ca6eeabc1436243eb8d49dafd0be0`
-- **Comprehensive Catalog:** [data/metadata/dataset_catalog.csv](data/metadata/dataset_catalog.csv)
-- **Raw Files & Hashes:** [data/metadata/source_manifest.csv](data/metadata/source_manifest.csv)
+- **Data Integrity SHA-256:** `428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6`
+- **Report Corpus:** [cache/report_corpus/](cache/report_corpus/) — 13 NTRS abstracts with resolvable identifiers
+- **Provenance Registry:** [data/metadata/provenance_registry.json](data/metadata/provenance_registry.json)
 - **Complete Ingestion Documentation:** [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)
+
+> **Scope note.** The dataset covers BASS, BASS-II, Exploration Atmospheres and drop-tower extinction studies.
+> It does **not** contain Saffire, ACME, FLEX or SoFIE flight data. Those campaigns appear only in the
+> Cross-Study Conflict Explorer as cited literature for comparison, never as model training rows.
 
 ---
 
@@ -137,104 +152,119 @@ FLARE-X relies on **145 discrete, verified microgravity flight observations** ex
 
 | Attribute | Specification |
 |---|---|
-| **Algorithm** | Gradient Boosting Classifier (`HistGradientBoostingClassifier` / `GradientBoostingClassifier`) |
-| **Target Classes** | `spread` (75 samples), `no_spread` (49 samples), `marginal_spread` (21 samples) |
-| **Input Features** | `oxygen_concentration_pct`, `forced_flow_velocity_cm_s`, `pressure_kpa`, `sample_thickness_mm`, `material_name`, `sample_width_mm` |
-| **Evaluation Strategy** | 5-Fold Stratified Grouped K-Fold Cross-Validation (`groups=report_id`) |
-| **Honest Grouped CV Accuracy** | **79.31%** (Mean accuracy across grouped splits) |
-| **Standard Un-grouped CV** | **80.69%** (Reported for comparison; optimistic due to intra-report clustering) |
-| **Majority Baseline** | **51.72%** (Always predicting majority class `spread`) |
-| **Confusion Matrix (Grouped)** | `[[37, 7, 5], [4, 11, 6], [2, 6, 67]]` (Rows: `no_spread`, `marginal_spread`, `spread`) |
+| **Algorithm** | Gradient Boosting Classifier (scikit-learn) |
+| **Target Classes** | `spread` (75), `no_spread` (49), `marginal_spread` (21) |
+| **Input Features** | `oxygen_pct`, `pressure_kpa`, `flow_cm_s`, `material` (4 features) |
+| **Evaluation Scheme** | `StratifiedGroupKFold(k=5, group=report_id)` — Challenge Brief §6 |
+| **Headline Grouped CV Accuracy** | **83.45%** |
+| **Balanced Accuracy / Macro-F1** | 76.22% / 78.09% |
+| **Secondary (stricter) grouping** | 84.14% with `group=investigation` |
+| **Plain Stratified CV** | 81.38% (labelled optimistic) |
+| **Majority Baseline** | 51.72% |
+| **Dataset SHA-256** | `428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6` |
+
+### Confusion Matrix (headline, pooled out-of-fold)
+
+| True \ Pred | `no_spread` | `marginal_spread` | `spread` |
+|---|---|---|---|
+| **`no_spread`** | 37 | 3 | 9 |
+| **`marginal_spread`** | 3 | 12 | 6 |
+| **`spread`** | 1 | 2 | 72 |
+
+### How to read these numbers honestly
+
+- Accuracy is **pooled out-of-fold** across all 145 rows, not an average of fold scores.
+- Groups are very uneven — fold support sizes are `[96, 23, 11, 7, 8]` with fold accuracies
+  `[0.8333, 0.7826, 1.0, 1.0, 0.625]`. The two folds scoring 1.00 hold only
+  11 and 7 samples, so `std_accuracy` is not meaningful.
+- Grouped accuracy **exceeds** plain stratified accuracy. That inversion is a real consequence of this
+  clustering, not a leak: grouped folds hand each fit a more homogeneous training set.
+- Per-material support is thin outside PMMA (92 rows):
+  Cellulose 22, Cotton 19, Delrin 5, Nomex 7.
 
 ### Model Serialization
 - Model Artifact: [models/flame_spread_gb.joblib](models/flame_spread_gb.joblib)
-- Metadata & Parameters: [models/model_meta.json](models/model_meta.json)
-- Validation Metrics: [models/metrics.json](models/metrics.json)
+- Metadata, training range & caveats: [models/model_meta.json](models/model_meta.json)
+- All four model families, both CV schemes: [models/metrics.json](models/metrics.json)
 
 ---
 
-## 6. REST API Specification (Section 7 Contract)
+## 6. REST API Specification
+
+Field names below are the live contract from [src/api/schemas.py](src/api/schemas.py).
 
 ### `POST /predict`
-Evaluates a query scenario against the microgravity envelope and returns prediction probabilities or refusal.
 
 #### In-Envelope Request
 ```json
 {
-  "material_name": "PMMA",
-  "oxygen_concentration_pct": 21.0,
-  "forced_flow_velocity_cm_s": 5.0,
+  "oxygen_pct": 21.0,
   "pressure_kpa": 101.3,
-  "sample_thickness_mm": 2.0
+  "flow_cm_s": 5.0,
+  "material": "PMMA"
 }
 ```
 
-#### In-Envelope Response
+#### Response shape
 ```json
 {
+  "inputs": {"oxygen_pct": 21.0, "pressure_kpa": 101.3, "flow_cm_s": 5.0, "material": "PMMA"},
   "in_training_range": true,
   "out_of_range_reasons": [],
-  "prediction": "spread",
-  "probabilities": {
-    "no_spread": 0.082,
-    "marginal_spread": 0.125,
-    "spread": 0.793
+  "prediction": "<class from the trained artifact>",
+  "probabilities": {"no_spread": 0.0, "marginal_spread": 0.0, "spread": 0.0},
+  "model": {
+    "type": "gradient_boosting",
+    "n_train": 145,
+    "cv_accuracy": 0.8345,
+    "cv_scheme": "StratifiedGroupKFold(k=5, group=report_id)",
+    "features": ["oxygen_pct", "pressure_kpa", "flow_cm_s", "material"]
   },
   "nearest_experiments": [
-    {
-      "test_id": "BASS_TR_042",
-      "distance": 0.041,
-      "material_name": "PMMA",
-      "oxygen_concentration_pct": 21.0,
-      "forced_flow_velocity_cm_s": 5.2,
-      "flame_spread_observed": "spread",
-      "source_report_id": "NASA-TP-2015-218497"
-    }
+    {"experiment_id": "<id>", "report_id": "<NTRS id>", "oxygen_pct": 0.0, "pressure_kpa": 0.0,
+     "flow_cm_s": 0.0, "material": "PMMA", "outcome": "<observed>", "distance": 0.0,
+     "source_url": "https://ntrs.nasa.gov/citations/<NTRS id>"}
   ],
-  "explanation": "Predicted flame spread (probability: 79.3%) based on 145 NASA spaceflight experiments..."
+  "explanation": "<deterministic or audited text>"
 }
 ```
 
-#### Out-of-Envelope Request (Extrapolation Guard Triggered)
-```json
-{
-  "material_name": "PMMA",
-  "oxygen_concentration_pct": 45.0,
-  "forced_flow_velocity_cm_s": 150.0,
-  "pressure_kpa": 101.3,
-  "sample_thickness_mm": 2.0
-}
-```
+> **Probability and prediction values above are zero-filled placeholders showing shape only.**
+> Real values come from `models/flame_spread_gb.joblib` at request time. No example result is
+> hard-coded anywhere in the product.
 
-#### Out-of-Envelope Response (Refusal Contract)
+#### Out-of-Envelope Response (refusal contract)
+When any feature falls outside `training_range`, or the material is unknown:
+
 ```json
 {
   "in_training_range": false,
   "out_of_range_reasons": [
-    "oxygen_concentration_pct 45.0% exceeds training maximum 34.0%",
-    "forced_flow_velocity_cm_s 150.0 cm/s exceeds training maximum 45.0 cm/s"
+    {"feature": "oxygen_pct", "value": 45.0, "train_min": 15.0, "train_max": 34.0, "reason": "..."}
   ],
   "prediction": null,
   "probabilities": null,
-  "nearest_experiments": [
-    { "test_id": "BASS_TR_089", "distance": 1.42, "material_name": "PMMA" }
-  ],
-  "explanation": "Scenario is outside the verified experimental envelope of 145 NASA flight tests. Extrapolation refused."
+  "nearest_experiments": ["... still returned ..."],
+  "explanation": "Requested conditions are outside the published experimental envelope. No prediction is made."
 }
 ```
+
+### Other endpoints
+`GET /health` · `GET /experiments` · `GET /model` · `GET /boundary` · `POST /counterfactual` ·
+`POST /sweep` · `POST /scenario/parse` · `GET /datasets` · `GET /sources/{report_id}`
 
 ---
 
 ## 7. Verification & Automated Testing Suite
 
-All modules are covered by 68 automated unit, integration, and red-team tests:
+All modules are covered by 78 automated unit, integration, and red-team tests:
 
 ```bash
 # Activate virtual environment
 source .venv/bin/activate
 
 # Execute complete test suite
-pytest tests/ -v
+pytest tests/ -q
 ```
 
 ### Test Coverage Summary
@@ -249,7 +279,7 @@ pytest tests/ -v
 - [tests/test_end_to_end.py](tests/test_end_to_end.py): 6 complete operator flight scenarios from request to response (6 tests).
 - [tests/test_red_team.py](tests/test_red_team.py): Adversarial injection, extreme physics parameters, edge cases (6 tests).
 
-**Result:** `68 passed in 6.95s` (100% passing).
+**Result:** `78 passed` (100% passing). Run `.venv/bin/python -m pytest tests/ -q` to reproduce.
 
 ---
 
@@ -259,7 +289,7 @@ pytest tests/ -v
    - The database contains 145 discrete tests, heavily concentrated in Polymethyl Methacrylate (PMMA, 92 tests, 63.4%) and thin fabrics.
    - Materials not present in historical spaceflight records (e.g., Kapton, Silicone, Titanium) trigger immediate refusal.
 2. **Atmospheric & Flow Limits:**
-   - Valid only for oxygen concentrations between **15.0% and 34.0% O₂**, pressures between **56.5 and 101.3 kPa**, and forced flows between **0 and 45.0 cm/s**.
+   - Valid only for oxygen between **15.0% and 34.0% O₂**, pressure between **56.5 and 101.3 kPa**, and forced flow between **0.0 and 45.0 cm/s**. Per-material ranges are narrower and are enforced separately.
 3. **Statistical Surrogate Nature:**
    - Predictions are empirical machine-learning inferences derived from historical flight experiments. They do not replace formal CFD models or official NASA flight certification procedures.
    - Full disclosure: [docs/LIMITATIONS.md](docs/LIMITATIONS.md).

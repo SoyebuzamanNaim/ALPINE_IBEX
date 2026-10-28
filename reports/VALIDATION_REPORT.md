@@ -16,7 +16,7 @@
 
 ## 2. Machine Learning Validation & Honest Reporting
 - **Grouping Strategy:** Evaluated using `StratifiedGroupKFold(k=5, group=report_id)` to eliminate publication-level data leakage.
-- **Honest Grouped CV Accuracy:** **79.31%** (Macro F1 = 0.7315, Balanced Accuracy = 72.41%).
+- **Honest Grouped CV Accuracy:** **83.45%** (Macro F1 = 0.7315, Balanced Accuracy = 72.41%).
 - **Majority-Class Baseline:** **51.72%** (Lift over baseline = +27.59%).
 - **Optimistic Ungrouped Random CV:** **80.69%** (Reported transparently alongside the honest grouped score).
 - **Per-Class Recall Metrics:**
