@@ -130,6 +130,61 @@ accurate position.
 
 ---
 
+## 2d. BASS-II relabelled dataset
+
+`data/processed/experiments_bass2_relabelled.csv` holds **158 rows from 76 BASS-II tests**:
+PSI conditions joined to NTRS `20210011385` observations, with every outcome assigned by
+reading that test's observation text against `docs/LABELING_PROTOCOL.md`. Each row keeps its
+`observation` and `label_source`, so any label can be re-checked against the sentence it came
+from.
+
+**Class balance: 135 `spread`, 23 `no_spread`, 0 `marginal_spread`.**
+
+That imbalance is a property of the source, not a sampling choice, and it is the single most
+important thing this rebuild revealed. In BASS-II most extinction events occur at fan-pot
+settings *below* the lowest velocity recorded in cm/s. Those are precisely the rows that carry
+the flammability limit, and their velocity is not recoverable (see 2c). A dataset restricted to
+velocities actually stated in cm/s therefore keeps most of the "it burned" cases and loses most
+of the "it went out" cases.
+
+The previous table's tidy 75 / 49 / 21 balance came from treating those pot readings as cm/s
+velocities. Remove that error and the apparent balance goes with it.
+
+**What the negatives do still cover.** The 23 `no_spread` rows span both branches of the
+flammability boundary, which is what makes them worth having:
+
+- low-flow quenching at 2 to 5 cm/s (`B14`, `O3a`, `T20`, `T10`, `T12`, `T22`, `M19`, `O5b`)
+- high-flow blowoff at 10 to 18 cm/s (`B18`, `B19`, `M11`, `M9`, `M3`)
+- outright non-ignition (`F2`, `F3`, `P8`, Nomex at 8 and 15 cm/s)
+
+### Two limitations that follow from the data
+
+**Pressure is not identifiable.** Every BASS-II row sits at 101.3 kPa. Pressure varies only in
+the 21 Saffire rows (54.1 to 100.0 kPa). Any pressure dependence the model appears to learn
+comes from those 21 rows alone.
+
+**Three feature-identical pairs carry opposite labels**, and they are real rather than
+transcription errors:
+
+| Conditions | Outcomes | Why |
+|---|---|---|
+| PMMA, 18.0 % O2, 3 cm/s | spread and no_spread | `O3b` burned at low flow; `O3a` "extinguished as soon as he turned flow down, probably overshot" |
+| Cotton-Fiberglass, 17.1 % O2, 5 cm/s | spread and no_spread | `T11` "burned completely, steady"; `T22` "ignited at 11, turned down to 5 and extinguished" |
+| PMMA, 17.3 % O2, 10 cm/s | spread and no_spread | one test blew off, the other sustained |
+
+Near the limit the outcome depends on whether a flame was already established before the flow
+was changed. `oxygen_pct`, `pressure_kpa`, `flow_cm_s` and `material` cannot express that
+history, so these points set an irreducible noise floor on any model using these four features.
+
+### Excluded
+
+89 rows across 43 tests are excluded, each with a stated reason: an empty observation field
+(about 20 tests), a velocity that is actually a potentiometer or fan-display reading, a
+truncated observation, or an outcome that cannot be attributed to one velocity. `P21b` is
+excluded as an igniter hardware failure rather than a flammability result.
+
+---
+
 ## 3. Exclusion Rationale
 To guarantee physical validity, non-solid combustion investigations were audited in Phase 02 and explicitly segregated:
 - **Droplet Combustion (FLEX / FLEX-2):** Isolated spherical droplets burning in quiescent atmospheres exhibit $d^2$ evaporation law mechanics distinct from solid-fuel surface pyrolysis.
