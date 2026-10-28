@@ -25,6 +25,12 @@
       "skillPath": "skills/debugging-and-error-recovery/SKILL.md",
       "computedHash": "6f437bc609eb8d0dc7f4768c17c9aeb85c9c7632bc36703af9f1367ffb47237a"
     },
+    "design-taste-frontend": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "6ac8ba6089dcbc303744a507a4587113c5d845ca2f658b3ce2b0b5eab108fb0d"
+    },
     "documentation-and-adrs": {
       "source": "addyosmani/agent-skills",
       "sourceType": "github",
