@@ -86,6 +86,50 @@ left out rather than inferred.
 
 ---
 
+## 2c. BASS-II rebuild: labelling worksheet
+
+`data/processed/bass2_labelling_worksheet.csv` holds **249 candidate conditions from 119 of the
+129 PSI tests**, built by joining the authoritative PSI conditions to the observation text of
+NTRS `20210011385` on `Test #`.
+
+**What is authoritative in this file**
+
+- `oxygen_pct` is `Calibrated initial O2 % by vol` straight from the PSI table. Range
+  **14.2 to 22.2 %**, including the near-limit region missing from `cache/experiments.parquet`.
+- `flow_cm_s` comes from the PSI `Air display` column, which is the duct velocity in cm/s.
+  Six tests checked by hand against the source reproduce exactly (`B1`, `B3`, `B14`, `B18`,
+  `O4`, `P1`), on both oxygen and velocity.
+- `material`, `sample_geometry` and `sample_thickness_mm` are derived from the PSI
+  `Fuel Sample Material` string; `fan_display_raw` and `air_display_raw` are kept verbatim so
+  every derived value can be rechecked.
+
+**What is not filled in.** `outcome` is deliberately **blank**. Only 20 of 249 rows carry a
+`suggested_outcome`, and only where the observation text names that specific velocity. The
+`evidence` column states why, or says the row needs a human read. The remaining 229 rows have
+observation text but no machine-checkable per-velocity evidence.
+
+This is a deliberate stop. Four successive attempts to assign outcomes automatically each
+produced demonstrably wrong labels (a velocity the test never reached marked as spreading, a
+fan-pot reading recorded as a cm/s velocity, and *"flame extinguished before spreading"*
+classified as spread). Outcome is the safety-critical column, and the existing defect in this
+repository was caused by exactly this kind of unchecked derivation. Conditions are machine
+-recoverable; outcomes are not.
+
+**To finish the rebuild:** fill `outcome` per row from the `observation` column following
+`docs/LABELING_PROTOCOL.md`, confirming or overriding `suggested_outcome`, then merge into
+`cache/experiments.parquet` and retrain. 119 tests is a few hours of careful reading.
+
+**A note on low-flow velocities.** `PSI-25_Fan_calibration_data.xlsx` does map potentiometer
+settings to velocity, but pooled across its 27 calibration blocks the same pot maps to a wide
+range of velocities (pot 10 spans 20 to 59 cm/s), because the mapping depends on date and flow
+restrictor. The extinction points in the data sit at pot 0.35 to 0.5, below the lowest
+calibrated pot of 1.0. Those velocities are therefore **not** reliably recoverable, and this
+worksheet drops any number adjacent to the token `pot` rather than converting it. Earlier
+revisions of this document first called them unrecoverable, then recoverable; this is the
+accurate position.
+
+---
+
 ## 3. Exclusion Rationale
 To guarantee physical validity, non-solid combustion investigations were audited in Phase 02 and explicitly segregated:
 - **Droplet Combustion (FLEX / FLEX-2):** Isolated spherical droplets burning in quiescent atmospheres exhibit $d^2$ evaporation law mechanics distinct from solid-fuel surface pyrolysis.

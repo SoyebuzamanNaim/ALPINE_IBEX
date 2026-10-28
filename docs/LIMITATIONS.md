@@ -37,10 +37,13 @@ Specific confirmed errors:
   and 0.50 cm/s correspond to pot readings quoted in observations
   (*"extinguished at pot 0.35"*). In the source tables, `Fan display` is a potentiometer
   reading and `Air display` is the duct velocity in cm/s; the two were conflated.
-  These velocities **are recoverable**: `data/external/psi/PSI-25_Fan_calibration_data.xlsx`
-  maps `Pot -> Fan Display -> Air Display -> Fan V -> U cm/s` separately for each date and
-  flow-restrictor configuration. No single global conversion exists, which is why the same
-  pot setting appears against different velocities in different tests.
+  `data/external/psi/PSI-25_Fan_calibration_data.xlsx` does map
+  `Pot -> Fan Display -> Air Display -> Fan V -> U cm/s`, but only per date and flow-restrictor
+  configuration: pooled across its 27 blocks, pot 10 spans 20 to 59 cm/s. The extinction points
+  sit at pot 0.35 to 0.5, below the lowest calibrated pot of 1.0. These velocities are therefore
+  **not reliably recoverable**, and the rebuild drops pot-labelled numbers rather than converting
+  them. The mid and high velocities need no conversion: the `Air display` column already gives
+  them in cm/s.
 - **Near-limit data was lost.** The real campaign probed 12.7-17% O2, the region where flames
   actually stop propagating. Those values were replaced with ~18-21% O2, so the learned
   flammability boundary sits several percentage points too high in oxygen.
