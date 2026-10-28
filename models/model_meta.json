@@ -25,7 +25,7 @@
     7,
     8
   ],
-  "cv_caveat": "Accuracy is pooled out-of-fold over all rows, not a mean of folds. Group sizes are highly uneven, so per-fold accuracies on the smallest groups rest on very few samples and std_accuracy is not meaningful. Grouped accuracy exceeding plain stratified accuracy is a real effect of this clustering, not a leak: grouped folds give each fit a more homogeneous training set.",
+  "cv_caveat": "Accuracy is pooled out-of-fold over all rows, not a mean of folds. Group sizes are highly uneven (96/23/11/8/5/2), so per-fold accuracy on the smallest groups rests on very few samples; std_accuracy is not meaningful and marginal_spread support is 1-2 rows in three of five folds. StratifiedGroupKFold(group=report_id) yields only 2 distinct partitions across 200 seeds, so it is effectively leave-one-report-out and cannot be averaged over splitter seeds. Grouped accuracy slightly exceeds plain stratified accuracy because within-report neighbours are parametric-sweep siblings that straddle the extinction boundary: the nearest same-report neighbour agrees in label 55% of the time versus 62% for the nearest cross-report neighbour, so same-report training rows actively mislead. Most of the remaining gap is single-seed noise.",
   "optimistic_cv_accuracy": 0.8138,
   "majority_baseline_accuracy": 0.5172,
   "features": [
@@ -61,7 +61,7 @@
     "marginal_spread": 0.5714285714285714,
     "spread": 0.96
   },
-  "trained_at": "2026-10-28T10:02:57+00:00",
+  "trained_at": "2026-10-28T11:14:49+00:00",
   "dataset_sha256": "428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6",
   "training_range": {
     "oxygen_pct": {
@@ -160,5 +160,13 @@
         }
       }
     }
+  },
+  "loro": {
+    "scheme": "LeaveOneGroupOut(group=report_id), averaged over 10 model seeds",
+    "n_groups": 6,
+    "accuracy_mean": 0.8228,
+    "accuracy_std": 0.0098,
+    "balanced_accuracy_mean": 0.7475,
+    "macro_f1_mean": 0.7644
   }
 }

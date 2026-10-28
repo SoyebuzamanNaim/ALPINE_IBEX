@@ -1,7 +1,7 @@
 # Baseline Models & Evaluation Report (Phase 05)
 
 > **Document Status:** Authoritative evaluation record. Metrics are honest, reproducible, and evaluated
-> with investigation-level grouped cross-validation to guarantee zero cross-campaign data leakage.
+> with report-level grouped cross-validation (`group=report_id`, Challenge Brief S6).
 
 ## 1. Executive Summary
 
@@ -9,7 +9,7 @@ Four model families were trained and evaluated on the verified NASA microgravity
 (`cache/experiments.parquet`, N=145).
 
 The headline model is a **Gradient Boosting Classifier** evaluated using **5-fold Stratified Group K-Fold cross-validation
-grouped by `investigation`**. This ensures test points from an entire NASA flight campaign (e.g. BASS, BASS-II, Exploration Atmospheres)
+grouped by `report_id`**. This ensures test points from a single NASA report (e.g. BASS-II Summary, Exploration Atmospheres)
 never appear in both train and validation folds simultaneously, eliminating cross-report campaign leakage.
 
 ### Headline Performance vs. Baselines
@@ -40,10 +40,11 @@ never appear in both train and validation folds simultaneously, eliminating cros
 ## 3. Scientific Discussion of Results
 
 1. **Comparison with Naive Baseline:** The majority class (`spread`) represents 51.7% of the data. The Gradient Boosting
-   classifier achieves **83.5% grouped accuracy** and **76.2% balanced accuracy**,
+   classifier achieves **83.5% grouped accuracy** and **76.2% balanced accuracy**
+   (single-seed; see `loro` in models/metrics.json for the seed-averaged leave-one-report-out figure),
    demonstrating substantial predictive lift over random chance and majority guessing.
-2. **Zero-Leakage Campaign Isolation:** Plain stratified CV achieves 0.8138, whereas grouped CV
-   by independent investigation achieves 0.8345. Isolating each spaceflight investigation prevents chamber
+2. **Report Isolation:** Plain stratified CV achieves 0.8138, whereas grouped CV
+   by report achieves 0.8345. Isolating each source report prevents chamber
    and sensor bias leakage across flight programs.
 3. **Marginal Spread Detection:** The `marginal_spread` regime is the rarest class (57.1% recall).
    The model reliably separates full steady flame spread from complete non-spread extinction, with marginal points forming

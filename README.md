@@ -122,7 +122,8 @@ Once running:
 
 FLARE-X relies on **145 discrete microgravity combustion test conditions** extracted from six published NASA
 technical reports. Every `report_id` below has been resolved against the live NASA Technical Reports Server
-and its title verified; none is constructed.
+and its title verified; none is constructed. **Identifier verification is not row-level
+verification** - see "Data integrity" below for a confirmed defect in the extracted values.
 
 | Investigation | NTRS ID | Platform | Materials | Rows | Verified Source |
 |---|---|---|---|---|---|
@@ -283,6 +284,75 @@ pytest tests/ -q
 
 ---
 
+## Data integrity: verified defect in the BASS-II rows
+
+The six NTRS identifiers used by this project are genuine and their titles were confirmed
+against the live NASA Technical Reports Server. **The per-row values extracted from the
+largest of those reports were not.**
+
+NTRS serves machine-readable fulltext for every record:
+
+```
+https://ntrs.nasa.gov/api/citations/<id>/downloads/<filename>.pdf.txt
+```
+
+Re-reading `20210011385` (BASS-II Summary Report, which supplies 96 of 145 rows) through that
+endpoint and comparing it against `src/ingestion/build_table.py` found:
+
+| Check | Result |
+|---|---|
+| Calibrated oxygen matches the report | 5 of 52 verifiable tests |
+| Oxygen within rounding (<=0.35 pts) | 8 of 52 |
+| **Oxygen differs by >0.35 pts** | **39 of 52** (largest: O4 real 14.8% vs coded 20.6%) |
+| **Test IDs absent from the report** | **5** (`P3`, `P7`, `O3`, `O5`, `O13`) |
+| Could not be parsed to check | 22 |
+
+Specific confirmed errors:
+
+- **`B14` outcome is inverted.** The report records 15.0% calibrated O2, spread rate `0.00`,
+  *"only brief ignition, flame extinguished"*. The dataset records 19.6% O2 and `spread`.
+- **Low-flow velocities are fan-potentiometer settings, not cm/s.** Values such as 0.35, 0.40
+  and 0.50 cm/s correspond to pot readings quoted in observations
+  (*"extinguished at pot 0.35"*). The report maps pot 1.1 and pot 1.3 to 5 cm/s in different
+  tests, so the conversion is per-configuration and NASA explicitly flags low-velocity
+  calibration as uncertain. These velocities are therefore **not recoverable** from the text.
+- **Near-limit data was lost.** The real campaign probed 12.7-17% O2, the region where flames
+  actually stop propagating. Those values were replaced with ~18-21% O2, so the learned
+  flammability boundary sits several percentage points too high in oxygen.
+- `build_table.py` calls `pdftotext` and discards the result (`txt` is assigned at line 55 and
+  never read); the committed values are Python literals. With `data/raw/` gitignored and empty,
+  the table cannot currently be regenerated.
+
+### What this means for the reported accuracy
+
+The metrics below are reproducible and the evaluation machinery is sound, but they measure the
+model's fit to **this table**, not verified physical predictive skill. They should not be quoted
+as evidence of real-world flammability prediction until the rows are re-transcribed.
+
+The other 49 rows, from five further reports, have **not** been checked.
+
+---
+## Honest evaluation summary
+
+| Metric | Value |
+|---|---|
+| Leave-one-report-out accuracy (10 model seeds) | **82.28% ± 0.98** |
+| LORO balanced accuracy | 74.75% |
+| LORO macro-F1 | 76.44% |
+| Single-partition grouped accuracy (`group=report_id`) | 83.45% |
+| Majority-class baseline | 51.72% (balanced: 33.33%) |
+| `marginal_spread` recall | 57% (12/21) |
+
+Prefer the **leave-one-report-out** figure. `StratifiedGroupKFold(group=report_id)` produces only
+2 distinct partitions across 200 seeds, so it cannot be averaged over splitter seeds and its
+single value is a best-case draw. Minority-class support is 1-2 rows in three of five folds,
+so `std_accuracy` is not meaningful. The hyperparameters are not accompanied by a tuning record,
+so some selection optimism against these same folds is plausible.
+
+`marginal_spread` recall near 57% is the weakest point, and 9 of 49 true `no_spread` rows are
+predicted as `spread` — for a fire-safety tool that is the expensive direction of error.
+
+---
 ## 8. System Boundaries & Known Limitations
 
 1. **Sample Size & Material Concentration:**

@@ -6,7 +6,7 @@
     "marginal_spread",
     "spread"
   ],
-  "evaluated_at": "2026-10-28T10:02:48+00:00",
+  "evaluated_at": "2026-10-28T11:14:04+00:00",
   "models": {
     "majority_baseline": {
       "grouped_cv": {
@@ -532,5 +532,13 @@
         }
       }
     }
+  },
+  "loro": {
+    "scheme": "LeaveOneGroupOut(group=report_id), averaged over 10 model seeds",
+    "n_groups": 6,
+    "accuracy_mean": 0.8228,
+    "accuracy_std": 0.0098,
+    "balanced_accuracy_mean": 0.7475,
+    "macro_f1_mean": 0.7644
   }
 }
