@@ -45,6 +45,47 @@ used as model inputs.
 
 ---
 
+## 2b. Supplementary verified dataset: Saffire (not yet used for training)
+
+`data/processed/experiments_saffire_verified.csv` holds **21 hand-transcribed microgravity
+rows** from the Saffire large-scale spacecraft fire experiments. It is kept separate from
+`experiments.parquet` because that table has an unresolved integrity defect (see the data
+integrity section of the root README).
+
+| Source | Table | Flights | Rows |
+|---|---|---|---|
+| [20170008805](https://ntrs.nasa.gov/citations/20170008805) | Table I "Summary of Samples, Test Conditions, and Selected Results" | Saffire I, II | 12 |
+| [20210011521](https://ntrs.nasa.gov/citations/20210011521) | Table 1 "Saffire IV-V Sample Test Conditions"; Table 2 (thin samples) | Saffire III, IV, V | 6 |
+| [20240002981](https://ntrs.nasa.gov/citations/20240002981) | Table 1 "Saffire IV-VI Sample Test Conditions" | Saffire VI | 3 |
+
+**Why these were chosen.** Unlike the BASS-II appendix matrices, these reports tabulate the
+test conditions explicitly (material, length, flow cm/s, flow direction, ambient pressure kPa,
+oxygen mol %), so transcription does not depend on parsing prose or rotated table headers.
+
+**Verification.** Every numeric value was checked to appear verbatim in the fulltext of the
+report cited on that row. Two values are cross-report material properties and are annotated as
+such in `extraction_notes` rather than presented as measurements from their own report
+(`SAF_III_1` and `SAF_IV_1` thickness, taken from the SIBAL specification in 20170008805).
+
+**What it adds**
+
+- **Pressure below the current floor:** 3 rows at 54.1, 54.6 and 55.2 kPa (existing minimum 56.5 kPa).
+- **Two materials outside the current five:** Silicone (with a 0.27 / 0.37 / 0.61 / 1.03 mm
+  thickness series, all non-propagating) and Cotton-Fiberglass (SIBAL, 75% cotton / 25% fiberglass).
+- **Explicit negative outcomes**, which the existing table is short of: four silicone samples
+  recorded as "Insignificant" burn with ~0 burn length, and a Nomex sample that "was not ignited".
+- A tabulated **opposed-flow** case at reduced pressure (Saffire V-4, 72.6 kPa, 25.7% O2).
+
+It does **not** extend the oxygen axis: the maximum here is 31.0%, inside the existing 34% range.
+Flow is 20-25 cm/s throughout, so it does not extend the flow axis either. Outcome labels follow
+`docs/LABELING_PROTOCOL.md`; 2 of 21 are marked `outcome_interpreted`.
+
+**Not included:** the Saffire VI Nomex sample, which the report states "did not ignite" but omits
+from its condition table. Its oxygen and pressure cannot be assigned from the source, so it was
+left out rather than inferred.
+
+---
+
 ## 3. Exclusion Rationale
 To guarantee physical validity, non-solid combustion investigations were audited in Phase 02 and explicitly segregated:
 - **Droplet Combustion (FLEX / FLEX-2):** Isolated spherical droplets burning in quiescent atmospheres exhibit $d^2$ evaporation law mechanics distinct from solid-fuel surface pyrolysis.
