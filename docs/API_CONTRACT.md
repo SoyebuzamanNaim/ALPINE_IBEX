@@ -132,6 +132,15 @@ Public model inference is currently withheld for all other in-range conditions
 until the grouped validation score exceeds the majority baseline. Such requests
 return `status: "model_unvalidated"` with null prediction and probabilities.
 
+#### Joint-domain refusal (`200 OK`)
+
+`status: "joint_extrapolation"` means each numeric input may be within its
+material-specific min/max range, but their combination lies outside the convex
+hull of observed experiments. The response has `in_training_range: false`, null
+prediction and probabilities, a `joint_domain` entry in
+`out_of_range_reasons`, and nearest source observations. Decision-boundary
+cells outside this domain are left blank.
+
 ---
 
 ### 3.2 `GET /boundary`

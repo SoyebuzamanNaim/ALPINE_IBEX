@@ -2,7 +2,7 @@
 import pytest
 import numpy as np
 from fastapi.testclient import TestClient
-from src.api.main import app, _mask_conflicting_grid_points
+from src.api.main import app, _mask_conflicting_grid_points, _mask_joint_domain_grid_points
 
 
 @pytest.fixture
@@ -106,6 +106,15 @@ def test_boundary_mask_excludes_conflicting_grid_cells():
         valid_mask=np.array([True, True]),
     )
     assert mask.tolist() == [False, True]
+
+
+def test_boundary_mask_excludes_jointly_unsupported_cells():
+    mask = _mask_joint_domain_grid_points(
+        np.array([22.0]), np.array([20.0]),
+        material="Cellulose", pressure_kpa=70.0,
+        valid_mask=np.array([True]),
+    )
+    assert mask.tolist() == [False]
 
 
 def test_get_experiments(client):

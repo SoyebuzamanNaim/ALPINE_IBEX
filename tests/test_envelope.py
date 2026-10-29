@@ -57,14 +57,21 @@ def test_per_material_out_of_range():
     assert any("Nomex" in r["reason"] for r in res["out_of_range_reasons"])
 
 
-def test_sparse_region_detection():
+def test_joint_domain_refuses_sparse_rectangle_corner():
     guard = EnvelopeGuard()
-    # Cellulose spans 44.1-101.3 kPa, so 70 kPa sits inside its box but far from any test
+    # Every coordinate is individually in range, but this combination is outside
+    # the convex hull of Cellulose experiments.
     res = guard.check(oxygen_pct=22.0, pressure_kpa=70.0, flow_cm_s=20.0, material="Cellulose")
-    assert res["in_training_range"] is True
-    assert res["sparse_region_warning"] is True
-    assert "knn_mean_distance" in res
-    assert isinstance(res["sparse_region_warning"], bool)
+    assert res["in_training_range"] is False
+    assert res["status"] == "joint_extrapolation"
+    assert any(r["feature"] == "joint_domain" for r in res["out_of_range_reasons"])
+    assert len(res["nearest_experiments"]) == 3
+
+
+def test_low_rank_material_joint_domain_rejects_off_line_point():
+    guard = EnvelopeGuard()
+    assert guard.joint_domains["Mylar"].contains([16.5, 70.3, 30.0])
+    assert not guard.joint_domains["Mylar"].contains([16.5, 70.3, 29.0])
 
 
 @pytest.mark.parametrize(

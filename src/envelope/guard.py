@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from src.retrieval.nearest import NearestExperimentRetriever
+from src.envelope.joint import JointDomain
 
 ROOT = Path(__file__).resolve().parents[2]
 META_PATH = ROOT / "models" / "model_meta.json"
@@ -29,6 +30,10 @@ class EnvelopeGuard:
         self.allowed_materials = self.training_range["allowed_materials"]
         self.retriever = NearestExperimentRetriever(data_path)
         self.df = pd.read_parquet(data_path)
+        self.joint_domains = {
+            material: JointDomain(group[["oxygen_pct", "pressure_kpa", "flow_cm_s"]].to_numpy())
+            for material, group in self.df.groupby("material")
+        }
         keys = ["oxygen_pct", "pressure_kpa", "flow_cm_s", "material"]
         outcome_counts = self.df.groupby(keys)["outcome"].nunique()
         self.conflicting_conditions = list(outcome_counts[outcome_counts > 1].index)
@@ -169,6 +174,26 @@ class EnvelopeGuard:
                 "requires_abstention": True,
                 "status": "conflicting_evidence",
                 "out_of_range_reasons": [],
+                "sparse_region_warning": False,
+                "warning_message": explanation,
+                "nearest_experiments": nearest,
+                "explanation": explanation,
+            }
+
+        if not self.joint_domains[material].contains([oxygen_pct, pressure_kpa, flow_cm_s]):
+            explanation = (
+                "The combined oxygen, pressure, and flow conditions lie outside the "
+                f"joint experimental domain for {material}. Each value may be individually "
+                "in range, but this combination was not supported by the curated tests."
+            )
+            return {
+                "in_training_range": False,
+                "status": "joint_extrapolation",
+                "out_of_range_reasons": [{
+                    "feature": "joint_domain",
+                    "value": {"oxygen_pct": oxygen_pct, "pressure_kpa": pressure_kpa, "flow_cm_s": flow_cm_s},
+                    "reason": explanation,
+                }],
                 "sparse_region_warning": False,
                 "warning_message": explanation,
                 "nearest_experiments": nearest,

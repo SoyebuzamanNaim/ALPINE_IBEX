@@ -212,6 +212,22 @@ def _mask_conflicting_grid_points(
     return mask
 
 
+def _mask_joint_domain_grid_points(
+    oxygen: np.ndarray,
+    flow: np.ndarray,
+    *,
+    material: str,
+    pressure_kpa: float,
+    valid_mask: np.ndarray,
+) -> np.ndarray:
+    """Do not color model predictions outside the material's joint test domain."""
+    mask = valid_mask.copy()
+    domain = cf_engine.guard.joint_domains[material]
+    for index in np.flatnonzero(mask):
+        mask[index] = domain.contains([oxygen[index], pressure_kpa, flow[index]])
+    return mask
+
+
 @app.get("/boundary", tags=["Visualizations"])
 def get_decision_boundary(
     material: str = Query("PMMA", description="Material to slice"),
@@ -264,6 +280,10 @@ def get_decision_boundary(
         & (o2_flat <= o2_max)
         & (flow_flat >= f_min)
         & (flow_flat <= f_max)
+    )
+    valid_mask = _mask_joint_domain_grid_points(
+        o2_flat, flow_flat, material=material, pressure_kpa=pressure_kpa,
+        valid_mask=valid_mask,
     )
     valid_mask = _mask_conflicting_grid_points(
         o2_flat, flow_flat, material=material, pressure_kpa=pressure_kpa,

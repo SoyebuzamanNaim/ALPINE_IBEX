@@ -110,8 +110,8 @@ def test_e2e_4_missing_variable_scenario(client):
     assert any("pressure" in a.lower() for a in data["ambiguities"])
 
 
-def test_e2e_5_sparse_region_scenario(client):
-    """Case 5: Within bounding box but sparse experimental density."""
+def test_e2e_5_jointly_unsupported_scenario(client):
+    """Case 5: Per-feature ranges must not admit an unsupported combination."""
     payload = {
         "oxygen_pct": 22.0,
         "pressure_kpa": 70.0,
@@ -122,10 +122,11 @@ def test_e2e_5_sparse_region_scenario(client):
     assert res.status_code == 200
     data = res.json()
 
-    assert data["in_training_range"] is True
-    assert "sparse_region_warning" in data
-    assert data["knn_mean_distance"] is not None
-    assert isinstance(data["sparse_region_warning"], bool)
+    assert data["in_training_range"] is False
+    assert data["status"] == "joint_extrapolation"
+    assert data["prediction"] is None
+    assert data["probabilities"] is None
+    assert any(reason["feature"] == "joint_domain" for reason in data["out_of_range_reasons"])
 
 
 def test_e2e_6_api_model_failure_handling(client):
