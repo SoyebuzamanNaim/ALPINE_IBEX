@@ -1,7 +1,7 @@
 /**
  * FLARE-X Aerospace Mission Control Frontend Application
  * Interacts with FastAPI backend or operates in resilient client-side fallback mode.
- * Grounded in 145 NASA spaceflight experiments (BASS, BASS-II, DARTFire, Exploration).
+ * Presents curated NASA microgravity observations and gated model inference.
  */
 
 // API Base URL (auto-detect if served by FastAPI, else fallback to localhost:8000)
@@ -29,6 +29,8 @@ const NASA_BOUNDARY = {
   CITATION: 'NTRS 20210011385 Eq (6.1)',
   URL: 'https://ntrs.nasa.gov/citations/20210011385',
   VALID_O2: [13.6, 22.2],
+  VALID_FLOW: [0, 55],             // BASS-II rod tests described in the report abstract
+  NOMINAL_PRESSURE_KPA: 101.3,   // ISS glovebox conditions; no pressure-dependent fit
   // radii of the three cast-PMMA rods flown in BASS-II, in cm
   RADII: { '1/4 inch': 0.3175, '3/8 inch': 0.47625, '1/2 inch': 0.635 },
 
@@ -71,24 +73,19 @@ const state = {
   boundaryData: null,
   activeTab: 'view-scenario-lab',
   sweepRunning: false,
-  experiments: []
-};
-
-// Material sample counts & ranges
-const MATERIAL_SPECS = {
-  'PMMA': { samples: 92, o2: [15.5, 34.0], flow: [0.0, 35.0], p: [56.5, 101.3] },
-  'Cellulose': { samples: 22, o2: [15.5, 34.0], flow: [0.3, 30.0], p: [56.5, 101.3] },
-  'Cotton': { samples: 19, o2: [16.2, 20.8], flow: [0.4, 45.0], p: [101.3, 101.3] },
-  'Nomex': { samples: 7, o2: [20.8, 34.0], flow: [5.0, 20.0], p: [56.5, 101.3] },
-  'Delrin': { samples: 5, o2: [15.0, 21.0], flow: [5.0, 10.0], p: [101.3, 101.3] }
+  experiments: [],
+  materialCounts: {}
 };
 
 const FUEL_PROPERTIES = {
   'PMMA': { desc: 'Thermally thick / non-charring acrylic', prop: 'Density: 1.18 g/cm³ · C₅H₈O₂' },
   'Cellulose': { desc: 'Thermally thin ashless filter paper', prop: 'Density: 1.50 g/cm³ · C₆H₁₀O₅' },
   'Cotton': { desc: 'Thin woven porous fabric specimen', prop: 'Density: 1.54 g/cm³ · Natural' },
-  'Nomex': { desc: 'Flame-resistant aramid synthetic polymer', prop: 'Density: 1.38 g/cm³ · Aramid' },
-  'Delrin': { desc: 'Polyoxymethylene engineering plastic', prop: 'Density: 1.41 g/cm³ · POM' }
+  'Nomex': { desc: 'Flame-resistant aramid synthetic polymer', prop: 'Aramid' },
+  'Cotton-Fiberglass': { desc: 'Composite fabric specimen', prop: 'Cotton and fiberglass' },
+  'Mylar': { desc: 'Polyester film specimen', prop: 'Polyester' },
+  'Silicone': { desc: 'Silicone specimen', prop: 'Elastomer' },
+  'Ultem': { desc: 'Polyetherimide specimen', prop: 'Polyetherimide' }
 };
 
 // Smooth Tabular Number Ticker (Emil Kowalski Spec)
@@ -152,6 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
   triggerScenarioEvaluation();
   fetchBoundarySlice();
   loadDatasetsAndModel();
+  loadModelStatus();
   startReticleLoop();
   updateCoordHud();
 });
@@ -226,19 +224,7 @@ function setupSliders() {
 
   matSelect.addEventListener('change', (e) => {
     state.material = e.target.value;
-    const spec = MATERIAL_SPECS[state.material];
-    if (spec) {
-      document.getElementById('mat-samples-badge').textContent = `${spec.samples} tests`;
-    }
-    const fuelProp = FUEL_PROPERTIES[state.material] || { desc: 'Solid fuel', prop: 'Microgravity' };
-    const specInfo = document.getElementById('fuel-spec-info');
-    if (specInfo) {
-      specInfo.innerHTML = `<span>${fuelProp.desc}</span><span class="spec-prop">${fuelProp.prop}</span>`;
-    }
-    const ribbonFuel = document.getElementById('ribbon-active-fuel');
-    if (ribbonFuel) {
-      ribbonFuel.textContent = `${state.material} (${fuelProp.desc.split('/')[0].trim()})`;
-    }
+    updateMaterialInfo();
     triggerScenarioEvaluation();
     fetchBoundarySlice();
   });
@@ -261,6 +247,24 @@ function setupSliders() {
     updateCoordHud();
     triggerScenarioEvaluation();
   });
+}
+
+function updateMaterialInfo() {
+  const count = state.materialCounts[state.material];
+  const sampleBadge = document.getElementById('mat-samples-badge');
+  if (sampleBadge) sampleBadge.textContent = count == null ? 'Evidence count unavailable' : `${count} observations`;
+  const fuelProp = FUEL_PROPERTIES[state.material] || { desc: 'Solid fuel', prop: 'Microgravity' };
+  const specInfo = document.getElementById('fuel-spec-info');
+  if (specInfo) {
+    const description = document.createElement('span');
+    const property = document.createElement('span');
+    description.textContent = fuelProp.desc;
+    property.className = 'spec-prop';
+    property.textContent = fuelProp.prop;
+    specInfo.replaceChildren(description, property);
+  }
+  const ribbonFuel = document.getElementById('ribbon-active-fuel');
+  if (ribbonFuel) ribbonFuel.textContent = `${state.material} (${fuelProp.desc.split('/')[0].trim()})`;
 }
 
 // Preset Buttons
@@ -306,6 +310,7 @@ function updateInputs(o2, p, flow, mat) {
   document.getElementById('readout-flow').textContent = `${flow.toFixed(1)} cm/s`;
 
   updateCoordHud();
+  updateMaterialInfo();
   triggerScenarioEvaluation();
   fetchBoundarySlice();
 }
@@ -382,23 +387,39 @@ function setupCanvasInteraction() {
 let evalTimeout = null;
 function debounceEvaluation() {
   clearTimeout(evalTimeout);
+  setNearestEvidenceStatus('Loading observations for the selected conditions…');
   evalTimeout = setTimeout(triggerScenarioEvaluation, 100);
 }
 
 let boundaryTimeout = null;
 function debounceBoundarySlice() {
   clearTimeout(boundaryTimeout);
+  state.boundaryData = null;
+  drawOfflineCanvas('Loading boundary for selected conditions…');
   boundaryTimeout = setTimeout(fetchBoundarySlice, 200);
 }
 
 // Trigger Scenario Prediction API
+let evaluationGeneration = 0;
+function setNearestEvidenceStatus(message) {
+  const list = document.getElementById('nearest-cards-list');
+  if (list) list.textContent = message;
+}
+
 async function triggerScenarioEvaluation() {
+  const generation = ++evaluationGeneration;
   const payload = {
     oxygen_pct: state.oxygen_pct,
     pressure_kpa: state.pressure_kpa,
     flow_cm_s: state.flow_cm_s,
     material: state.material
   };
+  setNearestEvidenceStatus('Loading observations for the selected conditions…');
+  const isCurrent = () => generation === evaluationGeneration &&
+    payload.oxygen_pct === state.oxygen_pct &&
+    payload.pressure_kpa === state.pressure_kpa &&
+    payload.flow_cm_s === state.flow_cm_s &&
+    payload.material === state.material;
 
   try {
     const res = await fetch(`${API_BASE}/predict`, {
@@ -408,8 +429,10 @@ async function triggerScenarioEvaluation() {
     });
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const data = await res.json();
+    if (!isCurrent()) return;
     renderPredictionResults(data);
   } catch (err) {
+    if (!isCurrent()) return;
     console.warn('API unreachable; falling back to the published NASA boundary:', err);
     // No simulated model output. We show NASA's own published boundary instead,
     // which is deterministic and needs no backend.
@@ -445,7 +468,6 @@ function renderPredictionResults(data) {
   const flow = state.flow_cm_s;
   const da = flow > 0.1 ? (Math.pow(o2 / 21.0, 2) * (15.0 / flow)).toFixed(1) : '> 50.0';
   const pe = (flow * 0.5 / 0.22).toFixed(1);
-  const margin = (o2 - 17.5).toFixed(1);
 
   const daEl = document.getElementById('telemetry-damkohler');
   const peEl = document.getElementById('telemetry-peclet');
@@ -457,22 +479,18 @@ function renderPredictionResults(data) {
   if (daEl) daEl.textContent = `Da ~ ${da} — illustrative scaling only, not a model output`;
   if (peEl) peEl.textContent = `Pe ~ ${pe} — illustrative scaling only, not a model output`;
   if (mgEl) {
-    if (parseFloat(margin) >= 0) {
-      mgEl.textContent = `+${margin}% vs nominal 17.5% LOC reference (literature value, not model-derived)`;
-      mgEl.className = 'phys-val highlight-green';
-    } else {
-      mgEl.textContent = `${margin}% vs nominal 17.5% LOC reference (literature value, not model-derived)`;
-      mgEl.className = 'phys-val';
-    }
+    mgEl.textContent = 'Not established for this material and geometry';
+    mgEl.className = 'phys-val';
   }
 
   if (data.status === 'model_unvalidated') {
+    const validationReason = data.explanation || data.warning_message || 'Model validation is unavailable.';
     if (stateTierPill) stateTierPill.className = 'state-tier-pill tier-abstention';
     if (stateTierLabel) stateTierLabel.textContent = 'MODEL INFERENCE WITHHELD';
-    if (stateTierExplainer) stateTierExplainer.textContent = 'Grouped validation did not beat the majority baseline';
+    if (stateTierExplainer) stateTierExplainer.textContent = validationReason;
     if (alertBanner) alertBanner.classList.remove('hidden');
     if (alertTitle) alertTitle.textContent = 'MODEL VALIDATION GATE';
-    if (alertMsg) alertMsg.textContent = data.explanation;
+    if (alertMsg) alertMsg.textContent = validationReason;
     if (badge) {
       badge.className = 'regime-status-badge regime-refusal';
       badge.textContent = 'MODEL INFERENCE WITHHELD';
@@ -480,8 +498,8 @@ function renderPredictionResults(data) {
     if (confPill) confPill.textContent = 'NO PROBABILITY AVAILABLE';
     [pNoSpread, pMarginal, pSpread].forEach(el => { if (el) el.textContent = 'N/A'; });
     [bNoSpread, bMarginal, bSpread].forEach(el => { if (el) el.style.width = '0%'; });
-    if (briefing) briefing.textContent = 'The available flight observations can be inspected below. The current model has not met the baseline validation gate.';
-    if (expText) expText.textContent = data.explanation;
+    if (briefing) briefing.textContent = `Model inference is withheld: ${validationReason} Available NASA observations can be inspected below.`;
+    if (expText) expText.textContent = validationReason;
     renderNearestExperiments(data.nearest_experiments || []);
     drawBoundaryCanvas();
     return;
@@ -492,7 +510,7 @@ function renderPredictionResults(data) {
     if (stateTierPill) {
       stateTierPill.className = 'state-tier-pill tier-abstention';
       if (stateTierLabel) stateTierLabel.textContent = 'INSUFFICIENT EVIDENCE (ABSTENTION)';
-      if (stateTierExplainer) stateTierExplainer.textContent = 'Out-of-Domain Safety Rejection · Zero NASA Flight Data in Regime';
+      if (stateTierExplainer) stateTierExplainer.textContent = 'Requested conditions exceed the documented model envelope';
     }
 
     if (alertBanner) alertBanner.classList.remove('hidden');
@@ -514,7 +532,7 @@ function renderPredictionResults(data) {
     if (bSpread) bSpread.style.width = '0%';
 
     if (briefing) {
-      briefing.textContent = `FLIGHT SAFETY NOTICE: Spacecraft operations cannot be certified in this regime. No published microgravity flight tests support ${state.material} at ${state.oxygen_pct}% O₂ / ${state.flow_cm_s} cm/s. Relying on model extrapolation in unverified atmospheres violates NASA flight safety rules.`;
+      briefing.textContent = `MODEL REFUSAL: The requested combination is outside the supported research envelope. Nearby observations remain available for inspection; no operational conclusion is made.`;
     }
     if (expText) {
       expText.textContent = data.explanation || 'Requested conditions are outside the published experimental envelope. No prediction is made.';
@@ -523,26 +541,31 @@ function renderPredictionResults(data) {
     // In-Domain: Check if it's Tier 1 (Verified Observation) or Tier 2 (Model Estimate)
     if (alertBanner) alertBanner.classList.add('hidden');
 
-    const exactMatch = (data.nearest_experiments || []).find(e => e.distance !== undefined && e.distance < 0.05);
+    const exactMatch = (data.nearest_experiments || []).find(e =>
+      e.material === state.material &&
+      Math.abs(e.oxygen_pct - state.oxygen_pct) < 0.001 &&
+      Math.abs(e.pressure_kpa - state.pressure_kpa) < 0.001 &&
+      Math.abs(e.flow_cm_s - state.flow_cm_s) < 0.001
+    );
 
     if (exactMatch) {
-      // TIER 1: VERIFIED OBSERVATION
+      // A matching observation supports inspection, but does not turn the model result into a measurement.
       if (stateTierPill) {
-        stateTierPill.className = 'state-tier-pill tier-verified';
-        if (stateTierLabel) stateTierLabel.textContent = 'VERIFIED OBSERVATION';
-        if (stateTierExplainer) stateTierExplainer.textContent = `Directly matches NASA flight test ${exactMatch.experiment_id} (${exactMatch.outcome})`;
+        stateTierPill.className = 'state-tier-pill tier-estimate';
+        if (stateTierLabel) stateTierLabel.textContent = 'MODEL ESTIMATE';
+        if (stateTierExplainer) stateTierExplainer.textContent = `Matching observation: ${exactMatch.experiment_id} (${exactMatch.outcome})`;
       }
     } else {
       // TIER 2: MODEL ESTIMATE
       if (stateTierPill) {
         stateTierPill.className = 'state-tier-pill tier-estimate';
         if (stateTierLabel) stateTierLabel.textContent = 'MODEL ESTIMATE';
-        if (stateTierExplainer) stateTierExplainer.textContent = 'Supervised GBDT · Honest Grouped CV 83.45% · Bounded Flight Envelope';
+        if (stateTierExplainer) stateTierExplainer.textContent = `Supervised model · Grouped CV ${(data.model.cv_accuracy * 100).toFixed(1)}% · research estimate`;
       }
     }
 
     const pred = data.prediction;
-    const probs = data.probabilities || { no_spread: 0.01, marginal_spread: 0.02, spread: 0.97 };
+    const probs = data.probabilities;
 
     if (badge) {
       badge.className = `regime-status-badge regime-${pred ? pred.replace('_', '-') : 'spread'}`;
@@ -566,11 +589,11 @@ function renderPredictionResults(data) {
 
     if (briefing) {
       if (pred === 'spread') {
-        briefing.textContent = `HIGH FLAMMABILITY RISK: Forced cabin ventilation of ${state.flow_cm_s} cm/s delivers convective oxidizer that outpaces radiative and conductive heat losses, sustaining steady flame spread across ${state.material}. Quenching requires reducing ventilation to quiescent or dropping oxygen below 17.5%.`;
+        briefing.textContent = `MODEL ESTIMATE: Flame spread is predicted for this scenario. Inspect the cited observations and experimental limitations before using this result.`;
       } else if (pred === 'marginal_spread') {
-        briefing.textContent = `CRITICAL TRANSITION REGIME: Operating near the microgravity flammability limit. Combustion will exhibit unsteady propagation, periodic flame oscillations, or slow self-extinction. Small airflow disturbances may reignite or extinguish flame.`;
+        briefing.textContent = 'MODEL ESTIMATE: Marginal spread is predicted for this scenario. The precise behavior is uncertain; inspect the cited observations and limitations.';
       } else {
-        briefing.textContent = `SAFE / EXTINCTION REGIME: Oxygen flux is starved below the limiting oxygen index (LOI). In microgravity without buoyant replenishment, conductive and radiative cooling extinguishes the reaction zone.`;
+        briefing.textContent = `MODEL ESTIMATE: No sustained spread is predicted for this scenario. This result does not establish operational safety or flight certification.`;
       }
     }
 
@@ -592,6 +615,7 @@ function renderPredictionResults(data) {
 // Shows an oxygen margin against NASA's own fitted limit. No probabilities are
 // shown, because a deterministic boundary does not produce any.
 function renderPublishedBoundary(payload) {
+  setNearestEvidenceStatus('Nearest observations require the backend service.');
   const o2 = payload.oxygen_pct, U = payload.flow_cm_s, mat = payload.material;
   const el = (id) => document.getElementById(id);
   const banner = el('envelope-alert-banner'), aTitle = el('alert-title'), aMsg = el('alert-message');
@@ -625,21 +649,45 @@ function renderPublishedBoundary(payload) {
     return;
   }
 
+  // Equation 6.1 was fitted to cast-PMMA rod tests in the ISS glovebox at
+  // nominal cabin pressure and 0–55 cm/s flow; it has no pressure term.
+  if (Math.abs(payload.pressure_kpa - NASA_BOUNDARY.NOMINAL_PRESSURE_KPA) > 0.05 ||
+      payload.flow_cm_s < NASA_BOUNDARY.VALID_FLOW[0] ||
+      payload.flow_cm_s > NASA_BOUNDARY.VALID_FLOW[1] ||
+      !Number.isFinite(payload.pressure_kpa) || !Number.isFinite(payload.flow_cm_s)) {
+    if (banner) banner.classList.remove('hidden');
+    if (aTitle) aTitle.textContent = 'OUTSIDE DOCUMENTED BOUNDARY CONDITIONS';
+    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} describes cast-PMMA rod tests at nominal ${NASA_BOUNDARY.NOMINAL_PRESSURE_KPA} kPa and ${NASA_BOUNDARY.VALID_FLOW[0]}–${NASA_BOUNDARY.VALID_FLOW[1]} cm/s flow. No margin is reported for this pressure or flow.`;
+    if (badge) { badge.className = 'regime-status-badge regime-refusal'; badge.textContent = 'OUTSIDE PUBLISHED PRESSURE OR FLOW'; }
+    if (pill) pill.textContent = 'NOT APPLICABLE';
+    if (briefing) briefing.textContent = 'The published boundary has no validated pressure adjustment for these conditions, so the tool cannot report a boundary margin.';
+    if (expText) expText.textContent = '';
+    return;
+  }
+
   const r = state.rod_radius_cm || NASA_BOUNDARY.R_O;
   const res = NASA_BOUNDARY.evaluate(o2, U, r);
   if (!res) return;
+
+  if (!res.inFitRange) {
+    if (banner) banner.classList.remove('hidden');
+    if (aTitle) aTitle.textContent = 'OUTSIDE THE RANGE THE BOUNDARY WAS FITTED OVER';
+    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} was fitted over ${NASA_BOUNDARY.VALID_O2[0]} to ${NASA_BOUNDARY.VALID_O2[1]} % O2. At ${o2.toFixed(1)} %, no boundary margin is reported.`;
+    if (badge) { badge.className = 'regime-status-badge regime-refusal'; badge.textContent = 'OUTSIDE PUBLISHED OXYGEN RANGE'; }
+    if (pill) pill.textContent = 'NOT APPLICABLE';
+    if (briefing) briefing.textContent = `The published cast-PMMA boundary covers ${NASA_BOUNDARY.VALID_O2[0]} to ${NASA_BOUNDARY.VALID_O2[1]} % O2. This scenario is outside that range, so the tool cannot report a boundary margin.`;
+    if (expText) expText.textContent = '';
+    return;
+  }
 
   const m = res.margin, sign = m >= 0 ? '+' : '';
   const near = Math.abs(m) < 1.0;        // within 1 % O2 of the limit
 
   if (banner) {
-    if (res.inFitRange && !near) banner.classList.add('hidden');
+    if (!near) banner.classList.add('hidden');
     else banner.classList.remove('hidden');
   }
-  if (!res.inFitRange && aTitle) {
-    aTitle.textContent = 'OUTSIDE THE RANGE THE BOUNDARY WAS FITTED OVER';
-    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} was fitted over ${NASA_BOUNDARY.VALID_O2[0]} to ${NASA_BOUNDARY.VALID_O2[1]} % O2. At ${o2.toFixed(1)} % this is an extrapolation of the published curve.`;
-  } else if (near && aTitle) {
+  if (near && aTitle) {
     aTitle.textContent = 'WITHIN 1 % O2 OF THE PUBLISHED LIMIT';
     if (aMsg) aMsg.textContent = 'This condition sits close to the flammability boundary, where NASA\'s own data shows outcomes depend on ignition history. Treat it as undetermined rather than safe.';
   }
@@ -767,22 +815,33 @@ function renderNearestExperiments(experiments) {
 
 
 // Fetch 2-D Boundary Slice
+let boundaryGeneration = 0;
 async function fetchBoundarySlice() {
+  const generation = ++boundaryGeneration;
+  const material = state.material;
+  const pressure = state.pressure_kpa;
+  const isCurrent = () => generation === boundaryGeneration &&
+    material === state.material && pressure === state.pressure_kpa;
   const caption = document.getElementById('canvas-slice-caption');
   if (caption) {
-    caption.textContent = `Fixed slice at Pressure = ${state.pressure_kpa.toFixed(1)} kPa, Material = ${state.material}`;
+    caption.textContent = `Fixed slice at Pressure = ${pressure.toFixed(1)} kPa, Material = ${material}`;
   }
+  state.boundaryData = null;
+  drawOfflineCanvas('Loading boundary for selected conditions…');
 
   try {
-    const url = `${API_BASE}/boundary?material=${state.material}&pressure_kpa=${state.pressure_kpa}&o2_steps=28&flow_steps=28`;
+    const url = `${API_BASE}/boundary?material=${encodeURIComponent(material)}&pressure_kpa=${pressure}&o2_steps=28&flow_steps=28`;
     const res = await fetch(url);
     if (!res.ok) {
       const error = await res.json().catch(() => ({}));
       throw new Error(error.detail || `HTTP error ${res.status}`);
     }
-    state.boundaryData = await res.json();
+    const data = await res.json();
+    if (!isCurrent()) return;
+    state.boundaryData = data;
     drawBoundaryCanvas();
   } catch (err) {
+    if (!isCurrent()) return;
     console.warn('Boundary slice fetch failed:', err);
     state.boundaryData = null;
     drawOfflineCanvas(err.message);
@@ -876,24 +935,6 @@ function drawBoundaryCanvas() {
     ctx.lineTo(padLeft + plotW, y);
   }
   ctx.stroke();
-
-  // Limiting Oxygen Concentration (LOC) vertical dashed guide
-  if (17.5 >= o2Min && 17.5 <= o2Max) {
-    const locX = toX(17.5);
-    ctx.strokeStyle = 'rgba(217, 119, 6, 0.75)';
-    ctx.lineWidth = 1.2;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(locX, padTop);
-    ctx.lineTo(locX, padTop + plotH);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    ctx.fillStyle = '#b45309';
-    ctx.font = '10px "JetBrains Mono", monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('nominal LOC 17.5% (reference)', locX + 6, padTop + 14);
-  }
 
   // Outer Plot Border
   ctx.strokeStyle = '#cbd5e1';
@@ -1385,6 +1426,67 @@ function renderAtlasTable(rows) {
 }
 
 // Transparency & Investigations Loading
+async function loadModelStatus() {
+  const setText = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  };
+
+  try {
+    const [modelResponse, healthResponse] = await Promise.all([
+      fetch(`${API_BASE}/model`),
+      fetch(`${API_BASE}/health`)
+    ]);
+    if (!modelResponse.ok || !healthResponse.ok) throw new Error('Model metadata unavailable');
+    const [meta, health] = await Promise.all([modelResponse.json(), healthResponse.json()]);
+    const percent = value => `${(value * 100).toFixed(1)}%`;
+
+    state.materialCounts = Object.fromEntries(
+      Object.entries(meta.training_range?.per_material || {}).map(([material, details]) => [material, details.n_samples])
+    );
+    updateMaterialInfo();
+
+    setText('nav-experiment-count', String(meta.n_train));
+    setText('chip-n-train', `${meta.n_train} observations`);
+    setText('chip-cv-acc', percent(meta.cv_accuracy));
+    setText('chip-base-acc', percent(meta.majority_baseline_accuracy));
+    setText('model-kpi-accuracy', percent(meta.cv_accuracy));
+    setText('model-kpi-baseline', percent(meta.majority_baseline_accuracy));
+    setText('model-kpi-balanced', percent(meta.cv_balanced_accuracy));
+    setText('model-kpi-samples', String(meta.n_train));
+    setText('dataset-sha', meta.dataset_sha256
+      ? `${meta.dataset_sha256.slice(0, 8)}…${meta.dataset_sha256.slice(-8)}`
+      : 'Unavailable');
+    setText('model-kpi-comparison', health.model_readiness_reason || 'Model readiness unavailable');
+    setText('integrity-text', health.model_ready
+      ? 'Grouped baseline gate passed; source citations and experimental limits still apply.'
+      : health.model_readiness_reason || 'Model inference is withheld.');
+    setText('status-text', `${meta.n_train} observations · ${health.model_ready ? 'Research model available' : 'Model inference withheld'}`);
+
+    const body = document.getElementById('model-confusion-body');
+    if (body && Array.isArray(meta.confusion_matrix) && Array.isArray(meta.classes)) {
+      body.replaceChildren();
+      meta.classes.forEach((label, index) => {
+        const counts = meta.confusion_matrix[index] || [];
+        const row = document.createElement('tr');
+        const cells = [
+          `${label} (${counts.reduce((sum, value) => sum + value, 0)})`,
+          ...counts.map(String),
+          percent(meta.per_class_recall?.[label] || 0)
+        ];
+        cells.forEach(value => {
+          const cell = document.createElement('td');
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+        body.appendChild(row);
+      });
+    }
+  } catch (error) {
+    setText('status-text', 'Backend unavailable · published PMMA boundary only');
+  }
+}
+
 async function loadDatasetsAndModel() {
   try {
     const res = await fetch(`${API_BASE}/datasets`);
@@ -1590,8 +1692,8 @@ function renderCoverageMap(data) {
   const container = document.getElementById('coverage-matrix-container');
   const gapsList = document.getElementById('empirical-gaps-list');
 
-  if (totalRuns) totalRuns.textContent = data.total_verified_experiments || 145;
-  if (matCount) matCount.textContent = data.unique_materials_tested || 5;
+  if (totalRuns) totalRuns.textContent = data.total_verified_experiments ?? '—';
+  if (matCount) matCount.textContent = data.unique_materials_tested ?? '—';
   if (compPct) compPct.textContent = `${(data.coverage_completeness_pct || 0).toFixed(1)}%`;
   if (gapsCount) gapsCount.textContent = data.untested_gap_cells_count || 0;
 
