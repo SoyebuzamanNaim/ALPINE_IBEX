@@ -10,6 +10,37 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_conflicting_evidence_is_shown_as_abstention():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const nodes = new Map();
+const document = {
+  addEventListener() {},
+  getElementById(id) {
+    if (!nodes.has(id)) nodes.set(id, { textContent: '', style: {}, classList: { add() {}, remove() {} } });
+    return nodes.get(id);
+  }
+};
+const context = vm.createContext({ document, window: { location: { protocol: 'file:', origin: 'null', hostname: '' } }, console });
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+vm.runInContext('drawBoundaryCanvas = () => {}; renderNearestExperiments = () => {};', context);
+vm.runInContext('renderPredictionResults({status: "conflicting_evidence", in_training_range: true, explanation: "BASS2_O3a_3 and BASS2_O3b_3 disagree", nearest_experiments: []})', context);
+if (!nodes.get('regime-badge').textContent.includes('CONFLICTING') ||
+    nodes.get('val-prob-spread').textContent !== 'N/A' ||
+    !nodes.get('alert-message').textContent.includes('BASS2_O3a_3')) {
+  throw new Error('Conflicting evidence was not presented as an abstention');
+}
+"""
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
 def test_published_boundary_refuses_outside_oxygen_fit():
     if not shutil.which("node"):
         pytest.skip("Node.js is unavailable")

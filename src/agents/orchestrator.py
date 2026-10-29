@@ -94,11 +94,11 @@ class AgentOrchestrator:
         model_meta = self.router.get_model_metadata()
 
         # Handle Out of Envelope Refusal
-        if not env_res["in_training_range"]:
+        if not env_res["in_training_range"] or env_res.get("requires_abstention"):
             state_history.append(OrchestratorState.REFUSED)
             refusal_payload = {
                 "inputs": scenario,
-                "in_training_range": False,
+                "in_training_range": env_res["in_training_range"],
                 "status": env_res["status"],
                 "out_of_range_reasons": env_res["out_of_range_reasons"],
                 "prediction": None,

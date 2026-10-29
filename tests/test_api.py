@@ -1,7 +1,8 @@
 """Automated test suite for FLARE-X FastAPI Backend (Phase 10)."""
 import pytest
+import numpy as np
 from fastapi.testclient import TestClient
-from src.api.main import app
+from src.api.main import app, _mask_conflicting_grid_points
 
 
 @pytest.fixture
@@ -78,6 +79,33 @@ def test_post_predict_out_of_range_refusal(client):
     # Nearest experiments MUST still be returned
     assert len(data["nearest_experiments"]) == 3
     assert "Requested conditions are outside" in data["explanation"]
+
+
+def test_predict_abstains_when_identical_inputs_have_conflicting_outcomes(client):
+    response = client.post("/predict", json={
+        "oxygen_pct": 18.0,
+        "pressure_kpa": 101.3,
+        "flow_cm_s": 3.0,
+        "material": "PMMA",
+    })
+    assert response.status_code == 200
+    result = response.json()
+    assert result["in_training_range"] is True
+    assert result["status"] == "conflicting_evidence"
+    assert result["prediction"] is None
+    assert result["probabilities"] is None
+    assert {"BASS2_O3a_3", "BASS2_O3b_3"} <= {
+        item["experiment_id"] for item in result["nearest_experiments"]
+    }
+
+
+def test_boundary_mask_excludes_conflicting_grid_cells():
+    mask = _mask_conflicting_grid_points(
+        np.array([18.0, 19.0]), np.array([3.0, 3.0]),
+        material="PMMA", pressure_kpa=101.3,
+        valid_mask=np.array([True, True]),
+    )
+    assert mask.tolist() == [False, True]
 
 
 def test_get_experiments(client):

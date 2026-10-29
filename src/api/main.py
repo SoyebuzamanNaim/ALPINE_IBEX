@@ -136,7 +136,7 @@ def predict(request: PredictRequest) -> dict[str, Any]:
     model_ready, model_reason = _model_readiness()
     if not model_ready:
         envelope = orchestrator.guard.check(**payload)
-        if envelope["in_training_range"]:
+        if envelope["in_training_range"] and not envelope.get("requires_abstention"):
             return {
                 "inputs": payload,
                 "in_training_range": True,
@@ -192,6 +192,26 @@ def get_model_info() -> dict[str, Any]:
     return meta
 
 
+def _mask_conflicting_grid_points(
+    oxygen: np.ndarray,
+    flow: np.ndarray,
+    *,
+    material: str,
+    pressure_kpa: float,
+    valid_mask: np.ndarray,
+) -> np.ndarray:
+    """Hide grid cells with opposite observed outcomes at identical model inputs."""
+    mask = valid_mask.copy()
+    for observed_o2, observed_pressure, observed_flow, observed_material in cf_engine.guard.conflicting_conditions:
+        if observed_material != material or not math.isclose(observed_pressure, pressure_kpa, abs_tol=1e-6):
+            continue
+        mask &= ~(
+            np.isclose(oxygen, observed_o2, rtol=0, atol=1e-6)
+            & np.isclose(flow, observed_flow, rtol=0, atol=1e-6)
+        )
+    return mask
+
+
 @app.get("/boundary", tags=["Visualizations"])
 def get_decision_boundary(
     material: str = Query("PMMA", description="Material to slice"),
@@ -244,6 +264,10 @@ def get_decision_boundary(
         & (o2_flat <= o2_max)
         & (flow_flat >= f_min)
         & (flow_flat <= f_max)
+    )
+    valid_mask = _mask_conflicting_grid_points(
+        o2_flat, flow_flat, material=material, pressure_kpa=pressure_kpa,
+        valid_mask=valid_mask,
     )
 
     preds_flat: list[str | None] = [None] * total_pts

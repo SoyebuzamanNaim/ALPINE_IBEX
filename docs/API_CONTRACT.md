@@ -114,6 +114,24 @@
 }
 ```
 
+#### Conflicting evidence abstention (`200 OK`)
+
+When curated experiments have opposite outcomes at identical `oxygen_pct`,
+`pressure_kpa`, `flow_cm_s`, and `material`, the four input features cannot
+support one predicted regime. This is distinct from an out-of-range request:
+`in_training_range` remains `true`, while `status` is
+`"conflicting_evidence"`, `prediction` and `probabilities` are `null`, and
+`nearest_experiments` includes the conflicting source records. The
+`explanation` identifies the records and the unrepresented geometry or ignition
+history. Counterfactual and sweep points obey the same abstention rule; a
+decision-boundary grid cell at an exact conflicting condition is left blank.
+If either counterfactual side abstains, `prediction_delta.changed` is `null`;
+an abstaining sweep baseline has no `safety_margin`.
+
+Public model inference is currently withheld for all other in-range conditions
+until the grouped validation score exceeds the majority baseline. Such requests
+return `status: "model_unvalidated"` with null prediction and probabilities.
+
 ---
 
 ### 3.2 `GET /boundary`

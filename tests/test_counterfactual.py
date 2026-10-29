@@ -38,6 +38,56 @@ def test_evaluate_scenario_out_of_range(engine):
     assert len(res["nearest_experiments"]) == 3  # Evidence preserved per brief
 
 
+def test_evaluate_scenario_abstains_on_conflicting_exact_evidence(engine):
+    res = engine.evaluate_scenario(
+        oxygen_pct=18.0,
+        pressure_kpa=101.3,
+        flow_cm_s=3.0,
+        material="PMMA",
+    )
+    assert res["in_training_range"] is True
+    assert res["status"] == "conflicting_evidence"
+    assert res["prediction"] is None
+    assert res["probabilities"] is None
+    assert res["confidence"] is None
+
+
+def test_sweep_preserves_conflict_abstention(engine):
+    sweep = engine.run_sweep(
+        baseline={"oxygen_pct": 18.0, "pressure_kpa": 101.3, "flow_cm_s": 3.0, "material": "PMMA"},
+        param="oxygen_pct",
+        start=18.0,
+        end=19.0,
+        steps=3,
+    )
+    point = sweep["points"][0]
+    assert point["status"] == "conflicting_evidence"
+    assert point["in_training_range"] is True
+    assert point["prediction"] is None
+    assert point["probabilities"] is None
+
+
+def test_counterfactual_does_not_call_abstention_a_regime_change(engine):
+    result = engine.compute_perturbation(
+        {"oxygen_pct": 18.0, "pressure_kpa": 101.3, "flow_cm_s": 3.0, "material": "PMMA"},
+        {"oxygen_pct": 18.5},
+    )
+    assert result["baseline"]["status"] == "conflicting_evidence"
+    assert result["baseline"]["prediction"] is None
+    assert result["prediction_delta"]["changed"] is None
+
+
+def test_sweep_has_no_safety_margin_when_baseline_conflicts(engine):
+    sweep = engine.run_sweep(
+        baseline={"oxygen_pct": 18.0, "pressure_kpa": 101.3, "flow_cm_s": 3.0, "material": "PMMA"},
+        param="oxygen_pct",
+        start=20.0,
+        end=16.0,
+        steps=50,
+    )
+    assert sweep["safety_margin"] is None
+
+
 def test_compute_perturbation_oxygen_drop(engine):
     baseline = {
         "oxygen_pct": 19.0,

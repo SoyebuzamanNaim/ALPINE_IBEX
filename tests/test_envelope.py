@@ -65,3 +65,24 @@ def test_sparse_region_detection():
     assert res["sparse_region_warning"] is True
     assert "knn_mean_distance" in res
     assert isinstance(res["sparse_region_warning"], bool)
+
+
+@pytest.mark.parametrize(
+    "oxygen, pressure, flow, material, expected_ids",
+    [
+        (17.1, 101.3, 5.0, "Cotton-Fiberglass", {"BASS2_T11_5", "BASS2_T22_5"}),
+        (17.3, 101.3, 10.0, "PMMA", {"BASS2_B19_10", "BASS2_T7_10"}),
+        (18.0, 101.3, 3.0, "PMMA", {"BASS2_O3a_3", "BASS2_O3b_3"}),
+        (22.0, 100.0, 20.0, "PMMA", {"SAF_II_8", "SAF_IV_2"}),
+    ],
+)
+def test_identical_inputs_with_conflicting_outcomes_abstain(
+    oxygen, pressure, flow, material, expected_ids
+):
+    result = EnvelopeGuard().check(oxygen, pressure, flow, material)
+    assert result["in_training_range"] is True
+    assert result["status"] == "conflicting_evidence"
+    assert result["requires_abstention"] is True
+    assert result["out_of_range_reasons"] == []
+    assert expected_ids <= {item["experiment_id"] for item in result["nearest_experiments"]}
+    assert "opposite" in result["explanation"].lower() or "conflict" in result["explanation"].lower()

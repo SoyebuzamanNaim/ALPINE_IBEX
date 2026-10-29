@@ -29,6 +29,9 @@ class EnvelopeGuard:
         self.allowed_materials = self.training_range["allowed_materials"]
         self.retriever = NearestExperimentRetriever(data_path)
         self.df = pd.read_parquet(data_path)
+        keys = ["oxygen_pct", "pressure_kpa", "flow_cm_s", "material"]
+        outcome_counts = self.df.groupby(keys)["outcome"].nunique()
+        self.conflicting_conditions = list(outcome_counts[outcome_counts > 1].index)
 
     def check(
         self,
@@ -141,6 +144,35 @@ class EnvelopeGuard:
                 "warning_message": "Requested conditions are outside the published experimental envelope. No prediction is made.",
                 "nearest_experiments": nearest,
                 "explanation": "Requested conditions are outside the published experimental envelope. No prediction is made."
+            }
+
+        # The four model inputs do not encode sample geometry or ignition history.
+        # When experiments at exactly these inputs disagree, a single outcome is
+        # unsupported even though the query lies inside every numeric range.
+        exact = self.df[
+            (self.df["material"] == material)
+            & np.isclose(self.df["oxygen_pct"], oxygen_pct, rtol=0, atol=1e-6)
+            & np.isclose(self.df["pressure_kpa"], pressure_kpa, rtol=0, atol=1e-6)
+            & np.isclose(self.df["flow_cm_s"], flow_cm_s, rtol=0, atol=1e-6)
+        ]
+        if exact["outcome"].nunique() > 1:
+            observations = ", ".join(
+                f"{row.experiment_id} ({row.outcome})" for row in exact.itertuples()
+            )
+            explanation = (
+                "Conflicting outcomes were observed at identical model inputs: "
+                f"{observations}. Sample geometry or ignition history may explain the "
+                "difference, but these are not model inputs. No single outcome is inferred."
+            )
+            return {
+                "in_training_range": True,
+                "requires_abstention": True,
+                "status": "conflicting_evidence",
+                "out_of_range_reasons": [],
+                "sparse_region_warning": False,
+                "warning_message": explanation,
+                "nearest_experiments": nearest,
+                "explanation": explanation,
             }
 
         # 4. Check boundary proximity (within 5% of range edges or near extinction limit)

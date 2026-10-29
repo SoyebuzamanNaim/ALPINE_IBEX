@@ -65,10 +65,10 @@ class CounterfactualEngine:
             "material": str(material),
         }
 
-        if not env["in_training_range"]:
+        if not env["in_training_range"] or env.get("requires_abstention"):
             return {
                 "inputs": inputs,
-                "in_training_range": False,
+                "in_training_range": env["in_training_range"],
                 "status": env["status"],
                 "out_of_range_reasons": env["out_of_range_reasons"],
                 "prediction": None,
@@ -141,7 +141,7 @@ class CounterfactualEngine:
         # Prediction delta
         base_pred = base_res["prediction"]
         cf_pred = cf_res["prediction"]
-        pred_changed = base_pred != cf_pred
+        pred_changed = None if base_pred is None or cf_pred is None else base_pred != cf_pred
 
         # Probability deltas
         prob_deltas = {}
@@ -239,8 +239,15 @@ class CounterfactualEngine:
 
         # Safety margin to extinction / no_spread
         base_val = float(baseline[param])
+        baseline_result = self.evaluate_scenario(
+            oxygen_pct=baseline["oxygen_pct"],
+            pressure_kpa=baseline["pressure_kpa"],
+            flow_cm_s=baseline["flow_cm_s"],
+            material=baseline["material"],
+        )
         safety_margin = None
-        for t in transitions:
+        eligible_transitions = transitions if baseline_result["prediction"] is not None else []
+        for t in eligible_transitions:
             if "no_spread" in (t["from_regime"], t["to_regime"]):
                 boundary_mid = t["midpoint"]
                 safety_margin = {

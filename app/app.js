@@ -483,6 +483,28 @@ function renderPredictionResults(data) {
     mgEl.className = 'phys-val';
   }
 
+  if (data.status === 'conflicting_evidence') {
+    const reason = data.explanation || 'Experiments at identical model inputs have conflicting outcomes.';
+    if (stateTierPill) stateTierPill.className = 'state-tier-pill tier-abstention';
+    if (stateTierLabel) stateTierLabel.textContent = 'CONFLICTING EVIDENCE';
+    if (stateTierExplainer) stateTierExplainer.textContent = 'The four model inputs do not resolve these observations';
+    if (alertBanner) alertBanner.classList.remove('hidden');
+    if (alertTitle) alertTitle.textContent = 'EXPERIMENTAL OUTCOMES DISAGREE';
+    if (alertMsg) alertMsg.textContent = reason;
+    if (badge) {
+      badge.className = 'regime-status-badge regime-refusal';
+      badge.textContent = 'CONFLICTING EVIDENCE · NO INFERENCE';
+    }
+    if (confPill) confPill.textContent = 'NO PROBABILITY AVAILABLE';
+    [pNoSpread, pMarginal, pSpread].forEach(el => { if (el) el.textContent = 'N/A'; });
+    [bNoSpread, bMarginal, bSpread].forEach(el => { if (el) el.style.width = '0%'; });
+    if (briefing) briefing.textContent = 'Observed outcomes differ at these recorded conditions. Inspect both source experiments; no single outcome is supported.';
+    if (expText) expText.textContent = reason;
+    renderNearestExperiments(data.nearest_experiments || []);
+    drawBoundaryCanvas();
+    return;
+  }
+
   if (data.status === 'model_unvalidated') {
     const validationReason = data.explanation || data.warning_message || 'Model validation is unavailable.';
     if (stateTierPill) stateTierPill.className = 'state-tier-pill tier-abstention';
