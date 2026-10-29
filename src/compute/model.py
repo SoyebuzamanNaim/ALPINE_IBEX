@@ -9,7 +9,7 @@ Trains:
 4. Gradient Boosting Classifier (Headline Model)
 
 Evaluates using:
-- Honest CV: StratifiedGroupKFold(k=5, group=report_id) (headline number, Challenge Brief S6)
+- Honest CV: StratifiedGroupKFold(group=report_id), k = min(5, number of reports) (headline, Challenge Brief S6)
 - Secondary, stricter: StratifiedGroupKFold(k=5, group=investigation)
 - Optimistic CV: StratifiedKFold(k=5)
 Outputs:
@@ -207,8 +207,14 @@ def train_and_evaluate_all() -> None:
         ("gradient_boosting", make_gb),
     ]
 
-    # 5-fold splitters: investigation-level (zero campaign leakage) and plain stratified
+    # 5-fold splitters: investigation-level (zero campaign leakage) and plain stratified.
+    # A grouped splitter cannot ask for more folds than it has groups, and dropping the 49
+    # unsupported rows left only four distinct report_ids, so the report-grouped splitter
+    # takes whatever is available up to 5. See Addendum 7.
     group_kfold = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
+    report_kfold = StratifiedGroupKFold(
+        n_splits=min(5, report_groups.nunique()), shuffle=True, random_state=RANDOM_SEED
+    )
     plain_kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
 
     results: dict[str, Any] = {
@@ -227,7 +233,7 @@ def train_and_evaluate_all() -> None:
         # 2. Plain Stratified CV (optimistic)
         plain_metrics = compute_cv_metrics(factory, X, y, None, plain_kfold, classes)
         # 3. Report-Grouped CV
-        report_metrics = compute_cv_metrics(factory, X, y, report_groups, group_kfold, classes)
+        report_metrics = compute_cv_metrics(factory, X, y, report_groups, report_kfold, classes)
 
         results["models"][model_name] = {
             "grouped_cv": grouped_metrics,
@@ -292,7 +298,7 @@ def train_and_evaluate_all() -> None:
         "cv_accuracy": gb_report["accuracy"],
         "cv_balanced_accuracy": gb_report["balanced_accuracy"],
         "cv_macro_f1": gb_report["macro_f1"],
-        "cv_scheme": "StratifiedGroupKFold(k=5, group=report_id)",
+        "cv_scheme": f"StratifiedGroupKFold(k={report_kfold.n_splits}, group=report_id)",
         "secondary_cv": {
             "scheme": "StratifiedGroupKFold(k=5, group=investigation)",
             "accuracy": gb_grouped["accuracy"],

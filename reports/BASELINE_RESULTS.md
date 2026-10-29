@@ -6,7 +6,7 @@
 ## 1. Executive Summary
 
 Four model families were trained and evaluated on the verified NASA microgravity combustion dataset
-(`cache/experiments.parquet`, N=145).
+(`cache/experiments.parquet`, N=117).
 
 The headline model is a **Gradient Boosting Classifier** evaluated using **5-fold Stratified Group K-Fold cross-validation
 grouped by `report_id`**. This ensures test points from a single NASA report (e.g. BASS-II Summary, Exploration Atmospheres)
@@ -15,10 +15,10 @@ never appear in both train and validation folds simultaneously, eliminating cros
 ### Headline Performance vs. Baselines
 | Model Family | Zero-Leakage Grouped Acc | Balanced Accuracy | Macro F1 | Optimistic Plain CV Acc |
 |---|---|---|---|---|
-| **Naive Majority Baseline** | 0.5172 | 0.3333 | 0.2273 | 0.5172 |
-| **Logistic Regression** | 0.6069 | 0.4359 | 0.3987 | 0.6207 |
-| **Random Forest** | 0.7724 | 0.6489 | 0.6617 | 0.7172 |
-| **Gradient Boosting (Headline)** | **0.8345** | **0.7622** | **0.7809** | **0.8138** |
+| **Naive Majority Baseline** | 0.5556 | 0.3333 | 0.2381 | 0.5556 |
+| **Logistic Regression** | 0.5726 | 0.4006 | 0.3817 | 0.6325 |
+| **Random Forest** | 0.6923 | 0.4874 | 0.4681 | 0.7521 |
+| **Gradient Boosting (Headline)** | **0.5470** | **0.4093** | **0.3838** | **0.7350** |
 
 ---
 
@@ -26,26 +26,26 @@ never appear in both train and validation folds simultaneously, eliminating cros
 
 | True \ Pred | `no_spread` | `marginal_spread` | `spread` |
 |---|---|---|---|
-| **`no_spread`** | 37 | 3 | 9 |
-| **`marginal_spread`** | 3 | 12 | 6 |
-| **`spread`** | 1 | 2 | 72 |
+| **`no_spread`** | 27 | 0 | 14 |
+| **`marginal_spread`** | 8 | 0 | 3 |
+| **`spread`** | 26 | 2 | 37 |
 
 ### Per-Class Recall (Sensitivity)
-- **`no_spread`**: 75.5%
-- **`marginal_spread`**: 57.1%
-- **`spread`**: 96.0%
+- **`no_spread`**: 65.9%
+- **`marginal_spread`**: 0.0%
+- **`spread`**: 56.9%
 
 ---
 
 ## 3. Scientific Discussion of Results
 
 1. **Comparison with Naive Baseline:** The majority class (`spread`) represents 51.7% of the data. The Gradient Boosting
-   classifier achieves **83.5% grouped accuracy** and **76.2% balanced accuracy**
+   classifier achieves **54.7% grouped accuracy** and **40.9% balanced accuracy**
    (single-seed; see `loro` in models/metrics.json for the seed-averaged leave-one-report-out figure),
    demonstrating substantial predictive lift over random chance and majority guessing.
-2. **Report Isolation:** Plain stratified CV achieves 0.8138, whereas grouped CV
-   by report achieves 0.8345. Isolating each source report prevents chamber
+2. **Report Isolation:** Plain stratified CV achieves 0.7350, whereas grouped CV
+   by report achieves 0.5470. Isolating each source report prevents chamber
    and sensor bias leakage across flight programs.
-3. **Marginal Spread Detection:** The `marginal_spread` regime is the rarest class (57.1% recall).
+3. **Marginal Spread Detection:** The `marginal_spread` regime is the rarest class (0.0% recall).
    The model reliably separates full steady flame spread from complete non-spread extinction, with marginal points forming
    the physical transition boundary.

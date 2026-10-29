@@ -345,175 +345,61 @@ def extract_bass2_summary_table_a6_tien_cotton() -> list[dict[str, Any]]:
     return records
 
 
-def extract_bass_preheating_and_slabs() -> list[dict[str, Any]]:
-    """Extract PMMA flat slab and Delrin data from TM-20140011099 and BASS flight records."""
-    records = []
-    # Thick PMMA slabs & Delrin rods
-    slab_tests = [
-        ("BASS_SL1", "PMMA", "1.2-cm PMMA flat slab", "slab", 12.0, 21.0, 5.0, "opposed", "spread", "Thick slab steady opposed spread", False, 180.0, 0.06, "20140011099", 26),
-        ("BASS_SL2", "PMMA", "1.2-cm PMMA flat slab", "slab", 12.0, 21.0, 15.0, "opposed", "spread", "Thick slab spread at 15 cm/s", False, 160.0, 0.08, "20140011099", 26),
-        ("BASS_SL3", "PMMA", "1.2-cm PMMA flat slab", "slab", 12.0, 19.0, 5.0, "opposed", "spread", "Thick slab spread in 19% O2", False, 150.0, 0.05, "20140011099", 27),
-        ("BASS_SL4", "PMMA", "1.2-cm PMMA flat slab", "slab", 12.0, 18.0, 5.0, "opposed", "marginal_spread", "Weak burning, significant conductive loss into thick slab", True, 120.0, 0.03, "20140011099", 28),
-        ("BASS_SL5", "PMMA", "1.2-cm PMMA flat slab", "slab", 12.0, 17.0, 5.0, "opposed", "no_spread", "Extinguished without preheat at 17% O2", False, 40.0, 0.0, "20140011099", 29),
-        ("BASS_SL6", "PMMA", "1.5-cm PMMA sphere", "sphere", 15.0, 21.0, 12.0, "opposed", "spread", "Sphere sustained burning", False, 210.0, 0.10, "20140011099", 29),
-        ("BASS_SL7", "PMMA", "1.5-cm PMMA sphere", "sphere", 15.0, 17.0, 12.0, "opposed", "marginal_spread", "Sphere burning in wake with vapor jetting near extinction", True, 150.0, 0.04, "20140011099", 29),
-        ("BASS_SL8", "PMMA", "1.5-cm PMMA sphere", "sphere", 15.0, 17.0, 1.0, "opposed", "no_spread", "Flow less than 1 cm/s, flame extinguished", False, 35.0, 0.0, "20140011099", 31),
-        ("BASS_DL1", "Delrin", "6.35-mm Delrin (polyoxymethylene) rod", "rod", 6.35, 21.0, 5.0, "concurrent", "spread", "Steady burning on Delrin rod", False, 110.0, 0.28, "20160000593", 14),
-        ("BASS_DL2", "Delrin", "6.35-mm Delrin rod", "rod", 6.35, 20.0, 10.0, "concurrent", "spread", "Delrin sustained concurrent spread", False, 95.0, 0.32, "20160000593", 14),
-        ("BASS_DL3", "Delrin", "6.35-mm Delrin rod", "rod", 6.35, 18.0, 5.0, "concurrent", "spread", "Delrin flammability limit lower than PMMA", False, 85.0, 0.22, "20160000593", 14),
-        ("BASS_DL4", "Delrin", "6.35-mm Delrin rod", "rod", 6.35, 16.5, 5.0, "concurrent", "marginal_spread", "Near-limit burning on Delrin", True, 60.0, 0.11, "20160000593", 14),
-        ("BASS_DL5", "Delrin", "6.35-mm Delrin rod", "rod", 6.35, 15.0, 5.0, "concurrent", "no_spread", "Delrin extinguished in 15% O2", False, 15.0, 0.0, "20160000593", 14),
-    ]
-    for tid, mat, mat_raw, geom, thick, o2, flow, fdir, outcome, notes, interp, dur, srate, rid, page in slab_tests:
-        records.append({
-            "experiment_id": tid,
-            "investigation": "BASS",
-            "material": mat,
-            "material_raw": mat_raw,
-            "sample_geometry": geom,
-            "sample_thickness_mm": thick,
-            "oxygen_pct": o2,
-            "oxygen_raw": f"{o2:.1f} vol%",
-            "pressure_kpa": 101.3,
-            "pressure_raw": "101.3 kPa (1 atm)",
-            "flow_cm_s": flow,
-            "flow_direction": fdir,
-            "outcome": outcome,
-            "outcome_raw": notes,
-            "outcome_interpreted": interp,
-            "burn_duration_s": dur,
-            "spread_rate_mm_s": srate,
-            "gravity_env": "ISS",
-            "report_id": rid,
-            "source_url": f"https://ntrs.nasa.gov/citations/{rid}",
-            "source_page": page,
-            "source_table": "Report Text & Figures",
-            "exact_source_citation": f"NASA/TM-20140011099 / TM-20160000593, p. {page}, Test {tid}",
-            "verification_tier": "VERIFIED_FLIGHT_TABLE",
-            "data_origin": "direct_measurement",
-            "extraction_method": "text_reported",
-            "extraction_notes": f"NASA BASS investigation. {notes}",
-        })
-    return records
+def load_verified_report_rows() -> list[dict[str, Any]]:
+    """Rows transcribed by hand from the five non-BASS-II NASA reports.
 
+    Every row here corresponds to a value printed in a source table or stated exactly in
+    source text; see data/processed/experiments_reports_verified.csv, which carries the
+    quote behind each one. Only the microgravity rows are training data - the 1g columns
+    of TM-2008-215260 Table 1 are WSTF Test 1 results and are kept in the CSV for reference.
 
-def extract_exploration_atmospheres_20080034883() -> list[dict[str, Any]]:
-    """Extract pressure and oxygen variations from NASA/TM-2008-215260 (Exploration Atmospheres)."""
-    records = []
-    # Test conditions from TM-2008-215260 (Olson, Ruff, Miller)
-    # Testing PMMA, Cellulose (Kimwipes), and Nomex under varying pressures (56.5 kPa, 70.3 kPa, 101.3 kPa)
-    exp_tests = [
-        # Cellulose (Kimwipes) tests across exploration atmospheres
-        ("EXP_CELL_01", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 21.0, 101.3, 30.0, "opposed", "spread", "14.7 psia, 21% O2: steady spread at 30 cm/s", False, 20.0, 1.85, 9),
-        ("EXP_CELL_02", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 21.0, 101.3, 10.0, "opposed", "spread", "14.7 psia, 21% O2: steady spread at 10 cm/s", False, 25.0, 1.40, 9),
-        ("EXP_CELL_03", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 21.0, 101.3, 1.0, "opposed", "spread", "Low velocity spread in 1 atm air", False, 35.0, 0.85, 9),
-        ("EXP_CELL_04", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 18.0, 101.3, 10.0, "opposed", "spread", "14.7 psia, 18% O2: steady spread", False, 28.0, 0.95, 9),
-        ("EXP_CELL_05", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 16.5, 101.3, 10.0, "opposed", "marginal_spread", "Near 0-g ULOI flammability boundary (~16.2% O2)", True, 20.0, 0.40, 9),
-        ("EXP_CELL_06", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 15.5, 101.3, 10.0, "opposed", "no_spread", "Extinguished, below 0-g MOC limit", False, 8.0, 0.0, 9),
-        # Reduced pressure: 10.2 psia = 70.3 kPa (Exploration atmosphere baseline)
-        ("EXP_CELL_07", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 30.0, 70.3, 30.0, "opposed", "spread", "10.2 psia, 30% O2: vigorous spread in exploration atmosphere", False, 18.0, 2.45, 9),
-        ("EXP_CELL_08", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 30.0, 70.3, 10.0, "opposed", "spread", "10.2 psia, 30% O2: steady spread at 10 cm/s", False, 22.0, 1.90, 9),
-        ("EXP_CELL_09", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 24.0, 70.3, 30.0, "opposed", "spread", "10.2 psia, 24% O2: sustained spread", False, 24.0, 1.35, 9),
-        ("EXP_CELL_10", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 20.0, 70.3, 30.0, "opposed", "marginal_spread", "10.2 psia, 20% O2: near-limit burning at reduced pressure", True, 18.0, 0.65, 9),
-        ("EXP_CELL_11", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 18.0, 70.3, 30.0, "opposed", "no_spread", "10.2 psia, 18% O2: extinguished under reduced pressure", False, 10.0, 0.0, 9),
-        # Reduced pressure: 8.2 psia = 56.5 kPa (Hypobaric exploration atmosphere)
-        ("EXP_CELL_12", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 34.0, 56.5, 20.0, "opposed", "spread", "8.2 psia, 34% O2 (normoxic): steady spread", False, 20.0, 2.10, 9),
-        ("EXP_CELL_13", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 25.0, 56.5, 20.0, "opposed", "marginal_spread", "8.2 psia, 25% O2: weak flame at low pressure", True, 16.0, 0.55, 9),
-        ("EXP_CELL_14", "Cellulose", "Kimwipes cellulosic sheet", "sheet", 0.10, 20.0, 56.5, 20.0, "opposed", "no_spread", "8.2 psia, 20% O2: flame blowoff/quench", False, 6.0, 0.0, 9),
-        # PMMA sheet flammability under exploration atmospheres
-        ("EXP_PMMA_01", "PMMA", "Thin PMMA sheet", "sheet", 0.20, 30.0, 70.3, 20.0, "opposed", "spread", "PMMA in 10.2 psia, 30% O2: robust spread", False, 30.0, 0.65, 10),
-        ("EXP_PMMA_02", "PMMA", "Thin PMMA sheet", "sheet", 0.20, 24.0, 70.3, 20.0, "opposed", "spread", "PMMA in 10.2 psia, 24% O2: steady spread", False, 35.0, 0.42, 10),
-        ("EXP_PMMA_03", "PMMA", "Thin PMMA sheet", "sheet", 0.20, 20.0, 70.3, 20.0, "opposed", "marginal_spread", "PMMA in 10.2 psia, 20% O2: near-limit blue flame", True, 25.0, 0.18, 10),
-        ("EXP_PMMA_04", "PMMA", "Thin PMMA sheet", "sheet", 0.20, 18.0, 70.3, 20.0, "opposed", "no_spread", "PMMA in 10.2 psia, 18% O2: extinguished", False, 12.0, 0.0, 10),
-        ("EXP_PMMA_05", "PMMA", "Thin PMMA sheet", "sheet", 0.20, 34.0, 56.5, 15.0, "opposed", "spread", "PMMA in 8.2 psia, 34% O2: sustained spread", False, 28.0, 0.58, 10),
-        ("EXP_PMMA_06", "PMMA", "Thin PMMA sheet", "sheet", 0.20, 22.0, 56.5, 15.0, "opposed", "no_spread", "PMMA in 8.2 psia, 22% O2: extinguished due to low pressure", False, 10.0, 0.0, 10),
-        # Nomex tests under exploration atmospheres
-        ("EXP_NOMX_01", "Nomex", "Nomex fabric sheet", "sheet", 0.35, 30.0, 70.3, 20.0, "concurrent", "marginal_spread", "Nomex in 10.2 psia, 30% O2: partial surface charring, marginal spread", True, 22.0, 0.15, 7),
-        ("EXP_NOMX_02", "Nomex", "Nomex fabric sheet", "sheet", 0.35, 24.0, 70.3, 20.0, "concurrent", "no_spread", "Nomex in 10.2 psia, 24% O2: self-extinguished", False, 10.0, 0.0, 7),
-        ("EXP_NOMX_03", "Nomex", "Nomex fabric sheet", "sheet", 0.35, 34.0, 56.5, 15.0, "concurrent", "spread", "Nomex in 8.2 psia, 34% O2: sustained combustion in high O2", False, 26.0, 0.35, 7),
-    ]
-    for tid, mat, mat_raw, geom, thick, o2, press, flow, fdir, outcome, notes, interp, dur, srate, page in exp_tests:
-        records.append({
-            "experiment_id": tid,
-            "investigation": "ExplorationAtmospheres",
-            "material": mat,
-            "material_raw": mat_raw,
-            "sample_geometry": geom,
-            "sample_thickness_mm": thick,
-            "oxygen_pct": o2,
-            "oxygen_raw": f"{o2:.1f}% O2",
-            "pressure_kpa": press,
-            "pressure_raw": f"{press:.1f} kPa",
-            "flow_cm_s": flow,
-            "flow_direction": fdir,
-            "outcome": outcome,
-            "outcome_raw": notes,
-            "outcome_interpreted": interp,
-            "burn_duration_s": dur,
-            "spread_rate_mm_s": srate,
-            "gravity_env": "drop_tower",
-            "report_id": "20080034883",
-            "source_url": "https://ntrs.nasa.gov/citations/20080034883",
-            "source_page": page,
-            "source_table": "Table 1 & Figures 8-10",
-            "exact_source_citation": f"NASA/TM-20080034883, Table 1 & Figs. 8-10, p. {page}, Test {tid}",
-            "verification_tier": "VERIFIED_DROP_TOWER_TABLE",
-            "data_origin": "direct_measurement",
-            "extraction_method": "table_parsed",
-            "extraction_notes": f"NASA GRC Exploration Atmospheres project. {notes}",
-        })
-    return records
+    This replaces three earlier hardcoded blocks (49 rows attributed to these same five
+    reports) which no source check could support; see reports/REBUILT_MODEL_EVALUATION.md
+    Addendum 7.
+    """
+    csv_path = PROCESSED / "experiments_reports_verified.csv"
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Missing {csv_path}")
 
-
-def extract_drop_tower_opposed_flow_extinction() -> list[dict[str, Any]]:
-    """Extract opposed-flow flame spread extinction criteria from NASA/TM-20040053557 & CR-182264 (19890014267)."""
-    records = []
-    tests = [
-        ("DROP_EXT_01", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 21.0, 101.3, 5.0, "opposed", "spread", "Opposed flow flame spread in air at 5 cm/s", False, 25.0, 1.2, "20040053557", 2, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 2"),
-        ("DROP_EXT_02", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 21.0, 101.3, 1.0, "opposed", "spread", "Low velocity spread in 1-atm air", False, 30.0, 0.75, "20040053557", 2, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 2"),
-        ("DROP_EXT_03", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 21.0, 101.3, 0.3, "opposed", "no_spread", "Quenching extinction below 0.5 cm/s in microgravity", False, 8.0, 0.0, "20040053557", 3, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 3"),
-        ("DROP_EXT_04", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 18.0, 101.3, 4.0, "opposed", "spread", "Spread at 18% O2 and 4 cm/s", False, 28.0, 0.65, "20040053557", 3, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 3"),
-        ("DROP_EXT_05", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 18.0, 101.3, 0.8, "opposed", "no_spread", "Quenched at 0.8 cm/s in 18% O2", False, 10.0, 0.0, "20040053557", 3, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 3"),
-        ("DROP_EXT_06", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 18.0, 101.3, 25.0, "opposed", "no_spread", "Blowoff extinction at 25 cm/s in 18% O2", False, 6.0, 0.0, "20040053557", 3, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 3"),
-        ("DROP_EXT_07", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 16.5, 101.3, 3.0, "opposed", "marginal_spread", "Near-limit flickering flame at 16.5% O2", True, 20.0, 0.25, "19890014267", 5, "NASA CR-182264, S. L. Olson, 'Opposed Flow Diffusion Flame Extinction in Microgravity', Fig. 3, p. 5"),
-        ("DROP_EXT_08", "Cellulose", "Thin cellulosic sheet", "sheet", 0.08, 15.8, 101.3, 3.0, "opposed", "no_spread", "Extinguished at 15.8% O2 (limiting oxygen index)", False, 5.0, 0.0, "19890014267", 5, "NASA CR-182264, S. L. Olson, 'Opposed Flow Diffusion Flame Extinction in Microgravity', Table 1, p. 5"),
-        ("DROP_EXT_09", "PMMA", "Thin PMMA film", "sheet", 0.15, 21.0, 101.3, 5.0, "opposed", "spread", "Opposed flame spread over thin PMMA film", False, 30.0, 0.40, "20040053557", 4, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 4"),
-        ("DROP_EXT_10", "PMMA", "Thin PMMA film", "sheet", 0.15, 21.0, 101.3, 0.4, "opposed", "no_spread", "Low speed quench at 0.4 cm/s", False, 9.0, 0.0, "20040053557", 4, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 4"),
-        ("DROP_EXT_11", "PMMA", "Thin PMMA film", "sheet", 0.15, 19.0, 101.3, 4.0, "opposed", "spread", "Steady spread in 19% O2", False, 35.0, 0.32, "20040053557", 4, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 4"),
-        ("DROP_EXT_12", "PMMA", "Thin PMMA film", "sheet", 0.15, 17.5, 101.3, 3.0, "opposed", "marginal_spread", "Marginal flame survival at 17.5% O2", True, 22.0, 0.12, "20040053557", 4, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 4"),
-        ("DROP_EXT_13", "PMMA", "Thin PMMA film", "sheet", 0.15, 16.2, 101.3, 3.0, "opposed", "no_spread", "Extinction at 16.2% O2", False, 8.0, 0.0, "20040053557", 4, "NASA/TM-20040053557 / AIAA-2004-0968, Bhattacharjee et al., p. 4"),
-    ]
-    for tid, mat, mat_raw, geom, thick, o2, press, flow, fdir, outcome, notes, interp, dur, srate, rid, page, cit in tests:
-        inv = "NASA GRC 5.18s Drop Tower Near-Limit Study" if rid == "19890014267" else "MGLAB & GRC Drop Tower Extinction Synthesis"
-        records.append({
-            "experiment_id": tid,
-            "investigation": inv,
-            "material": mat,
-            "material_raw": mat_raw,
-            "sample_geometry": geom,
-            "sample_thickness_mm": thick,
-            "oxygen_pct": o2,
-            "oxygen_raw": f"{o2:.1f}% O2",
-            "pressure_kpa": press,
-            "pressure_raw": f"{press:.1f} kPa",
-            "flow_cm_s": flow,
-            "flow_direction": fdir,
-            "outcome": outcome,
-            "outcome_raw": notes,
-            "outcome_interpreted": interp,
-            "burn_duration_s": dur,
-            "spread_rate_mm_s": srate,
-            "gravity_env": "drop_tower",
-            "report_id": rid,
-            "source_url": f"https://ntrs.nasa.gov/citations/{rid}",
-            "source_page": page,
-            "source_table": "Extinction Boundary Matrix",
-            "exact_source_citation": cit,
-            "verification_tier": "VERIFIED_DROP_TOWER_TABLE",
-            "data_origin": "direct_measurement",
-            "extraction_method": "text_reported",
-            "extraction_notes": f"Drop tower extinction study. {notes}",
-        })
+    records: list[dict[str, Any]] = []
+    with csv_path.open(newline="") as fh:
+        for row in csv.DictReader(fh):
+            if row["gravity_env"] != "microgravity":
+                continue
+            o2 = float(row["oxygen_pct"])
+            press = float(row["pressure_kpa"])
+            flow = float(row["flow_cm_s"])
+            thick = float(row["sample_thickness_mm"]) if row["sample_thickness_mm"] else None
+            srate = float(row["spread_rate_cm_s"]) if row["spread_rate_cm_s"] else None
+            records.append({
+                "experiment_id": row["experiment_id"],
+                "investigation": row["investigation"],
+                "material": row["material"],
+                "material_raw": row["material_raw"],
+                "sample_geometry": row["sample_geometry"],
+                "sample_thickness_mm": thick,
+                "oxygen_pct": o2,
+                "oxygen_raw": f"{o2:.1f}% O2",
+                "pressure_kpa": press,
+                "pressure_raw": f"{press:.1f} kPa",
+                "flow_cm_s": flow,
+                "flow_direction": row["flow_direction"],
+                "outcome": row["outcome"],
+                "outcome_raw": row["source_quote"],
+                "outcome_interpreted": False,
+                "burn_duration_s": None,
+                "spread_rate_mm_s": srate * 10.0 if srate is not None else None,
+                "gravity_env": row["facility"],
+                "report_id": row["report_id"],
+                "source_url": f"https://ntrs.nasa.gov/citations/{row['report_id']}",
+                "source_page": int(row["source_page"]),
+                "source_table": row["source_table"],
+                "exact_source_citation": f"NTRS {row['report_id']}, {row['source_table']}, p. {row['source_page']}",
+                "verification_tier": "HAND_TRANSCRIBED_FROM_SOURCE",
+                "data_origin": "direct_measurement",
+                "extraction_method": row["extraction_method"],  # table_parsed or text_reported
+                "extraction_notes": row["extraction_notes"],
+            })
     return records
 
 
@@ -525,9 +411,7 @@ def build_full_dataset() -> list[dict[str, Any]]:
     raw_records.extend(extract_bass2_summary_table_a3_rods())
     raw_records.extend(extract_bass2_summary_table_a5_olson())
     raw_records.extend(extract_bass2_summary_table_a6_tien_cotton())
-    raw_records.extend(extract_bass_preheating_and_slabs())
-    raw_records.extend(extract_exploration_atmospheres_20080034883())
-    raw_records.extend(extract_drop_tower_opposed_flow_extinction())
+    raw_records.extend(load_verified_report_rows())
 
     validated_records = []
     quarantined = []

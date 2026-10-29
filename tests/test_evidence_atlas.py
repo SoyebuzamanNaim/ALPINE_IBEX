@@ -17,7 +17,7 @@ def test_full_evidence_atlas_workflow():
     # 1. System Health & Governance
     health = client.get("/health").json()
     assert health["status"] == "healthy"
-    assert health["dataset_rows"] == 145
+    assert health["dataset_rows"] == 117
 
     # 2. Evidence Retrieval with Claim-Level Citations
     pred_res = client.post("/predict", json={
@@ -52,7 +52,7 @@ def test_full_evidence_atlas_workflow():
 
     # 4. Research Coverage Map & Empirical White Spaces
     coverage_res = client.get("/api/coverage-map").json()
-    assert coverage_res["total_verified_experiments"] == 145
+    assert coverage_res["total_verified_experiments"] == 117
     assert coverage_res["coverage_completeness_pct"] > 0
     assert len(coverage_res["empirical_white_spaces"]) >= 3
 

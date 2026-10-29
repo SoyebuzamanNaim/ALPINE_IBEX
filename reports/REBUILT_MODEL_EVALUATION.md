@@ -418,3 +418,126 @@ The model and its scope are saved in `models/spread_rate_meta.json` with
 API or the site. R² = 0.9038 can be stated as a result for thin cellulose in quiescent
 microgravity from 21 to 100 % oxygen, alongside the 54 % near-limit error, and not as a
 capability of this tool.
+
+---
+
+# Addendum 7: the other 49 rows, checked against the documents
+
+Forty-nine rows carried five NTRS identifiers other than BASS-II and Saffire. They were the
+last untouched part of the dataset and the only remaining source of new negatives, so each was
+checked against the document it named. The NTRS fulltext was pulled for all five, and where a
+table existed the PDF page was rendered and read as an image rather than trusted to text
+extraction.
+
+## What the documents say
+
+| Report | Claimed | What is in it |
+|---|---|---|
+| `20040053557` Bhattacharjee, *Extinction Criteria* | 11 rows at 16.2-21 % O₂, 0.3-25 cm/s | A four-page theory abstract (NASA/CP-2003-212376 pp. 201-204). The word "Table" does not occur. The only oxygen values anywhere are 21 %, 30 % and 50 %, all axis labels on figures derived from equations. No 18 %, no 17.5 %, no 16.2 %, no "quench", no "blowoff", no velocity in cm/s. |
+| `19890014267` Ferkul, *Opposed flow... extinction* | 2 rows at 16.5 % and 15.8 % O₂, cited to "S. L. Olson, CR-182264" | A real TABLE I on p. 7 with **13 rows**. Neither 16.5 % nor 15.8 % appears in it. The author is Ferkul, not Olson. |
+| `20080034883` Olson, Ruff & Miller, *Exploration Atmospheres* | 23 rows incl. 6 PMMA and 3 Nomex at 18-34 % O₂ | A real Table 1 with **6 microgravity limits** for three fuels. The fuels are Kimwipes, Ultem 1000, Nomex HT90-40 and Mylar G. **PMMA is not tested in this report at all.** Ultem and Mylar, which are, were absent from the dataset. |
+| `20140011099` Ferkul et al., *BASS thickness & preheating* | 8 rows on a 1.2-cm slab and a 1.5-cm sphere | A 58-page slide deck with no table. Slabs and spheres are real subjects, but the stated conditions are not in it; one slide does give an exact condition. |
+| `20160000593` Ferkul et al., *BASS-II results* | 5 rows on 6.35-mm Delrin rods | A 21-page programme overview. "Delrin" occurs zero times; "6.35" occurs zero times. It is also BASS-**II**, which the dataset labelled "BASS". |
+
+Not one of the 49 could be supported. They share a signature: each report's rows form a clean
+monotone ladder from `spread` through `marginal_spread` to `no_spread` as oxygen falls, with
+smooth spread rates (1.85, 1.40, 0.85 / 2.45, 1.90, 1.35, 0.65) and burn durations. They are in
+`src/ingestion/build_table.py` as hand-written literals, each with a page number and an exact
+citation string that does not correspond to the document.
+
+## The 21 rows that are really there
+
+Transcribed from the rendered pages into `data/processed/experiments_reports_verified.csv`,
+which carries the quote behind every value:
+
+- **Ferkul TABLE I, 13 rows.** Thin cellulose laboratory wipes, half-thickness 0.0038 cm, 1 atm
+  O₂/N₂, NASA Lewis Zero Gravity Facility, 5.18 s. The fuel is drawn through still oxidiser, so
+  the tabulated fuel speed is the opposed relative velocity. 10 spread, **3 extinctions**: at
+  14 % O₂ (6.08 and 4.19 cm/s) and, importantly, at 17 % O₂ and **0.81 cm/s** - a low-velocity
+  quench, the branch BASS-II barely covers.
+- **Olson Table 1, 6 microgravity rows**, each a 0g ULOI/0g MOC pair 1 % apart at 30 cm/s
+  concurrent: Nomex HT90-40 23 %/22 % at 14.7 psia, Ultem 1000 24 %/23 % at 10.2 psia, Mylar G
+  17 %/16 % at 10.2 psia. Three spread, three no_spread, two pressures, perfectly balanced. The
+  six 1g columns are WSTF Test 1 data and are kept in the CSV but excluded from training.
+- **Olson figure 2 caption, 1 row.** Kimwipes at 24 % O₂, 30 cm/s, 6.4 psia, "not near limit".
+  The report never states Kimwipes' thickness, which is recorded as the reason it is excluded
+  from modelling.
+- **BASS slide 52, 1 row.** "Fuel: PMMA; 15-mm initial diameter; 17 % O₂/N₂; 1 atm... the flame
+  goes out when the flow speed is zero." The only observation at **zero flow** anywhere in the
+  dataset.
+
+Two further BASS statements were left out for being ranges rather than values ("21 % to 22 %
+O₂", "flow speeds around 15 cm/s"); recording those as exact numbers is the error being
+corrected here.
+
+That is 21 microgravity rows, 14 spread / **7 no_spread** - a far better balance than the
+149/28 of the existing set - across three pressures (44.1, 70.3, 101.3 kPa) and flow from 0 to
+30 cm/s.
+
+## What they are worth
+
+Scored by leave-one-group-out on the **original 177 rows only**, with the 21 new rows always in
+the training fold so they are never tested on themselves:
+
+| Model | New rows | Balanced acc | `no_spread` precision | Precision at threshold 0.80 |
+|---|---|---|---|---|
+| Gradient boosting d2 | excluded | 0.6372 | 0.562 | 0.692 (13 called safe) |
+| Gradient boosting d2 | **included** | **0.6707** ±0.0089 | **0.677** ±0.010 | **0.818** (11 called safe) |
+| Logistic, balanced | excluded | 0.7855 | 0.407 (22/54) | - |
+| Logistic, balanced | **included** | **0.8090** | **0.468** (22/47) | - |
+
+Both models improve, the gradient-boosting figures are stable over 10 seeds, and the direction
+holds under both groupings tried. This is the first of ten attempts to move the number at all.
+
+It is still not a safety claim. The counts are tiny and the intervals overlap:
+
+| Claim | Count | 95 % Wilson CI |
+|---|---|---|
+| baseline precision | 9/16 = 0.562 | [0.332, 0.769] |
+| augmented precision | 12/17 = 0.706 | [0.469, 0.867] |
+| augmented at threshold 0.80 | 9/11 = 0.818 | **[0.523, 0.949]** |
+
+An 0.818 resting on eleven predictions could as easily be 0.52. The honest reading is that 28
+negatives became 35, the model got consistently but slightly better, and the data is still far
+too thin to support "this material will not burn".
+
+**A correction to Addendum 2.** It said pressure was constant at 101.3 kPa across the set. That
+is true of BASS-II alone; the Saffire rows already spanned 54-73 kPa. The new rows widen that to
+44.1 kPa, but pressure was never the missing axis it was described as.
+
+## What this does to the shipped model
+
+The 49 rows were not only in the evaluation track - they were 34 % of `cache/experiments.parquet`,
+the file `src/compute/model.py` actually trains on. Removing them, changing nothing else:
+
+```
+n_train                145  ->  117
+cv_accuracy         0.8345  ->  0.5470      majority baseline 0.5556
+cv_balanced_acc     0.7622  ->  0.4093
+```
+
+**The advertised 83.45 % was a measurement of the fabricated rows.** Built as clean monotone
+ladders, they were trivially separable, and they were a third of the training data. The same
+pipeline, model and CV scheme on documented data scores below the majority baseline.
+
+Two caveats pull in opposite directions and both matter. Only four report groups now remain, so
+report-grouped CV trains on 21 rows whenever BASS-II is the held-out fold; that estimate is very
+coarse and k fell from 5 to 4 for lack of groups. And this pipeline still ingests the superseded
+96-row BASS-II extraction rather than the 158 PSI-verified rows, so its numbers are not the
+honest track's numbers.
+
+`tests/test_models.py::test_model_beats_majority_baseline` is now a strict `xfail` recording
+that the requirement is not met, rather than a threshold quietly lowered until it passed.
+
+## A coverage regression, and it is the real kind
+
+The envelope guard is per material. PMMA's oxygen range was 15.5-20.8 % once the invented rows
+went, so **the tool began refusing PMMA at 21 % oxygen - ordinary cabin air**, its single most
+likely query. Reduced pressure for PMMA disappeared entirely; every sub-atmospheric PMMA row had
+been invented. Thirteen tests failed because they encoded that coverage as real.
+
+The fix is not to widen the guard. The PSI-verified BASS-II extraction genuinely covers PMMA
+from 14.2 % to 22.2 % oxygen, so wiring it into the ingestion pipeline in place of the old
+96-row block restores 21 % honestly. That swap needs `flow_direction` established per PI table
+from the source, which is a separate piece of work and is not done here. Until it is, the
+in-domain tests use 19 % PMMA and say in a comment why.

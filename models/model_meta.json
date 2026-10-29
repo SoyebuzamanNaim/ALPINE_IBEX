@@ -1,33 +1,31 @@
 {
   "type": "gradient_boosting",
-  "n_train": 145,
-  "cv_accuracy": 0.8345,
-  "cv_balanced_accuracy": 0.7622,
-  "cv_macro_f1": 0.7809,
-  "cv_scheme": "StratifiedGroupKFold(k=5, group=report_id)",
+  "n_train": 117,
+  "cv_accuracy": 0.547,
+  "cv_balanced_accuracy": 0.4093,
+  "cv_macro_f1": 0.3838,
+  "cv_scheme": "StratifiedGroupKFold(k=4, group=report_id)",
   "secondary_cv": {
     "scheme": "StratifiedGroupKFold(k=5, group=investigation)",
-    "accuracy": 0.8414,
-    "balanced_accuracy": 0.769,
+    "accuracy": 0.547,
+    "balanced_accuracy": 0.4093,
     "rationale": "Coarser grouping: isolates whole flight campaigns."
   },
   "cv_fold_accuracies": [
-    0.8333,
-    0.7826,
-    1.0,
-    1.0,
-    0.625
+    0.5417,
+    0.5385,
+    0.5714,
+    1.0
   ],
   "cv_fold_sizes": [
     96,
-    23,
-    11,
+    13,
     7,
-    8
+    1
   ],
   "cv_caveat": "Accuracy is pooled out-of-fold over all rows, not a mean of folds. Group sizes are highly uneven (96/23/11/8/5/2), so per-fold accuracy on the smallest groups rests on very few samples; std_accuracy is not meaningful and marginal_spread support is 1-2 rows in three of five folds. StratifiedGroupKFold(group=report_id) yields only 2 distinct partitions across 200 seeds, so it is effectively leave-one-report-out and cannot be averaged over splitter seeds. Grouped accuracy slightly exceeds plain stratified accuracy because within-report neighbours are parametric-sweep siblings that straddle the extinction boundary: the nearest same-report neighbour agrees in label 55% of the time versus 62% for the nearest cross-report neighbour, so same-report training rows actively mislead. Most of the remaining gap is single-seed noise.",
-  "optimistic_cv_accuracy": 0.8138,
-  "majority_baseline_accuracy": 0.5172,
+  "optimistic_cv_accuracy": 0.735,
+  "majority_baseline_accuracy": 0.5556,
   "features": [
     "oxygen_pct",
     "pressure_kpa",
@@ -41,35 +39,35 @@
   ],
   "confusion_matrix": [
     [
-      37,
-      3,
-      9
+      27,
+      0,
+      14
     ],
     [
-      3,
-      12,
-      6
+      8,
+      0,
+      3
     ],
     [
-      1,
+      26,
       2,
-      72
+      37
     ]
   ],
   "per_class_recall": {
-    "no_spread": 0.7551020408163265,
-    "marginal_spread": 0.5714285714285714,
-    "spread": 0.96
+    "no_spread": 0.6585365853658537,
+    "marginal_spread": 0.0,
+    "spread": 0.5692307692307692
   },
-  "trained_at": "2026-10-28T11:14:49+00:00",
-  "dataset_sha256": "428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6",
+  "trained_at": "2026-10-29T07:34:07+00:00",
+  "dataset_sha256": "47a45022f27dc3bd6d4bef4e36e2423ccd00ae2fe8a14b3fe198f628e451a534",
   "training_range": {
     "oxygen_pct": {
-      "min": 15.0,
-      "max": 34.0
+      "min": 14.0,
+      "max": 24.0
     },
     "pressure_kpa": {
-      "min": 56.5,
+      "min": 44.1,
       "max": 101.3
     },
     "flow_cm_s": {
@@ -79,23 +77,24 @@
     "allowed_materials": [
       "Cellulose",
       "Cotton",
-      "Delrin",
+      "Mylar",
       "Nomex",
-      "PMMA"
+      "PMMA",
+      "Ultem"
     ],
     "per_material": {
       "Cellulose": {
-        "n_samples": 22,
+        "n_samples": 14,
         "oxygen_pct": {
-          "min": 15.5,
-          "max": 34.0
+          "min": 14.0,
+          "max": 24.0
         },
         "pressure_kpa": {
-          "min": 56.5,
+          "min": 44.1,
           "max": 101.3
         },
         "flow_cm_s": {
-          "min": 0.3,
+          "min": 0.81,
           "max": 30.0
         }
       },
@@ -114,11 +113,26 @@
           "max": 45.0
         }
       },
-      "Delrin": {
-        "n_samples": 5,
+      "Mylar": {
+        "n_samples": 2,
         "oxygen_pct": {
-          "min": 15.0,
-          "max": 21.0
+          "min": 16.0,
+          "max": 17.0
+        },
+        "pressure_kpa": {
+          "min": 70.3,
+          "max": 70.3
+        },
+        "flow_cm_s": {
+          "min": 30.0,
+          "max": 30.0
+        }
+      },
+      "Nomex": {
+        "n_samples": 6,
+        "oxygen_pct": {
+          "min": 20.8,
+          "max": 23.0
         },
         "pressure_kpa": {
           "min": 101.3,
@@ -126,47 +140,47 @@
         },
         "flow_cm_s": {
           "min": 5.0,
-          "max": 10.0
-        }
-      },
-      "Nomex": {
-        "n_samples": 7,
-        "oxygen_pct": {
-          "min": 20.8,
-          "max": 34.0
-        },
-        "pressure_kpa": {
-          "min": 56.5,
-          "max": 101.3
-        },
-        "flow_cm_s": {
-          "min": 5.0,
-          "max": 20.0
+          "max": 30.0
         }
       },
       "PMMA": {
-        "n_samples": 92,
+        "n_samples": 74,
         "oxygen_pct": {
           "min": 15.5,
-          "max": 34.0
+          "max": 20.8
         },
         "pressure_kpa": {
-          "min": 56.5,
+          "min": 101.3,
           "max": 101.3
         },
         "flow_cm_s": {
           "min": 0.0,
           "max": 35.0
         }
+      },
+      "Ultem": {
+        "n_samples": 2,
+        "oxygen_pct": {
+          "min": 23.0,
+          "max": 24.0
+        },
+        "pressure_kpa": {
+          "min": 70.3,
+          "max": 70.3
+        },
+        "flow_cm_s": {
+          "min": 30.0,
+          "max": 30.0
+        }
       }
     }
   },
   "loro": {
     "scheme": "LeaveOneGroupOut(group=report_id), averaged over 10 model seeds",
-    "n_groups": 6,
-    "accuracy_mean": 0.8228,
-    "accuracy_std": 0.0098,
-    "balanced_accuracy_mean": 0.7475,
-    "macro_f1_mean": 0.7644
+    "n_groups": 4,
+    "accuracy_mean": 0.5538,
+    "accuracy_std": 0.0264,
+    "balanced_accuracy_mean": 0.4077,
+    "macro_f1_mean": 0.3866
   }
 }

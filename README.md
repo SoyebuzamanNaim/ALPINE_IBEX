@@ -128,14 +128,17 @@ verification** - see "Data integrity" below for a confirmed defect in the extrac
 | Investigation | NTRS ID | Platform | Materials | Rows | Verified Source |
 |---|---|---|---|---|---|
 | **BASS-II** | `20210011385` | ISS | Cotton, Nomex, PMMA | 96 | [Burning and Suppression of Solids-II (BASS-II) Summary Report](https://ntrs.nasa.gov/citations/20210011385) · Olson, Ferkul, Bhattacharjee et al. |
-| **ExplorationAtmospheres** | `20080034883` | drop_tower | Cellulose, Nomex, PMMA | 23 | [Microgravity Flame Spread in Exploration Atmospheres: Pressure, Oxygen, and Velocity Effects](https://ntrs.nasa.gov/citations/20080034883) · Olson, Ruff & Miller |
-| **MGLAB & GRC Drop Tower Extinction Synthesis** | `20040053557` | drop_tower | Cellulose, PMMA | 11 | [Extinction Criteria for Opposed-Flow Flame Spread in a Microgravity Environment](https://ntrs.nasa.gov/citations/20040053557) · Bhattacharjee, Paolini, Wakai & Takahashi |
-| **BASS** | `20140011099` | ISS | PMMA | 8 | [Thickness and Fuel Preheating Effects on Material Flammability in Microgravity from the BASS Experiment](https://ntrs.nasa.gov/citations/20140011099) · Ferkul, Olson, Takahashi et al. |
-| **BASS** | `20160000593` | ISS | Delrin | 5 | [Combustion of Solids in Microgravity: Results from the BASS-II Experiment](https://ntrs.nasa.gov/citations/20160000593) · Ferkul, Bhattacharjee, Fernandez-Pello et al. |
-| **NASA GRC 5.18s Drop Tower Near-Limit Study** | `19890014267` | drop_tower | Cellulose | 2 | [An experimental study of opposed flow diffusion flame extinction over a thin fuel in microgravity](https://ntrs.nasa.gov/citations/19890014267) · Ferkul |
+| **GRC Zero Gravity Facility opposed-flow extinction** | `19890014267` | drop_tower | Cellulose | 13 | [An experimental study of opposed flow diffusion flame extinction over a thin fuel in microgravity](https://ntrs.nasa.gov/citations/19890014267) · Ferkul · TABLE I |
+| **Exploration Atmospheres flammability limits** | `20080034883` | drop_tower | Cellulose, Mylar, Nomex, Ultem | 7 | [Microgravity Flame Spread in Exploration Atmospheres: Pressure, Oxygen, and Velocity Effects](https://ntrs.nasa.gov/citations/20080034883) · Olson, Ruff & Miller · Table 1 + fig. 2 caption |
+| **BASS** | `20140011099` | ISS | PMMA | 1 | [Thickness and Fuel Preheating Effects on Material Flammability in Microgravity from the BASS Experiment](https://ntrs.nasa.gov/citations/20140011099) · Ferkul, Olson, Takahashi et al. · slide 52 |
 
-**Outcome distribution:** `spread` 75, `no_spread` 49, `marginal_spread` 21
-**Material distribution:** PMMA 92, Cellulose 22, Cotton 19, Nomex 7, Delrin 5
+**Outcome distribution:** `spread` 65, `no_spread` 41, `marginal_spread` 11
+**Material distribution:** PMMA 74, Cotton 19, Cellulose 14, Nomex 6, Mylar 2, Ultem 2
+
+The four non-BASS-II reports previously supplied 49 rows. Checked line by line against the
+source documents, not one of them could be supported, and they are gone; the 21 rows above
+replace them. `20040053557` and `20160000593` no longer contribute any row.
+See [Addendum 7](reports/REBUILT_MODEL_EVALUATION.md).
 
 - **Canonical Parquet Store:** [cache/experiments.parquet](cache/experiments.parquet)
 - **Data Integrity SHA-256:** `428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6`

@@ -9,13 +9,13 @@ from pydantic import BaseModel, Field, field_validator
 ROOT = Path(__file__).resolve().parents[2]
 UNIT_MAP_FILE = ROOT / "data" / "metadata" / "unit_map.json"
 
-MaterialType = Literal["PMMA", "Cotton", "Delrin", "Nomex", "Cellulose"]
+MaterialType = Literal["PMMA", "Cotton", "Delrin", "Nomex", "Cellulose", "Mylar", "Ultem"]
 GeometryType = Literal["sheet", "rod", "slab", "sphere"]
 FlowDirectionType = Literal["opposed", "concurrent", "quiescent"]
 RegimeType = Literal["no_spread", "marginal_spread", "spread"]
 GravityEnvType = Literal["ISS", "drop_tower", "sounding_rocket", "parabolic"]
 ExtractionMethodType = Literal["table_parsed", "digitized_figure", "text_reported"]
-VerificationTierType = Literal["VERIFIED_FLIGHT_TABLE", "VERIFIED_DROP_TOWER_TABLE", "VERIFIED_FIGURE_DIGITIZED", "HISTORICAL_SYNTHESIS"]
+VerificationTierType = Literal["VERIFIED_FLIGHT_TABLE", "VERIFIED_DROP_TOWER_TABLE", "VERIFIED_FIGURE_DIGITIZED", "HISTORICAL_SYNTHESIS", "HAND_TRANSCRIBED_FROM_SOURCE"]
 DataOriginType = Literal["direct_measurement", "digitized_point", "interpreted_regime"]
 
 

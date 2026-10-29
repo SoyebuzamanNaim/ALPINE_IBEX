@@ -15,12 +15,22 @@ def test_provenance_service_lookup():
 
 
 def test_drop_tower_provenance():
+    """A drop-tower row must name the table it was read out of.
+
+    This used to check DROP_EXT_07, one of 49 rows attributed to five NASA reports that
+    no source check could support; it also credited CR-182264 to Olson when 19890014267
+    is Ferkul. It now checks a row taken off the rendered table itself, which is the
+    extinction at 17% O2 and 0.81 cm/s in the last column of TABLE I.
+    """
     service = ProvenanceService()
-    record = service.get_provenance("DROP_EXT_07")
+    record = service.get_provenance("FERKUL_T1_08")
     assert record is not None
     assert "19890014267" in record["report_id"]
-    assert "CR-182264" in record["exact_source_citation"]
-    assert record["verification_tier"] == "VERIFIED_DROP_TOWER_TABLE"
+    assert "TABLE I" in record["exact_source_citation"]
+    assert record["verification_tier"] == "HAND_TRANSCRIBED_FROM_SOURCE"
+    assert record["outcome"] == "no_spread"
+    assert record["oxygen_pct"] == 17.0
+    assert record["flow_cm_s"] == 0.81
 
 
 def test_provenance_api():
