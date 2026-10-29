@@ -466,6 +466,27 @@ function renderPredictionResults(data) {
     }
   }
 
+  if (data.status === 'model_unvalidated') {
+    if (stateTierPill) stateTierPill.className = 'state-tier-pill tier-abstention';
+    if (stateTierLabel) stateTierLabel.textContent = 'MODEL INFERENCE WITHHELD';
+    if (stateTierExplainer) stateTierExplainer.textContent = 'Grouped validation did not beat the majority baseline';
+    if (alertBanner) alertBanner.classList.remove('hidden');
+    if (alertTitle) alertTitle.textContent = 'MODEL VALIDATION GATE';
+    if (alertMsg) alertMsg.textContent = data.explanation;
+    if (badge) {
+      badge.className = 'regime-status-badge regime-refusal';
+      badge.textContent = 'MODEL INFERENCE WITHHELD';
+    }
+    if (confPill) confPill.textContent = 'NO PROBABILITY AVAILABLE';
+    [pNoSpread, pMarginal, pSpread].forEach(el => { if (el) el.textContent = 'N/A'; });
+    [bNoSpread, bMarginal, bSpread].forEach(el => { if (el) el.style.width = '0%'; });
+    if (briefing) briefing.textContent = 'The available flight observations can be inspected below. The current model has not met the baseline validation gate.';
+    if (expText) expText.textContent = data.explanation;
+    renderNearestExperiments(data.nearest_experiments || []);
+    drawBoundaryCanvas();
+    return;
+  }
+
   if (!data.in_training_range) {
     // TIER 3: INSUFFICIENT EVIDENCE / ABSTENTION
     if (stateTierPill) {
@@ -755,17 +776,20 @@ async function fetchBoundarySlice() {
   try {
     const url = `${API_BASE}/boundary?material=${state.material}&pressure_kpa=${state.pressure_kpa}&o2_steps=28&flow_steps=28`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.detail || `HTTP error ${res.status}`);
+    }
     state.boundaryData = await res.json();
     drawBoundaryCanvas();
   } catch (err) {
     console.warn('Boundary slice fetch failed:', err);
     state.boundaryData = null;
-    drawOfflineCanvas();
+    drawOfflineCanvas(err.message);
   }
 }
 
-function drawOfflineCanvas() {
+function drawOfflineCanvas(message = 'Decision boundary unavailable. Check the backend connection.') {
   const canvas = document.getElementById('flammability-boundary-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -775,8 +799,7 @@ function drawOfflineCanvas() {
   ctx.fillStyle = '#64748b';
   ctx.font = '13px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('Live decision boundary slice requires active backend connection.', canvas.width / 2, canvas.height / 2 - 10);
-  ctx.fillText('Launch FastAPI server (localhost:8000) to render empirical boundaries.', canvas.width / 2, canvas.height / 2 + 15);
+  ctx.fillText(message, canvas.width / 2, canvas.height / 2);
 }
 
 // Draw 2-D Flammability Map on HTML5 Canvas
@@ -1029,7 +1052,21 @@ function setupNlpParser() {
 }
 
 // Killer Demo Sweep View (Brief §2) - Completely Dynamic
+function setSweepUnavailable(message) {
+  state.sweepData = null;
+  state.dynamicLocBoundary = null;
+  state.sweepEvidenceBefore = null;
+  state.sweepEvidenceAfter = null;
+  state.sweepError = message;
+  const slider = document.getElementById('sweep-oxygen-slider');
+  const autoBtn = document.getElementById('btn-run-auto-sweep');
+  if (slider) slider.disabled = true;
+  if (autoBtn) autoBtn.disabled = true;
+  updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
+}
+
 async function fetchSweepData() {
+  setSweepUnavailable('Loading validated sweep data…');
   try {
     const res = await fetch(`${API_BASE}/sweep`, {
       method: 'POST',
@@ -1047,24 +1084,30 @@ async function fetchSweepData() {
         steps: 26
       })
     });
-    if (res.ok) {
-      state.sweepData = await res.json();
-      const trans = state.sweepData.transitions;
-      if (trans && trans.length > 0) {
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.detail || `HTTP error ${res.status}`);
+    }
+    const sweepData = await res.json();
+    const trans = sweepData.transitions;
+    if (!sweepData.points || !trans || trans.length === 0) {
+      setSweepUnavailable('No validated regime transition is available for this sweep.');
+      return;
+    }
+    state.sweepData = sweepData;
+    state.sweepError = null;
+    const slider = document.getElementById('sweep-oxygen-slider');
+    const autoBtn = document.getElementById('btn-run-auto-sweep');
+    if (slider) slider.disabled = false;
+    if (autoBtn) autoBtn.disabled = false;
         const t = trans.find(tr => tr.to_regime === 'spread' || tr.to_regime === 'marginal_spread') || trans[0];
         state.dynamicLocBoundary = t.midpoint;
         state.sweepEvidenceBefore = t.evidence_before;
         state.sweepEvidenceAfter = t.evidence_after;
-      } else if (state.sweepData.safety_margin && state.sweepData.safety_margin.boundary_midpoint) {
-        state.dynamicLocBoundary = state.sweepData.safety_margin.boundary_midpoint;
-      } else {
-        state.dynamicLocBoundary = 17.5;
-      }
-      const slider = document.getElementById('sweep-oxygen-slider');
-      updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
-    }
+    updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
   } catch (err) {
     console.warn('Dynamic sweep fetch error:', err);
+    setSweepUnavailable(err.message);
   }
 }
 
@@ -1078,7 +1121,7 @@ function setupSweepView() {
   });
 
   autoBtn.addEventListener('click', () => {
-    if (state.sweepRunning) return;
+    if (state.sweepRunning || !state.sweepData) return;
     state.sweepRunning = true;
     autoBtn.textContent = '⏳ SWEEPING OXYGEN...';
     let val = 21.0;
@@ -1103,8 +1146,18 @@ function updateSweepPoint(o2Val) {
   const readout = document.getElementById('readout-sweep-o2');
   if (readout) readout.textContent = `${o2Val.toFixed(1)} %`;
 
-  // Dynamically derived from experiment sweep rather than hardcoded!
-  const locBoundary = state.dynamicLocBoundary || 17.5;
+  if (!state.sweepData || state.dynamicLocBoundary == null) {
+    if (marginDisplay) marginDisplay.textContent = 'N/A';
+    if (marginStatus) marginStatus.textContent = state.sweepError || 'Validated sweep unavailable';
+    for (const id of ['tag-above-boundary', 'tag-below-boundary', 'tick-loc-boundary', 'evidence-above-boundary', 'evidence-below-boundary']) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = 'Validated sweep unavailable';
+    }
+    drawSweepCanvas(o2Val);
+    return;
+  }
+
+  const locBoundary = state.dynamicLocBoundary;
   const delta = o2Val - locBoundary;
   if (marginDisplay) marginDisplay.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)} % O₂`;
 
@@ -1170,6 +1223,14 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
 
+  if (!state.sweepData || state.dynamicLocBoundary == null) {
+    ctx.fillStyle = '#64748b';
+    ctx.font = '13px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(state.sweepError || 'Validated sweep unavailable', w / 2, h / 2);
+    return;
+  }
+
   const padLeft = 70;
   const padBottom = 40;
   const padTop = 30;
@@ -1182,7 +1243,7 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.strokeRect(padLeft, padTop, pW, pH);
 
   // Transition vertical line derived dynamically
-  const locBoundary = state.dynamicLocBoundary || 17.5;
+  const locBoundary = state.dynamicLocBoundary;
   const boundaryX = padLeft + ((locBoundary - 16.0) / (21.0 - 16.0)) * pW;
   ctx.strokeStyle = 'rgba(217, 119, 6, 0.75)';
   ctx.setLineDash([4, 4]);
@@ -1197,52 +1258,32 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.fillText(`LOC BOUNDARY (${locBoundary.toFixed(1)}%)`, Math.min(boundaryX + 8, padLeft + pW - 140), padTop + 16);
 
   // Check if we have real sweep points from the backend
-  const pts = state.sweepData && state.sweepData.points;
+  const pts = state.sweepData.points;
 
   // Curve: P(Spread)
   ctx.strokeStyle = '#dc2626';
   ctx.lineWidth = 2.4;
   ctx.beginPath();
-  if (pts && pts.length > 0) {
-    pts.forEach((pt, idx) => {
-      const x = padLeft + ((pt.oxygen_pct - 16.0) / (21.0 - 16.0)) * pW;
-      const prob = pt.probabilities ? (pt.probabilities.spread || 0) : 0;
-      const y = padTop + pH - prob * pH;
-      if (idx === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-  } else {
-    for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
-      const x = padLeft + ((o2 - 16.0) / (21.0 - 16.0)) * pW;
-      const prob = 1 / (1 + Math.exp(-2.5 * (o2 - locBoundary)));
-      const y = padTop + pH - prob * pH;
-      if (o2 === 16.0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-  }
+  pts.forEach((pt, idx) => {
+    const x = padLeft + ((pt.oxygen_pct - 16.0) / (21.0 - 16.0)) * pW;
+    const prob = pt.probabilities ? (pt.probabilities.spread || 0) : 0;
+    const y = padTop + pH - prob * pH;
+    if (idx === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
   ctx.stroke();
 
   // Curve: P(No Spread)
   ctx.strokeStyle = '#059669';
   ctx.lineWidth = 2.4;
   ctx.beginPath();
-  if (pts && pts.length > 0) {
-    pts.forEach((pt, idx) => {
-      const x = padLeft + ((pt.oxygen_pct - 16.0) / (21.0 - 16.0)) * pW;
-      const prob = pt.probabilities ? (pt.probabilities.no_spread || 0) : 0;
-      const y = padTop + pH - prob * pH;
-      if (idx === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-  } else {
-    for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
-      const x = padLeft + ((o2 - 16.0) / (21.0 - 16.0)) * pW;
-      const prob = 1 / (1 + Math.exp(2.5 * (o2 - (locBoundary - 0.5))));
-      const y = padTop + pH - prob * pH;
-      if (o2 === 16.0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-  }
+  pts.forEach((pt, idx) => {
+    const x = padLeft + ((pt.oxygen_pct - 16.0) / (21.0 - 16.0)) * pW;
+    const prob = pt.probabilities ? (pt.probabilities.no_spread || 0) : 0;
+    const y = padTop + pH - prob * pH;
+    if (idx === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
   ctx.stroke();
 
   // Current slider marker

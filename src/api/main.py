@@ -6,8 +6,10 @@ citations, counterfactual sweeps, and 2-D decision boundary slices.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import logging
+import math
 from pathlib import Path
 from typing import Any
 
@@ -70,13 +72,48 @@ coverage_engine = ResearchCoverageEngine(data_path=DATA_PATH)
 provenance_service = ProvenanceService(data_path=DATA_PATH, corpus_dir=CORPUS_DIR)
 
 
+def _model_readiness() -> tuple[bool, str]:
+    """Gate public inference on the measured report-grouped baseline comparison."""
+    meta = orchestrator.router.meta
+    score = meta.get("cv_accuracy")
+    baseline = meta.get("majority_baseline_accuracy")
+    if (
+        isinstance(score, bool)
+        or isinstance(baseline, bool)
+        or not isinstance(score, (int, float))
+        or not isinstance(baseline, (int, float))
+        or not math.isfinite(score)
+        or not math.isfinite(baseline)
+        or not 0 <= score <= 1
+        or not 0 <= baseline <= 1
+    ):
+        return False, "Model validation metrics are missing; inference is unavailable."
+    if not DATA_PATH.exists() or hashlib.sha256(DATA_PATH.read_bytes()).hexdigest() != meta.get("dataset_sha256"):
+        return False, "Model dataset hash does not match the current experiments table; inference is unavailable."
+    if score <= baseline:
+        return False, (
+            f"Model grouped accuracy ({score:.1%}) does not exceed the majority "
+            f"baseline ({baseline:.1%}); inference is unavailable."
+        )
+    return True, "Model exceeds the measured majority baseline."
+
+
+def _require_model_ready() -> None:
+    ready, reason = _model_readiness()
+    if not ready:
+        raise HTTPException(status_code=503, detail=reason)
+
+
 @app.get("/health", tags=["System"])
 def health_check() -> dict[str, Any]:
     """Service health check, dataset status, and model readiness."""
     df = pd.read_parquet(DATA_PATH)
     meta = json.loads(META_PATH.read_bytes())
+    model_ready, model_reason = _model_readiness()
     return {
-        "status": "healthy",
+        "status": "healthy" if model_ready else "degraded",
+        "model_ready": model_ready,
+        "model_readiness_reason": model_reason,
         "service": "FLARE-X Microgravity Flammability Engine",
         "version": "1.0.0",
         "dataset_rows": len(df),
@@ -96,7 +133,27 @@ def predict(request: PredictRequest) -> dict[str, Any]:
     with detailed reasons while still returning the nearest historical experiments.
     """
     payload = request.model_dump()
+    model_ready, model_reason = _model_readiness()
+    if not model_ready:
+        envelope = orchestrator.guard.check(**payload)
+        if envelope["in_training_range"]:
+            return {
+                "inputs": payload,
+                "in_training_range": True,
+                "out_of_range_reasons": [],
+                "status": "model_unvalidated",
+                "prediction": None,
+                "probabilities": None,
+                "model": orchestrator.router.get_model_metadata(),
+                "nearest_experiments": envelope["nearest_experiments"],
+                "explanation": model_reason,
+                "warning_message": model_reason,
+                "sparse_region_warning": envelope.get("sparse_region_warning", False),
+                "knn_mean_distance": envelope.get("knn_mean_distance"),
+                "model_ready": False,
+            }
     res = orchestrator.run(payload)
+    res["model_ready"] = model_ready
     return res
 
 
@@ -146,6 +203,7 @@ def get_decision_boundary(
 
     Includes real experiments projected onto the 2-D slice for overlay plotting.
     """
+    _require_model_ready()
     meta = json.loads(META_PATH.read_bytes())
     t_range = meta["training_range"]
 
@@ -249,6 +307,7 @@ def get_decision_boundary(
 @app.post("/counterfactual", tags=["Counterfactual"])
 def run_counterfactual(request: CounterfactualRequest) -> dict[str, Any]:
     """Compute prediction and evidence delta between baseline and modified scenario."""
+    _require_model_ready()
     base_dict = request.baseline.model_dump()
     res = cf_engine.compute_perturbation(base_dict, request.changes)
     return res
@@ -257,6 +316,7 @@ def run_counterfactual(request: CounterfactualRequest) -> dict[str, Any]:
 @app.post("/sweep", tags=["Counterfactual"])
 def run_sweep(request: SweepRequest) -> dict[str, Any]:
     """Run 1D parameter sweep to identify flammability regime boundaries and safety margins."""
+    _require_model_ready()
     base_dict = request.baseline.model_dump()
     res = cf_engine.run_sweep(
         baseline=base_dict,

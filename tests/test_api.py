@@ -13,7 +13,8 @@ def test_get_health(client):
     res = client.get("/health")
     assert res.status_code == 200
     data = res.json()
-    assert data["status"] == "healthy"
+    assert data["status"] == "degraded"
+    assert data["model_ready"] is False
     assert data["dataset_rows"] == 200
     assert data["model_type"] == "gradient_boosting"
     assert "PMMA" in data["allowed_materials"]
@@ -34,8 +35,9 @@ def test_post_predict_in_domain(client):
     assert data["inputs"] == payload
     assert data["in_training_range"] is True
     assert data["out_of_range_reasons"] == []
-    assert data["prediction"] in ["spread", "marginal_spread", "no_spread"]
-    assert set(data["probabilities"].keys()) == {"no_spread", "marginal_spread", "spread"}
+    assert data["status"] == "model_unvalidated"
+    assert data["prediction"] is None
+    assert data["probabilities"] is None
     assert data["model"]["type"] == "gradient_boosting"
     assert data["model"]["n_train"] == 200
     # Records what the honest data gives, and is not a target. Removing the 49
@@ -105,13 +107,8 @@ def test_get_model(client):
 
 def test_get_boundary(client):
     res = client.get("/boundary?material=PMMA&pressure_kpa=101.3&o2_steps=12&flow_steps=12")
-    assert res.status_code == 200
-    data = res.json()
-    assert data["material"] == "PMMA"
-    assert len(data["oxygen_grid"]) == 12
-    assert len(data["flow_grid"]) == 12
-    assert len(data["grid_predictions"]) == 12
-    assert len(data["real_experiments"]) > 0
+    assert res.status_code == 503
+    assert "majority baseline" in res.json()["detail"]
 
 
 def test_post_counterfactual(client):
@@ -125,11 +122,8 @@ def test_post_counterfactual(client):
         "changes": {"oxygen_pct": 16.5},
     }
     res = client.post("/counterfactual", json=payload)
-    assert res.status_code == 200
-    data = res.json()
-    assert data["prediction_delta"]["changed"] is True
-    assert "probability_deltas" in data
-    assert "scientific_disclaimer" in data
+    assert res.status_code == 503
+    assert "majority baseline" in res.json()["detail"]
 
 
 def test_post_sweep(client):
@@ -146,12 +140,8 @@ def test_post_sweep(client):
         "steps": 11,
     }
     res = client.post("/sweep", json=payload)
-    assert res.status_code == 200
-    data = res.json()
-    assert data["parameter"] == "oxygen_pct"
-    assert len(data["points"]) == 11
-    assert data["total_transitions"] >= 1
-    assert data["safety_margin"] is not None
+    assert res.status_code == 503
+    assert "majority baseline" in res.json()["detail"]
 
 
 def test_post_scenario_parse(client):

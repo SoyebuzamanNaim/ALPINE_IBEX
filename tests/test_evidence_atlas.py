@@ -16,7 +16,7 @@ client = TestClient(app)
 def test_full_evidence_atlas_workflow():
     # 1. System Health & Governance
     health = client.get("/health").json()
-    assert health["status"] == "healthy"
+    assert health["status"] == "degraded"
     assert health["dataset_rows"] == 200
 
     # 2. Evidence Retrieval with Claim-Level Citations
@@ -28,7 +28,8 @@ def test_full_evidence_atlas_workflow():
     }).json()
 
     assert pred_res["in_training_range"] is True
-    assert pred_res["prediction"] == "spread"
+    assert pred_res["prediction"] is None
+    assert pred_res["status"] == "model_unvalidated"
     assert len(pred_res["nearest_experiments"]) >= 3
 
     # Check that nearest experiment has verified citation

@@ -76,6 +76,7 @@ class PredictResponse(BaseModel):
     sparse_region_warning: bool | None = False
     knn_mean_distance: float | None = None
     warning_message: str | None = None
+    model_ready: bool | None = None
 
 
 class CounterfactualRequest(BaseModel):
