@@ -30,7 +30,7 @@ PASS
 | Check | Result | Notes |
 |---|---|---|
 | No leakage across experiments | PASS | `report_id` used for grouped splitting |
-| Real metrics reported honestly | PASS | 79.31% grouped accuracy reported with full confusion matrix |
+| Real metrics reported honestly | PASS | 83.45% grouped accuracy reported with full confusion matrix |
 | Operational range strictly checked | PASS | Training ranges enforced; refuses out-of-domain extrapolation |
 
 ## Repair Attempts

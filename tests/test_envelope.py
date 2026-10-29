@@ -5,7 +5,9 @@ from src.envelope.guard import EnvelopeGuard
 
 def test_in_domain_standard_condition():
     guard = EnvelopeGuard()
-    res = guard.check(oxygen_pct=21.0, pressure_kpa=101.3, flow_cm_s=5.0, material="PMMA")
+    # 21% O2 on PMMA was in range only because of the 49 unsupported rows; the
+    # BASS-II extraction this pipeline still uses tops out at 20.8% O2. Addendum 7.
+    res = guard.check(oxygen_pct=19.0, pressure_kpa=101.3, flow_cm_s=5.0, material="PMMA")
     assert res["in_training_range"] is True
     assert res["status"] in ["in_domain", "boundary"]
     assert res["out_of_range_reasons"] == []
@@ -57,7 +59,9 @@ def test_per_material_out_of_range():
 
 def test_sparse_region_detection():
     guard = EnvelopeGuard()
-    # Valid bounding box for PMMA [0.0, 35.0], but high flow + elevated O2 at low pressure is sparse
-    res = guard.check(oxygen_pct=32.0, pressure_kpa=60.0, flow_cm_s=34.0, material="PMMA")
+    # Cellulose spans 44.1-101.3 kPa, so 70 kPa sits inside its box but far from any test
+    res = guard.check(oxygen_pct=22.0, pressure_kpa=70.0, flow_cm_s=20.0, material="Cellulose")
+    assert res["in_training_range"] is True
+    assert res["sparse_region_warning"] is True
     assert "knn_mean_distance" in res
     assert isinstance(res["sparse_region_warning"], bool)

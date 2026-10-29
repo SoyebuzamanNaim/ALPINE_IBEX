@@ -9,3 +9,7 @@ build/
 .DS_Store
 data/raw/
 .agents
+
+# agent tooling, not part of the submission
+.claude/
+.taste-skill/

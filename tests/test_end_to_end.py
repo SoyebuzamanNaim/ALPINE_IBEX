@@ -21,7 +21,7 @@ def client():
 def test_e2e_1_supported_scenario(client):
     """Case 1: Standard supported scenario (ISS baseline PMMA)."""
     payload = {
-        "oxygen_pct": 21.0,
+        "oxygen_pct": 19.0,
         "pressure_kpa": 101.3,
         "flow_cm_s": 5.0,
         "material": "PMMA",
@@ -35,7 +35,7 @@ def test_e2e_1_supported_scenario(client):
     assert data["status"] in ["in_domain", "boundary"]
     assert data["prediction"] == "spread"
     assert data["probabilities"]["spread"] > 0.80
-    assert data["model"]["n_train"] == 145
+    assert data["model"]["n_train"] == 200
     assert len(data["nearest_experiments"]) == 3
 
     # Grounded citation verification
@@ -113,10 +113,10 @@ def test_e2e_4_missing_variable_scenario(client):
 def test_e2e_5_sparse_region_scenario(client):
     """Case 5: Within bounding box but sparse experimental density."""
     payload = {
-        "oxygen_pct": 32.0,
-        "pressure_kpa": 60.0,
-        "flow_cm_s": 34.0,
-        "material": "PMMA",
+        "oxygen_pct": 22.0,
+        "pressure_kpa": 70.0,
+        "flow_cm_s": 20.0,
+        "material": "Cellulose",
     }
     res = client.post("/predict", json=payload)
     assert res.status_code == 200

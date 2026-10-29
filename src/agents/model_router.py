@@ -34,8 +34,8 @@ class ModelRouter:
         """Return standardized model metadata per Section 7 API contract."""
         return {
             "type": self.meta.get("type", "gradient_boosting"),
-            "n_train": self.meta.get("n_train", 145),
-            "cv_accuracy": self.meta.get("cv_accuracy", 0.7931),
+            "n_train": self.meta.get("n_train"),
+            "cv_accuracy": self.meta.get("cv_accuracy"),
             "cv_scheme": self.meta.get(
                 "cv_scheme", "StratifiedGroupKFold(k=5, group=report_id)"
             ),

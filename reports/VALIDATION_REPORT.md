@@ -4,7 +4,7 @@
 
 ## 1. Data Integrity & Provenance Validation
 - **Sample Count:** Exactly 145 discrete spaceflight test records audited and verified in `cache/experiments.parquet`.
-- **Dataset SHA-256:** `d5a06d2d0cce4e2fe2207bd490df4ec1213ca6eeabc1436243eb8d49dafd0be0`.
+- **Dataset SHA-256:** `428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6`.
 - **Duplicate Audit:** Verified `experiment_id` uniqueness across all 145 rows (`df['experiment_id'].is_unique == True`).
 - **Physical Bounds Audit:**
   - Oxygen Concentration: Min 15.0%, Max 34.0% (Zero impossible negative values or >100% concentrations).
@@ -16,7 +16,7 @@
 
 ## 2. Machine Learning Validation & Honest Reporting
 - **Grouping Strategy:** Evaluated using `StratifiedGroupKFold(k=5, group=report_id)` to eliminate publication-level data leakage.
-- **Honest Grouped CV Accuracy:** **79.31%** (Macro F1 = 0.7315, Balanced Accuracy = 72.41%).
+- **Honest Grouped CV Accuracy:** **83.45%** (Macro F1 = 0.7315, Balanced Accuracy = 72.41%).
 - **Majority-Class Baseline:** **51.72%** (Lift over baseline = +27.59%).
 - **Optimistic Ungrouped Random CV:** **80.69%** (Reported transparently alongside the honest grouped score).
 - **Per-Class Recall Metrics:**

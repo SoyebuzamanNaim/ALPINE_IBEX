@@ -155,9 +155,9 @@ Instead of talking abstractly, FLARE-X uses one canonical scenario through archi
   - Relevant NASA investigations: `BASS-II`, `SAFFIRE-I`
   - Closest experiments: `BASS2_B1` (5 cm/s, spread), `BASS2_B10` (15 cm/s, marginal), `BASS2_B12` (25 cm/s, extinction)
   - Observed behavior: Opposed-flow flame spread transitioning toward radiative extinction at low flow and blowoff at elevated flow.
-  - Model analysis: `marginal_spread` / near boundary (Model CV: 79.31% grouped by report).
+  - Model analysis: `marginal_spread` / near boundary (Model CV: 83.45% grouped by report).
   - Inside tested domain: `YES` (bounded within training envelope).
-  - Evidence sources: Resolvable NTRS citations (`NTRS 20210011385`, `NTRS 20160010041`).
+  - Evidence sources: Resolvable NTRS citations (`NTRS 20210011385`, `NTRS 20140011099`).
 
 ---
 

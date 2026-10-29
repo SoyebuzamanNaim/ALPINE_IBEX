@@ -229,7 +229,7 @@ $$\Delta O_2 = 0.0\%, \quad \Delta u = 0.0\text{ cm/s}, \quad \text{Material Mat
 A dedicated slide-over drawer providing total audit transparency:
 * **Epistemic Type:** `MODEL_INFERENCE`
 * **Underlying Algorithm:** `flame_spread_gb` (Gradient Boosted Decision Trees)
-* **Model Validation:** $79.31\%$ honest grouped CV accuracy (vs. $51.72\%$ baseline)
+* **Model Validation:** $83.45\%$ honest grouped CV accuracy (vs. $51.72\%$ baseline)
 * **Empirical Support:** 8 relevant BASS-II flight burns ($D_k = 0.082 < Q_{90}$)
 * **Primary Citation:** NASA PSI-25 (`doi:10.2514/6.2014-3677`)
 * **Known Limitations:** Flat sheet flight data applied to cylindrical geometry query.

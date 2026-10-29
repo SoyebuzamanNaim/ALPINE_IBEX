@@ -61,8 +61,13 @@ def test_model_router():
     router = ModelRouter()
     meta = router.get_model_metadata()
     assert meta["type"] == "gradient_boosting"
-    assert meta["n_train"] == 145
-    assert meta["cv_accuracy"] > 0.70
+    assert meta["n_train"] == 200
+    # Records what the honest data gives, and is not a target. Removing the 49
+    # unsupported rows left four report groups, so report-grouped CV trains on 21
+    # rows whenever BASS-II is the held-out fold. The requirement this used to
+    # stand for lives in test_models.py::test_model_beats_majority_baseline, which
+    # is a strict xfail because the model does not currently meet it. See reports/REBUILT_MODEL_EVALUATION.md Addendum 7.
+    assert meta["cv_accuracy"] > 0.50
 
     res = router.predict(21.0, 101.3, 5.0, "PMMA")
     assert res["prediction"] in ["spread", "marginal_spread", "no_spread"]
@@ -75,16 +80,16 @@ def test_auditor_numerical_rejection(auditor):
         "in_training_range": True,
         "prediction": "spread",
         "probabilities": {"spread": 0.977, "marginal_spread": 0.015, "no_spread": 0.008},
-        "model": {"n_train": 145, "cv_accuracy": 0.7931},
+        "model": {"n_train": 200, "cv_accuracy": 0.7931},
         "nearest_experiments": [
-            {"report_id": "NASA/TM-2016-219077", "experiment_id": "EXP_BASS_001", "oxygen_pct": 21.0, "distance": 0.02}
+            {"report_id": "20140011099", "experiment_id": "BASS_T1", "oxygen_pct": 21.0, "distance": 0.02}
         ]
     }
 
     # Grounded text should pass
     valid_text = (
         "Under microgravity conditions, PMMA at 21.0% O2, 101.3 kPa, and 5.0 cm/s exhibits spread "
-        "with probability 97.7%. Supported by NASA/TM-2016-219077."
+        "with probability 97.7%. Supported by 20140011099."
     )
     res_valid = auditor.audit_explanation(valid_text, pred_obj)
     assert res_valid["is_valid"] is True
@@ -104,7 +109,7 @@ def test_auditor_unauthorized_citation_rejection(auditor):
     pred_obj = {
         "inputs": {"oxygen_pct": 21.0, "pressure_kpa": 101.3, "flow_cm_s": 5.0, "material": "PMMA"},
         "nearest_experiments": [
-            {"report_id": "NASA/TM-2016-219077", "experiment_id": "EXP_BASS_001"}
+            {"report_id": "20140011099", "experiment_id": "BASS_T1"}
         ]
     }
     # Citing a fabricated report ID
@@ -120,9 +125,9 @@ def test_composer_fallback_on_audit_failure(composer):
         "in_training_range": True,
         "prediction": "spread",
         "probabilities": {"spread": 0.977, "marginal_spread": 0.015, "no_spread": 0.008},
-        "model": {"n_train": 145, "cv_accuracy": 0.7931},
+        "model": {"n_train": 200, "cv_accuracy": 0.7931},
         "nearest_experiments": [
-            {"report_id": "NASA/TM-2016-219077", "outcome": "spread", "oxygen_pct": 21.0}
+            {"report_id": "20140011099", "outcome": "spread", "oxygen_pct": 21.0}
         ]
     }
     # LLM gave an invalid explanation containing fabricated numbers
@@ -130,12 +135,12 @@ def test_composer_fallback_on_audit_failure(composer):
     comp_res = composer.compose(prediction_obj=pred_obj, candidate_text=bad_llm_text)
     assert comp_res["source"] == "deterministic_fallback_audit_failed"
     # Fallback explanation must cite authorized experiment
-    assert "NASA/TM-2016-219077" in comp_res["explanation"]
+    assert "20140011099" in comp_res["explanation"]
 
 
 def test_orchestrator_in_domain_run(orchestrator):
     res = orchestrator.run({
-        "oxygen_pct": 21.0,
+        "oxygen_pct": 19.0,
         "pressure_kpa": 101.3,
         "flow_cm_s": 5.0,
         "material": "PMMA"

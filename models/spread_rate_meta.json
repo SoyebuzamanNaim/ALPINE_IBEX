@@ -1,0 +1,37 @@
+{
+  "form": "V_f = slope * (X_O2)^0.9 / tau + intercept",
+  "slope": 0.062454,
+  "intercept": -0.759368,
+  "exponent": 0.9,
+  "units": {
+    "X_O2": "mole fraction",
+    "tau": "cm (fuel half-thickness)",
+    "V_f": "cm/s"
+  },
+  "n_train": 44,
+  "cv": "LeaveOneOut",
+  "r2": 0.9038,
+  "mae_cm_s": 0.421,
+  "residual_sd_cm_s": 0.537,
+  "valid_range": {
+    "oxygen_pct": [
+      21.0,
+      100.0
+    ],
+    "thickness_cm": [
+      0.0076,
+      0.0152
+    ],
+    "flow_cm_s": 0.0,
+    "pressure_kpa": 101.3
+  },
+  "scope": "Thin cellulose fuel in QUIESCENT microgravity at 1 atm. Fitted on the two thicknesses Olson flew. Not validated for forced flow, other materials, other pressures, or thicknesses outside the two below.",
+  "exponent_source": "NTRS 20080034883 (Olson, Ruff & Miller), opposed-flow correlation (X_O2)^0.9",
+  "data_source": "NTRS 19880006471 (NASA TM-100195) Appendix A Tables A-I and A-III",
+  "relative_error_pct": 31.2,
+  "relative_error_near_limit_pct": 53.7,
+  "near_limit_definition": "oxygen <= 30 %, where a fire-safety tool must be right",
+  "applies_to_flare_x_operating_range": false,
+  "why_not": "Fitted on 21-100 % O2, quiescent (flow 0), thin cellulose at 1 atm. FLARE-X operates at 14.2-31 % O2 with forced flow 1-25 cm/s on PMMA rods and fabrics. 70 % of FLARE-X rows sit below 21 % O2 and none are quiescent, so using this model there would extrapolate on oxygen, flow and fuel at once.",
+  "caveat": "R2 0.9038 is driven by the high-oxygen points where spread rates are large. Mean relative error is 31 % overall and 54 % below 30 % O2. A free power law fits the near-limit region better (34 % relative error) but only reaches R2 0.51, and its oxygen exponent is 1.70 rather than the published 0.9 because Olson is quiescent while the 0.9 correlation is opposed-flow."
+}

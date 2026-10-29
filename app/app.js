@@ -11,9 +11,59 @@ const API_BASE = (window.location.protocol.startsWith('http') && !window.locatio
       : '')
   : 'http://localhost:8000';
 
+// ============================================================================
+// Published NASA flammability boundary - NTRS 20210011385, BASS-II Summary
+// Report, Eq (6.1). This is NASA's own fitted boundary, not a model we trained,
+// so it needs no backend, no model artifact and carries no accuracy claim.
+//
+//   X_O2 = 6*exp(-0.5*a) + 0.0167*a + 13.4        [vol %, a in 1/s]
+//   a    = (3/2)*(U/r)*(r/r_o)^0.5                 r_o = 0.318 cm
+//   regime separator: U/U_D = 1 with U_D = 2 cm/s
+//
+// Fitted to cast-PMMA rods over 13.6-22.2 % O2. It describes extinction of an
+// ESTABLISHED flame, so it does not predict whether ignition will take hold.
+// ============================================================================
+const NASA_BOUNDARY = {
+  R_O: 0.318,                       // cm, the 1/4-inch base rod radius
+  U_D: 2.0,                         // cm/s, diffusive velocity
+  CITATION: 'NTRS 20210011385 Eq (6.1)',
+  URL: 'https://ntrs.nasa.gov/citations/20210011385',
+  VALID_O2: [13.6, 22.2],
+  // radii of the three cast-PMMA rods flown in BASS-II, in cm
+  RADII: { '1/4 inch': 0.3175, '3/8 inch': 0.47625, '1/2 inch': 0.635 },
+
+  stretch(U_cm_s, r_cm) {
+    if (!(r_cm > 0)) return NaN;
+    return 1.5 * (U_cm_s / r_cm) * Math.sqrt(r_cm / this.R_O);
+  },
+  limitO2(a) {
+    return 6.0 * Math.exp(-0.5 * a) + 0.0167 * a + 13.4;
+  },
+  regime(U_cm_s) {
+    return U_cm_s > this.U_D ? 'blowoff' : 'quench';
+  },
+  // Returns null when the published fit does not cover the request.
+  evaluate(o2_pct, U_cm_s, r_cm) {
+    const a = this.stretch(U_cm_s, r_cm);
+    if (!isFinite(a)) return null;
+    const limit = this.limitO2(a);
+    return {
+      stretch: a,
+      limitO2: limit,
+      margin: o2_pct - limit,
+      regime: this.regime(U_cm_s),
+      flammable: o2_pct > limit,
+      inFitRange: o2_pct >= this.VALID_O2[0] && o2_pct <= this.VALID_O2[1],
+      citation: this.CITATION,
+      url: this.URL
+    };
+  }
+};
+
 // Current Scenario State
 const state = {
   material: 'PMMA',
+  rod_radius_cm: 0.3175,   // 1/4-inch cast PMMA rod, the BASS-II base case
   oxygen_pct: 21.0,
   pressure_kpa: 101.3,
   flow_cm_s: 5.0,
@@ -360,8 +410,10 @@ async function triggerScenarioEvaluation() {
     const data = await res.json();
     renderPredictionResults(data);
   } catch (err) {
-    console.warn('API fetch failed:', err);
-    renderOfflineUnavailable(payload, err);
+    console.warn('API unreachable; falling back to the published NASA boundary:', err);
+    // No simulated model output. We show NASA's own published boundary instead,
+    // which is deterministic and needs no backend.
+    renderPublishedBoundary(payload);
   }
 }
 
@@ -399,14 +451,17 @@ function renderPredictionResults(data) {
   const peEl = document.getElementById('telemetry-peclet');
   const mgEl = document.getElementById('telemetry-margin');
 
-  if (daEl) daEl.textContent = `Da ≈ ${da} (${parseFloat(da) > 5 ? 'Reaction-dominated' : 'Flow-dominated'})`;
-  if (peEl) peEl.textContent = `Pe ≈ ${pe} (Laminar airflow)`;
+  // These are coarse scaling heuristics for operator intuition only. They are NOT model
+  // outputs and are not fitted to the NASA data. Ferkul (NTRS 19890014267) reports that the
+  // Damkohler number alone does not predict spread or extinction near the quench limit.
+  if (daEl) daEl.textContent = `Da ~ ${da} — illustrative scaling only, not a model output`;
+  if (peEl) peEl.textContent = `Pe ~ ${pe} — illustrative scaling only, not a model output`;
   if (mgEl) {
     if (parseFloat(margin) >= 0) {
-      mgEl.textContent = `+${margin}% above LOC (17.5%)`;
+      mgEl.textContent = `+${margin}% vs nominal 17.5% LOC reference (literature value, not model-derived)`;
       mgEl.className = 'phys-val highlight-green';
     } else {
-      mgEl.textContent = `${margin}% below LOC (Extinction)`;
+      mgEl.textContent = `${margin}% vs nominal 17.5% LOC reference (literature value, not model-derived)`;
       mgEl.className = 'phys-val';
     }
   }
@@ -461,7 +516,7 @@ function renderPredictionResults(data) {
       if (stateTierPill) {
         stateTierPill.className = 'state-tier-pill tier-estimate';
         if (stateTierLabel) stateTierLabel.textContent = 'MODEL ESTIMATE';
-        if (stateTierExplainer) stateTierExplainer.textContent = 'Supervised GBDT · Honest Grouped CV 79.31% · Bounded Flight Envelope';
+        if (stateTierExplainer) stateTierExplainer.textContent = 'Supervised GBDT · Honest Grouped CV 83.45% · Bounded Flight Envelope';
       }
     }
 
@@ -511,6 +566,82 @@ function renderPredictionResults(data) {
 }
 
 // TIER 4: SERVICE UNAVAILABLE (Honest state without simulated mock predictions)
+// Render the published NASA boundary result. Used when the backend is unreachable
+// (the static GitHub Pages deployment) and as a physics cross-check when it is not.
+// Shows an oxygen margin against NASA's own fitted limit. No probabilities are
+// shown, because a deterministic boundary does not produce any.
+function renderPublishedBoundary(payload) {
+  const o2 = payload.oxygen_pct, U = payload.flow_cm_s, mat = payload.material;
+  const el = (id) => document.getElementById(id);
+  const banner = el('envelope-alert-banner'), aTitle = el('alert-title'), aMsg = el('alert-message');
+  const badge = el('regime-badge'), pill = el('confidence-pill');
+  const briefing = el('operator-briefing-text'), expText = el('explanation-text-display');
+  const tierPill = el('state-tier-pill'), tierLabel = el('state-tier-label'), tierExp = el('state-tier-explainer');
+
+  // No probabilities exist for a deterministic boundary.
+  ['val-prob-no-spread', 'val-prob-marginal', 'val-prob-spread'].forEach((id) => {
+    const n = el(id); if (n) n.textContent = 'n/a';
+  });
+  ['bar-seg-no-spread', 'bar-seg-marginal', 'bar-seg-spread'].forEach((id) => {
+    const n = el(id); if (n) n.style.width = '0%';
+  });
+
+  if (tierPill) {
+    tierPill.className = 'state-tier-pill tier-physics';
+    if (tierLabel) tierLabel.textContent = 'PUBLISHED NASA BOUNDARY';
+    if (tierExp) tierExp.textContent = `${NASA_BOUNDARY.CITATION} · deterministic, not a trained model`;
+  }
+
+  // The fit is for cast-PMMA rods only. Say so rather than extrapolating it.
+  if (mat !== 'PMMA') {
+    if (banner) banner.classList.remove('hidden');
+    if (aTitle) aTitle.textContent = 'OUTSIDE THE PUBLISHED BOUNDARY FIT';
+    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} was fitted to cast-PMMA rods. It is not validated for ${mat}, so no margin is reported here. Use the flight-archive view to see the real experiments for this material.`;
+    if (badge) { badge.className = 'regime-status-badge regime-refusal'; badge.textContent = 'NO PUBLISHED BOUNDARY FOR THIS MATERIAL'; }
+    if (pill) pill.textContent = 'NOT APPLICABLE';
+    if (briefing) briefing.textContent = `The published NASA boundary covers cast-PMMA rods. For ${mat}, this tool can show you the real flight tests that exist but cannot place you against a validated limit.`;
+    if (expText) expText.textContent = '';
+    return;
+  }
+
+  const r = state.rod_radius_cm || NASA_BOUNDARY.R_O;
+  const res = NASA_BOUNDARY.evaluate(o2, U, r);
+  if (!res) return;
+
+  const m = res.margin, sign = m >= 0 ? '+' : '';
+  const near = Math.abs(m) < 1.0;        // within 1 % O2 of the limit
+
+  if (banner) {
+    if (res.inFitRange && !near) banner.classList.add('hidden');
+    else banner.classList.remove('hidden');
+  }
+  if (!res.inFitRange && aTitle) {
+    aTitle.textContent = 'OUTSIDE THE RANGE THE BOUNDARY WAS FITTED OVER';
+    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} was fitted over ${NASA_BOUNDARY.VALID_O2[0]} to ${NASA_BOUNDARY.VALID_O2[1]} % O2. At ${o2.toFixed(1)} % this is an extrapolation of the published curve.`;
+  } else if (near && aTitle) {
+    aTitle.textContent = 'WITHIN 1 % O2 OF THE PUBLISHED LIMIT';
+    if (aMsg) aMsg.textContent = 'This condition sits close to the flammability boundary, where NASA\'s own data shows outcomes depend on ignition history. Treat it as undetermined rather than safe.';
+  }
+
+  if (badge) {
+    badge.className = 'regime-status-badge ' + (near ? 'regime-marginal' : (res.flammable ? 'regime-spread' : 'regime-no-spread'));
+    badge.textContent = near ? 'NEAR THE LIMIT — UNDETERMINED'
+      : (res.flammable ? 'ABOVE THE FLAMMABILITY LIMIT' : 'BELOW THE FLAMMABILITY LIMIT');
+  }
+  if (pill) pill.textContent = `${sign}${m.toFixed(2)} % O2 vs limit`;
+
+  if (briefing) {
+    briefing.textContent = near
+      ? `At ${o2.toFixed(1)} % O2 and ${U} cm/s the condition is ${Math.abs(m).toFixed(2)} percentage points from NASA's published limit of ${res.limitO2.toFixed(2)} % O2. That is inside the band where the flight data itself is inconsistent, so this is not a safety clearance.`
+      : (res.flammable
+        ? `At ${o2.toFixed(1)} % O2 and ${U} cm/s, a flame on cast PMMA is ${m.toFixed(2)} percentage points of oxygen ABOVE NASA's published limit of ${res.limitO2.toFixed(2)} %. Reducing oxygen by ${m.toFixed(2)} points would reach the boundary.`
+        : `At ${o2.toFixed(1)} % O2 and ${U} cm/s, the condition is ${Math.abs(m).toFixed(2)} points BELOW NASA's published limit of ${res.limitO2.toFixed(2)} %, so an established flame would be expected to extinguish. This says nothing about whether an ignition source could start one.`);
+  }
+  if (expText) {
+    expText.innerHTML = `Stretch rate a = ${res.stretch.toFixed(1)} s<sup>-1</sup> for a ${(r * 2 * 10).toFixed(2)} mm diameter rod, placing this in the <strong>${res.regime}</strong> regime (separator U/U<sub>D</sub> = 1, U<sub>D</sub> = ${NASA_BOUNDARY.U_D} cm/s). The limit comes from <a href="${res.url}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">${res.citation} ↗</a>, fitted by NASA to cast-PMMA rods. It describes extinction of an <em>established</em> flame and does not predict ignition.`;
+  }
+}
+
 function renderOfflineUnavailable(payload, err) {
   const alertBanner = document.getElementById('envelope-alert-banner');
   const alertTitle = document.getElementById('alert-title');
@@ -738,7 +869,7 @@ function drawBoundaryCanvas() {
     ctx.fillStyle = '#b45309';
     ctx.font = '10px "JetBrains Mono", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('LOC ≈ 17.5%', locX + 6, padTop + 14);
+    ctx.fillText('nominal LOC 17.5% (reference)', locX + 6, padTop + 14);
   }
 
   // Outer Plot Border
@@ -1012,7 +1143,7 @@ function updateSweepPoint(o2Val) {
     if (exp) {
       evAbove.innerHTML = `<strong>Real NASA ${exp.investigation || 'Flight'} Test:</strong> ${exp.oxygen_pct}% O₂, ${exp.pressure_kpa} kPa, ${exp.flow_cm_s} cm/s → <em>${exp.outcome}</em> (<a href="${exp.source_url || '#'}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${exp.report_id} ↗</a>, ${state.material})`;
     } else {
-      evAbove.innerHTML = `<strong>Real NASA BASS Test:</strong> 20.8% O₂, 101.3 kPa, 5.0 cm/s → <em>spread</em> (<a href="https://ntrs.nasa.gov/citations/20160010041" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS 20160010041 ↗</a>, ${state.material})`;
+      evAbove.innerHTML = `<span class="evidence-unavailable">No flight test on the spread side of this boundary is available for ${state.material} at the current pressure and flow. Adjust the slice to a region with coverage.</span>`;
     }
   }
   if (evBelow) {

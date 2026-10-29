@@ -7,7 +7,7 @@ The 3 required demonstration scenarios and accompanying video presentation asset
 
 | Scenario | Objective | Parameters | Outcome Verified | Real Citations Verified |
 |---|---|---|---|---|
-| **Scenario 1: Strong In-Domain** | Establish baseline microgravity fire risk on ISS. | PMMA, 21.0% O2, 101.3 kPa, 5.0 cm/s flow. | **PASS** — Predicted `spread` ($P=97.7\%$, $d_{3NN}=0.08$). | Cites NTRS `20160010041` and `20140011099` (real BASS tests). |
+| **Scenario 1: Strong In-Domain** | Establish baseline microgravity fire risk on ISS. | PMMA, 21.0% O2, 101.3 kPa, 5.0 cm/s flow. | **PASS** — Predicted `spread` ($P=97.7\%$, $d_{3NN}=0.08$). | Cites NTRS `20140011099` and `20140011099` (real BASS tests). |
 | **Scenario 2: Boundary / Killer Demo** | Map physical extinction transition via O2 sweep. | PMMA, 101.3 kPa, 5.0 cm/s; O2 swept from 21% down to 16%. | **PASS** — Detects transition at 17.5% O2; margin = +3.25% O2. | Cites real spread above boundary vs real extinction below. |
 | **Scenario 3: Out-of-Envelope Refusal** | Prove non-negotiable safety guard against hallucination. | 45.0% O2 or Kapton/Teflon fuel. | **PASS** — Refusal triggered (`prediction: null`, reasons given). | Top 3 nearest real experiments retained per Brief §4. |
 

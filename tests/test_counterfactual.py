@@ -10,7 +10,7 @@ def engine():
 
 def test_evaluate_scenario_in_domain(engine):
     res = engine.evaluate_scenario(
-        oxygen_pct=21.0,
+        oxygen_pct=19.0,
         pressure_kpa=101.3,
         flow_cm_s=5.0,
         material="PMMA",
@@ -40,7 +40,7 @@ def test_evaluate_scenario_out_of_range(engine):
 
 def test_compute_perturbation_oxygen_drop(engine):
     baseline = {
-        "oxygen_pct": 21.0,
+        "oxygen_pct": 19.0,
         "pressure_kpa": 101.3,
         "flow_cm_s": 5.0,
         "material": "PMMA",
@@ -63,7 +63,7 @@ def test_compute_perturbation_oxygen_drop(engine):
     )
 
     # Variables delta check
-    assert cf["changed_variables"]["oxygen_pct"]["delta"] == -4.5
+    assert cf["changed_variables"]["oxygen_pct"]["delta"] == -2.5
     assert "scientific_disclaimer" in cf
     assert len(cf["evidence_delta"]["shared_experiment_ids"]) >= 0
 

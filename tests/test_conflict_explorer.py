@@ -26,7 +26,7 @@ def test_conflict_explorer_study_comparison():
 
 def test_conflict_explorer_experiment_comparison():
     engine = ConflictExplorerEngine()
-    res = engine.compare_experiments("BASS2_B1", "BASS2_B2")
+    res = engine.compare_experiments("BASS2_B1_5", "BASS2_B6_5")
     assert "comparability_score" in res
     assert res["verdict"] in ["HIGHLY_COMPARABLE", "COMPLEMENTARY_DIFFERENT_REGIMES", "STRUCTURAL_MISMATCH_NON_COMPARABLE"]
     assert "citations" in res

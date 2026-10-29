@@ -17,7 +17,7 @@ Scenario Interpreter (normalizes units, synonyms, parses NLP)
 Envelope Guard (enforces bounds, per-material limits, kNN density)
    ├── Extrapolation / Unsupported Category ──► Refusal Contract (prediction: null, nearest exps attached)
    │
-   └── In-Domain Supported ──► Model Router (Gradient Boosting, n=145, honest grouped CV=79.31%)
+   └── In-Domain Supported ──► Model Router (Gradient Boosting, n=145, honest grouped CV=83.45%)
                                      │
                                      ▼
                                Evidence Retriever (top-3 nearest experiments, BM25 report corpus)

@@ -24,9 +24,9 @@ A mission safety officer evaluates fire risk for cast acrylic (PMMA) hardware st
   - `marginal_spread`: **1.5%**
   - `no_spread`: **0.8%**
 - **Nearest Empirical NASA Evidence:**
-  1. `EXP_BASS_001` (BASS / ISS) — $21.0\%$ O₂, $101.3\text{ kPa}$, $5.0\text{ cm/s}$ → `spread` ([NTRS 20160010041](https://ntrs.nasa.gov/citations/20160010041))
+  1. `BASS_T1` (BASS / ISS) — $21.0\%$ O₂, $101.3\text{ kPa}$, $5.0\text{ cm/s}$ → `spread` ([NTRS 20140011099](https://ntrs.nasa.gov/citations/20140011099))
   2. `EXP_BASS_044` (BASS / ISS) — $18.0\%$ O₂, $101.3\text{ kPa}$, $5.0\text{ cm/s}$ → `spread` ([NTRS 20140011099](https://ntrs.nasa.gov/citations/20140011099))
-  3. `EXP_BASS_012` (BASS / ISS) — $21.0\%$ O₂, $101.3\text{ kPa}$, $7.5\text{ cm/s}$ → `spread` ([NTRS 20160010041](https://ntrs.nasa.gov/citations/20160010041))
+  3. `BASS_T2` (BASS / ISS) — $21.0\%$ O₂, $101.3\text{ kPa}$, $7.5\text{ cm/s}$ → `spread` ([NTRS 20140011099](https://ntrs.nasa.gov/citations/20140011099))
 - **Operator Safety Briefing:** Active opposed airflow continuously feeds convective oxidizer to the flame base, overpowering microgravity radiative heat losses. Flammability risk is elevated.
 
 ---
@@ -51,7 +51,7 @@ Demonstrating the physical limiting oxygen concentration (LOC) boundary where mi
   - At $16.0\%$ O₂: $P(\text{no\_spread}) \approx 94\%$
 - **Extinction Safety Margin at 21.0% O₂:** **$+3.25\%$ O₂** buffer above extinction limit
 - **Nearest Evidence Cited on BOTH Sides of Boundary:**
-  - **Above Boundary ($O_2 > 17.5\%$):** NTRS report `20160010041` ($20.8\%$ O₂, spread observed).
+  - **Above Boundary ($O_2 > 17.5\%$):** NTRS report `20140011099` ($20.8\%$ O₂, spread observed).
   - **Below Boundary ($O_2 \le 17.0\%$):** NTRS report `20140011099` ($16.5\%$ O₂, extinction / no spread observed).
 
 ---

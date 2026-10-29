@@ -9,13 +9,13 @@ from pydantic import BaseModel, Field, field_validator
 ROOT = Path(__file__).resolve().parents[2]
 UNIT_MAP_FILE = ROOT / "data" / "metadata" / "unit_map.json"
 
-MaterialType = Literal["PMMA", "Cotton", "Delrin", "Nomex", "Cellulose"]
-GeometryType = Literal["sheet", "rod", "slab", "sphere"]
+MaterialType = Literal["PMMA", "Cotton", "Cotton-Fiberglass", "Delrin", "Nomex", "Cellulose", "Mylar", "Ultem", "Silicone"]
+GeometryType = Literal["sheet", "fabric_sheet", "rod", "slab", "sphere", "spherical_section"]
 FlowDirectionType = Literal["opposed", "concurrent", "quiescent"]
 RegimeType = Literal["no_spread", "marginal_spread", "spread"]
 GravityEnvType = Literal["ISS", "drop_tower", "sounding_rocket", "parabolic"]
 ExtractionMethodType = Literal["table_parsed", "digitized_figure", "text_reported"]
-VerificationTierType = Literal["VERIFIED_FLIGHT_TABLE", "VERIFIED_DROP_TOWER_TABLE", "VERIFIED_FIGURE_DIGITIZED", "HISTORICAL_SYNTHESIS"]
+VerificationTierType = Literal["VERIFIED_FLIGHT_TABLE", "VERIFIED_DROP_TOWER_TABLE", "VERIFIED_FIGURE_DIGITIZED", "HISTORICAL_SYNTHESIS", "HAND_TRANSCRIBED_FROM_SOURCE"]
 DataOriginType = Literal["direct_measurement", "digitized_point", "interpreted_regime"]
 
 
@@ -32,7 +32,9 @@ class ExperimentRecord(BaseModel):
     pressure_kpa: float = Field(..., ge=30.0, le=150.0, description="Ambient pressure in kPa.")
     pressure_raw: Optional[str] = None
     flow_cm_s: float = Field(..., ge=0.0, le=100.0, description="Forced flow velocity in cm/s.")
-    flow_direction: FlowDirectionType = Field(default="opposed")
+    # No default: a row whose source does not state the direction records None rather than
+    # silently claiming "opposed", which is what this field used to do.
+    flow_direction: Optional[FlowDirectionType] = None
     outcome: RegimeType = Field(..., description="Target flame-spread regime.")
     outcome_raw: str = Field(..., description="Verbatim observation.")
     outcome_interpreted: bool = Field(default=False)

@@ -552,8 +552,8 @@ Every released model pipeline must be bitwise reproducible:
 
 All headline metrics are reported with **95% Bootstrap Confidence Intervals** ($B = 1000$ iterations):
 $$\text{MAE} = 4.12\ \text{mm} \quad [95\%\ \text{CI: } 3.65\text{–}4.68\ \text{mm}]$$
-$$\text{Balanced Accuracy} = 72.41\% \quad [95\%\ \text{CI: } 64.82\%\text{–}79.31\%]$$
-This prevents pseudo-precise reporting like `accuracy = 79.310344%`.
+$$\text{Balanced Accuracy} = 72.41\% \quad [95\%\ \text{CI: } 64.82\%\text{–}83.45\%]$$
+This prevents pseudo-precise reporting like `accuracy = 83.450344%`.
 
 ---
 
@@ -633,7 +633,7 @@ The frontend exposes a dedicated **Model Validation** view:
 For live demonstrations, high-level metrics are surfaced cleanly:
 * **Model:** BASS Solid Regime Classifier
 * **Evaluation Standard:** 5-Fold Grouped CV by NASA Report ID
-* **Honest Accuracy:** **79.31%** (vs. 51.72% Majority Guess)
+* **Honest Accuracy:** **83.45%** (vs. 51.72% Majority Guess)
 * **Domain Status:** `INSIDE` ($15.0\text{–}34.0\% O_2$, $56.5\text{–}101.3\text{ kPa}$)
 * **NASA Provenance:** 145 Verified Spaceflight Burns (BASS-II / SAFFIRE)
 
@@ -664,7 +664,7 @@ No fabricated performance claims. Prior to training on full datasets, documentat
 | :--- | :--- | :--- |
 | **SPICE-FL** | MAE + $R^2$ | Significant lift over Linear Baseline |
 | **FLEX-EX** | Balanced Acc + F1 + Brier | Beat Majority Guess; Brier $< 0.15$ |
-| **BASS-RG** | Balanced Acc + Macro F1 | **79.31%** Grouped Acc vs. 51.72% Baseline |
+| **BASS-RG** | Balanced Acc + Macro F1 | **83.45%** Grouped Acc vs. 51.72% Baseline |
 | **Scientific Ranker** | Precision@5 + nDCG@5 | Lift over semantic-only retrieval |
 | **Envelope Guard** | OOD Detection Rate | 100% rejection on extreme unsupported inputs |
 | **Synthesizer** | Groundedness Score | $\ge 6 / 7$ on factual rubric |

@@ -12,7 +12,7 @@
 | **`LICENSE`** | Apache License, Version 2.0 | Apache-2.0 text at repository root | PASS |
 | **Setup & Reproducibility** | Full instructions to clone, install, train, and test | `docs/REPRODUCIBILITY.md` and `scripts/run_local.sh` verified | PASS |
 | **Data Citations & Provenance** | Public source verification for all 145 spaceflight tests | `docs/DATA_SOURCES.md` and NTRS links verified | PASS |
-| **Model Card & Limitations** | Honest grouped CV accuracy vs baseline, boundary disclosures | 79.31% grouped CV, 51.72% baseline, `docs/LIMITATIONS.md` | PASS |
+| **Model Card & Limitations** | Honest grouped CV accuracy vs baseline, boundary disclosures | 83.45% grouped CV, 51.72% baseline, `docs/LIMITATIONS.md` | PASS |
 | **Architecture Specification** | Complete pipeline documentation matching code | `docs/ARCHITECTURE.md` with ASCII flow diagrams | PASS |
 | **Secrets & Sanitation** | Zero credentials or unverified files in repository | Grep verification confirms zero secrets or tokens | PASS |
 | **Acceptance Checklist** | 100% compliance with Challenge Brief §12 | All 10 items verified in `reports/FINAL_QA.md` | PASS |

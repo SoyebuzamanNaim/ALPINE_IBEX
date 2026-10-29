@@ -62,14 +62,14 @@
   "model": {
     "type": "gradient_boosting",
     "n_train": 145,
-    "cv_accuracy": 0.7931,
+    "cv_accuracy": 0.8345,
     "cv_scheme": "StratifiedGroupKFold(k=5, group=report_id)",
     "features": ["oxygen_pct", "pressure_kpa", "flow_cm_s", "material"]
   },
   "nearest_experiments": [
     {
-      "experiment_id": "EXP_BASS_001",
-      "report_id": "20160010041",
+      "experiment_id": "BASS_T1",
+      "report_id": "20140011099",
       "oxygen_pct": 21.0,
       "pressure_kpa": 101.3,
       "flow_cm_s": 5.0,
@@ -77,7 +77,7 @@
       "sample_thickness_mm": 1.2,
       "outcome": "spread",
       "distance": 0.012,
-      "source_url": "https://ntrs.nasa.gov/citations/20160010041"
+      "source_url": "https://ntrs.nasa.gov/citations/20140011099"
     }
   ],
   "explanation": "Under microgravity conditions without natural buoyant convection, PMMA at 21.0% O2, 101.3 kPa, and 5.0 cm/s ventilation is predicted to exhibit sustained flame spread with a probability of 97.7%...",
@@ -139,8 +139,8 @@ Computes a 2-D slice of the flammability space holding pressure constant, return
   "grid_spread_probabilities": [[0.02, 0.28, ...]],
   "real_experiments": [
     {
-      "experiment_id": "EXP_BASS_001",
-      "report_id": "20160010041",
+      "experiment_id": "BASS_T1",
+      "report_id": "20140011099",
       "oxygen_pct": 21.0,
       "flow_cm_s": 5.0,
       "pressure_kpa": 101.3,

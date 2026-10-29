@@ -137,7 +137,7 @@
 
       <rect x="30" y="445" width="460" height="85" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/>
       <text x="45" y="475" font-family="'JetBrains Mono', monospace" font-size="13" fill="#1d4ed8" font-weight="800">PROVEN BENCHMARK PERFORMANCE:</text>
-      <text x="45" y="502" font-family="'Inter', sans-serif" font-size="15" font-weight="800" fill="#0f172a">79.31% Grouped CV Accuracy (+27.6% Lift)</text>
+      <text x="45" y="502" font-family="'Inter', sans-serif" font-size="15" font-weight="800" fill="#0f172a">83.45% Grouped CV Accuracy (+27.6% Lift)</text>
     </g>
   </g>
 

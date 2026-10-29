@@ -1,7 +1,81 @@
 # System Boundaries, Scientific Limitations & Ethics: FLARE-X
 
+## Data integrity: verified defect in the BASS-II rows
+
+The six NTRS identifiers used by this project are genuine and their titles were confirmed
+against the live NASA Technical Reports Server. **The per-row values extracted from the
+largest of those reports were not.**
+
+NTRS serves machine-readable fulltext for every record:
+
+```
+https://ntrs.nasa.gov/api/citations/<id>/downloads/<filename>.pdf.txt
+```
+
+Re-reading `20210011385` (BASS-II Summary Report, which supplies 96 of 145 rows) through that
+endpoint and comparing it against `src/ingestion/build_table.py` found:
+
+Compared against the **authoritative PSI experimental table**
+(`data/external/psi/PSI-25_Experimental_table_BASS-II.csv`, 129 rows, DOI
+`10.60555/4qc4-de67`, CC0-1.0):
+
+| Check | Result |
+|---|---|
+| Calibrated oxygen matches PSI (within 0.05 pts) | **0 of 81 tests** |
+| **Oxygen differs by >0.35 pts** | **77 of 81** |
+| Largest discrepancies | O4 PSI 14.8% vs coded 20.6%; O5 15.1% vs 19.8%; B14 15.0% vs 19.6%; O12 13.6% vs 18.1% |
+| **Test IDs absent from the source** | **3** (`P7`, `P11`, `T8`) |
+
+The PSI table spans **13.6 to 22.2 % calibrated initial O2**. The current table claims a
+15.0 % floor, so the entire near-limit region the campaign was designed to probe is missing.
+
+Specific confirmed errors:
+
+- **`B14` outcome is inverted.** The report records 15.0% calibrated O2, spread rate `0.00`,
+  *"only brief ignition, flame extinguished"*. The dataset records 19.6% O2 and `spread`.
+- **Low-flow velocities are fan-potentiometer settings, not cm/s.** Values such as 0.35, 0.40
+  and 0.50 cm/s correspond to pot readings quoted in observations
+  (*"extinguished at pot 0.35"*). In the source tables, `Fan display` is a potentiometer
+  reading and `Air display` is the duct velocity in cm/s; the two were conflated.
+  `data/external/psi/PSI-25_Fan_calibration_data.xlsx` does map
+  `Pot -> Fan Display -> Air Display -> Fan V -> U cm/s`, but only per date and flow-restrictor
+  configuration: pooled across its 27 blocks, pot 10 spans 20 to 59 cm/s. The extinction points
+  sit at pot 0.35 to 0.5, below the lowest calibrated pot of 1.0. These velocities are therefore
+  **not reliably recoverable**, and the rebuild drops pot-labelled numbers rather than converting
+  them. The mid and high velocities need no conversion: the `Air display` column already gives
+  them in cm/s.
+- **Near-limit data was lost.** The real campaign probed 12.7-17% O2, the region where flames
+  actually stop propagating. Those values were replaced with ~18-21% O2, so the learned
+  flammability boundary sits several percentage points too high in oxygen.
+- `build_table.py` calls `pdftotext` and discards the result (`txt` is assigned at line 55 and
+  never read); the committed values are Python literals. With `data/raw/` gitignored and empty,
+  the table cannot currently be regenerated.
+
+### What this means for the reported accuracy
+
+The metrics below are reproducible and the evaluation machinery is sound, but they measure the
+model's fit to **this table**, not verified physical predictive skill. They should not be quoted
+as evidence of real-world flammability prediction until the rows are re-transcribed.
+
+The other 49 rows, from five further reports, have **not** been checked.
+
+**Correction.** An earlier version of this section stated that five test IDs were absent
+from the source and that the low-flow velocities were unrecoverable. Both were wrong, and
+both were found by checking against PSI rather than the narrative report alone. Seven of
+those IDs exist as sub-lettered variants (`O3a/b`, `O5a/b`, `O8a/b`, `O13a/b`, `O15a/b`,
+`P3a/b`, `P13a/b`) that the earlier PDF-based scan did not match; only `P7`, `P11` and
+`T8` are genuinely absent. The velocities are recoverable from the PSI fan calibration.
+
+**Fix path.** A faithful rebuild joins PSI conditions (oxygen, `Air display` velocity,
+material, geometry) to the `Test observations and anomalies` column of NTRS `20210011385`
+on `Test #`. PSI carries no outcome column; the narrative report carries no clean
+conditions. Both are needed. See `data/external/psi/README.md`.
+
+---
+
+
 > **Document Status:** Public, honest scientific disclosure of system scope, data concentration, physical model boundaries, and ethical safeguards for the FLARE-X prototype.  
-> **Master Specification:** See complete project requirements in [docs/REQUIREMENTS.md](file:///home/naim/Codebase/Projects/ALPINE_IBEX/docs/REQUIREMENTS.md).
+> **Master Specification:** See complete project requirements in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md).
 
 ---
 
@@ -91,4 +165,4 @@ All data, predictions, and text displayed across FLARE-X carry explicit epistemi
 8. ❌ Operating as an active real-time fire emergency response tool.
 9. ❌ Claiming NASA institutional endorsement or approval.
 
-For complete architectural details, Q&A defense playbooks, and adversarial test suites, refer to [`docs/PHASE_22_LIMITATIONS_AND_SCIENTIFIC_ETHICS.md`](file:///home/naim/Codebase/Projects/ALPINE_IBEX/docs/PHASE_22_LIMITATIONS_AND_SCIENTIFIC_ETHICS.md).
+For complete architectural details, Q&A defense playbooks, and adversarial test suites, refer to [`docs/PHASE_22_LIMITATIONS_AND_SCIENTIFIC_ETHICS.md`](docs/PHASE_22_LIMITATIONS_AND_SCIENTIFIC_ETHICS.md).

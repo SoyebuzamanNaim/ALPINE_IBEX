@@ -28,7 +28,7 @@ In compliance with the project guidelines, FLARE-X delivers a science-first, NAS
    - **Quick Presets:** One-click setups for *ISS Standard*, *Exploration Atmosphere*, and *Near Extinction*.
 2. **Fire Intelligence & 2-D Boundary Map (Center):**
    - **Regime Prediction Hero:** Dynamic badge displaying `SUSTAINED SPREAD`, `MARGINAL SPREAD`, `EXTINCTION / NO SPREAD`, or `REFUSED (OUT OF ENVELOPE)`.
-   - **Probability Distribution Bar:** Segmented bar displaying exact class percentages with model card stats (`Gradient Boosting`, `n=145`, `Grouped CV=79.31%`, `Baseline=51.72%`).
+   - **Probability Distribution Bar:** Segmented bar displaying exact class percentages with model card stats (`Gradient Boosting`, `n=145`, `Grouped CV=83.45%`, `Baseline=51.72%`).
    - **Operator Safety Briefing:** Plain-language translation for flight operators assessing extinction boundaries and ventilation hazard corridors.
    - **Signature 2-D Flammability Map (Canvas):**
      - Slices parameter space holding Pressure & Material constant.

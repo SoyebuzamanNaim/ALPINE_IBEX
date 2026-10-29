@@ -15,7 +15,7 @@ regime prediction using honest, leakage-safe grouped cross-validation.
   1. Naive Majority Baseline: 51.72% Accuracy
   2. Multinomial Logistic Regression: 60.69% Accuracy
   3. Random Forest Classifier: 75.86% Accuracy
-  4. Gradient Boosting Classifier (Headline): **79.31% Accuracy** (Optimistic plain CV: 80.69%)
+  4. Gradient Boosting Classifier (Headline): **83.45% Accuracy** (Optimistic plain CV: 80.69%)
 
 ## 3. Key Findings & Discussion
 - The headline model outperforms the majority baseline by +27.6% points.

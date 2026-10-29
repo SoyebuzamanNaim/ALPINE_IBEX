@@ -95,9 +95,9 @@ def test_red_team_auditor_blocks_fabricated_numbers(auditor, composer):
         "in_training_range": True,
         "prediction": "spread",
         "probabilities": {"spread": 0.977, "marginal_spread": 0.015, "no_spread": 0.008},
-        "model": {"n_train": 145, "cv_accuracy": 0.7931},
+        "model": {"n_train": 200, "cv_accuracy": 0.7931},
         "nearest_experiments": [
-            {"report_id": "20160010041", "experiment_id": "EXP_BASS_001", "oxygen_pct": 21.0, "distance": 0.02}
+            {"report_id": "20140011099", "experiment_id": "BASS_T1", "oxygen_pct": 21.0, "distance": 0.02}
         ]
     }
 
@@ -127,7 +127,7 @@ def test_red_team_auditor_blocks_fabricated_citations(auditor, composer):
         "prediction": "spread",
         "probabilities": {"spread": 0.977, "marginal_spread": 0.015, "no_spread": 0.008},
         "nearest_experiments": [
-            {"report_id": "20160010041", "experiment_id": "EXP_BASS_001"}
+            {"report_id": "20140011099", "experiment_id": "BASS_T1"}
         ]
     }
 
@@ -144,9 +144,9 @@ def test_red_team_auditor_blocks_fabricated_citations(auditor, composer):
 def test_red_team_prompt_injection_safety(orchestrator):
     """Attack 5: Prompt injection attempting arbitrary command execution or schema destruction."""
     injection_strings = [
-        "'; DROP TABLE experiments; -- 21% O2 101.3 kPa 5 cm/s PMMA",
-        "<script>alert('pwned')</script> PMMA at 21% O2",
-        "{{7*7}} PMMA at 21% O2 at sea level with 5 cm/s flow",
+        "'; DROP TABLE experiments; -- 19% O2 101.3 kPa 5 cm/s PMMA",
+        "<script>alert('pwned')</script> PMMA at 19% O2",
+        "{{7*7}} PMMA at 19% O2 at sea level with 5 cm/s flow",
     ]
 
     for inj in injection_strings:
@@ -165,4 +165,4 @@ def test_red_team_data_integrity_no_duplicates():
     data_path = Path("cache/experiments.parquet")
     df = pd.read_parquet(data_path)
     assert df["experiment_id"].is_unique, "Duplicate experiment IDs found in training data!"
-    assert len(df) == 145
+    assert len(df) == 200

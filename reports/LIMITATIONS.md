@@ -22,7 +22,7 @@
 ---
 
 ## 3. Modeling & Classification Limitations
-- **Cross-Validation Accuracy:** The headline honest grouped CV accuracy is **79.31%**. While random un-grouped splits achieve **80.69%**, reporting the grouped accuracy prevents false overconfidence caused by intra-report correlation.
+- **Cross-Validation Accuracy:** The headline honest grouped CV accuracy is **83.45%**. While random un-grouped splits achieve **80.69%**, reporting the grouped accuracy prevents false overconfidence caused by intra-report correlation.
 - **Marginal Spread Class Uncertainty:** Per-class recall for `marginal_spread` is **52.38%** (compared to 89.33% for `spread` and 75.51% for `no_spread`). This reflects the physical chaotic instability of near-extinction flames in low flow, where micro-perturbations dictate whether a flame stabilizes or self-extinguishes.
 - **Observational Machine Learning:** Inferences represent statistical pattern matching against historical NASA tests. They do **not** constitute formal computational fluid dynamics (CFD) or closed-form Navier-Stokes solutions.
 

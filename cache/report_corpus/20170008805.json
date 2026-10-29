@@ -1,0 +1,30 @@
+{
+  "report_id": "20170008805",
+  "title": "Results of Large-Scale Spacecraft Flammability Tests",
+  "abstract": "For the first time, a large-scale fire was intentionally set inside a spacecraft while in orbit. Testing in low gravity aboard spacecraft had been limited to samples of modest size: for thin fuels the longest samples burned were around 15 cm in length and thick fuel samples have been even smaller. This is despite the fact that fire is a catastrophic hazard for spaceflight and the spread and growth of a fire, combined with its interactions with the vehicle cannot be expected to scale linearly. While every type of occupied structure on earth has been the subject of full scale fire testing, this had never been attempted in space owing to the complexity, cost, risk and absence of a safe location. Thus, there is a gap in knowledge of fire behavior in spacecraft. The recent utilization of large, unmanned, resupply craft has provided the needed capability: a habitable but unoccupied spacecraft in low earth orbit. One such vehicle was used to study the flame spread over a 94 x 40.6 cm thin charring solid (fiberglasscotton fabric). The sample was an order of magnitude larger than anything studied to date in microgravity and was of sufficient scale that it consumed 1.5 of the available oxygen. The experiment which is called Saffire consisted of two tests, forward or concurrent flame spread (with the direction of flow) and opposed flame spread (against the direction of flow). The average forced air speed was 20 cms. For the concurrent flame spread test, the flame size remained constrained after the ignition transient, which is not the case in 1-g. These results were qualitatively different from those on earth where an upward-spreading flame on a sample of this size accelerates and grows. In addition, a curious effect of the chamber size is noted. Compared to previous microgravity work in smaller tunnels, the flame in the larger tunnel spread more slowly, even for a wider sample. This is attributed to the effect of flow acceleration in the smaller tunnels as a result of hot gas expansion. These results clearly demonstrate the unique features of purely forced flow in microgravity on flame spread, the dependence of flame behavior on the scale of the experiment, and the importance of full-scale testing for spacecraft fire safety.",
+  "source_url": "https://ntrs.nasa.gov/citations/20170008805",
+  "publication_date": "2019-07-12",
+  "authors": [
+    "Ferkul, Paul ",
+    "Olson, Sandra ",
+    "Urban, David L.",
+    "Ruff, Gary A.",
+    "Easton, John ",
+    "T'ien, James S.",
+    "Liao, Ta-Ting T.",
+    "Fernandez-Pello, A. Carlos",
+    "Torero, Jose L.",
+    "Eigenbrand, Christian",
+    "Legros, Guillaume",
+    "Smirnov, Nickolay",
+    "Fujita, Osamu",
+    "Rouvreau, Sebatien",
+    "Toth, Balazs",
+    "Jomaas, Grunde"
+  ],
+  "keywords": [
+    "microgravity"
+  ],
+  "distribution": "PUBLIC",
+  "center": "Glenn Research Center"
+}

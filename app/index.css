@@ -1829,6 +1829,14 @@ body.flarex-theme {
   border: 1px solid var(--color-safe-border);
 }
 
+/* Published NASA boundary: deterministic physics, not a trained model. */
+.state-tier-pill.tier-physics {
+  background-color: var(--nasa-blue-subtle);
+  color: var(--nasa-blue);
+  border: 1px solid var(--nasa-blue);
+  font-weight: 600;
+}
+
 .state-tier-pill.tier-estimate {
   background-color: var(--nasa-blue-subtle);
   color: var(--nasa-blue);

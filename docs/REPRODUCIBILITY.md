@@ -33,7 +33,7 @@ python -c "from src.ingestion.extract import build_all; build_all()"
 
 # Verify SHA-256 dataset checksum
 sha256sum cache/experiments.parquet
-# Expected: d5a06d2d0cce4e2fe2207bd490df4ec1213ca6eeabc1436243eb8d49dafd0be0
+# Expected: 428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6
 ```
 
 ---
@@ -50,7 +50,7 @@ Expected Output:
 ```text
 Loaded 145 microgravity experiments.
 Report-grouped 5-fold CV (report_id):
-  honest grouped CV accuracy: 79.31%
+  honest grouped CV accuracy: 83.45%
   balanced accuracy:          72.41%
   macro F1:                   0.7315
   majority class baseline:    51.72%

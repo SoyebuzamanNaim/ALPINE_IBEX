@@ -6,7 +6,7 @@ asset_index,asset_name,start_time,end_time,duration_sec,segment,purpose
 04,04_generic_ai_hallucination,00:52,01:10,18.0,WHY,Generic AI hallucinations vs combustion physics requirements
 05,05_five_research_silos,01:10,01:30,20.0,WHY,5 disparate experimental regimes (Solids, Droplets, Gas, Large Scale, Smoke)
 06,06_six_step_pipeline,01:30,01:50,20.0,WHAT,FLARE-X 6-step closed loop: Define -> Identify -> Retrieve -> Model -> Guard -> Trace
-07,07_specialized_models,01:50,02:05,15.0,WHAT,Family specialized models: BASS-GB (79.31% CV accuracy) + SPICE-FL + FLEX-EX
+07,07_specialized_models,01:50,02:05,15.0,WHAT,Family specialized models: BASS-GB (83.45% CV accuracy) + SPICE-FL + FLEX-EX
 08,08_experimental_envelope_guard,02:05,02:20,15.0,WHAT,Section 7 Envelope Guard: Zero-extrapolation safety rule
 09,09_live_html_support_map,02:20,02:40,20.0,DEMO,Live HTML workbench: 2D Support Map & 145 real spaceflight burns
 10,10_live_html_oxygen_sweep,02:40,03:00,20.0,DEMO,Live counterfactual sweep: 21% -> 18% O2 dynamic re-ranking

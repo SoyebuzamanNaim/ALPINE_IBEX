@@ -11,7 +11,7 @@ Phase 10 delivers the production-ready FastAPI backend for FLARE-X. It exposes a
      - `GET /health`: service status, row count (145), model status.
      - `POST /predict`: strictly matches Section 7 contract; handles both in-domain predictions and out-of-range refusals.
      - `GET /experiments`: full training table with filtering (`material`) and pagination (`limit`, `offset`).
-     - `GET /model`: metadata, honest grouped CV accuracy (79.31%), confusion matrix, majority baseline (51.72%), and parameter bounds.
+     - `GET /model`: metadata, honest grouped CV accuracy (83.45%), confusion matrix, majority baseline (51.72%), and parameter bounds.
      - `GET /boundary`: 2-D grid slice for contour plotting with overlaid real experiment data points.
      - `POST /counterfactual`: single-variable perturbation and evidence delta.
      - `POST /sweep`: multi-step parameter sweep with transition point and safety margin calculation.
