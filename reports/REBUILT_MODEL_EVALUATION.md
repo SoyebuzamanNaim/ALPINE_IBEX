@@ -282,3 +282,52 @@ The honest position is that **the ignition sub-problem cannot be attacked with t
 data at all.** 17 of 28 negatives are ignition failures, and nothing in the record describes the
 ignition conditions that produced them for BASS-II. That is a limit of what NASA published, not
 of the modelling.
+
+---
+
+# Addendum 4: the Olson thesis — no negatives, but a target that does work
+
+Addendum 2 named more extinction data as the only remaining lever, and NTRS `19880006471`
+(NASA TM-100195, Olson, *The Effect of Microgravity on Flame Spread Over a Thin Fuel*) was the
+best candidate: microgravity, and its abstract promises oxygen "from the limiting oxygen
+concentration to 100 percent".
+
+**It does not supply negatives.** Appendix A has four tables and every row in all four carries a
+non-zero flame spread rate — each is a test in which the flame spread. The abstract line is the
+reason: the tables *start at* the limiting oxygen concentration, so the lowest row of each is the
+last condition that still burned, not a failure. Adding these rows would take the balance from
+149/28 to roughly 193/28 and make the classification problem worse.
+
+The OCR text layer is also unusable for this report — `OA9` for `0.49`, `a. 55` for `0.55`, and
+the column structure flattened to one value per line with no row identifier to anchor on. The
+rows below were read from the PDF pages rendered at 3× with PyMuPDF, the same way the Saffire
+tables were read.
+
+## What it is good for
+
+Flame spread **rate** is a continuous target with no class imbalance, and on this data it is
+strongly predictable. 44 individual microgravity measurements, Tables A-I and A-III, oxygen 21 to
+100 %, two fuel thicknesses, quiescent, 1 atm. Leave-one-out:
+
+| Model | R² | MAE (cm/s) |
+|---|---|---|
+| Linear in O₂ and thickness | 0.8640 | 0.441 |
+| Quadratic | 0.9079 | 0.328 |
+| Cubic | **0.9404** | 0.265 |
+| **Literature form, (O₂)^0.9 / thickness** | **0.9038** | 0.421 |
+
+The last line is the one worth quoting. `(O₂)^0.9` is the published correlation exponent reported
+in NTRS `20080034883`, and dividing by fuel thickness is the thermally-thin scaling. A **single
+physically-derived feature reaches R² = 0.90** on held-out measurements. The cubic edges it out
+at 0.9404 but spends ten polynomial terms on 44 points to do so; the literature form is the more
+defensible number and cannot overfit.
+
+Saved as `data/processed/experiments_olson_spread_rate.csv`, kept separate from the
+classification table because every row is a positive.
+
+## What this means for the headline
+
+Classification accuracy is still 0.7821 balanced and still not improvable — this source cannot
+move it. But "how fast will it spread, given oxygen and thickness" is a question the published
+data answers well, and **R² = 0.90 from NASA's own correlation form** is an honest, checkable
+number of the kind the classifier cannot produce.
