@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FLARE-X — Fire needs a window of air</title>
-<meta name="description" content="A flammability explorer for spacecraft fire safety, built on 129 NASA microgravity combustion tests flown aboard the ISS.">
+<meta name="description" content="A spacecraft fire research explorer with 200 curated NASA microgravity observations from spaceflight and drop-tower studies.">
 <link rel="preconnect" href="https://api.fontshare.com">
 <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
 <link href="https://api.fontshare.com/v2/css?f[]=erode@400,500,600&display=swap" rel="stylesheet">
@@ -181,7 +181,7 @@ footer a { color:var(--muted); }
       In orbit the window between them is narrow, and it is not where tests on Earth say it is.</p>
     <div class="hero-act">
       <a class="btn" href="../app/">Open the tool</a>
-      <span class="cap">129 flight tests · NASA PSI · CC0</span>
+      <span class="cap">200 curated observations · NASA reports and PSI</span>
     </div>
   </div>
 
@@ -213,19 +213,20 @@ footer a { color:var(--muted); }
     <div class="sec">
       <div>
         <p class="eyebrow">The data</p>
-        <h2>Twenty years of fires, 129 of them.</h2>
+        <h2>Two hundred observations, each with a source.</h2>
         <p>You cannot light a fire aboard a crewed spacecraft whenever you like. That is why two
-          decades of research is only 129 test conditions, each one flown.</p>
-        <p>They come from NASA's Physical Sciences Informatics repository as a published dataset with
-          a DOI, not from a reading of a PDF. Every value here is the one NASA recorded.</p>
+          decades of research produced a limited set of microgravity observations across spaceflight and drop-tower studies.</p>
+        <p>The 200-row research table joins calibrated BASS-II conditions from NASA's PSI repository
+          with outcomes interpreted from the corresponding report, plus hand-transcribed observations
+          from other NASA reports. These labels require scientific review before operational use.</p>
       </div>
       <figure class="fig">
         <p class="fig-h">What the table holds</p>
         <dl class="nums">
-          <div><dt>Official BASS-II tests</dt><dd>129</dd></div>
-          <div><dt>Conditions re-derived</dt><dd>158</dd></div>
-          <div><dt>Saffire rows added</dt><dd>21</dd></div>
-          <div><dt>Licence</dt><dd>CC0<span> · public domain</span></dd></div>
+          <div><dt>Curated observations</dt><dd>200</dd></div>
+          <div><dt>BASS-II rows</dt><dd>158</dd></div>
+          <div><dt>Saffire rows</dt><dd>21</dd></div>
+          <div><dt>NASA report groups</dt><dd>7</dd></div>
         </dl>
       </figure>
     </div>
@@ -240,6 +241,9 @@ footer a { color:var(--muted); }
           NASA's own published limit, in percentage points of oxygen.</p>
         <p>It reports a <strong>margin</strong> rather than a yes or no, because a margin is what an
           operator can act on and a label is not.</p>
+        <p>The trained classifier currently scores below the majority-class baseline on grouped
+          validation, so live model inference is withheld. The published boundary shown here applies
+          only to the cast PMMA rod conditions for which NASA fitted it.</p>
       </div>
       <div class="ui" data-ui>
         <div class="ui-bar"><span>Scenario</span><span>Cast PMMA rod · 6.35 mm</span></div>
@@ -266,10 +270,8 @@ footer a { color:var(--muted); }
         <h2>It says when it does not know.</h2>
         <p>Ask about a material NASA never flew, or a condition outside the tested envelope, and the
           answer is that there is no answer — not a confident guess.</p>
-        <p>Of the 28 recorded non-propagating results,
-          <strong>17</strong> are flames that never took hold at all,
-          8 were smothered and 3 were blown
-          out. Those are three different questions, and the tool keeps them apart.</p>
+        <p>A recorded <code>no_spread</code> outcome can mean ignition never took hold or a flame
+          extinguished after ignition. Those observations should not be treated as a safety clearance.</p>
       </div>
       <div class="ui" data-ui>
         <div class="ui-bar"><span>Scenario</span><span>Nomex · 21.0 % O₂</span></div>

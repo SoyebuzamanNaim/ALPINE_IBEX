@@ -4,6 +4,11 @@
 > **Challenge:** Flame in Freefall (NASA Space Apps Challenge 2026)  
 > **Core Mandate:** Construct, verify, and package the complete, deploy-ready public prescreening web application for FLARE-X. Implements the Phase 24 content specification as a lightweight, zero-dependency static site optimized for instant deployment across Netlify, Vercel, GitHub Pages, or any static host. Eliminates complex framework bloat, guarantees two-minute judge comprehension, enforces epistemic transparency, and presents authentic NASA dataset foundations without login barriers.
 
+> **Historical design record:** This phase describes an earlier page. The current
+> landing page is [`../project-page/index.html`](../project-page/index.html),
+> with inline CSS and no JavaScript. The former `styles.css`, `script.js`, and
+> `nasa_data.js` assets were retired because the current page does not load them.
+
 ---
 
 ## Executive Summary & Engineering Strategy
@@ -27,13 +32,13 @@ The complete deployable project package is stored in the repository under [`proj
 
 | File Name | Purpose & Contents |
 | :--- | :--- |
-| [`index.html`](project-page/index.html) | Complete single-page scrolling structure, semantic sections, and inline SVG concept visualizations. |
-| [`styles.css`](project-page/styles.css) | Dark scientific mission-control design system, CSS custom properties, grid layouts, and media queries. |
-| [`script.js`](project-page/script.js) | Accessible mobile navigation toggle and high-performance `IntersectionObserver` scroll animations. |
-| [`README.md`](project-page/README.md) | Deployment runbook, incognito test instructions, and publication checklists. |
-| [`DATA_SOURCES.md`](project-page/DATA_SOURCES.md) | Complete NASA PSI (PSI-25, PSI-69, PSI-98, PSI-102, PSI-107) accession references. |
-| [`LIMITATIONS.md`](project-page/LIMITATIONS.md) | Official scientific limitations disclosure, scale caveats, and the Evidence Absence Rule. |
-| [`CREDITS.md`](project-page/CREDITS.md) | Formal attributions for NASA, open-source resources, and generative design prototyping disclosures. |
+| [`index.html`](../project-page/index.html) | Current single-page structure and inline SVG figure. |
+| `styles.css` (retired) | Former dark design system; replaced by inline styles. |
+| `script.js` (retired) | Former interactive demo; no longer loaded. |
+| [`README.md`](../project-page/README.md) | Current deployment instructions. |
+| [`DATA_SOURCES.md`](../project-page/DATA_SOURCES.md) | Historical NASA PSI source notes. |
+| [`LIMITATIONS.md`](../project-page/LIMITATIONS.md) | Scientific limitations disclosure. |
+| [`CREDITS.md`](../project-page/CREDITS.md) | Attribution checklist. |
 
 ---
 
@@ -70,7 +75,7 @@ The deployed site implements all 22 required functional sections with zero omiss
 
 ## 25.3 Visual Direction & Design Tokens Implemented
 
-The deployed `styles.css` implements the visual standards established in Phase 18:
+The retired `styles.css` implemented the visual standards established in Phase 18:
 * **Background Atmosphere:** Deep orbital space palette (`--bg: #060913`, `--panel: #0c1624`, `--line: #203247`).
 * **High-Contrast Accents:** Restrained orbital cyan (`--cyan: #1fe5d0`) and royal blue (`--blue: #62b7ff`) paired with telemetry violet (`--violet: #7d5cff`).
 * **Epistemic Color Semantics:**
