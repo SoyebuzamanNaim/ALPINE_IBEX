@@ -6,11 +6,14 @@ from src.api.main import app
 
 def test_provenance_service_lookup():
     service = ProvenanceService()
-    record = service.get_provenance("BASS2_B1")
+    # Test B1 at 5 cm/s. BASS-II conditions come from PSI-25 and the outcome from the
+    # report's observations column, so the citation names both.
+    record = service.get_provenance("BASS2_B1_5")
     assert record is not None
-    assert record["experiment_id"] == "BASS2_B1"
-    assert "NASA/TM-20210011385" in record["exact_source_citation"]
-    assert record["verification_tier"] == "VERIFIED_FLIGHT_TABLE"
+    assert record["experiment_id"] == "BASS2_B1_5"
+    assert "PSI-25" in record["exact_source_citation"]
+    assert "20210011385" in record["exact_source_citation"]
+    assert record["verification_tier"] == "HAND_TRANSCRIBED_FROM_SOURCE"
     assert record["data_origin"] == "direct_measurement"
 
 
@@ -36,9 +39,9 @@ def test_drop_tower_provenance():
 def test_provenance_api():
     client = TestClient(app)
     # Single item
-    r = client.get("/api/provenance/BASS2_B1")
+    r = client.get("/api/provenance/BASS2_B1_5")
     assert r.status_code == 200
-    assert r.json()["experiment_id"] == "BASS2_B1"
+    assert r.json()["experiment_id"] == "BASS2_B1_5"
 
     # Query
     r = client.get("/api/provenance?material=PMMA&limit=10")

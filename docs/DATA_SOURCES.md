@@ -8,17 +8,25 @@
 
 | Investigation | Gravity Environment | Materials | Rows | Verified Source |
 |---|---|---|---|---|
-| **BASS-II** | ISS | Cotton, Nomex, PMMA | 96 | [NTRS 20210011385](https://ntrs.nasa.gov/citations/20210011385) |
+| **BASS-II** | ISS | Cotton-Fiberglass, Nomex, PMMA | 158 | [NTRS 20210011385](https://ntrs.nasa.gov/citations/20210011385) + [PSI-25](https://psi.nasa.gov) |
 | **GRC Zero Gravity Facility opposed-flow extinction** | drop_tower | Cellulose | 13 | [NTRS 19890014267](https://ntrs.nasa.gov/citations/19890014267) |
+| **Saffire-I** | ISS | Cotton-Fiberglass, Nomex, PMMA, Silicone | 12 | [NTRS 20170008805](https://ntrs.nasa.gov/citations/20170008805) |
 | **Exploration Atmospheres flammability limits** | drop_tower | Cellulose, Mylar, Nomex, Ultem | 7 | [NTRS 20080034883](https://ntrs.nasa.gov/citations/20080034883) |
+| **Saffire-III** | ISS | Cotton, Cotton-Fiberglass, PMMA | 6 | [NTRS 20210011521](https://ntrs.nasa.gov/citations/20210011521) |
+| **Saffire-VI** | ISS | Cotton-Fiberglass, PMMA | 3 | [NTRS 20240002981](https://ntrs.nasa.gov/citations/20240002981) |
 | **BASS** | ISS | PMMA | 1 | [NTRS 20140011099](https://ntrs.nasa.gov/citations/20140011099) |
 
-**Total ingested observations:** 117 rows, drawn from 4 distinct NTRS reports.
+**Total ingested observations:** 200 rows, drawn from 7 distinct NTRS reports, spanning
+14.0-24.0 % oxygen and 44.1-101.3 kPa.
 
-The non-BASS-II rows are hand transcribed from the source documents and carry the quote behind
-each value in `data/processed/experiments_reports_verified.csv`. They replace 49 rows that were
-attributed to five reports and that no source check could support; `20040053557` and
-`20160000593` turned out to contain no test table at all and now contribute nothing.
+BASS-II conditions come from NASA PSI (PSI-25, DOI 10.60555/4qc4-de67, CC0-1.0), which publishes
+the calibrated values but no outcome column; the outcomes are hand-assigned from the report's
+observations per `docs/LABELING_PROTOCOL.md`. Flow direction is not in PSI and is read off the
+appendix test matrices of NTRS 20210011385 (pp. 111-121). Every other row is hand transcribed
+from its source table or from an exact statement in the text, with the quote kept beside it.
+
+Two reports that used to supply rows supply none: `20040053557` is a four-page theory abstract
+with no test table, and `20160000593` is a programme-overview slide deck.
 Row-level provenance lives in `data/metadata/provenance_registry.json`.
 
 > Legacy `NASA/TM-…` and `NASA/TP-…` designators previously listed here could not be verified

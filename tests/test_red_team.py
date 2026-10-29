@@ -95,7 +95,7 @@ def test_red_team_auditor_blocks_fabricated_numbers(auditor, composer):
         "in_training_range": True,
         "prediction": "spread",
         "probabilities": {"spread": 0.977, "marginal_spread": 0.015, "no_spread": 0.008},
-        "model": {"n_train": 117, "cv_accuracy": 0.7931},
+        "model": {"n_train": 200, "cv_accuracy": 0.7931},
         "nearest_experiments": [
             {"report_id": "20140011099", "experiment_id": "BASS_T1", "oxygen_pct": 21.0, "distance": 0.02}
         ]
@@ -165,4 +165,4 @@ def test_red_team_data_integrity_no_duplicates():
     data_path = Path("cache/experiments.parquet")
     df = pd.read_parquet(data_path)
     assert df["experiment_id"].is_unique, "Duplicate experiment IDs found in training data!"
-    assert len(df) == 117
+    assert len(df) == 200

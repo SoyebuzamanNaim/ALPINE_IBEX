@@ -127,18 +127,23 @@ verification** - see "Data integrity" below for a confirmed defect in the extrac
 
 | Investigation | NTRS ID | Platform | Materials | Rows | Verified Source |
 |---|---|---|---|---|---|
-| **BASS-II** | `20210011385` | ISS | Cotton, Nomex, PMMA | 96 | [Burning and Suppression of Solids-II (BASS-II) Summary Report](https://ntrs.nasa.gov/citations/20210011385) · Olson, Ferkul, Bhattacharjee et al. |
+| **BASS-II** | `20210011385` | ISS | Cotton-Fiberglass, Nomex, PMMA | 158 | [Burning and Suppression of Solids-II (BASS-II) Summary Report](https://ntrs.nasa.gov/citations/20210011385) · conditions from [NASA PSI PSI-25](https://psi.nasa.gov) (DOI 10.60555/4qc4-de67), outcomes hand-labelled from the report |
 | **GRC Zero Gravity Facility opposed-flow extinction** | `19890014267` | drop_tower | Cellulose | 13 | [An experimental study of opposed flow diffusion flame extinction over a thin fuel in microgravity](https://ntrs.nasa.gov/citations/19890014267) · Ferkul · TABLE I |
-| **Exploration Atmospheres flammability limits** | `20080034883` | drop_tower | Cellulose, Mylar, Nomex, Ultem | 7 | [Microgravity Flame Spread in Exploration Atmospheres: Pressure, Oxygen, and Velocity Effects](https://ntrs.nasa.gov/citations/20080034883) · Olson, Ruff & Miller · Table 1 + fig. 2 caption |
-| **BASS** | `20140011099` | ISS | PMMA | 1 | [Thickness and Fuel Preheating Effects on Material Flammability in Microgravity from the BASS Experiment](https://ntrs.nasa.gov/citations/20140011099) · Ferkul, Olson, Takahashi et al. · slide 52 |
+| **Saffire-I** | `20170008805` | ISS | Cotton-Fiberglass, Nomex, PMMA, Silicone | 12 | [Results of Large-Scale Spacecraft Flammability Tests](https://ntrs.nasa.gov/citations/20170008805) |
+| **Exploration Atmospheres flammability limits** | `20080034883` | drop_tower | Cellulose, Mylar, Nomex, Ultem | 7 | [Microgravity Flame Spread in Exploration Atmospheres](https://ntrs.nasa.gov/citations/20080034883) · Olson, Ruff & Miller · Table 1 + fig. 2 caption |
+| **Saffire-III** | `20210011521` | ISS | Cotton, Cotton-Fiberglass, PMMA | 6 | [Fire Safety Implications of Preliminary Results from Saffire IV and V](https://ntrs.nasa.gov/citations/20210011521) |
+| **Saffire-VI** | `20240002981` | ISS | Cotton-Fiberglass, PMMA | 3 | [Preliminary Results from the Saffire VI Experiment](https://ntrs.nasa.gov/citations/20240002981) |
+| **BASS** | `20140011099` | ISS | PMMA | 1 | [Thickness and Fuel Preheating Effects on Material Flammability in Microgravity from the BASS Experiment](https://ntrs.nasa.gov/citations/20140011099) · slide 52 |
 
-**Outcome distribution:** `spread` 65, `no_spread` 41, `marginal_spread` 11
-**Material distribution:** PMMA 74, Cotton 19, Cellulose 14, Nomex 6, Mylar 2, Ultem 2
+**Outcome distribution:** `spread` 163, `no_spread` 35, `marginal_spread` 2
+**Material distribution:** PMMA 151, Cotton-Fiberglass 21, Cellulose 14, Nomex 5, Silicone 4, Mylar 2, Ultem 2, Cotton 1
 
-The four non-BASS-II reports previously supplied 49 rows. Checked line by line against the
-source documents, not one of them could be supported, and they are gone; the 21 rows above
-replace them. `20040053557` and `20160000593` no longer contribute any row.
-See [Addendum 7](reports/REBUILT_MODEL_EVALUATION.md).
+Every one of the 200 rows carries `verification_tier: HAND_TRANSCRIBED_FROM_SOURCE`: it was read
+off a rendered source table or an exact statement in the text, and the record names which. The
+dataset previously held 49 rows attributed to five reports that no source check could support,
+and a 96-row BASS-II extraction whose oxygen column disagreed with NASA PSI on 77 of 81
+comparable tests. Both are gone. See Addenda 7 and 8 in
+[reports/REBUILT_MODEL_EVALUATION.md](reports/REBUILT_MODEL_EVALUATION.md).
 
 - **Canonical Parquet Store:** [cache/experiments.parquet](cache/experiments.parquet)
 - **Data Integrity SHA-256:** `428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6`

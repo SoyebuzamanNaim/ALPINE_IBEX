@@ -35,7 +35,7 @@ def test_e2e_1_supported_scenario(client):
     assert data["status"] in ["in_domain", "boundary"]
     assert data["prediction"] == "spread"
     assert data["probabilities"]["spread"] > 0.80
-    assert data["model"]["n_train"] == 117
+    assert data["model"]["n_train"] == 200
     assert len(data["nearest_experiments"]) == 3
 
     # Grounded citation verification

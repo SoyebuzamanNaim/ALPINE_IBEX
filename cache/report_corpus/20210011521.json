@@ -1,0 +1,37 @@
+{
+  "report_id": "20210011521",
+  "title": "Fire Safety Implications of Preliminary Results from Saffire IV and V Experiments on Large Scale Spacecraft Fires",
+  "abstract": "The spread and growth of flames over large solid fuel samples and their effect on the pressurized spacecraft were studied inside the Cygnus spacecraft while in orbit after departing the International Space Station. These experiments were developed by NASA\u2019s Advanced Exploration Systems Division in the Human Exploration and Operations Mission Directorate. The ignited materials consisted of poly-methyl methacrylate (PMMA), cotton fabric and a cotton/fiberglass fabric blend. The samples were all 40 cm wide and with various lengths ranging from 18 cm for the PMMA samples to 50 cm for the fabrics. The overall results from these tests and their impact on the spacecraft are presented with emphasis on the fire safety implications of the results. The experiments included, a post-fire cleanup system, vehicle internal volume measurements, and transport of acid gases (HCl and HF). Measurements included video images, flame spread rate, flame temperatures and radiant heat output; energy release through oxygen calorimetry; distributed measurements of CO2 concentration and temperature at six locations in the spacecraft; CO2, CO, O2, HF and HCl concentrations; vehicle pressurized volume; and aerosol concentrations. Details of the flame growth and spread are discussed in other papers as are details of the post-fire cleanup system performance. The fire events had a measurable impact on the vehicle pressure, temperature, and carbon dioxide concentration. However, despite having heat release rates up to 10 kW, the average vehicle conditions did not rise to unacceptable levels. The combined results of the experiments provide significant new understanding of the impact of sample and flow duct height on flame spread and growth in addition to an improved perspective of the impact of a fire event on a spacecraft.",
+  "source_url": "https://ntrs.nasa.gov/citations/20210011521",
+  "publication_date": "2021-07-15",
+  "authors": [
+    "David L. Urban",
+    "Gary A. Ruff",
+    "Paul Ferkul",
+    "John Easton",
+    "Jay Owens",
+    "Sandra Olson",
+    "Marit Meyer",
+    "Claire Fortenberry",
+    "John Brooker",
+    "John Graf",
+    "Michael Casteel",
+    "Balazs Toth",
+    "Florian Meyer",
+    "Christian Eigenbrod",
+    "James S. T\u2019ien",
+    "Ya-Ting T. Liao",
+    "A. Carlos Fernandez-Pello",
+    "Guillaume Legros",
+    "Augustin Guibaud",
+    "Nickolay Smirnov",
+    "Osamu Fujita",
+    "Grunde Jomaas"
+  ],
+  "keywords": [
+    "micorgravity",
+    "fire safety"
+  ],
+  "distribution": "PUBLIC",
+  "center": "Glenn Research Center"
+}

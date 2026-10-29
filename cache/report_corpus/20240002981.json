@@ -1,0 +1,37 @@
+{
+  "report_id": "20240002981",
+  "title": "Preliminary Results from the Saffire VI Experiment",
+  "abstract": "Preliminary results are presented for one test of the last flight of the Spacecraft Fire Experiment (Saffire VI) which was conducted on an orbiting Cygnus spacecraft. These experiments directly address the risks associated with our understanding of spacecraft fire behavior at practical length scales and geometries. The lack of this experimental data has forced spacecraft designers to base their designs and safety precautions on 1-g understanding of flame spread, flame self-extinguishment, fire detection, and suppression. The Saffire experiment was developed by an international team of investigators with the goal of addressing open issues in spacecraft fire safety. NASA\u2019s Spacecraft Fire Safety Demonstration Project was formulated with the goal of conducting a series of large-scale experiments in spacecraft environments that represent practical spacecraft fires. These tests spanned 1.5 to 3.2 kW with free air volumes of 17 to 19 cubic meters. The final flight in the series of six experiments examined concurrent spread over large samples (all 41 cm wide) including a thin sheet of flammable fuel (cotton/fiberglass 50 cm long); 2-sided spread over 1 cm thick polymethyl methacrylate (PMMA) (18 cm long); 1-sided spread over 0.5 cm thick (18 cm long); and Nomex fabric (7 cm long). Results are presented for the PMMA samples, the SIBAL sample, and the thin cotton samples from Saffire IV and V. The flame heat release is determined and compared to the overall temperature rise in the spacecraft and the change in the concentration of carbon dioxide and carbon monoxide in the spacecraft. Overall, the temperature and pressure rise in the spacecraft were found to be less significant than the increase in carbon dioxide and carbon monoxide.",
+  "source_url": "https://ntrs.nasa.gov/citations/20240002981",
+  "publication_date": "2024-07-25",
+  "authors": [
+    "David L Urban",
+    "Gary A Ruff",
+    "Paul Ferkul",
+    "John Easton",
+    "Michael Johnston",
+    "Jay Owens",
+    "Sandra Olson",
+    "Claire Fortenberry",
+    "John Graf",
+    "Oageng George",
+    "Balazs Toth",
+    "Florian Meyer",
+    "Christian Eigenbrod",
+    "James S T'ien",
+    "Ya-Ting T. Liao",
+    "A Carlos Fernandez-Pello",
+    "Guillaume Legros",
+    "Augustin Guibaud",
+    "Nickolay Smirnov",
+    "Osamu Fujita",
+    "Ulises Rojas Alva",
+    "Grunde Jomaas"
+  ],
+  "keywords": [
+    "fire",
+    "microgravity"
+  ],
+  "distribution": "PUBLIC",
+  "center": "Glenn Research Center"
+}

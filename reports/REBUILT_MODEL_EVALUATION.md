@@ -541,3 +541,90 @@ from 14.2 % to 22.2 % oxygen, so wiring it into the ingestion pipeline in place 
 96-row block restores 21 % honestly. That swap needs `flow_direction` established per PI table
 from the source, which is a separate piece of work and is not done here. Until it is, the
 in-domain tests use 19 % PMMA and say in a comment why.
+
+---
+
+# Addendum 8: one dataset instead of two
+
+Addendum 7 left the repository with two BASS-II datasets that disagreed. The ingestion pipeline
+still used a 96-row block hardcoded from the report's appendix, while the evaluation track used
+the 158 PSI-verified rows. The pipeline's oxygen column disagreed with NASA PSI on 77 of 81
+comparable tests and stopped at 20.8 % for PMMA, which is why the envelope guard began refusing
+PMMA at 21 % oxygen once the fabricated rows were removed. Having two datasets is what let that
+go unnoticed, so this closes the gap.
+
+## Flow direction, the one thing that blocked the swap
+
+PSI-25 publishes the calibrated conditions but not the flow direction; the NTRS appendix tables
+do, per test, in a column the PSI export drops. Reading it needed coordinates rather than plain
+text, because the appendix tables are rotated. Counting the tokens per table:
+
+| Table | PI | Opposed | Concurrent |
+|---|---|---|---|
+| A.1 | Bhattacharjee | 22 | 0 |
+| A.2 | Ferkul | 0 | 3 |
+| A.3 | Fernandez-Pello | 25 | **2** |
+| A.4 | Miller | 20 | 0 |
+| A.5 | Olson | 0 | 10 |
+| A.6 | T'ien | 0 | 23 |
+
+Five tables are uniform. Table A.3 has two exceptions, tests **P16 and P19**, both confirmed by
+rendering that block of page 114 and reading it: P14, P15, P17 and P18 are opposed while P16 and
+P19 are concurrent. The field used to default to `"opposed"` for every row that did not set it;
+it is now `Optional` with no default, so a row whose source is silent records nothing rather
+than a quiet assumption.
+
+Table A.4 is Miller's, 52 rows. The old hardcoded block covered A.1, A.2, A.3, A.5 and A.6 and
+left Miller out entirely.
+
+## The Saffire rows, too
+
+The evaluation track also carried 21 hand-transcribed Saffire rows that the pipeline never
+ingested. They are in now, which is what makes the two tracks the same data. They are the only
+rows at reduced cabin pressure, 54-73 kPa. Their geometry is read from the sample description
+each row already carries - "cloth" and "jersey" are fabric, "sheet" is sheet, cast PMMA plates
+are slabs - rather than assigned.
+
+## Where the dataset stands
+
+200 rows from **7 reports**, up from 4, which matters because report-grouped CV had been
+reduced to four folds:
+
+```
+BASS-II        20210011385  158    Cotton-Fiberglass, Nomex, PMMA
+Ferkul         19890014267   13    Cellulose
+Saffire-I      20170008805   12    Cotton-Fiberglass, Nomex, PMMA, Silicone
+Expl. Atmos.   20080034883    7    Cellulose, Mylar, Nomex, Ultem
+Saffire-III    20210011521    6    Cotton, Cotton-Fiberglass, PMMA
+Saffire-VI     20240002981    3    Cotton-Fiberglass, PMMA
+BASS           20140011099    1    PMMA
+```
+
+163 spread, 35 no_spread, 2 marginal_spread. Oxygen 14.0-24.0 %, pressure 44.1-101.3 kPa, flow
+0-45 cm/s. **Every row now carries `HAND_TRANSCRIBED_FROM_SOURCE`** - there is no longer a single
+row in the dataset that cannot be traced to a rendered table or an exact statement.
+
+PMMA's envelope is 14.2-22.2 % oxygen again, so **21 % oxygen on PMMA is back in range**, which
+was the regression Addendum 7 recorded and could not fix.
+
+## What it does to the headline
+
+```
+n_train                       117  ->  200
+cv_accuracy                0.5470  ->  0.7600      majority baseline 0.8150
+cv_balanced_accuracy       0.4093  ->  0.3557
+report groups                   4  ->  7
+```
+
+The accuracy rises and the balanced accuracy falls, and both are explained by the same thing:
+the set is now 163/35 rather than 65/41, so always answering `spread` scores 0.8150 and the
+gradient-boosting configuration still does not beat it.
+`test_models.py::test_model_beats_majority_baseline` stays a strict `xfail`. Nothing here
+contradicts the ceiling: the binary leave-one-group-out numbers in Addendum 7 remain the ones
+worth quoting, because accuracy on a set this imbalanced is not a measure of skill.
+
+One property of the merged set is worth stating plainly. **Four groups of rows share identical
+material, oxygen, pressure and flow and carry opposite outcomes.** No model with these four
+features can be right about all of them; near the limit the result depends on whether a flame
+was established before the flow changed, which the features do not express. That is a floor on
+the achievable error, and it is in the data, not the model.

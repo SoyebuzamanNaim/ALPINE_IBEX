@@ -61,7 +61,7 @@ def test_model_router():
     router = ModelRouter()
     meta = router.get_model_metadata()
     assert meta["type"] == "gradient_boosting"
-    assert meta["n_train"] == 117
+    assert meta["n_train"] == 200
     # Records what the honest data gives, and is not a target. Removing the 49
     # unsupported rows left four report groups, so report-grouped CV trains on 21
     # rows whenever BASS-II is the held-out fold. The requirement this used to
@@ -80,7 +80,7 @@ def test_auditor_numerical_rejection(auditor):
         "in_training_range": True,
         "prediction": "spread",
         "probabilities": {"spread": 0.977, "marginal_spread": 0.015, "no_spread": 0.008},
-        "model": {"n_train": 117, "cv_accuracy": 0.7931},
+        "model": {"n_train": 200, "cv_accuracy": 0.7931},
         "nearest_experiments": [
             {"report_id": "20140011099", "experiment_id": "BASS_T1", "oxygen_pct": 21.0, "distance": 0.02}
         ]
@@ -125,7 +125,7 @@ def test_composer_fallback_on_audit_failure(composer):
         "in_training_range": True,
         "prediction": "spread",
         "probabilities": {"spread": 0.977, "marginal_spread": 0.015, "no_spread": 0.008},
-        "model": {"n_train": 117, "cv_accuracy": 0.7931},
+        "model": {"n_train": 200, "cv_accuracy": 0.7931},
         "nearest_experiments": [
             {"report_id": "20140011099", "outcome": "spread", "oxygen_pct": 21.0}
         ]

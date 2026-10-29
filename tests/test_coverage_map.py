@@ -7,7 +7,7 @@ from src.api.main import app
 def test_coverage_engine_summary():
     engine = ResearchCoverageEngine()
     summary = engine.get_coverage_summary()
-    assert summary["total_verified_experiments"] == 117
+    assert summary["total_verified_experiments"] == 200
     assert summary["coverage_completeness_pct"] > 0
     assert "heatmap_grid" in summary
     assert len(summary["heatmap_grid"]) == 20  # 5 O2 bins x 4 Flow bins
@@ -20,7 +20,7 @@ def test_coverage_map_api():
     r = client.get("/api/coverage-map")
     assert r.status_code == 200
     data = r.json()
-    assert data["total_verified_experiments"] == 117
+    assert data["total_verified_experiments"] == 200
     assert "material_breakdown" in data
     assert "PMMA" in data["material_breakdown"]
     assert "empirical_white_spaces" in data

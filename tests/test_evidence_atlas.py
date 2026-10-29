@@ -17,7 +17,7 @@ def test_full_evidence_atlas_workflow():
     # 1. System Health & Governance
     health = client.get("/health").json()
     assert health["status"] == "healthy"
-    assert health["dataset_rows"] == 117
+    assert health["dataset_rows"] == 200
 
     # 2. Evidence Retrieval with Claim-Level Citations
     pred_res = client.post("/predict", json={
@@ -37,7 +37,7 @@ def test_full_evidence_atlas_workflow():
     prov_res = client.get(f"/api/provenance/{exp_id}").json()
     assert prov_res["experiment_id"] == exp_id
     assert "NASA" in prov_res["exact_source_citation"]
-    assert prov_res["verification_tier"] in ["VERIFIED_FLIGHT_TABLE", "VERIFIED_DROP_TOWER_TABLE"]
+    assert prov_res["verification_tier"] == "HAND_TRANSCRIBED_FROM_SOURCE"
 
     # 3. Scientific Evidence Conflict Explorer: Microscale BASS-II vs Large-Scale Saffire
     conflict_res = client.post("/api/conflict/compare-studies", json={
@@ -52,7 +52,7 @@ def test_full_evidence_atlas_workflow():
 
     # 4. Research Coverage Map & Empirical White Spaces
     coverage_res = client.get("/api/coverage-map").json()
-    assert coverage_res["total_verified_experiments"] == 117
+    assert coverage_res["total_verified_experiments"] == 200
     assert coverage_res["coverage_completeness_pct"] > 0
     assert len(coverage_res["empirical_white_spaces"]) >= 3
 
