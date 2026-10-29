@@ -168,10 +168,10 @@ negatives" — it is that the 28 are not measurements of the same thing.
 - **Eq (6.1) is directly usable and citable** for the extinction question on PMMA rods, with no
   training and no accuracy claim. Report the user's **O2 margin above the boundary**, which is
   the operator-relevant quantity, rather than a class label.
-- **Ignition is a separate model** and the current feature set
+- **Ignition is a separate model**, and the current feature set
   (`oxygen_pct`, `pressure_kpa`, `flow_cm_s`, `material`) omits what governs it: igniter energy,
-  duration, and sample preheat. Those are recorded in the PSI table (`Radiometer gain`,
-  ignition power and time in the Saffire tables) and are not yet features.
+  duration, and sample preheat. **Correction, 2026-10-29:** an earlier version of this line said
+  those are recorded in the PSI table. They are not — see Addendum 3.
 - **The envelope guard remains the honest core.** It answers "is this condition inside anything
   NASA has measured?" — a question the data can settle, unlike "is it safe?".
 
@@ -241,3 +241,44 @@ The headline stays at **0.7821 balanced accuracy**, and it is not improvable wit
 remaining levers are data, not modelling: more extinction observations at known cm/s velocities,
 and the ignition-governing inputs (igniter power, duration, preheat) that are recorded in the PSI
 table but are not yet features.
+
+
+---
+
+# Addendum 3: the igniter lever does not exist
+
+Addendum 2 closed by naming the ignition-governing inputs as the most promising remaining data
+work, on the understanding that the PSI table recorded them. It does not.
+
+| Source | Igniter power or duration? |
+|---|---|
+| `PSI-25_Experimental_table_BASS-II.csv` | no — 16 columns, none igniter-related |
+| `PSI-25_BASS-II_Test_Matrices.xlsx` | no — the same 16 columns |
+| `PSI-26_Experimental_table_BASS.csv` | no — 6 columns |
+| BASS-II observation text | 8 of 158 rows mention a number near "ignit", mostly false matches |
+
+**No BASS-II row has igniter data.** The `Radiometer gain` column named earlier is a camera
+setting, not igniter power.
+
+Igniter data does exist for Saffire, in NTRS `20170008805` Table I, and has been added to
+`experiments_saffire_verified.csv` as `ignition_power_w`, `ignition_time_s` and
+`ignition_source` — 12 of 21 rows, the Saffire I and II samples.
+
+It settles the question rather than opening it:
+
+| Igniter setting | Outcomes |
+|---|---|
+| **80 W / 9.2 s** | **5 `no_spread`, 3 `spread`** |
+| 97 W / 30 s | 2 `marginal_spread` |
+| 182 W / 8 s | 2 `spread` |
+
+At 80 W for 9.2 s the same igniter produced both outcomes: the four silicone samples recorded
+"Insignificant" burn with ~0 burn length, while the two cotton-fiberglass samples burned their
+full 29 cm. Within that flight the igniter was held constant and the outcome was set by the
+material. Igniter energy carries no discriminative information here, and it is present on 12 of
+177 rows, so no model fit was run — the table above is the result.
+
+The honest position is that **the ignition sub-problem cannot be attacked with the available
+data at all.** 17 of 28 negatives are ignition failures, and nothing in the record describes the
+ignition conditions that produced them for BASS-II. That is a limit of what NASA published, not
+of the modelling.
