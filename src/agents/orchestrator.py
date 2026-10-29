@@ -106,6 +106,9 @@ class AgentOrchestrator:
                 "model": model_meta,
                 "nearest_experiments": env_res["nearest_experiments"],
                 "explanation": env_res["explanation"],
+                "sparse_region_warning": env_res.get("sparse_region_warning", False),
+                "warning_message": env_res.get("warning_message"),
+                "knn_mean_distance": env_res.get("knn_mean_distance"),
                 "state_history": [s.value for s in state_history],
             }
             state_history.append(OrchestratorState.FINALIZED)

@@ -222,6 +222,8 @@ def _mask_joint_domain_grid_points(
 ) -> np.ndarray:
     """Do not color model predictions outside the material's joint test domain."""
     mask = valid_mask.copy()
+    if cf_engine.guard.distinct_condition_counts[material] < 3:
+        return np.zeros_like(mask, dtype=bool)
     domain = cf_engine.guard.joint_domains[material]
     for index in np.flatnonzero(mask):
         mask[index] = domain.contains([oxygen[index], pressure_kpa, flow[index]])

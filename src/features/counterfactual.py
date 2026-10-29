@@ -75,7 +75,7 @@ class CounterfactualEngine:
                 "probabilities": None,
                 "confidence": None,
                 "nearest_experiments": env["nearest_experiments"],
-                "sparse_region_warning": False,
+                "sparse_region_warning": env.get("sparse_region_warning", False),
                 "warning_message": env["warning_message"],
                 "explanation": env["explanation"],
             }

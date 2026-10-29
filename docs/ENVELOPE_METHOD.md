@@ -31,6 +31,10 @@ The FLARE-X envelope guard implements four defensive tiers:
   remain in that lower-dimensional span and its convex hull. A single observed
   point supports only that exact combination. Convex support is a necessary
   condition for inference, not proof of local experimental density.
+- A material with fewer than three distinct oxygen/pressure/flow settings is
+  flagged `insufficient_material_evidence` at its observed conditions. The
+  guard abstains from prediction while returning nearby source records and a
+  sparse-evidence warning. Repeated rows at one setting count as one condition.
 
 ### Tier 3: Boundary Proximity Detection
 - A query is designated `boundary` if any numeric feature is within 5% of its minimum or maximum training limit, or

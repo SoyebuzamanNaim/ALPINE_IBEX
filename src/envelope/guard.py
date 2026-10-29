@@ -34,6 +34,10 @@ class EnvelopeGuard:
             material: JointDomain(group[["oxygen_pct", "pressure_kpa", "flow_cm_s"]].to_numpy())
             for material, group in self.df.groupby("material")
         }
+        self.distinct_condition_counts = {
+            material: len(group[["oxygen_pct", "pressure_kpa", "flow_cm_s"]].drop_duplicates())
+            for material, group in self.df.groupby("material")
+        }
         keys = ["oxygen_pct", "pressure_kpa", "flow_cm_s", "material"]
         outcome_counts = self.df.groupby(keys)["outcome"].nunique()
         self.conflicting_conditions = list(outcome_counts[outcome_counts > 1].index)
@@ -195,6 +199,24 @@ class EnvelopeGuard:
                     "reason": explanation,
                 }],
                 "sparse_region_warning": False,
+                "warning_message": explanation,
+                "nearest_experiments": nearest,
+                "explanation": explanation,
+            }
+
+        distinct_count = self.distinct_condition_counts[material]
+        if distinct_count < 3:
+            explanation = (
+                f"Only {distinct_count} distinct oxygen/pressure/flow condition"
+                f"{'s' if distinct_count != 1 else ''} were observed for {material}. "
+                "This is insufficient to support a material-specific model inference."
+            )
+            return {
+                "in_training_range": True,
+                "requires_abstention": True,
+                "status": "insufficient_material_evidence",
+                "out_of_range_reasons": [],
+                "sparse_region_warning": True,
                 "warning_message": explanation,
                 "nearest_experiments": nearest,
                 "explanation": explanation,

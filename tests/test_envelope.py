@@ -75,6 +75,26 @@ def test_low_rank_material_joint_domain_rejects_off_line_point():
 
 
 @pytest.mark.parametrize(
+    "material, oxygen, pressure, flow",
+    [
+        ("Cotton", 26.2, 70.7, 20.0),
+        ("Mylar", 16.0, 70.3, 30.0),
+        ("Silicone", 22.1, 100.0, 20.0),
+        ("Ultem", 23.0, 70.3, 30.0),
+    ],
+)
+def test_material_with_fewer_than_three_distinct_conditions_abstains(
+    material, oxygen, pressure, flow
+):
+    result = EnvelopeGuard().check(oxygen, pressure, flow, material)
+    assert result["in_training_range"] is True
+    assert result["status"] == "insufficient_material_evidence"
+    assert result["requires_abstention"] is True
+    assert result["sparse_region_warning"] is True
+    assert "distinct" in result["explanation"]
+
+
+@pytest.mark.parametrize(
     "oxygen, pressure, flow, material, expected_ids",
     [
         (17.1, 101.3, 5.0, "Cotton-Fiberglass", {"BASS2_T11_5", "BASS2_T22_5"}),

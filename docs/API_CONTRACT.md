@@ -141,6 +141,15 @@ prediction and probabilities, a `joint_domain` entry in
 `out_of_range_reasons`, and nearest source observations. Decision-boundary
 cells outside this domain are left blank.
 
+#### Sparse-material abstention (`200 OK`)
+
+`status: "insufficient_material_evidence"` means fewer than three distinct
+oxygen/pressure/flow combinations exist for that material. At an observed
+condition, `in_training_range` remains `true`, but `prediction` and
+`probabilities` are `null` and `sparse_region_warning` is `true`. The response
+includes the nearest real observations. The boundary grid does not color this
+material as a model prediction.
+
 ---
 
 ### 3.2 `GET /boundary`

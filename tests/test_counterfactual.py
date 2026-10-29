@@ -52,6 +52,20 @@ def test_evaluate_scenario_abstains_on_conflicting_exact_evidence(engine):
     assert res["confidence"] is None
 
 
+def test_evaluate_scenario_abstains_for_sparse_material(engine):
+    res = engine.evaluate_scenario(
+        oxygen_pct=26.2,
+        pressure_kpa=70.7,
+        flow_cm_s=20.0,
+        material="Cotton",
+    )
+    assert res["status"] == "insufficient_material_evidence"
+    assert res["in_training_range"] is True
+    assert res["prediction"] is None
+    assert res["probabilities"] is None
+    assert res["sparse_region_warning"] is True
+
+
 def test_sweep_preserves_conflict_abstention(engine):
     sweep = engine.run_sweep(
         baseline={"oxygen_pct": 18.0, "pressure_kpa": 101.3, "flow_cm_s": 3.0, "material": "PMMA"},

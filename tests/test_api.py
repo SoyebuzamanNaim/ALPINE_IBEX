@@ -99,6 +99,22 @@ def test_predict_abstains_when_identical_inputs_have_conflicting_outcomes(client
     }
 
 
+def test_predict_abstains_for_single_condition_material(client):
+    response = client.post("/predict", json={
+        "oxygen_pct": 26.2,
+        "pressure_kpa": 70.7,
+        "flow_cm_s": 20.0,
+        "material": "Cotton",
+    })
+    assert response.status_code == 200
+    result = response.json()
+    assert result["in_training_range"] is True
+    assert result["status"] == "insufficient_material_evidence"
+    assert result["prediction"] is None
+    assert result["probabilities"] is None
+    assert result["sparse_region_warning"] is True
+
+
 def test_boundary_mask_excludes_conflicting_grid_cells():
     mask = _mask_conflicting_grid_points(
         np.array([18.0, 19.0]), np.array([3.0, 3.0]),
@@ -112,6 +128,15 @@ def test_boundary_mask_excludes_jointly_unsupported_cells():
     mask = _mask_joint_domain_grid_points(
         np.array([22.0]), np.array([20.0]),
         material="Cellulose", pressure_kpa=70.0,
+        valid_mask=np.array([True]),
+    )
+    assert mask.tolist() == [False]
+
+
+def test_boundary_mask_excludes_single_condition_material():
+    mask = _mask_joint_domain_grid_points(
+        np.array([26.2]), np.array([20.0]),
+        material="Cotton", pressure_kpa=70.7,
         valid_mask=np.array([True]),
     )
     assert mask.tolist() == [False]

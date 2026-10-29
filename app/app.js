@@ -483,22 +483,29 @@ function renderPredictionResults(data) {
     mgEl.className = 'phys-val';
   }
 
-  if (data.status === 'conflicting_evidence') {
-    const reason = data.explanation || 'Experiments at identical model inputs have conflicting outcomes.';
+  if (data.status === 'conflicting_evidence' || data.status === 'insufficient_material_evidence') {
+    const conflict = data.status === 'conflicting_evidence';
+    const reason = data.explanation || (conflict
+      ? 'Experiments at identical model inputs have conflicting outcomes.'
+      : 'Too few distinct conditions are recorded for this material.');
     if (stateTierPill) stateTierPill.className = 'state-tier-pill tier-abstention';
-    if (stateTierLabel) stateTierLabel.textContent = 'CONFLICTING EVIDENCE';
-    if (stateTierExplainer) stateTierExplainer.textContent = 'The four model inputs do not resolve these observations';
+    if (stateTierLabel) stateTierLabel.textContent = conflict ? 'CONFLICTING EVIDENCE' : 'INSUFFICIENT MATERIAL EVIDENCE';
+    if (stateTierExplainer) stateTierExplainer.textContent = conflict
+      ? 'The four model inputs do not resolve these observations'
+      : 'Too few distinct observations for a material-specific estimate';
     if (alertBanner) alertBanner.classList.remove('hidden');
-    if (alertTitle) alertTitle.textContent = 'EXPERIMENTAL OUTCOMES DISAGREE';
+    if (alertTitle) alertTitle.textContent = conflict ? 'EXPERIMENTAL OUTCOMES DISAGREE' : 'MATERIAL EVIDENCE IS TOO SPARSE';
     if (alertMsg) alertMsg.textContent = reason;
     if (badge) {
       badge.className = 'regime-status-badge regime-refusal';
-      badge.textContent = 'CONFLICTING EVIDENCE · NO INFERENCE';
+      badge.textContent = conflict ? 'CONFLICTING EVIDENCE · NO INFERENCE' : 'INSUFFICIENT EVIDENCE · NO INFERENCE';
     }
     if (confPill) confPill.textContent = 'NO PROBABILITY AVAILABLE';
     [pNoSpread, pMarginal, pSpread].forEach(el => { if (el) el.textContent = 'N/A'; });
     [bNoSpread, bMarginal, bSpread].forEach(el => { if (el) el.style.width = '0%'; });
-    if (briefing) briefing.textContent = 'Observed outcomes differ at these recorded conditions. Inspect both source experiments; no single outcome is supported.';
+    if (briefing) briefing.textContent = conflict
+      ? 'Observed outcomes differ at these recorded conditions. Inspect both source experiments; no single outcome is supported.'
+      : 'Too few distinct material conditions have been recorded to support a model estimate. Inspect the available source observations.';
     if (expText) expText.textContent = reason;
     renderNearestExperiments(data.nearest_experiments || []);
     drawBoundaryCanvas();
