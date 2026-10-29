@@ -371,3 +371,50 @@ rather than a better model, and it is still too unreliable to carry a safety cla
 
 The rows are kept because they are correctly transcribed and cited, and because the comparison
 above is worth being able to re-run. They are **not** merged into the training table.
+
+---
+
+# Addendum 6: the R² 0.90 is real, and it does not apply to this tool
+
+Addendum 4 offered flame spread rate as the honest number the classifier could not produce, at
+R² = 0.9038. That figure holds up, but two checks made before putting it into the product show it
+must not go there.
+
+**It does not cover the operating range.** Three axes, all violated at once:
+
+| | Olson fit | FLARE-X operates at |
+|---|---|---|
+| Oxygen | 21–100 % | **14.2–31 %** — 70 % of our rows sit below 21 % |
+| Flow | quiescent, 0 cm/s | **1–25 cm/s** — not one of our rows is quiescent |
+| Fuel | thin cellulose | mostly PMMA rods and fabrics |
+
+Putting it in the tool would extrapolate on oxygen, flow and fuel simultaneously, which is the
+exact failure the experimental-envelope guard exists to prevent. The guard would have to be
+switched off to ship it.
+
+**R² hides where the error is.** Spread rates run from 0.25 to 7.09 cm/s, so R² is dominated by
+the high-oxygen points where the values are large:
+
+| Form | R² | Mean relative error | **Relative error below 30 % O₂** |
+|---|---|---|---|
+| `(X_O2)^0.9 / τ` + intercept | **0.9038** | 31.2 % | **53.7 %** |
+| same, through the origin | 0.8677 | 55.7 % | 118.0 % |
+| free power law `0.033·X_O2^1.70·τ^-1.19` | 0.5052 | 28.6 % | **33.9 %** |
+| `(X_O2)^0.9` fixed, log space | 0.7079 | 46.8 % | 76.0 % |
+
+Near the flammability limit — the region a fire-safety tool exists for — the R² = 0.90 model is
+wrong by about half. Its fitted intercept is also negative (−0.76 cm/s), which has no physical
+meaning at the low end.
+
+The free power law is the better model where it matters, and its oxygen exponent comes out at
+**1.70 rather than the published 0.9**. That is not an error: the 0.9 correlation in NTRS
+`20080034883` is for opposed flow, while Olson's tests are quiescent. Different regime, different
+exponent.
+
+## What was done
+
+The model and its scope are saved in `models/spread_rate_meta.json` with
+`applies_to_flare_x_operating_range: false` and the reason recorded. It is **not** wired into the
+API or the site. R² = 0.9038 can be stated as a result for thin cellulose in quiescent
+microgravity from 21 to 100 % oxygen, alongside the 54 % near-limit error, and not as a
+capability of this tool.
