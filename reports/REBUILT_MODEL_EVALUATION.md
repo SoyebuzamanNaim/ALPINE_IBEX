@@ -331,3 +331,43 @@ Classification accuracy is still 0.7821 balanced and still not improvable — th
 move it. But "how fast will it spread, given oxygen and thickness" is a question the published
 data answers well, and **R² = 0.90 from NASA's own correlation form** is an honest, checkable
 number of the kind the classifier cannot produce.
+
+---
+
+# Addendum 5: 1-g thresholds — the transfer makes microgravity worse
+
+The last untried lever was the 1-g flammability-threshold literature. It is attractive because a
+(ULOI, MOC) pair is a *bracketing* measurement: at MOC the sample did not burn, at ULOI it did.
+Every pair therefore yields one labelled row on each side of the boundary, which is the most
+informative kind of observation, and the 1-g literature has many of them.
+
+29 pairs were read from NTRS `20110008636` (Hirsch et al.), Tables 2, 3, 5 and 6, from the
+rendered PDF pages, giving **58 rows at a perfect 29/29 balance** — saved as
+`data/processed/experiments_1g_thresholds.csv`. Two materials overlap with the microgravity set:
+PMMA (extruded ¼-inch rod, the same geometry we have) and silicone (MQ).
+
+Codex had warned that 1-g and 0-g data are not exchangeable. The test was built so that warning
+could be checked rather than argued: the 1-g rows go into training only, and **scoring is always
+on held-out microgravity groups**, so no gain can come from the 1-g rows being easy.
+
+| Training set | Balanced acc | Accuracy | `no_spread` recall | `no_spread` precision |
+|---|---|---|---|---|
+| Microgravity only | **0.7821** | 0.7797 | 0.786 | 0.400 |
+| + 58 1-g rows | 0.6774 | 0.8475 | 0.429 | **0.522** |
+| + 58 1-g rows, with a gravity flag | 0.5356 | 0.7797 | 0.179 | 0.238 |
+
+**Adding 1-g data makes microgravity prediction worse**, by 0.10 balanced accuracy, and adding a
+gravity indicator makes it much worse, by 0.25. The reason is visible in the numbers themselves:
+the 1-g boundary for extruded PMMA rod sits at 18–19 % O₂, while NASA's microgravity boundary for
+cast PMMA rod sits at 13.4 %. The model learns the 1-g threshold and misapplies it, calling
+conditions non-flammable that microgravity data shows burning. With only two gravity levels and
+two shared materials there is not enough overlap to identify the offset, so the flag makes the
+model worse rather than letting it separate the regimes.
+
+One honest nuance: without the flag, `no_spread` **precision rose to 0.522**, the highest figure
+seen anywhere in this work, while recall fell to 0.429. The model became more reluctant to
+declare anything safe, and was right more often when it did. That is a different operating point
+rather than a better model, and it is still too unreliable to carry a safety claim.
+
+The rows are kept because they are correctly transcribed and cited, and because the comparison
+above is worth being able to re-run. They are **not** merged into the training table.
