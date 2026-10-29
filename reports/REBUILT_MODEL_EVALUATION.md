@@ -174,3 +174,70 @@ negatives" — it is that the 28 are not measurements of the same thing.
   ignition power and time in the Saffire tables) and are not yet features.
 - **The envelope guard remains the honest core.** It answers "is this condition inside anything
   NASA has measured?" — a question the data can settle, unlike "is it safe?".
+
+---
+
+# Addendum 2: everything tried to raise accuracy, and what each did
+
+Run on 2026-10-29 on the corrected data (177 rows, 149 `spread` / 28 `no_spread`, 82 groups,
+leave-one-test-out, class-weighted logistic unless stated). Baseline to beat: **0.7821 balanced
+accuracy**, `no_spread` precision 0.400.
+
+| Attempt | Balanced acc | Verdict |
+|---|---|---|
+| Baseline — `oxygen_pct`, `pressure_kpa`, `flow_cm_s`, `material` | **0.7821** | — |
+| + regime flag `U/U_D` (U_D = 2 cm/s) | 0.7821 | **no change at all** |
+| Stretch rate `log a` in place of raw flow (rods) | 0.5800 vs 0.5900 baseline | slightly worse |
+| + Damköhler group `X_O2·P/a` (rods) | 0.5700 | worse |
+| Margin to NASA's published boundary (rods) | 0.7700 vs 0.5900 | better, but see below |
+| Split: extinction only, ignition failures dropped | 0.5714 | **much worse** |
+| Split: ignition failures only | 0.7598 | about the same as pooled |
+| Split: quench branch only | 0.5419 | worst |
+
+Nothing raised the headline. Three of these are worth stating plainly.
+
+**The physics reparameterisation did not help.** Replacing velocity with the stretch rate
+`a = (3/2)(U/r)(r/r_o)^½` is what the literature says the boundary is a function of, and it made
+the model slightly worse. The reason is visible in the data: BASS-II flew only three rod
+diameters, and within each one `log a` is a monotone transform of flow, so it carries almost no
+information the model did not already have. The reparameterisation matters when comparing
+across geometries; it earns nothing inside one.
+
+**Separating the failure modes made things worse, not better.** This was the opposite of the
+expectation. Dropping the 17 ignition failures and keeping only the 11 true extinction events
+sends `no_spread` precision from 0.400 to **0.091**. Read the other way: the model's apparent
+skill comes almost entirely from the ignition failures, which sit at low oxygen (14.2 to 16.4 %)
+and are separable by oxygen alone. **The flammability boundary itself — the quench and blowoff
+branches, the scientifically interesting part — is not learnable from these four features with
+11 examples.**
+
+**The margin feature is the one thing that helped, and it is partly circular.** Feeding the model
+its distance from Eq (6.1) lifts rod balanced accuracy from 0.59 to 0.77. But Eq (6.1) was fitted
+by NASA to BASS-II rod extinction data, so on BASS-II rods the feature partly encodes the answer.
+It also rests on 5 negatives, and its `no_spread` precision is still only 0.235. It is a good way
+to *present* the physics, as the tool already does, and not evidence of a better classifier.
+
+## The threshold sweep: there is no usable operating point
+
+A safety tool does not need a label, it needs to know when it may say "safe". Sweeping the
+decision threshold on P(`no_spread`):
+
+| Threshold | Declares "will not spread" | Coverage | Precision | False-safe calls |
+|---|---|---|---|---|
+| 0.50 | 55 | 31.1 % | 40.0 % | 33 |
+| 0.70 | 22 | 12.4 % | 36.4 % | 14 |
+| 0.80 | 10 | 5.6 % | 50.0 % | 5 |
+| 0.85 | 4 | 2.3 % | 50.0 % | 2 |
+| 0.90 | 1 | 0.6 % | 0.0 % | 1 |
+| ≥ 0.93 | 0 | 0 % | — | 0 |
+
+**No threshold reaches 80 % precision.** Past 0.93 the model never declares anything safe at all.
+There is no operating point at which "this will not spread" is trustworthy, so abstention is not
+a design preference here — it is the only honest output.
+
+## Conclusion
+
+The headline stays at **0.7821 balanced accuracy**, and it is not improvable with this data. The
+remaining levers are data, not modelling: more extinction observations at known cm/s velocities,
+and the ignition-governing inputs (igniter power, duration, preheat) that are recorded in the PSI
+table but are not yet features.
