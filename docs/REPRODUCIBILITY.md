@@ -4,7 +4,7 @@ This guide rebuilds the dataset and model artifacts from the source files checke
 
 ## Environment
 
-Use Python 3.12 or newer:
+Use Python 3.12 or newer. `requirements.txt` is a fully pinned environment lock, including transitive and test packages:
 
 ```bash
 python3 -m venv .venv

@@ -9,6 +9,7 @@ The checked-in dataset contains 200 observations. The current grouped cross-vali
 ## Quick start
 
 Requires Python 3.12 or newer.
+`requirements.txt` pins the runtime, test, and transitive Python packages used by CI.
 
 ```bash
 python3 -m venv .venv
@@ -23,6 +24,8 @@ Run the existing test suite with:
 ```bash
 .venv/bin/pytest -q
 ```
+
+GitHub Actions runs the same suite on Python 3.12 and 3.14, checks JavaScript syntax, and verifies the checked-in model artifacts against the dataset hash and evaluation metrics.
 
 ## What is included
 
