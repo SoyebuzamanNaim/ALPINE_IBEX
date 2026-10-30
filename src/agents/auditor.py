@@ -1,7 +1,6 @@
 """Evidence Auditor Agent for FLARE-X.
 
-Verifies model outputs, schema conformity, and enforces the strict mathematical
-hallucination check required by Challenge Brief Section 8:
+Verifies model outputs, schema conformity, and enforces evidence checks:
 - Reject any explanation containing numbers absent from the prediction object.
 - Reject any explanation citing report IDs not in nearest_experiments.
 """

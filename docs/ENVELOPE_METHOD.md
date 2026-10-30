@@ -1,4 +1,4 @@
-# Experimental Envelope Guard Specification (Phase 07)
+# Experimental envelope guard
 
 > **Document Status:** Authoritative specification for domain validation, extrapolation refusal, and density warnings.
 

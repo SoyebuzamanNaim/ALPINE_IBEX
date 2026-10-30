@@ -197,7 +197,7 @@ excluded as an igniter hardware failure rather than a flammability result.
 ---
 
 ## 3. Exclusion Rationale
-To guarantee physical validity, non-solid combustion investigations were audited in Phase 02 and explicitly segregated:
+Non-solid combustion investigations were reviewed and explicitly segregated from the solid-fuel model table:
 - **Droplet Combustion (FLEX / FLEX-2):** Isolated spherical droplets burning in quiescent atmospheres exhibit $d^2$ evaporation law mechanics distinct from solid-fuel surface pyrolysis.
 - **Gaseous Diffusion Flames (ACME, SPICE, SLICE):** Gaseous burner experiments study sooting limits and chemical kinetics rather than solid polymer flame spread.
 Both are documented in `data/metadata/dataset_catalog.csv` but excluded from `cache/experiments.parquet`.

@@ -298,7 +298,7 @@ def save_and_report(records: list[dict[str, Any]]) -> None:
     parquet_path = PROCESSED / "experiments.parquet"
     df.to_parquet(parquet_path, index=False)
 
-    # Save to authoritative cache path per Challenge Brief §5.2 / §10
+    # Save the canonical table used by the runtime API and model pipeline.
     cache_parquet_path = CACHE / "experiments.parquet"
     df.to_parquet(cache_parquet_path, index=False)
     print(f"Saved authoritative dataset to {cache_parquet_path} ({len(df)} rows)")
@@ -337,7 +337,7 @@ def save_and_report(records: list[dict[str, Any]]) -> None:
     report_counts = df["report_id"].value_counts().to_dict()
     geom_counts = df["sample_geometry"].value_counts().to_dict()
 
-    dq_report = f"""# Data Quality & Ingestion Report (Phase 04)
+    dq_report = f"""# Data quality and ingestion report
 
 > **File:** `cache/experiments.parquet` & `data/processed/experiments.parquet`
 > **SHA-256:** `{parquet_sha256}`

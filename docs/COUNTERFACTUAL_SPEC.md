@@ -1,4 +1,4 @@
-# Counterfactual Engine Specification (Phase 08)
+# Counterfactual engine
 
 > **Document Status:** Current contract for guarded what-if scenarios and model sweeps. Public model inference is withheld until grouped validation exceeds the majority baseline.
 

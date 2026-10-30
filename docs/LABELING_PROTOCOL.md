@@ -1,4 +1,4 @@
-# Labeling Protocol: Flame-Spread Regimes (Phase 03)
+# Outcome labeling protocol
 
 > **Document Status:** Authoritative scientific protocol for categorizing microgravity combustion observations
 > into target regime classes.

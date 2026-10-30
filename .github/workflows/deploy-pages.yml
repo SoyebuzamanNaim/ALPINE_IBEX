@@ -25,11 +25,10 @@ jobs:
       - uses: actions/configure-pages@v5
       - name: Assemble static site
         run: |
-          mkdir -p _site/assets
+          mkdir -p _site
           cp index.html _site/index.html
           cp -R app _site/app
           cp -R project-page _site/project-page
-          cp -R assets/video _site/assets/video
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
