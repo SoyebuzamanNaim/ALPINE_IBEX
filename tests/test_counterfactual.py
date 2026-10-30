@@ -165,6 +165,22 @@ def test_run_sweep_oxygen_boundary(engine):
     assert margin["delta_to_boundary"] > 0  # 21% is above the extinction limit
 
 
+def test_sweep_transition_side_is_independent_of_scan_direction(engine):
+    baseline = {
+        "oxygen_pct": 21.0, "pressure_kpa": 101.3,
+        "flow_cm_s": 5.0, "material": "PMMA",
+    }
+    descending = engine.run_sweep(baseline, "oxygen_pct", 21.0, 16.0, steps=11)
+    ascending = engine.run_sweep(baseline, "oxygen_pct", 16.0, 21.0, steps=11)
+    first = descending["safety_margin"]
+    second = ascending["safety_margin"]
+    assert first["boundary_midpoint"] == second["boundary_midpoint"]
+    assert first["delta_to_boundary"] == second["delta_to_boundary"]
+    assert first["is_no_spread_side"] is False
+    assert second["is_no_spread_side"] is False
+    assert "is_safe_side" not in first
+
+
 def test_sweep_invalid_parameter(engine):
     baseline = {
         "oxygen_pct": 21.0,

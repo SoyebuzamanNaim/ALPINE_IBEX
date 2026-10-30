@@ -10,6 +10,204 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_sweep_refused_point_has_no_transition_distance_or_fabricated_evidence():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const nodes = new Map();
+const document = {
+  addEventListener() {},
+  getElementById(id) {
+    if (!nodes.has(id)) nodes.set(id, {
+      textContent: '', innerHTML: '', style: {}, className: '',
+      removeAttribute() {}
+    });
+    return nodes.get(id);
+  }
+};
+const context = vm.createContext({ document, window: { location: { protocol: 'file:', origin: 'null', hostname: '' } }, console });
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+vm.runInContext('drawSweepCanvas = () => {}; state.sweepData = {points: [{oxygen_pct: 18, prediction: null}]}; state.dynamicLocBoundary = 17.5; updateSweepPoint(18)', context);
+if (nodes.get('safety-margin-val').textContent !== 'N/A' ||
+    nodes.get('safety-margin-status').textContent !== 'No model estimate at this point' ||
+    /BASS|16.5%/.test(nodes.get('evidence-below-boundary').textContent + nodes.get('evidence-below-boundary').innerHTML)) {
+  throw new Error('Refused sweep point displayed a transition or fabricated evidence');
+}
+vm.runInContext('state.sweepData = {points: [{oxygen_pct: 17.2, prediction: "spread"}, {oxygen_pct: 17.4, prediction: "no_spread"}]}; updateSweepPoint(17.3)', context);
+if (nodes.get('safety-margin-val').textContent !== 'N/A' ||
+    nodes.get('safety-margin-status').textContent !== 'No model estimate at this point') {
+  throw new Error('Unsampled slider value inherited a neighboring prediction');
+}
+"""
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_sweep_chart_does_not_draw_probability_through_refused_points():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const red = [];
+const ctx = {
+  strokeStyle: '', fillStyle: '', lineWidth: 1,
+  clearRect() {}, fillRect() {}, strokeRect() {}, setLineDash() {}, beginPath() {}, stroke() {}, fillText() {}, arc() {}, fill() {},
+  moveTo(x, y) { if (this.strokeStyle === '#dc2626') red.push('move'); },
+  lineTo(x, y) { if (this.strokeStyle === '#dc2626') red.push('line'); }
+};
+const document = {
+  addEventListener() {},
+  getElementById(id) { return id === 'sweep-chart-canvas' ? {width: 1120, height: 280, getContext: () => ctx} : null; }
+};
+const context = vm.createContext({document, window: {location: {protocol: 'file:', origin: 'null', hostname: ''}}, console});
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+vm.runInContext('state.dynamicLocBoundary = 17.5; state.sweepData = {points: [{oxygen_pct: 16, probabilities: {spread: 0.8, no_spread: 0.2}}, {oxygen_pct: 17, probabilities: null}, {oxygen_pct: 18, probabilities: {spread: 0.2, no_spread: 0.8}}]}; drawSweepCanvas(18)', context);
+if (red.includes('line') || red.filter(x => x === 'move').length !== 2) throw new Error(JSON.stringify(red));
+"""
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_stale_sweep_response_cannot_restore_old_scenario():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const pending = [];
+const document = { addEventListener() {}, getElementById() { return null; } };
+const fetch = () => new Promise(resolve => pending.push(resolve));
+const context = vm.createContext({document, fetch, window: {location: {protocol: 'file:', origin: 'null', hostname: ''}}, console});
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+(async () => {
+  const first = vm.runInContext('fetchSweepData()', context);
+  vm.runInContext('state.material = "Silicone"', context);
+  const second = vm.runInContext('fetchSweepData()', context);
+  const data = material => ({marker: material, points: [{oxygen_pct: 21, prediction: 'spread'}], transitions: [{from_regime: 'no_spread', to_regime: 'spread', midpoint: 20, evidence_before: [], evidence_after: []}]});
+  pending[1]({ok: true, json: async () => data('Silicone')});
+  await second;
+  pending[0]({ok: true, json: async () => data('PMMA')});
+  await first;
+  const marker = vm.runInContext('state.sweepData.marker', context);
+  if (marker !== 'Silicone') throw new Error(`Stale sweep: ${marker}`);
+})().catch(err => { console.error(err); process.exitCode = 1; });
+"""
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_canvas_probe_invalidates_previous_sweep():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const listeners = {};
+const canvas = {
+  addEventListener(name, callback) { listeners[name] = callback; },
+  getBoundingClientRect() { return {left: 0, top: 0, width: 500, height: 300}; }
+};
+const nodes = new Map();
+const document = {
+  addEventListener() {},
+  getElementById(id) {
+    if (id === 'flammability-boundary-canvas') return canvas;
+    if (id === 'sweep-chart-canvas') return null;
+    if (!nodes.has(id)) nodes.set(id, {textContent: '', value: '21'});
+    return nodes.get(id);
+  }
+};
+const window = {location: {protocol: 'file:', origin: 'null', hostname: ''}, addEventListener() {}};
+const context = vm.createContext({document, window, console, setTimeout: () => 1, clearTimeout() {}});
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+vm.runInContext('state.boundaryData = {oxygen_range: [16, 21], flow_range: [0, 20]}; state.sweepData = {marker: "old"}; state.dynamicLocBoundary = 17.5; setupCanvasInteraction()', context);
+listeners.pointerdown({clientX: 200, clientY: 100});
+const remaining = vm.runInContext('state.sweepData', context);
+if (remaining !== null) throw new Error('Canvas probe retained old sweep');
+"""
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_sweep_refresh_cancels_running_animation():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const cleared = [];
+const document = {addEventListener() {}, getElementById() {return null;}};
+const context = vm.createContext({
+  document, window: {location: {protocol: 'file:', origin: 'null', hostname: ''}}, console,
+  setTimeout: () => 1, clearTimeout() {}, clearInterval: id => cleared.push(id)
+});
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+vm.runInContext('drawSweepCanvas = () => {}; state.sweepInterval = 42; state.sweepRunning = true; scheduleSweepRefresh()', context);
+if (JSON.stringify(cleared) !== '[42]' || vm.runInContext('state.sweepRunning', context)) {
+  throw new Error('Sweep animation was not cancelled');
+}
+"""
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_auto_sweep_stops_at_slider_minimum():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const nodes = new Map();
+let tick;
+const document = {
+  addEventListener() {},
+  getElementById(id) {
+    if (id === 'sweep-chart-canvas') return null;
+    if (!nodes.has(id)) nodes.set(id, {
+      textContent: '', value: '21.0', style: {}, className: '',
+      addEventListener(name, callback) { this[name] = callback; }, removeAttribute() {}
+    });
+    return nodes.get(id);
+  }
+};
+const context = vm.createContext({
+  document, window: {location: {protocol: 'file:', origin: 'null', hostname: ''}}, console,
+  setInterval: callback => {tick = callback; return 42;}, clearInterval() {}
+});
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+vm.runInContext('fetchSweepData = () => {}; state.sweepData = {points: []}; state.dynamicLocBoundary = 17.5; setupSweepView()', context);
+nodes.get('btn-run-auto-sweep').click();
+for (let i = 0; i < 52; i++) tick();
+const readout = nodes.get('readout-sweep-o2').textContent;
+if (readout !== '16.0 %' || vm.runInContext('state.sweepRunning', context)) {
+  throw new Error(`Auto sweep passed slider minimum: ${readout}`);
+}
+"""
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
 def test_conflicting_evidence_is_shown_as_abstention():
     if not shutil.which("node"):
         pytest.skip("Node.js is unavailable")

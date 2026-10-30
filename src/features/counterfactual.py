@@ -1,7 +1,7 @@
 """Counterfactual Engine for FLARE-X.
 
 Enables interactive parameter perturbation, multi-step parameter sweeps,
-regime boundary detection, and safety margin estimation with strict envelope checking.
+regime transition detection, and transition-distance estimates with strict envelope checking.
 """
 from __future__ import annotations
 
@@ -237,7 +237,8 @@ class CounterfactualEngine:
 
             prev_pt = pt
 
-        # Safety margin to extinction / no_spread
+        # Distance to the nearest modeled transition involving no_spread. This is
+        # a research estimate, not a safety clearance.
         base_val = float(baseline[param])
         baseline_result = self.evaluate_scenario(
             oxygen_pct=baseline["oxygen_pct"],
@@ -246,17 +247,21 @@ class CounterfactualEngine:
             material=baseline["material"],
         )
         safety_margin = None
-        eligible_transitions = transitions if baseline_result["prediction"] is not None else []
-        for t in eligible_transitions:
-            if "no_spread" in (t["from_regime"], t["to_regime"]):
-                boundary_mid = t["midpoint"]
+        if baseline_result["prediction"] is not None:
+            eligible = [
+                transition for transition in transitions
+                if "no_spread" in (transition["from_regime"], transition["to_regime"])
+            ]
+            if eligible:
+                nearest = min(eligible, key=lambda item: (abs(base_val - item["midpoint"]), item["midpoint"]))
+                boundary_mid = nearest["midpoint"]
                 safety_margin = {
                     "boundary_midpoint": boundary_mid,
                     "baseline_value": base_val,
                     "delta_to_boundary": round(base_val - boundary_mid, 3),
-                    "is_safe_side": base_val < boundary_mid if start < end else base_val > boundary_mid,
+                    "baseline_predicted_regime": baseline_result["prediction"],
+                    "is_no_spread_side": baseline_result["prediction"] == "no_spread",
                 }
-                break
 
         return {
             "parameter": param,

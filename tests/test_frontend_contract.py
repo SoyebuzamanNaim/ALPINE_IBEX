@@ -32,3 +32,13 @@ def test_runtime_copy_avoids_unproven_model_and_evidence_claims():
         "Grouped validation did not beat the majority baseline",
     ):
         assert unsupported not in source
+
+
+def test_sweep_copy_does_not_call_model_transition_a_safety_limit():
+    source = APP_JS.read_text(encoding="utf-8")
+    for unsupported in (
+        "Nominal Operating Margin", "Extinction / Quenched",
+        "Critical Near-Boundary Margin", "16.5% O₂, 101.3 kPa, 4.0 cm/s",
+        "(LOC Boundary)",
+    ):
+        assert unsupported not in source

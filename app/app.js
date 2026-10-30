@@ -74,7 +74,8 @@ const state = {
   activeTab: 'view-scenario-lab',
   sweepRunning: false,
   experiments: [],
-  materialCounts: {}
+  materialCounts: {},
+  sweepInterval: null
 };
 
 const FUEL_PROPERTIES = {
@@ -205,6 +206,7 @@ function setupSliders() {
     document.getElementById('readout-o2').textContent = `${state.oxygen_pct.toFixed(1)} %`;
     updateCoordHud();
     debounceEvaluation();
+    scheduleSweepRefresh();
   });
 
   pSlider.addEventListener('input', (e) => {
@@ -213,6 +215,7 @@ function setupSliders() {
     updateCoordHud();
     debounceEvaluation();
     debounceBoundarySlice();
+    scheduleSweepRefresh();
   });
 
   flowSlider.addEventListener('input', (e) => {
@@ -220,6 +223,7 @@ function setupSliders() {
     document.getElementById('readout-flow').textContent = `${state.flow_cm_s.toFixed(1)} cm/s`;
     updateCoordHud();
     debounceEvaluation();
+    scheduleSweepRefresh();
   });
 
   matSelect.addEventListener('change', (e) => {
@@ -227,6 +231,7 @@ function setupSliders() {
     updateMaterialInfo();
     triggerScenarioEvaluation();
     fetchBoundarySlice();
+    scheduleSweepRefresh();
   });
 
   extrapToggle.addEventListener('change', (e) => {
@@ -246,6 +251,7 @@ function setupSliders() {
     }
     updateCoordHud();
     triggerScenarioEvaluation();
+    scheduleSweepRefresh();
   });
 }
 
@@ -313,6 +319,7 @@ function updateInputs(o2, p, flow, mat) {
   updateMaterialInfo();
   triggerScenarioEvaluation();
   fetchBoundarySlice();
+  scheduleSweepRefresh();
 }
 
 function updateCoordHud() {
@@ -369,6 +376,7 @@ function setupCanvasInteraction() {
 
     updateCoordHud();
     debounceEvaluation();
+    scheduleSweepRefresh();
   }
 
   canvas.addEventListener('pointerdown', (e) => {
@@ -1122,7 +1130,21 @@ function setupNlpParser() {
 }
 
 // Killer Demo Sweep View (Brief §2) - Completely Dynamic
+let sweepGeneration = 0;
+let sweepRefreshTimeout = null;
+function scheduleSweepRefresh() {
+  ++sweepGeneration;
+  clearTimeout(sweepRefreshTimeout);
+  setSweepUnavailable('Loading sweep for selected conditions…');
+  sweepRefreshTimeout = setTimeout(fetchSweepData, 150);
+}
+
 function setSweepUnavailable(message) {
+  if (state.sweepInterval != null) {
+    clearInterval(state.sweepInterval);
+    state.sweepInterval = null;
+  }
+  state.sweepRunning = false;
   state.sweepData = null;
   state.dynamicLocBoundary = null;
   state.sweepEvidenceBefore = null;
@@ -1132,22 +1154,30 @@ function setSweepUnavailable(message) {
   const autoBtn = document.getElementById('btn-run-auto-sweep');
   if (slider) slider.disabled = true;
   if (autoBtn) autoBtn.disabled = true;
+  if (autoBtn) autoBtn.textContent = '▶ Play Automated Oxygen Sweep';
   updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
 }
 
 async function fetchSweepData() {
+  const generation = ++sweepGeneration;
+  const scenario = {
+    oxygen_pct: state.oxygen_pct,
+    pressure_kpa: state.pressure_kpa,
+    flow_cm_s: state.flow_cm_s,
+    material: state.material
+  };
+  const isCurrent = () => generation === sweepGeneration &&
+    scenario.oxygen_pct === state.oxygen_pct &&
+    scenario.pressure_kpa === state.pressure_kpa &&
+    scenario.flow_cm_s === state.flow_cm_s &&
+    scenario.material === state.material;
   setSweepUnavailable('Loading validated sweep data…');
   try {
     const res = await fetch(`${API_BASE}/sweep`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        baseline: {
-          oxygen_pct: state.oxygen_pct,
-          pressure_kpa: state.pressure_kpa,
-          flow_cm_s: state.flow_cm_s,
-          material: state.material
-        },
+        baseline: scenario,
         param: 'oxygen_pct',
         start: 16.0,
         end: 21.0,
@@ -1159,6 +1189,7 @@ async function fetchSweepData() {
       throw new Error(error.detail || `HTTP error ${res.status}`);
     }
     const sweepData = await res.json();
+    if (!isCurrent()) return;
     const trans = sweepData.transitions;
     if (!sweepData.points || !trans || trans.length === 0) {
       setSweepUnavailable('No validated regime transition is available for this sweep.');
@@ -1176,6 +1207,7 @@ async function fetchSweepData() {
         state.sweepEvidenceAfter = t.evidence_after;
     updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
   } catch (err) {
+    if (!isCurrent()) return;
     console.warn('Dynamic sweep fetch error:', err);
     setSweepUnavailable(err.message);
   }
@@ -1195,15 +1227,17 @@ function setupSweepView() {
     state.sweepRunning = true;
     autoBtn.textContent = '⏳ SWEEPING OXYGEN...';
     let val = 21.0;
-    const interval = setInterval(() => {
-      val -= 0.1;
-      if (val < 16.0) {
-        clearInterval(interval);
+    state.sweepInterval = setInterval(() => {
+      if (!state.sweepRunning) return;
+      val = Math.max(16.0, Math.round((val - 0.1) * 10) / 10);
+      sweepSlider.value = val.toFixed(1);
+      updateSweepPoint(val);
+      if (val <= 16.0) {
+        clearInterval(state.sweepInterval);
+        state.sweepInterval = null;
         state.sweepRunning = false;
         autoBtn.textContent = '▶ Play Automated Oxygen Sweep';
       }
-      sweepSlider.value = val.toFixed(1);
-      updateSweepPoint(val);
     }, 60);
   });
 
@@ -1229,33 +1263,26 @@ function updateSweepPoint(o2Val) {
 
   const locBoundary = state.dynamicLocBoundary;
   const delta = o2Val - locBoundary;
-  if (marginDisplay) marginDisplay.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)} % O₂`;
+  const sampledPoint = (state.sweepData.points || []).find((point) =>
+    Math.abs(point.oxygen_pct - o2Val) < 0.0005);
+  const hasEstimate = sampledPoint && sampledPoint.prediction != null;
+  if (marginDisplay) marginDisplay.textContent = hasEstimate
+    ? `${delta >= 0 ? '+' : ''}${delta.toFixed(2)} % O₂` : 'N/A';
 
   // Update dynamic boundary tags in UI
   const tagAbove = document.getElementById('tag-above-boundary');
   const tagBelow = document.getElementById('tag-below-boundary');
   const tickLoc = document.getElementById('tick-loc-boundary');
-  if (tagAbove) tagAbove.textContent = `Above Boundary (O₂ > ${locBoundary.toFixed(1)}%)`;
-  if (tagBelow) tagBelow.textContent = `Below Boundary (O₂ ≤ ${locBoundary.toFixed(1)}%)`;
-  if (tickLoc) tickLoc.innerHTML = `<span class="tick-mark">|</span> ${locBoundary.toFixed(1)}% (LOC Boundary)`;
+  if (tagAbove) tagAbove.textContent = `Higher-O₂ side of model transition`;
+  if (tagBelow) tagBelow.textContent = `Lower-O₂ side of model transition`;
+  if (tickLoc) tickLoc.textContent = `${locBoundary.toFixed(1)}% O₂ (model transition)`;
 
   if (marginStatus) {
-    if (delta > 1.0) {
-      marginStatus.className = 'margin-pill safe';
-      marginStatus.textContent = 'Nominal Operating Margin';
-    } else if (delta >= 0.0) {
-      marginStatus.className = 'margin-pill';
-      marginStatus.style.background = 'rgba(217, 119, 6, 0.15)';
-      marginStatus.style.border = '1px solid #d97706';
-      marginStatus.style.color = '#b45309';
-      marginStatus.textContent = 'Critical Near-Boundary Margin';
-    } else {
-      marginStatus.className = 'margin-pill';
-      marginStatus.style.background = 'rgba(56, 189, 248, 0.15)';
-      marginStatus.style.border = '1px solid #0284c7';
-      marginStatus.style.color = '#0369a1';
-      marginStatus.textContent = 'Extinction / Quenched';
-    }
+    marginStatus.className = 'margin-pill';
+    marginStatus.removeAttribute('style');
+    marginStatus.textContent = hasEstimate
+      ? `Model estimate: ${sampledPoint.prediction.replaceAll('_', ' ')}`
+      : 'No model estimate at this point';
   }
 
   // Update real historical evidence boxes from dynamic sweep results
@@ -1266,7 +1293,7 @@ function updateSweepPoint(o2Val) {
     if (exp) {
       evAbove.innerHTML = `<strong>Real NASA ${exp.investigation || 'Flight'} Test:</strong> ${exp.oxygen_pct}% O₂, ${exp.pressure_kpa} kPa, ${exp.flow_cm_s} cm/s → <em>${exp.outcome}</em> (<a href="${exp.source_url || '#'}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${exp.report_id} ↗</a>, ${state.material})`;
     } else {
-      evAbove.innerHTML = `<span class="evidence-unavailable">No flight test on the spread side of this boundary is available for ${state.material} at the current pressure and flow. Adjust the slice to a region with coverage.</span>`;
+      evAbove.textContent = 'No cited experiment is available on this side of the model transition.';
     }
   }
   if (evBelow) {
@@ -1274,7 +1301,7 @@ function updateSweepPoint(o2Val) {
     if (exp) {
       evBelow.innerHTML = `<strong>Real NASA ${exp.investigation || 'Flight'} Test:</strong> ${exp.oxygen_pct}% O₂, ${exp.pressure_kpa} kPa, ${exp.flow_cm_s} cm/s → <em>${exp.outcome}</em> (<a href="${exp.source_url || '#'}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${exp.report_id} ↗</a>, ${state.material})`;
     } else {
-      evBelow.innerHTML = `<strong>Real NASA BASS Test:</strong> 16.5% O₂, 101.3 kPa, 4.0 cm/s → <em>no_spread</em> (<a href="https://ntrs.nasa.gov/citations/20140011099" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS 20140011099 ↗</a>, ${state.material})`;
+      evBelow.textContent = 'No cited experiment is available on this side of the model transition.';
     }
   }
 
@@ -1325,36 +1352,33 @@ function drawSweepCanvas(currentO2 = 21.0) {
 
   ctx.fillStyle = '#b45309';
   ctx.font = '10px "JetBrains Mono", monospace';
-  ctx.fillText(`LOC BOUNDARY (${locBoundary.toFixed(1)}%)`, Math.min(boundaryX + 8, padLeft + pW - 140), padTop + 16);
+  ctx.fillText(`MODEL TRANSITION (${locBoundary.toFixed(1)}%)`, Math.min(boundaryX + 8, padLeft + pW - 180), padTop + 16);
 
   // Check if we have real sweep points from the backend
   const pts = state.sweepData.points;
 
-  // Curve: P(Spread)
-  ctx.strokeStyle = '#dc2626';
-  ctx.lineWidth = 2.4;
-  ctx.beginPath();
-  pts.forEach((pt, idx) => {
-    const x = padLeft + ((pt.oxygen_pct - 16.0) / (21.0 - 16.0)) * pW;
-    const prob = pt.probabilities ? (pt.probabilities.spread || 0) : 0;
-    const y = padTop + pH - prob * pH;
-    if (idx === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-  ctx.stroke();
-
-  // Curve: P(No Spread)
-  ctx.strokeStyle = '#059669';
-  ctx.lineWidth = 2.4;
-  ctx.beginPath();
-  pts.forEach((pt, idx) => {
-    const x = padLeft + ((pt.oxygen_pct - 16.0) / (21.0 - 16.0)) * pW;
-    const prob = pt.probabilities ? (pt.probabilities.no_spread || 0) : 0;
-    const y = padTop + pH - prob * pH;
-    if (idx === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-  ctx.stroke();
+  // Refused points leave a gap; they must not be plotted as zero probability.
+  const drawProbabilityCurve = (key, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    let drawing = false;
+    pts.forEach((pt) => {
+      const prob = pt.probabilities?.[key];
+      if (typeof prob !== 'number' || !Number.isFinite(prob)) {
+        drawing = false;
+        return;
+      }
+      const x = padLeft + ((pt.oxygen_pct - 16.0) / (21.0 - 16.0)) * pW;
+      const y = padTop + pH - prob * pH;
+      if (drawing) ctx.lineTo(x, y);
+      else ctx.moveTo(x, y);
+      drawing = true;
+    });
+    ctx.stroke();
+  };
+  drawProbabilityCurve('spread', '#dc2626');
+  drawProbabilityCurve('no_spread', '#059669');
 
   // Current slider marker
   const curX = padLeft + ((currentO2 - 16.0) / (21.0 - 16.0)) * pW;

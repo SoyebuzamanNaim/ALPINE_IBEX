@@ -128,6 +128,12 @@ decision-boundary grid cell at an exact conflicting condition is left blank.
 If either counterfactual side abstains, `prediction_delta.changed` is `null`;
 an abstaining sweep baseline has no `safety_margin`.
 
+The legacy `safety_margin` response key contains only a distance to the nearest
+modeled transition involving `no_spread`. Its `is_no_spread_side` value comes
+from the baseline model regime and does not depend on sweep direction. It is
+not an operational safety determination; the old `is_safe_side` field is
+removed.
+
 Public model inference is currently withheld for all other in-range conditions
 until the grouped validation score exceeds the majority baseline. Such requests
 return `status: "model_unvalidated"` with null prediction and probabilities.

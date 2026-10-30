@@ -361,7 +361,7 @@ def run_counterfactual(request: CounterfactualRequest) -> dict[str, Any]:
 
 @app.post("/sweep", tags=["Counterfactual"])
 def run_sweep(request: SweepRequest) -> dict[str, Any]:
-    """Run 1D parameter sweep to identify flammability regime boundaries and safety margins."""
+    """Run a guarded 1-D sweep and identify model regime transitions."""
     _require_model_ready()
     base_dict = request.baseline.model_dump()
     res = cf_engine.run_sweep(
