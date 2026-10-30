@@ -17,7 +17,7 @@ python3 -m venv .venv
 .venv/bin/python -m src.ingestion.build_table
 ```
 
-This rebuilds `cache/experiments.parquet`, `data/processed/experiments.parquet`, CSV/interim exports, the provenance registry, and `reports/DATA_QUALITY.md`. The checked-in canonical table currently contains 200 rows. Compare its SHA-256 with `models/model_meta.json` before using the model; the API performs this check at request time.
+This rebuilds `cache/experiments.parquet`, `data/processed/experiments.parquet`, CSV/interim exports, the provenance registry, and `reports/DATA_QUALITY.md`. Validation counts are recorded in `data/interim/ingestion_audit.json`. If any selected source row fails schema validation, the row and errors are written to `data/interim/quarantine.json` and the command stops before overwriting canonical tables. The checked-in canonical table currently contains 200 rows. Compare its SHA-256 with `models/model_meta.json` before using the model; the API performs this check at request time.
 
 ## Train and evaluate
 

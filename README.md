@@ -39,7 +39,7 @@ GitHub Actions runs the same suite on Python 3.12 and 3.14, checks JavaScript sy
 
 ## Rebuild data and model artifacts
 
-The ingestion pipeline reads the curated source tables in `data/processed/` and writes the canonical tables and provenance report:
+The ingestion pipeline reads the curated source tables in `data/processed/`, records validation counts in `data/interim/ingestion_audit.json`, and writes the canonical tables and provenance report. If any row fails schema validation, it saves the row and errors to `data/interim/quarantine.json` and stops before overwriting canonical tables.
 
 ```bash
 .venv/bin/python -m src.ingestion.build_table
