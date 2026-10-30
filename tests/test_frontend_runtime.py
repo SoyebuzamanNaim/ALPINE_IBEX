@@ -10,6 +10,46 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_dynamic_experiment_cards_escape_text_and_reject_unsafe_links():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const nodes = new Map();
+const cards = [];
+const document = {
+  addEventListener() {},
+  getElementById(id) {
+    if (!nodes.has(id)) nodes.set(id, {textContent: '', innerHTML: '', appendChild(child) { cards.push(child); }, replaceChildren() {}});
+    return nodes.get(id);
+  },
+  createElement() {
+    return {className: '', innerHTML: '', querySelector() { return {addEventListener() {}}; }};
+  }
+};
+const context = vm.createContext({document, window: {location: {protocol: 'file:', origin: 'null', hostname: ''}}, console});
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+vm.runInContext(`renderNearestExperiments([{
+  experiment_id: 'x</span><img src=x onerror=alert(1)>',
+  material: '<svg onload=alert(1)>', distance: 0.1,
+  oxygen_pct: 20, pressure_kpa: 101, flow_cm_s: 5,
+  outcome: 'spread', report_id: 'R1', source_url: 'javascript:alert(1)'
+}])`, context);
+const html = cards[0].innerHTML;
+if (html.includes('<img src=x') || html.includes('<svg onload=') || html.includes('href="javascript:') ||
+    !html.includes('&lt;img') || !html.includes('&lt;svg')) {
+  throw new Error(`Dynamic experiment content was not safely encoded: ${html}`);
+}
+if (cards[0].innerHTML.includes('onclick=')) throw new Error('Dynamic provenance ID was inserted into inline JavaScript');
+"""
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
 def test_sweep_refused_point_has_no_transition_distance_or_fabricated_evidence():
     if not shutil.which("node"):
         pytest.skip("Node.js is unavailable")

@@ -11,6 +11,22 @@ const API_BASE = (window.location.protocol.startsWith('http') && !window.locatio
       : '')
   : 'http://localhost:8000';
 
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char]);
+}
+
+function safeHttpUrl(value, fallback = '#') {
+  if (!String(value ?? '').trim()) return fallback;
+  try {
+    const url = new URL(String(value ?? ''), window.location.origin);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
 // ============================================================================
 // Published NASA flammability boundary - NTRS 20210011385, BASS-II Summary
 // Report, Eq (6.1). This is NASA's own fitted boundary, not a model we trained,
@@ -752,7 +768,7 @@ function renderPublishedBoundary(payload) {
         : `At ${o2.toFixed(1)} % O2 and ${U} cm/s, the condition is ${Math.abs(m).toFixed(2)} points BELOW NASA's published limit of ${res.limitO2.toFixed(2)} %, so an established flame would be expected to extinguish. This says nothing about whether an ignition source could start one.`);
   }
   if (expText) {
-    expText.innerHTML = `Stretch rate a = ${res.stretch.toFixed(1)} s<sup>-1</sup> for a ${(r * 2 * 10).toFixed(2)} mm diameter rod, placing this in the <strong>${res.regime}</strong> regime (separator U/U<sub>D</sub> = 1, U<sub>D</sub> = ${NASA_BOUNDARY.U_D} cm/s). The limit comes from <a href="${res.url}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">${res.citation} ↗</a>, fitted by NASA to cast-PMMA rods. It describes extinction of an <em>established</em> flame and does not predict ignition.`;
+    expText.innerHTML = `Stretch rate a = ${res.stretch.toFixed(1)} s<sup>-1</sup> for a ${(r * 2 * 10).toFixed(2)} mm diameter rod, placing this in the <strong>${escapeHTML(res.regime)}</strong> regime (separator U/U<sub>D</sub> = 1, U<sub>D</sub> = ${NASA_BOUNDARY.U_D} cm/s). The limit comes from <a href="${escapeHTML(safeHttpUrl(res.url, NASA_BOUNDARY.URL))}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">${escapeHTML(res.citation)} ↗</a>, fitted by NASA to cast-PMMA rods. It describes extinction of an <em>established</em> flame and does not predict ignition.`;
   }
 }
 
@@ -831,29 +847,30 @@ function renderNearestExperiments(experiments) {
 
     const dist = exp.distance !== undefined ? `d = ${exp.distance.toFixed(3)}` : 'Exact match';
     const outcomeClass = exp.outcome === 'spread' ? 'badge-spread' : (exp.outcome === 'marginal_spread' ? 'badge-marginal' : 'badge-no-spread');
-    const reportUrl = exp.source_url || `https://ntrs.nasa.gov/citations/${exp.report_id}`;
+    const reportUrl = safeHttpUrl(exp.source_url || `https://ntrs.nasa.gov/citations/${encodeURIComponent(exp.report_id || '')}`, 'https://ntrs.nasa.gov/');
     const eid = exp.experiment_id || 'EXP_OBS';
 
     item.innerHTML = `
       <div class="obs-top-line">
-        <span class="obs-id">${eid} · ${exp.material}</span>
-        <span class="obs-distance">${dist}</span>
+        <span class="obs-id">${escapeHTML(eid)} · ${escapeHTML(exp.material)}</span>
+        <span class="obs-distance">${escapeHTML(dist)}</span>
       </div>
       <div class="obs-conditions">
-        ${exp.oxygen_pct}% O₂ · ${exp.pressure_kpa} kPa · ${exp.flow_cm_s} cm/s
+        ${escapeHTML(exp.oxygen_pct)}% O₂ · ${escapeHTML(exp.pressure_kpa)} kPa · ${escapeHTML(exp.flow_cm_s)} cm/s
       </div>
       <div class="obs-bottom-line">
-        <span class="badge-outcome ${outcomeClass}">${exp.outcome || 'observed'}</span>
+        <span class="badge-outcome ${outcomeClass}">${escapeHTML(exp.outcome || 'observed')}</span>
         <div class="obs-actions" style="display: flex; gap: 8px; align-items: center;">
-          <button type="button" class="btn-trace-cite" onclick="inspectProvenance('${eid}')" title="Inspect full provenance and NTRS citation">
+          <button type="button" class="btn-trace-cite" title="Inspect full provenance and NTRS citation">
             Trace Citation ↗
           </button>
           <a href="${reportUrl}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">
-            NTRS ${exp.report_id || 'Report'}
+            NTRS ${escapeHTML(exp.report_id || 'Report')}
           </a>
         </div>
       </div>
     `;
+    item.querySelector('.btn-trace-cite').addEventListener('click', () => window.inspectProvenance(eid));
     container.appendChild(item);
   });
 }
@@ -1299,7 +1316,7 @@ function updateSweepPoint(o2Val) {
   if (evAbove) {
     const exp = (state.sweepEvidenceAfter && state.sweepEvidenceAfter[0]);
     if (exp) {
-      evAbove.innerHTML = `<strong>Real NASA ${exp.investigation || 'Flight'} Test:</strong> ${exp.oxygen_pct}% O₂, ${exp.pressure_kpa} kPa, ${exp.flow_cm_s} cm/s → <em>${exp.outcome}</em> (<a href="${exp.source_url || '#'}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${exp.report_id} ↗</a>, ${state.material})`;
+      evAbove.innerHTML = `<strong>Real NASA ${escapeHTML(exp.investigation || 'Flight')} Test:</strong> ${escapeHTML(exp.oxygen_pct)}% O₂, ${escapeHTML(exp.pressure_kpa)} kPa, ${escapeHTML(exp.flow_cm_s)} cm/s → <em>${escapeHTML(exp.outcome)}</em> (<a href="${escapeHTML(safeHttpUrl(exp.source_url, '#'))}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${escapeHTML(exp.report_id)} ↗</a>, ${escapeHTML(state.material)})`;
     } else {
       evAbove.textContent = 'No cited experiment is available on this side of the model transition.';
     }
@@ -1307,7 +1324,7 @@ function updateSweepPoint(o2Val) {
   if (evBelow) {
     const exp = (state.sweepEvidenceBefore && state.sweepEvidenceBefore[0]);
     if (exp) {
-      evBelow.innerHTML = `<strong>Real NASA ${exp.investigation || 'Flight'} Test:</strong> ${exp.oxygen_pct}% O₂, ${exp.pressure_kpa} kPa, ${exp.flow_cm_s} cm/s → <em>${exp.outcome}</em> (<a href="${exp.source_url || '#'}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${exp.report_id} ↗</a>, ${state.material})`;
+      evBelow.innerHTML = `<strong>Real NASA ${escapeHTML(exp.investigation || 'Flight')} Test:</strong> ${escapeHTML(exp.oxygen_pct)}% O₂, ${escapeHTML(exp.pressure_kpa)} kPa, ${escapeHTML(exp.flow_cm_s)} cm/s → <em>${escapeHTML(exp.outcome)}</em> (<a href="${escapeHTML(safeHttpUrl(exp.source_url, '#'))}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${escapeHTML(exp.report_id)} ↗</a>, ${escapeHTML(state.material)})`;
     } else {
       evBelow.textContent = 'No cited experiment is available on this side of the model transition.';
     }
@@ -1464,15 +1481,15 @@ function renderAtlasTable(rows) {
     const citeUrl = r.source_url || `https://ntrs.nasa.gov/citations/${r.report_id}`;
 
     tr.innerHTML = `
-      <td><strong>${r.experiment_id}</strong></td>
-      <td>${r.investigation}</td>
-      <td>${r.material}</td>
-      <td>${r.oxygen_pct}%</td>
-      <td>${r.pressure_kpa} kPa</td>
-      <td>${r.flow_cm_s} cm/s</td>
-      <td><span class="badge-outcome ${badgeClass}">${r.outcome}</span></td>
-      <td>${r.report_id}</td>
-      <td><a href="${citeUrl}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ↗</a></td>
+      <td><strong>${escapeHTML(r.experiment_id)}</strong></td>
+      <td>${escapeHTML(r.investigation)}</td>
+      <td>${escapeHTML(r.material)}</td>
+      <td>${escapeHTML(r.oxygen_pct)}%</td>
+      <td>${escapeHTML(r.pressure_kpa)} kPa</td>
+      <td>${escapeHTML(r.flow_cm_s)} cm/s</td>
+      <td><span class="badge-outcome ${badgeClass}">${escapeHTML(r.outcome)}</span></td>
+      <td>${escapeHTML(r.report_id)}</td>
+      <td><a href="${escapeHTML(safeHttpUrl(citeUrl, 'https://ntrs.nasa.gov/'))}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ↗</a></td>
     `;
 
     // Click row to probe into Flammability Deck
@@ -1560,11 +1577,11 @@ async function loadDatasetsAndModel() {
           const div = document.createElement('div');
           div.className = 'investigation-card';
           div.innerHTML = `
-            <div class="inv-title">${inv.exact_nasa_title || inv.investigation_key || 'NASA Investigation'}</div>
+            <div class="inv-title">${escapeHTML(inv.exact_nasa_title || inv.investigation_key || 'NASA Investigation')}</div>
             <div class="inv-meta">
-              PSI ID: <strong>${inv.psi_id || 'N/A'}</strong> · Role: <strong>${inv.usable_for_prototype_model === 'YES' ? 'Core Training Set' : 'Reference Catalog'}</strong>
+              PSI ID: <strong>${escapeHTML(inv.psi_id || 'N/A')}</strong> · Role: <strong>${inv.usable_for_prototype_model === 'YES' ? 'Core Training Set' : 'Reference Catalog'}</strong>
             </div>
-            <div class="inv-desc">${inv.experiment_objective || inv.description || 'Microgravity combustion flight experiment.'}</div>
+            <div class="inv-desc">${escapeHTML(inv.experiment_objective || inv.description || 'Microgravity combustion flight experiment.')}</div>
           `;
           container.appendChild(div);
         });
@@ -1695,11 +1712,11 @@ function renderConflictResults(data) {
       const tr = document.createElement('tr');
       const statusClass = dim.status === 'MATCH' ? 'status-match' : (dim.status === 'MODERATE_DIFFERENCE' ? 'status-mod' : 'status-mismatch');
       tr.innerHTML = `
-        <td><strong>${dim.dimension}</strong></td>
-        <td>${dim.study_a}</td>
-        <td>${dim.study_b}</td>
-        <td><span class="dim-status-pill ${statusClass}">${dim.status.replace(/_/g, ' ')}</span></td>
-        <td class="dim-impact-cell">${dim.physical_impact}</td>
+        <td><strong>${escapeHTML(dim.dimension)}</strong></td>
+        <td>${escapeHTML(dim.study_a)}</td>
+        <td>${escapeHTML(dim.study_b)}</td>
+        <td><span class="dim-status-pill ${statusClass}">${escapeHTML(String(dim.status).replace(/_/g, ' '))}</span></td>
+        <td class="dim-impact-cell">${escapeHTML(dim.physical_impact)}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -1714,7 +1731,7 @@ function renderConflictResults(data) {
     const lA = document.getElementById('cite-link-a');
     if (tA) tA.textContent = citeA.name;
     if (mA) mA.textContent = citeA.citation;
-    if (lA) lA.href = citeA.url;
+    if (lA) lA.href = safeHttpUrl(citeA.url);
   }
   if (citeB) {
     const tB = document.getElementById('cite-title-b');
@@ -1722,7 +1739,7 @@ function renderConflictResults(data) {
     const lB = document.getElementById('cite-link-b');
     if (tB) tB.textContent = citeB.name;
     if (mB) mB.textContent = citeB.citation;
-    if (lB) lB.href = citeB.url;
+    if (lB) lB.href = safeHttpUrl(citeB.url);
   }
 }
 
@@ -1766,12 +1783,12 @@ function renderCoverageMap(data) {
 
     let html = '<table class="heatmap-table"><thead><tr><th>Oxygen Concentration</th>';
     flowBins.forEach(fb => {
-      html += `<th>${fb.label}</th>`;
+      html += `<th>${escapeHTML(fb.label)}</th>`;
     });
     html += '</tr></thead><tbody>';
 
     o2Bins.forEach(ob => {
-      html += `<tr><td class="row-o2-header"><strong>${ob.label}</strong></td>`;
+      html += `<tr><td class="row-o2-header"><strong>${escapeHTML(ob.label)}</strong></td>`;
       flowBins.forEach(fb => {
         const cell = grid.find(c => c.o2_bin_id === ob.id && c.flow_bin_id === fb.id);
         const count = cell ? cell.count : 0;
@@ -1781,10 +1798,10 @@ function renderCoverageMap(data) {
         const tooltip = `Tested: ${count} runs | Materials: ${mats} | Spread: ${cell?.spread_count || 0}, Marginal: ${cell?.marginal_count || 0}, Extinction: ${cell?.no_spread_count || 0}`;
 
         html += `
-          <td class="heatmap-cell ${swatchClass}" title="${tooltip}">
+          <td class="heatmap-cell ${swatchClass}" title="${escapeHTML(tooltip)}">
             <div class="cell-inner">
-              <span class="cell-count">${count}</span>
-              <span class="cell-density-tag">${density.replace('_', ' ')}</span>
+              <span class="cell-count">${escapeHTML(count)}</span>
+              <span class="cell-density-tag">${escapeHTML(String(density).replace('_', ' '))}</span>
             </div>
           </td>
         `;
@@ -1803,23 +1820,23 @@ function renderCoverageMap(data) {
       card.className = 'gap-card';
       card.innerHTML = `
         <div class="gap-card-header">
-          <span class="gap-id-badge">${gap.gap_id}</span>
+          <span class="gap-id-badge">${escapeHTML(gap.gap_id)}</span>
           <span class="gap-risk-pill">HIGH MISSION RISK</span>
         </div>
-        <h4 class="gap-title">${gap.title}</h4>
-        <div class="gap-regime-strip"><strong>Target Regime:</strong> ${gap.regime}</div>
-        <div class="gap-materials"><strong>Affected Materials:</strong> ${(gap.materials_affected || []).join(', ')}</div>
+        <h4 class="gap-title">${escapeHTML(gap.title)}</h4>
+        <div class="gap-regime-strip"><strong>Target Regime:</strong> ${escapeHTML(gap.regime)}</div>
+        <div class="gap-materials"><strong>Affected Materials:</strong> ${escapeHTML((gap.materials_affected || []).join(', '))}</div>
         <div class="gap-section">
           <span class="gap-section-label">OPERATIONAL RISK:</span>
-          <p class="gap-text">${gap.operational_risk}</p>
+          <p class="gap-text">${escapeHTML(gap.operational_risk)}</p>
         </div>
         <div class="gap-section">
           <span class="gap-section-label">SCIENTIFIC RATIONALE:</span>
-          <p class="gap-text">${gap.scientific_rationale}</p>
+          <p class="gap-text">${escapeHTML(gap.scientific_rationale)}</p>
         </div>
         <div class="gap-recommended-box">
           <span class="rec-label">RECOMMENDED NASA FLIGHT EXPERIMENT:</span>
-          <p class="rec-text">${gap.recommended_experiment}</p>
+          <p class="rec-text">${escapeHTML(gap.recommended_experiment)}</p>
         </div>
       `;
       gapsList.appendChild(card);
@@ -1871,7 +1888,7 @@ window.inspectProvenance = async function(experimentId) {
     if (condEl) condEl.textContent = `${data.material} · ${data.oxygen_pct}% O₂ · ${data.pressure_kpa} kPa · ${data.flow_cm_s} cm/s forced flow`;
     if (outcomeEl) outcomeEl.textContent = `${data.outcome} (${data.extraction_notes || 'Observed flame behavior'})`;
     if (notesEl) notesEl.textContent = data.extraction_notes || 'Extracted from peer-reviewed NASA Technical Memorandum data tables.';
-    if (ntrsUrlEl) ntrsUrlEl.href = data.source_url || `https://ntrs.nasa.gov/citations/${data.report_id}`;
+    if (ntrsUrlEl) ntrsUrlEl.href = safeHttpUrl(data.source_url || `https://ntrs.nasa.gov/citations/${encodeURIComponent(data.report_id || '')}`, 'https://ntrs.nasa.gov/');
     if (tierPill) tierPill.textContent = data.verification_tier || 'VERIFIED_FLIGHT_TABLE';
     if (originPill) originPill.textContent = data.data_origin || 'direct_measurement';
 
