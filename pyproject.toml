@@ -29,13 +29,13 @@ dependencies = [
     "scipy==1.18.1",
     "joblib==1.6.0",
     "pyarrow==26.0.0",
-    "rank-bm25==0.2.2",
-    "httpx==0.28.1"
+    "rank-bm25==0.2.2"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest==9.1.1"
+    "pytest==9.1.1",
+    "httpx2==2.13.0"
 ]
 
 [tool.pytest.ini_options]
