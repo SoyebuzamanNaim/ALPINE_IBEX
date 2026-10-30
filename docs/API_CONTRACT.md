@@ -132,6 +132,12 @@ Public model inference is currently withheld for all other in-range conditions
 until the grouped validation score exceeds the majority baseline. Such requests
 return `status: "model_unvalidated"` with null prediction and probabilities.
 
+Counterfactual `changes` must contain one or more of `oxygen_pct`,
+`pressure_kpa`, `flow_cm_s`, or `material`. The merged scenario is validated
+against the same input limits as `/predict`. Unknown fields, booleans, malformed
+values, and out-of-range numbers return HTTP 422 before model availability is
+checked.
+
 #### Joint-domain refusal (`200 OK`)
 
 `status: "joint_extrapolation"` means each numeric input may be within its

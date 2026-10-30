@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 from fastapi.testclient import TestClient
 from src.api.main import app, _mask_conflicting_grid_points, _mask_joint_domain_grid_points
+from src.api.schemas import CounterfactualRequest
 
 
 @pytest.fixture
@@ -186,6 +187,41 @@ def test_post_counterfactual(client):
     res = client.post("/counterfactual", json=payload)
     assert res.status_code == 503
     assert "majority baseline" in res.json()["detail"]
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {},
+        {"unknown": 17.0},
+        {"oxygen_pct": -1.0},
+        {"pressure_kpa": "not a number"},
+        {"flow_cm_s": None},
+        {"material": None},
+        {"oxygen_pct": True},
+        {"oxygen_pct": "1e309"},
+    ],
+)
+def test_counterfactual_rejects_invalid_changes_before_model_gate(client, changes):
+    response = client.post("/counterfactual", json={
+        "baseline": {
+            "oxygen_pct": 21.0, "pressure_kpa": 101.3,
+            "flow_cm_s": 5.0, "material": "PMMA",
+        },
+        "changes": changes,
+    })
+    assert response.status_code == 422
+
+
+def test_counterfactual_normalizes_valid_numeric_changes():
+    request = CounterfactualRequest.model_validate({
+        "baseline": {
+            "oxygen_pct": 21.0, "pressure_kpa": 101.3,
+            "flow_cm_s": 5.0, "material": "PMMA",
+        },
+        "changes": {"oxygen_pct": "19.5"},
+    })
+    assert request.changes == {"oxygen_pct": 19.5}
 
 
 def test_post_sweep(client):

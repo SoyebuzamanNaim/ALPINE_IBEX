@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from typing import Any, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class PredictRequest(BaseModel):
@@ -82,6 +82,20 @@ class PredictResponse(BaseModel):
 class CounterfactualRequest(BaseModel):
     baseline: PredictRequest
     changes: dict[str, Any]
+
+    @model_validator(mode="after")
+    def validate_changes(self) -> "CounterfactualRequest":
+        allowed = set(PredictRequest.model_fields)
+        if not self.changes:
+            raise ValueError("At least one counterfactual change is required")
+        unknown = set(self.changes) - allowed
+        if unknown:
+            raise ValueError(f"Unsupported counterfactual fields: {', '.join(sorted(unknown))}")
+        if any(isinstance(value, bool) for value in self.changes.values()):
+            raise ValueError("Counterfactual values cannot be booleans")
+        validated = PredictRequest.model_validate({**self.baseline.model_dump(), **self.changes})
+        self.changes = {key: getattr(validated, key) for key in self.changes}
+        return self
 
 
 class SweepRequest(BaseModel):
