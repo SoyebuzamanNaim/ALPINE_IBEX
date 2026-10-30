@@ -162,6 +162,11 @@ condition, `in_training_range` remains `true`, but `prediction` and
 includes the nearest real observations. The boundary grid does not color this
 material as a model prediction.
 
+`/scenario/parse` returns `is_valid: false`, a null `parsed_scenario`, and
+field-specific `ambiguities` when a query names different materials or gives
+different oxygen, pressure, or flow values. It does not silently choose the
+first mention. Repeated equivalent values are accepted.
+
 ---
 
 ### 3.2 `GET /boundary`

@@ -252,6 +252,17 @@ def test_post_scenario_parse(client):
     assert data["parsed_scenario"]["oxygen_pct"] == 18.5
 
 
+def test_scenario_parse_reports_conflicting_values(client):
+    response = client.post("/scenario/parse", json={
+        "query": "PMMA at 21% O2 or 34% O2, 101.3 kPa, 5 cm/s",
+    })
+    assert response.status_code == 200
+    result = response.json()
+    assert result["is_valid"] is False
+    assert result["parsed_scenario"] is None
+    assert any("oxygen" in item.lower() for item in result["ambiguities"])
+
+
 def test_get_datasets(client):
     res = client.get("/datasets")
     assert res.status_code == 200
