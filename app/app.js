@@ -491,29 +491,37 @@ function renderPredictionResults(data) {
     mgEl.className = 'phys-val';
   }
 
-  if (data.status === 'conflicting_evidence' || data.status === 'insufficient_material_evidence') {
+  if (data.status === 'conflicting_evidence' || data.status === 'insufficient_material_evidence' || data.status === 'audit_failed') {
     const conflict = data.status === 'conflicting_evidence';
+    const sparse = data.status === 'insufficient_material_evidence';
     const reason = data.explanation || (conflict
       ? 'Experiments at identical model inputs have conflicting outcomes.'
-      : 'Too few distinct conditions are recorded for this material.');
+      : sparse
+        ? 'Too few distinct conditions are recorded for this material.'
+        : 'The final evidence audit failed; no model result is released.');
     if (stateTierPill) stateTierPill.className = 'state-tier-pill tier-abstention';
-    if (stateTierLabel) stateTierLabel.textContent = conflict ? 'CONFLICTING EVIDENCE' : 'INSUFFICIENT MATERIAL EVIDENCE';
+    if (stateTierLabel) stateTierLabel.textContent = conflict ? 'CONFLICTING EVIDENCE'
+      : sparse ? 'INSUFFICIENT MATERIAL EVIDENCE' : 'EVIDENCE AUDIT FAILED';
     if (stateTierExplainer) stateTierExplainer.textContent = conflict
       ? 'The four model inputs do not resolve these observations'
-      : 'Too few distinct observations for a material-specific estimate';
+      : sparse ? 'Too few distinct observations for a material-specific estimate'
+        : 'Final evidence verification did not pass';
     if (alertBanner) alertBanner.classList.remove('hidden');
-    if (alertTitle) alertTitle.textContent = conflict ? 'EXPERIMENTAL OUTCOMES DISAGREE' : 'MATERIAL EVIDENCE IS TOO SPARSE';
+    if (alertTitle) alertTitle.textContent = conflict ? 'EXPERIMENTAL OUTCOMES DISAGREE'
+      : sparse ? 'MATERIAL EVIDENCE IS TOO SPARSE' : 'FINAL EVIDENCE AUDIT FAILED';
     if (alertMsg) alertMsg.textContent = reason;
     if (badge) {
       badge.className = 'regime-status-badge regime-refusal';
-      badge.textContent = conflict ? 'CONFLICTING EVIDENCE · NO INFERENCE' : 'INSUFFICIENT EVIDENCE · NO INFERENCE';
+      badge.textContent = conflict ? 'CONFLICTING EVIDENCE · NO INFERENCE'
+        : sparse ? 'INSUFFICIENT EVIDENCE · NO INFERENCE' : 'AUDIT FAILED · NO INFERENCE';
     }
     if (confPill) confPill.textContent = 'NO PROBABILITY AVAILABLE';
     [pNoSpread, pMarginal, pSpread].forEach(el => { if (el) el.textContent = 'N/A'; });
     [bNoSpread, bMarginal, bSpread].forEach(el => { if (el) el.style.width = '0%'; });
     if (briefing) briefing.textContent = conflict
       ? 'Observed outcomes differ at these recorded conditions. Inspect both source experiments; no single outcome is supported.'
-      : 'Too few distinct material conditions have been recorded to support a model estimate. Inspect the available source observations.';
+      : sparse ? 'Too few distinct material conditions have been recorded to support a model estimate. Inspect the available source observations.'
+        : 'The model result failed its final evidence audit and has been withheld. Inspect the available source observations.';
     if (expText) expText.textContent = reason;
     renderNearestExperiments(data.nearest_experiments || []);
     drawBoundaryCanvas();

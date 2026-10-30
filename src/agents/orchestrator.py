@@ -165,6 +165,16 @@ class AgentOrchestrator:
         prediction_payload["audit_passed"] = audit_res["passed"]
         if not audit_res["passed"]:
             prediction_payload["audit_errors"] = audit_res["errors"]
+            prediction_payload["status"] = "audit_failed"
+            prediction_payload["prediction"] = None
+            prediction_payload["probabilities"] = None
+            prediction_payload["explanation"] = (
+                "The final evidence audit failed. No model result is released. "
+                "Inspect the nearest source experiments instead."
+            )
+            prediction_payload["explanation_source"] = "audit_refusal"
+            prediction_payload["warning_message"] = prediction_payload["explanation"]
+            state_history.append(OrchestratorState.REFUSED)
 
         state_history.append(OrchestratorState.FINALIZED)
         prediction_payload["state_history"] = [s.value for s in state_history]

@@ -116,6 +116,24 @@ def test_predict_abstains_for_single_condition_material(client):
     assert result["sparse_region_warning"] is True
 
 
+def test_predict_withholds_result_if_final_audit_fails(client, monkeypatch):
+    import src.api.main as api_main
+
+    monkeypatch.setattr(api_main, "_model_readiness", lambda: (True, "Test-ready model"))
+    monkeypatch.setattr(api_main.orchestrator.auditor, "audit_prediction_payload", lambda payload: {
+        "passed": False, "errors": ["Injected audit failure"]
+    })
+    response = client.post("/predict", json={
+        "oxygen_pct": 19.0, "pressure_kpa": 101.3,
+        "flow_cm_s": 5.0, "material": "PMMA",
+    })
+    assert response.status_code == 200
+    result = response.json()
+    assert result["status"] == "audit_failed"
+    assert result["prediction"] is None
+    assert result["probabilities"] is None
+
+
 def test_boundary_mask_excludes_conflicting_grid_cells():
     mask = _mask_conflicting_grid_points(
         np.array([18.0, 19.0]), np.array([3.0, 3.0]),

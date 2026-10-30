@@ -39,6 +39,14 @@ class EvidenceAuditor:
         if not isinstance(exps, list) or len(exps) == 0:
             errors.append("Payload lacks nearest historical experiments.")
 
+        explanation = payload.get("explanation")
+        if not isinstance(explanation, str) or not explanation.strip():
+            errors.append("Payload lacks a final explanation.")
+        else:
+            explanation_audit = self.audit_explanation(explanation, payload)
+            if not explanation_audit["is_valid"]:
+                errors.append(f"Final explanation failed evidence audit: {explanation_audit['reasons']}")
+
         return {
             "passed": len(errors) == 0,
             "errors": errors,

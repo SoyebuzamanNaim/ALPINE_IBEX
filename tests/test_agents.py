@@ -162,6 +162,34 @@ def test_auditor_numerical_rejection(auditor):
     assert any("99.4" in n or "42" in n for n in res_invalid["hallucinated_numbers"])
 
 
+def test_final_payload_audit_checks_explanation_numbers(auditor):
+    result = auditor.audit_prediction_payload({
+        "inputs": {"oxygen_pct": 21.0, "pressure_kpa": 101.3, "flow_cm_s": 5.0, "material": "PMMA"},
+        "in_training_range": True,
+        "prediction": "spread",
+        "probabilities": {"spread": 1.0},
+        "nearest_experiments": [{"experiment_id": "BASS2_A", "report_id": "20210011385"}],
+        "explanation": "The flame temperature is 1250 C.",
+    })
+    assert result["passed"] is False
+    assert any("explanation" in error.lower() for error in result["errors"])
+
+
+def test_orchestrator_withholds_prediction_when_final_audit_fails(orchestrator, monkeypatch):
+    monkeypatch.setattr(orchestrator.auditor, "audit_prediction_payload", lambda payload: {
+        "passed": False, "errors": ["Injected final audit failure"]
+    })
+    result = orchestrator.run({
+        "oxygen_pct": 19.0, "pressure_kpa": 101.3,
+        "flow_cm_s": 5.0, "material": "PMMA",
+    })
+    assert result["status"] == "audit_failed"
+    assert result["prediction"] is None
+    assert result["probabilities"] is None
+    assert result["audit_passed"] is False
+    assert result["audit_errors"] == ["Injected final audit failure"]
+
+
 def test_auditor_unauthorized_citation_rejection(auditor):
     pred_obj = {
         "inputs": {"oxygen_pct": 21.0, "pressure_kpa": 101.3, "flow_cm_s": 5.0, "material": "PMMA"},
