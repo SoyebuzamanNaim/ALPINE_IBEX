@@ -29,6 +29,8 @@ class PredictRequest(BaseModel):
     )
     material: str = Field(
         ...,
+        min_length=1,
+        max_length=64,
         description="Solid fuel material name (PMMA, Cotton, Cellulose, Delrin, Nomex)",
         examples=["PMMA"],
     )
@@ -81,7 +83,7 @@ class PredictResponse(BaseModel):
 
 class CounterfactualRequest(BaseModel):
     baseline: PredictRequest
-    changes: dict[str, Any]
+    changes: dict[str, Any] = Field(..., min_length=1, max_length=4)
 
     @model_validator(mode="after")
     def validate_changes(self) -> "CounterfactualRequest":
@@ -107,14 +109,14 @@ class SweepRequest(BaseModel):
 
 
 class ParseRequest(BaseModel):
-    query: str
+    query: str = Field(..., min_length=1, max_length=2000)
 
 
 class ConflictStudiesRequest(BaseModel):
-    study_a: str = Field(..., description="Canonical study profile key A (e.g. 'BASS-II')")
-    study_b: str = Field(..., description="Canonical study profile key B (e.g. 'Saffire')")
+    study_a: str = Field(..., min_length=1, max_length=128, description="Canonical study profile key A (e.g. 'BASS-II')")
+    study_b: str = Field(..., min_length=1, max_length=128, description="Canonical study profile key B (e.g. 'Saffire')")
 
 
 class ConflictExperimentsRequest(BaseModel):
-    experiment_id_a: str = Field(..., description="Authoritative experiment ID A")
-    experiment_id_b: str = Field(..., description="Authoritative experiment ID B")
+    experiment_id_a: str = Field(..., min_length=1, max_length=128, description="Authoritative experiment ID A")
+    experiment_id_b: str = Field(..., min_length=1, max_length=128, description="Authoritative experiment ID B")

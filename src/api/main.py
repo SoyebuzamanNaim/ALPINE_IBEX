@@ -15,7 +15,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Path as PathParam, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.agents.interpreter import ScenarioInterpreter
@@ -32,6 +32,7 @@ from src.api.schemas import (
     PredictResponse,
     SweepRequest,
 )
+from src.api.middleware import RequestGuardMiddleware
 from src.features.counterfactual import CounterfactualEngine
 from src.retrieval.corpus_search import ReportCorpusSearcher
 
@@ -52,6 +53,7 @@ app = FastAPI(
     ),
     version="1.0.0",
 )
+app.add_middleware(RequestGuardMiddleware)
 
 # Enable CORS for local dev and frontend clients
 app.add_middleware(
@@ -159,7 +161,7 @@ def predict(request: PredictRequest) -> dict[str, Any]:
 
 @app.get("/experiments", tags=["Data"])
 def list_experiments(
-    material: str | None = Query(None, description="Filter by solid fuel material"),
+    material: str | None = Query(None, max_length=64, description="Filter by solid fuel material"),
     limit: int = Query(200, ge=1, le=1000, description="Max rows to return"),
     offset: int = Query(0, ge=0, description="Row offset for pagination"),
 ) -> dict[str, Any]:
@@ -394,7 +396,7 @@ def list_datasets() -> dict[str, Any]:
 
 
 @app.get("/sources/{report_id:path}", tags=["Data"])
-def get_source_document(report_id: str) -> dict[str, Any]:
+def get_source_document(report_id: str = PathParam(min_length=1, max_length=128)) -> dict[str, Any]:
     """Retrieve metadata, citation, and abstract for a specific NASA report."""
     # Look up by direct ID or normalized string
     doc = corpus_searcher.get_report(report_id)
@@ -461,7 +463,7 @@ def get_research_coverage() -> dict[str, Any]:
 # ============================================================================
 
 @app.get("/api/provenance/{experiment_id}", tags=["Provenance"])
-def get_experiment_provenance(experiment_id: str) -> dict[str, Any]:
+def get_experiment_provenance(experiment_id: str = PathParam(min_length=1, max_length=128)) -> dict[str, Any]:
     """Retrieve full traceable provenance and original document citation for an experiment."""
     rec = provenance_service.get_provenance(experiment_id)
     if not rec:
@@ -471,10 +473,10 @@ def get_experiment_provenance(experiment_id: str) -> dict[str, Any]:
 
 @app.get("/api/provenance", tags=["Provenance"])
 def query_provenance(
-    material: str | None = Query(None, description="Filter by solid material"),
-    verification_tier: str | None = Query(None, description="Filter by verification tier"),
-    investigation: str | None = Query(None, description="Filter by NASA investigation"),
-    search: str | None = Query(None, description="Search keyword in citations/notes"),
+    material: str | None = Query(None, max_length=64, description="Filter by solid material"),
+    verification_tier: str | None = Query(None, max_length=128, description="Filter by verification tier"),
+    investigation: str | None = Query(None, max_length=128, description="Filter by NASA investigation"),
+    search: str | None = Query(None, max_length=256, description="Search keyword in citations/notes"),
     limit: int = Query(200, ge=1, le=1000),
     offset: int = Query(0, ge=0),
 ) -> dict[str, Any]:

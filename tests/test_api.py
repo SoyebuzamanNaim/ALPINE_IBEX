@@ -22,6 +22,21 @@ def test_get_health(client):
     assert "PMMA" in data["allowed_materials"]
 
 
+def test_api_rejects_oversized_bodies_and_long_free_text(client):
+    oversized = b'{"query":"' + (b"x" * 66_000) + b'"}'
+    too_large = client.post("/scenario/parse", content=oversized, headers={"content-type": "application/json"})
+    assert too_large.status_code == 413
+
+    too_long_query = client.post("/scenario/parse", json={"query": "x" * 2001})
+    assert too_long_query.status_code == 422
+
+    too_long_material = client.post("/predict", json={
+        "oxygen_pct": 19.0, "pressure_kpa": 101.3, "flow_cm_s": 5.0,
+        "material": "x" * 65,
+    })
+    assert too_long_material.status_code == 422
+
+
 def test_post_predict_in_domain(client):
     payload = {
         "oxygen_pct": 19.0,
