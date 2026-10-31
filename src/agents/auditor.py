@@ -1,7 +1,6 @@
 """Evidence Auditor Agent for FLARE-X.
 
-Verifies model outputs, schema conformity, and enforces the strict mathematical
-hallucination check required by Challenge Brief Section 8:
+Verifies model outputs, schema conformity, and enforces evidence checks:
 - Reject any explanation containing numbers absent from the prediction object.
 - Reject any explanation citing report IDs not in nearest_experiments.
 """
@@ -38,6 +37,14 @@ class EvidenceAuditor:
         exps = payload.get("nearest_experiments", [])
         if not isinstance(exps, list) or len(exps) == 0:
             errors.append("Payload lacks nearest historical experiments.")
+
+        explanation = payload.get("explanation")
+        if not isinstance(explanation, str) or not explanation.strip():
+            errors.append("Payload lacks a final explanation.")
+        else:
+            explanation_audit = self.audit_explanation(explanation, payload)
+            if not explanation_audit["is_valid"]:
+                errors.append(f"Final explanation failed evidence audit: {explanation_audit['reasons']}")
 
         return {
             "passed": len(errors) == 0,

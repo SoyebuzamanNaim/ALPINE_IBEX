@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from src.retrieval.nearest import NearestExperimentRetriever
+from src.envelope.joint import JointDomain
 
 ROOT = Path(__file__).resolve().parents[2]
 META_PATH = ROOT / "models" / "model_meta.json"
@@ -29,6 +30,17 @@ class EnvelopeGuard:
         self.allowed_materials = self.training_range["allowed_materials"]
         self.retriever = NearestExperimentRetriever(data_path)
         self.df = pd.read_parquet(data_path)
+        self.joint_domains = {
+            material: JointDomain(group[["oxygen_pct", "pressure_kpa", "flow_cm_s"]].to_numpy())
+            for material, group in self.df.groupby("material")
+        }
+        self.distinct_condition_counts = {
+            material: len(group[["oxygen_pct", "pressure_kpa", "flow_cm_s"]].drop_duplicates())
+            for material, group in self.df.groupby("material")
+        }
+        keys = ["oxygen_pct", "pressure_kpa", "flow_cm_s", "material"]
+        outcome_counts = self.df.groupby(keys)["outcome"].nunique()
+        self.conflicting_conditions = list(outcome_counts[outcome_counts > 1].index)
 
     def check(
         self,
@@ -141,6 +153,73 @@ class EnvelopeGuard:
                 "warning_message": "Requested conditions are outside the published experimental envelope. No prediction is made.",
                 "nearest_experiments": nearest,
                 "explanation": "Requested conditions are outside the published experimental envelope. No prediction is made."
+            }
+
+        # The four model inputs do not encode sample geometry or ignition history.
+        # When experiments at exactly these inputs disagree, a single outcome is
+        # unsupported even though the query lies inside every numeric range.
+        exact = self.df[
+            (self.df["material"] == material)
+            & np.isclose(self.df["oxygen_pct"], oxygen_pct, rtol=0, atol=1e-6)
+            & np.isclose(self.df["pressure_kpa"], pressure_kpa, rtol=0, atol=1e-6)
+            & np.isclose(self.df["flow_cm_s"], flow_cm_s, rtol=0, atol=1e-6)
+        ]
+        if exact["outcome"].nunique() > 1:
+            observations = ", ".join(
+                f"{row.experiment_id} ({row.outcome})" for row in exact.itertuples()
+            )
+            explanation = (
+                "Conflicting outcomes were observed at identical model inputs: "
+                f"{observations}. Sample geometry or ignition history may explain the "
+                "difference, but these are not model inputs. No single outcome is inferred."
+            )
+            return {
+                "in_training_range": True,
+                "requires_abstention": True,
+                "status": "conflicting_evidence",
+                "out_of_range_reasons": [],
+                "sparse_region_warning": False,
+                "warning_message": explanation,
+                "nearest_experiments": nearest,
+                "explanation": explanation,
+            }
+
+        if not self.joint_domains[material].contains([oxygen_pct, pressure_kpa, flow_cm_s]):
+            explanation = (
+                "The combined oxygen, pressure, and flow conditions lie outside the "
+                f"joint experimental domain for {material}. Each value may be individually "
+                "in range, but this combination was not supported by the curated tests."
+            )
+            return {
+                "in_training_range": False,
+                "status": "joint_extrapolation",
+                "out_of_range_reasons": [{
+                    "feature": "joint_domain",
+                    "value": {"oxygen_pct": oxygen_pct, "pressure_kpa": pressure_kpa, "flow_cm_s": flow_cm_s},
+                    "reason": explanation,
+                }],
+                "sparse_region_warning": False,
+                "warning_message": explanation,
+                "nearest_experiments": nearest,
+                "explanation": explanation,
+            }
+
+        distinct_count = self.distinct_condition_counts[material]
+        if distinct_count < 3:
+            explanation = (
+                f"Only {distinct_count} distinct oxygen/pressure/flow condition"
+                f"{'s' if distinct_count != 1 else ''} were observed for {material}. "
+                "This is insufficient to support a material-specific model inference."
+            )
+            return {
+                "in_training_range": True,
+                "requires_abstention": True,
+                "status": "insufficient_material_evidence",
+                "out_of_range_reasons": [],
+                "sparse_region_warning": True,
+                "warning_message": explanation,
+                "nearest_experiments": nearest,
+                "explanation": explanation,
             }
 
         # 4. Check boundary proximity (within 5% of range edges or near extinction limit)

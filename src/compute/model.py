@@ -1,6 +1,6 @@
 """Model training, evaluation, and serialization entry point for FLARE-X.
 
-Authoritative path: src/compute/model.py (per Challenge Brief §6, §10).
+Authoritative path: src/compute/model.py.
 
 Trains:
 1. Naive Majority-Class Baseline (DummyClassifier)
@@ -9,7 +9,7 @@ Trains:
 4. Gradient Boosting Classifier (Headline Model)
 
 Evaluates using:
-- Honest CV: StratifiedGroupKFold(group=report_id), k = min(5, number of reports) (headline, Challenge Brief S6)
+- Report-grouped CV: StratifiedGroupKFold(group=report_id), up to five folds
 - Secondary, stricter: StratifiedGroupKFold(k=5, group=investigation)
 - Optimistic CV: StratifiedKFold(k=5)
 Outputs:
@@ -207,7 +207,7 @@ def train_and_evaluate_all() -> None:
         ("gradient_boosting", make_gb),
     ]
 
-    # 5-fold splitters: investigation-level (zero campaign leakage) and plain stratified.
+# Grouped splitters: investigation-level and report-level; plus plain stratified CV.
     # A grouped splitter cannot ask for more folds than it has groups, and dropping the 49
     # unsupported rows left only four distinct report_ids, so the report-grouped splitter
     # takes whatever is available up to 5. See Addendum 7.
@@ -228,7 +228,7 @@ def train_and_evaluate_all() -> None:
     print("Evaluating models with zero-leakage campaign-grouped CV and optimistic CV...")
     for model_name, factory in models_to_eval:
         print(f" -> {model_name}...")
-        # 1. Zero-Leakage Campaign-Grouped CV (grouped by investigation)
+        # 1. Investigation-grouped CV
         grouped_metrics = compute_cv_metrics(factory, X, y, groups, group_kfold, classes)
         # 2. Plain Stratified CV (optimistic)
         plain_metrics = compute_cv_metrics(factory, X, y, None, plain_kfold, classes)
@@ -291,7 +291,7 @@ def train_and_evaluate_all() -> None:
     joblib.dump(final_model, artifact_path)
     print(f"\nSaved model artifact to: {artifact_path}")
 
-    # Build model metadata contract per Challenge Brief §6
+    # Build the model metadata consumed by the API and model card.
     model_meta = {
         "type": "gradient_boosting",
         "n_train": len(df),
@@ -359,31 +359,32 @@ def generate_baseline_report(results: dict[str, Any], meta: dict[str, Any]) -> N
 | **`{classes[1]}`** | {cm[1][0]} | {cm[1][1]} | {cm[1][2]} |
 | **`{classes[2]}`** | {cm[2][0]} | {cm[2][1]} | {cm[2][2]} |"""
 
-    content = f"""# Baseline Models & Evaluation Report (Phase 05)
+    content = f"""# Baseline Models & Evaluation Report
 
-> **Document Status:** Authoritative evaluation record. Metrics are honest, reproducible, and evaluated
-> with report-level grouped cross-validation (`group=report_id`, Challenge Brief S6).
+> **Generated report:** Metrics are computed from the checked-in dataset and training code.
+> Report grouping prevents records from one report appearing in both sides of a fold; it does not establish physical predictive skill.
 
 ## 1. Executive Summary
 
 Four model families were trained and evaluated on the verified NASA microgravity combustion dataset
 (`cache/experiments.parquet`, N={meta['n_train']}).
 
-The headline model is a **Gradient Boosting Classifier** evaluated using **5-fold Stratified Group K-Fold cross-validation
-grouped by `report_id`**. This ensures test points from a single NASA report (e.g. BASS-II Summary, Exploration Atmospheres)
-never appear in both train and validation folds simultaneously, eliminating cross-report campaign leakage.
+The headline model is a **Gradient Boosting Classifier** evaluated using report-grouped
+`StratifiedGroupKFold` cross-validation. Rows from a held-out report do not occur in its
+training fold. This split has few unevenly sized groups, so scores are uncertain and must
+be interpreted with the baseline and per-class metrics.
 
-### Headline Performance vs. Baselines
-| Model Family | Zero-Leakage Grouped Acc | Balanced Accuracy | Macro F1 | Optimistic Plain CV Acc |
+### Grouped Performance and Baselines
+| Model Family | Report-Grouped Accuracy | Balanced Accuracy | Macro F1 | Plain Stratified Accuracy |
 |---|---|---|---|---|
-| **Naive Majority Baseline** | {models['majority_baseline']['grouped_cv']['accuracy']:.4f} | {models['majority_baseline']['grouped_cv']['balanced_accuracy']:.4f} | {models['majority_baseline']['grouped_cv']['macro_f1']:.4f} | {models['majority_baseline']['plain_cv']['accuracy']:.4f} |
-| **Logistic Regression** | {models['logistic_regression']['grouped_cv']['accuracy']:.4f} | {models['logistic_regression']['grouped_cv']['balanced_accuracy']:.4f} | {models['logistic_regression']['grouped_cv']['macro_f1']:.4f} | {models['logistic_regression']['plain_cv']['accuracy']:.4f} |
-| **Random Forest** | {models['random_forest']['grouped_cv']['accuracy']:.4f} | {models['random_forest']['grouped_cv']['balanced_accuracy']:.4f} | {models['random_forest']['grouped_cv']['macro_f1']:.4f} | {models['random_forest']['plain_cv']['accuracy']:.4f} |
+| **Naive Majority Baseline** | {models['majority_baseline']['report_grouped_cv']['accuracy']:.4f} | {models['majority_baseline']['report_grouped_cv']['balanced_accuracy']:.4f} | {models['majority_baseline']['report_grouped_cv']['macro_f1']:.4f} | {models['majority_baseline']['plain_cv']['accuracy']:.4f} |
+| **Logistic Regression** | {models['logistic_regression']['report_grouped_cv']['accuracy']:.4f} | {models['logistic_regression']['report_grouped_cv']['balanced_accuracy']:.4f} | {models['logistic_regression']['report_grouped_cv']['macro_f1']:.4f} | {models['logistic_regression']['plain_cv']['accuracy']:.4f} |
+| **Random Forest** | {models['random_forest']['report_grouped_cv']['accuracy']:.4f} | {models['random_forest']['report_grouped_cv']['balanced_accuracy']:.4f} | {models['random_forest']['report_grouped_cv']['macro_f1']:.4f} | {models['random_forest']['plain_cv']['accuracy']:.4f} |
 | **Gradient Boosting (Headline)** | **{meta['cv_accuracy']:.4f}** | **{meta['cv_balanced_accuracy']:.4f}** | **{meta['cv_macro_f1']:.4f}** | **{meta['optimistic_cv_accuracy']:.4f}** |
 
 ---
 
-## 2. Confusion Matrix (Zero-Leakage Grouped CV)
+## 2. Confusion Matrix (Report-Grouped CV)
 
 {cm_table}
 
@@ -396,16 +397,13 @@ never appear in both train and validation folds simultaneously, eliminating cros
 
 ## 3. Scientific Discussion of Results
 
-1. **Comparison with Naive Baseline:** The majority class (`spread`) represents 51.7% of the data. The Gradient Boosting
-   classifier achieves **{meta['cv_accuracy'] * 100:.1f}% grouped accuracy** and **{meta['cv_balanced_accuracy'] * 100:.1f}% balanced accuracy**
-   (single-seed; see `loro` in models/metrics.json for the seed-averaged leave-one-report-out figure),
-   demonstrating substantial predictive lift over random chance and majority guessing.
-2. **Report Isolation:** Plain stratified CV achieves {meta['optimistic_cv_accuracy']:.4f}, whereas grouped CV
-   by report achieves {meta['cv_accuracy']:.4f}. Isolating each source report prevents chamber
-   and sensor bias leakage across flight programs.
-3. **Marginal Spread Detection:** The `marginal_spread` regime is the rarest class ({meta['per_class_recall']['marginal_spread'] * 100:.1f}% recall).
-   The model reliably separates full steady flame spread from complete non-spread extinction, with marginal points forming
-   the physical transition boundary.
+1. The majority-class baseline is **{meta['majority_baseline_accuracy'] * 100:.1f}%**. Gradient boosting reaches
+   **{meta['cv_accuracy'] * 100:.1f}% grouped accuracy**, **{meta['cv_balanced_accuracy'] * 100:.1f}% balanced accuracy**,
+   and `{meta['per_class_recall']['no_spread'] * 100:.1f}%` recall for `no_spread`.
+2. The classifier does not beat the majority baseline on accuracy, and its balanced accuracy is below 0.5.
+   Public inference must remain withheld until an evaluated model meets the readiness gate.
+3. `marginal_spread` recall is {meta['per_class_recall']['marginal_spread'] * 100:.1f}%. The current model does not
+   reliably distinguish the three outcome classes and must not be presented as a safety predictor.
 """
     (REPORTS_DIR / "BASELINE_RESULTS.md").write_text(content, encoding="utf-8")
     print("Wrote baseline report to reports/BASELINE_RESULTS.md")
@@ -417,7 +415,7 @@ def generate_model_card(meta: dict[str, Any]) -> None:
 ## Model Details
 - **Model Name:** FLARE-X Flame Spread Gradient Boosting Classifier
 - **Model Version:** 1.0.0
-- **Model Type:** Scikit-Learn `GradientBoostingClassifier` with `StandardScaler` and `OneHotEncoder` (Zero-Leakage Pipeline)
+- **Model Type:** Scikit-Learn `GradientBoostingClassifier` with `StandardScaler` and `OneHotEncoder`
 - **Trained Date:** {meta['trained_at']}
 - **Dataset SHA-256:** `{meta['dataset_sha256']}`
 - **Training Samples (N):** {meta['n_train']}
@@ -425,12 +423,12 @@ def generate_model_card(meta: dict[str, Any]) -> None:
 - **Target Classes (3):** `no_spread`, `marginal_spread`, `spread`
 
 ## Intended Use
-- **Primary Use:** Decision support and physical regime estimation for microgravity solid combustible materials.
-- **Intended Users:** Spacecraft fire-safety engineers, mission analysts, combustion researchers.
-- **Out-of-Scope Use:** Never use for flight certification or safety-critical decisions without human verification and NASA-STD-6001 testing.
+- **Primary Use:** Research and software evaluation only. Public model estimates are withheld while the model fails the baseline gate.
+- **Intended Users:** Combustion researchers and software maintainers inspecting the evidence pipeline.
+- **Out-of-Scope Use:** Flight certification, operational spacecraft fire-safety decisions, or emergency response.
 
 ## Performance & Evaluation
-- **Evaluation Scheme:** 5-fold Stratified Group K-Fold (`group=report_id`); investigation-level reported separately
+- **Evaluation Scheme:** {meta['cv_scheme']}; investigation-level evaluation is reported separately
 - **Honest Grouped Accuracy:** {meta['cv_accuracy'] * 100:.1f}%
 - **Balanced Accuracy:** {meta['cv_balanced_accuracy'] * 100:.1f}%
 - **Macro F1 Score:** {meta['cv_macro_f1']:.4f}
@@ -442,7 +440,7 @@ def generate_model_card(meta: dict[str, Any]) -> None:
 - `flow_cm_s`: {meta['training_range']['flow_cm_s']['min']:.1f} to {meta['training_range']['flow_cm_s']['max']:.1f} cm/s
 - `material`: {", ".join(meta['training_range']['allowed_materials'])}
 
-Requests outside these boundaries trigger a strict refusal state per the FLARE-X safety contract.
+The envelope guard also checks joint empirical coverage and abstains for unsupported or sparse material evidence.
 """
     (DOCS_DIR / "MODEL_CARDS.md").write_text(content, encoding="utf-8")
     print("Wrote model card to docs/MODEL_CARDS.md")

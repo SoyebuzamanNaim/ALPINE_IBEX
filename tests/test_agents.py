@@ -47,6 +47,63 @@ def test_scenario_interpreter_ambiguity(interpreter):
     assert any("pressure" in a.lower() for a in res["ambiguities"])
 
 
+@pytest.mark.parametrize(
+    "query, field",
+    [
+        ("PMMA and Nomex at 21% O2, 101.3 kPa, 5 cm/s", "material"),
+        ("PMMA at 21% O2 or 34% O2, 101.3 kPa, 5 cm/s", "oxygen"),
+        ("PMMA at 21% O2, 101.3 kPa or 56.5 kPa, 5 cm/s", "pressure"),
+        ("PMMA at 21% O2, sea level or 56.5 kPa, 5 cm/s", "pressure"),
+        ("PMMA at 21% O2, 101.3 kPa, 5 cm/s or 10 cm/s", "flow"),
+        ("PMMA at 21% O2, 101.3 kPa, quiescent or 5 cm/s", "flow"),
+    ],
+)
+def test_scenario_interpreter_rejects_conflicting_values(interpreter, query, field):
+    result = interpreter.parse(query)
+    assert result["is_valid"] is False
+    assert result["parsed_scenario"] is None
+    assert any(field in item.lower() for item in result["ambiguities"])
+
+
+def test_scenario_interpreter_accepts_repeated_equivalent_values(interpreter):
+    result = interpreter.parse("Acrylic PMMA at 21% O2 and 21% oxygen, sea level 101.3 kPa, 5 cm/s")
+    assert result["is_valid"] is True
+    assert result["parsed_scenario"]["material"] == "PMMA"
+
+
+def test_scenario_interpreter_recognizes_current_composite_material(interpreter):
+    result = interpreter.parse("Cotton-Fiberglass at 21% O2, 101.3 kPa, 5 cm/s")
+    assert result["is_valid"] is True
+    assert result["parsed_scenario"]["material"] == "Cotton-Fiberglass"
+
+
+@pytest.mark.parametrize(
+    "query, field",
+    [
+        ("PMMA at -5% O2, 101.3 kPa, 5 cm/s", "oxygen"),
+        ("PMMA at 1e2% O2, 101.3 kPa, 5 cm/s", "oxygen"),
+        ("PMMA at 21-25% O2, 101.3 kPa, 5 cm/s", "oxygen"),
+        ("PMMA at 21% O2, -5 kPa, 5 cm/s", "pressure"),
+        ("PMMA at 21% O2, 70-100 kPa, 5 cm/s", "pressure"),
+        ("PMMA at 21% O2, 101.3 kPa, -5 cm/s", "flow"),
+        ("PMMA at 21% O2, 101.3 kPa, 5 to 10 cm/s", "flow"),
+        ("PMMA at 21% O2 or +34% O2, 101.3 kPa, 5 cm/s", "oxygen"),
+        ("PMMA at 21% O2, 101.3 kPa, 5 cm/s or +10 cm/s", "flow"),
+    ],
+)
+def test_scenario_interpreter_rejects_malformed_or_ranged_numbers(interpreter, query, field):
+    result = interpreter.parse(query)
+    assert result["is_valid"] is False
+    assert result["parsed_scenario"] is None
+    assert any(field in item.lower() for item in result["ambiguities"])
+
+
+def test_scenario_interpreter_ignores_labeled_non_oxygen_percentage(interpreter):
+    result = interpreter.parse("PMMA at 21% O2, 30% relative humidity, 101.3 kPa, 5 cm/s")
+    assert result["is_valid"] is True
+    assert result["parsed_scenario"]["oxygen_pct"] == 21.0
+
+
 def test_evidence_retriever():
     agent = EvidenceRetrieverAgent()
     res = agent.retrieve(21.0, 101.3, 5.0, "PMMA", k=3)
@@ -103,6 +160,34 @@ def test_auditor_numerical_rejection(auditor):
     res_invalid = auditor.audit_explanation(invalid_text, pred_obj)
     assert res_invalid["is_valid"] is False
     assert any("99.4" in n or "42" in n for n in res_invalid["hallucinated_numbers"])
+
+
+def test_final_payload_audit_checks_explanation_numbers(auditor):
+    result = auditor.audit_prediction_payload({
+        "inputs": {"oxygen_pct": 21.0, "pressure_kpa": 101.3, "flow_cm_s": 5.0, "material": "PMMA"},
+        "in_training_range": True,
+        "prediction": "spread",
+        "probabilities": {"spread": 1.0},
+        "nearest_experiments": [{"experiment_id": "BASS2_A", "report_id": "20210011385"}],
+        "explanation": "The flame temperature is 1250 C.",
+    })
+    assert result["passed"] is False
+    assert any("explanation" in error.lower() for error in result["errors"])
+
+
+def test_orchestrator_withholds_prediction_when_final_audit_fails(orchestrator, monkeypatch):
+    monkeypatch.setattr(orchestrator.auditor, "audit_prediction_payload", lambda payload: {
+        "passed": False, "errors": ["Injected final audit failure"]
+    })
+    result = orchestrator.run({
+        "oxygen_pct": 19.0, "pressure_kpa": 101.3,
+        "flow_cm_s": 5.0, "material": "PMMA",
+    })
+    assert result["status"] == "audit_failed"
+    assert result["prediction"] is None
+    assert result["probabilities"] is None
+    assert result["audit_passed"] is False
+    assert result["audit_errors"] == ["Injected final audit failure"]
 
 
 def test_auditor_unauthorized_citation_rejection(auditor):

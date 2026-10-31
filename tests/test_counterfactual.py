@@ -38,6 +38,70 @@ def test_evaluate_scenario_out_of_range(engine):
     assert len(res["nearest_experiments"]) == 3  # Evidence preserved per brief
 
 
+def test_evaluate_scenario_abstains_on_conflicting_exact_evidence(engine):
+    res = engine.evaluate_scenario(
+        oxygen_pct=18.0,
+        pressure_kpa=101.3,
+        flow_cm_s=3.0,
+        material="PMMA",
+    )
+    assert res["in_training_range"] is True
+    assert res["status"] == "conflicting_evidence"
+    assert res["prediction"] is None
+    assert res["probabilities"] is None
+    assert res["confidence"] is None
+
+
+def test_evaluate_scenario_abstains_for_sparse_material(engine):
+    res = engine.evaluate_scenario(
+        oxygen_pct=26.2,
+        pressure_kpa=70.7,
+        flow_cm_s=20.0,
+        material="Cotton",
+    )
+    assert res["status"] == "insufficient_material_evidence"
+    assert res["in_training_range"] is True
+    assert res["prediction"] is None
+    assert res["probabilities"] is None
+    assert res["sparse_region_warning"] is True
+
+
+def test_sweep_preserves_conflict_abstention(engine):
+    sweep = engine.run_sweep(
+        baseline={"oxygen_pct": 18.0, "pressure_kpa": 101.3, "flow_cm_s": 3.0, "material": "PMMA"},
+        param="oxygen_pct",
+        start=18.0,
+        end=19.0,
+        steps=3,
+    )
+    point = sweep["points"][0]
+    assert point["status"] == "conflicting_evidence"
+    assert point["in_training_range"] is True
+    assert point["prediction"] is None
+    assert point["probabilities"] is None
+
+
+def test_counterfactual_does_not_call_abstention_a_regime_change(engine):
+    result = engine.compute_perturbation(
+        {"oxygen_pct": 18.0, "pressure_kpa": 101.3, "flow_cm_s": 3.0, "material": "PMMA"},
+        {"oxygen_pct": 18.5},
+    )
+    assert result["baseline"]["status"] == "conflicting_evidence"
+    assert result["baseline"]["prediction"] is None
+    assert result["prediction_delta"]["changed"] is None
+
+
+def test_sweep_has_no_safety_margin_when_baseline_conflicts(engine):
+    sweep = engine.run_sweep(
+        baseline={"oxygen_pct": 18.0, "pressure_kpa": 101.3, "flow_cm_s": 3.0, "material": "PMMA"},
+        param="oxygen_pct",
+        start=20.0,
+        end=16.0,
+        steps=50,
+    )
+    assert sweep["safety_margin"] is None
+
+
 def test_compute_perturbation_oxygen_drop(engine):
     baseline = {
         "oxygen_pct": 19.0,
@@ -99,6 +163,22 @@ def test_run_sweep_oxygen_boundary(engine):
     assert "boundary_midpoint" in margin
     assert margin["baseline_value"] == 21.0
     assert margin["delta_to_boundary"] > 0  # 21% is above the extinction limit
+
+
+def test_sweep_transition_side_is_independent_of_scan_direction(engine):
+    baseline = {
+        "oxygen_pct": 21.0, "pressure_kpa": 101.3,
+        "flow_cm_s": 5.0, "material": "PMMA",
+    }
+    descending = engine.run_sweep(baseline, "oxygen_pct", 21.0, 16.0, steps=11)
+    ascending = engine.run_sweep(baseline, "oxygen_pct", 16.0, 21.0, steps=11)
+    first = descending["safety_margin"]
+    second = ascending["safety_margin"]
+    assert first["boundary_midpoint"] == second["boundary_midpoint"]
+    assert first["delta_to_boundary"] == second["delta_to_boundary"]
+    assert first["is_no_spread_side"] is False
+    assert second["is_no_spread_side"] is False
+    assert "is_safe_side" not in first
 
 
 def test_sweep_invalid_parameter(engine):

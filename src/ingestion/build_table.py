@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from pydantic import ValidationError
 
 from src.schema.models import ExperimentRecord
 
@@ -36,6 +37,17 @@ PROCESSED = ROOT / "data" / "processed"
 CACHE = ROOT / "cache"
 REPORTS = ROOT / "reports"
 METADATA = ROOT / "data" / "metadata"
+INGESTION_AUDIT_PATH = INTERIM / "ingestion_audit.json"
+QUARANTINE_PATH = INTERIM / "quarantine.json"
+
+
+class IngestionValidationError(RuntimeError):
+    """Raised when source rows fail schema validation and the dataset is withheld."""
+
+
+def _records_sha256(records: list[dict[str, Any]]) -> str:
+    payload = json.dumps(records, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def get_pdftotext(pdf_path: Path, first_page: int, last_page: int) -> str:
@@ -251,28 +263,62 @@ def build_full_dataset() -> list[dict[str, Any]]:
     raw_records.extend(load_saffire_rows())
     raw_records.extend(load_verified_report_rows())
 
-    validated_records = []
-    quarantined = []
+    validated_records: list[dict[str, Any]] = []
+    quarantined: list[dict[str, Any]] = []
 
     for r in raw_records:
         try:
             # Validate through Pydantic
             valid_obj = ExperimentRecord(**r)
             validated_records.append(valid_obj.model_dump())
-        except Exception as exc:
+        except ValidationError as exc:
             quarantined.append({"record": r, "error": str(exc)})
 
-    print(f"Total extracted: {len(raw_records)}")
-    print(f"Validated: {len(validated_records)}")
-    print(f"Quarantined: {len(quarantined)}")
+    INTERIM.mkdir(parents=True, exist_ok=True)
+    audit = {
+        "source_record_count": len(raw_records),
+        "validated_record_count": len(validated_records),
+        "validated_records_sha256": _records_sha256(validated_records),
+        "quarantined_record_count": len(quarantined),
+        "quarantined_records": [
+            {
+                "experiment_id": item["record"].get("experiment_id"),
+                "report_id": item["record"].get("report_id"),
+                "error": item["error"],
+            }
+            for item in quarantined
+        ],
+    }
+    INGESTION_AUDIT_PATH.write_text(json.dumps(audit, indent=2) + "\n", encoding="utf-8")
     if quarantined:
-        for q in quarantined:
-            print("  ERR:", q["error"][:100])
+        QUARANTINE_PATH.write_text(json.dumps(quarantined, indent=2, default=str) + "\n", encoding="utf-8")
+        rejected_ids = [item["record"].get("experiment_id") or "<missing id>" for item in quarantined]
+        raise IngestionValidationError(
+            f"Ingestion rejected {len(quarantined)} of {len(raw_records)} source records "
+            f"({', '.join(rejected_ids)}). See {QUARANTINE_PATH}; "
+            "canonical dataset files were not written."
+        )
+
+    QUARANTINE_PATH.unlink(missing_ok=True)
+    print(
+        f"Ingestion validation passed: {audit['validated_record_count']}/"
+        f"{audit['source_record_count']} records; 0 quarantined."
+    )
 
     return validated_records
 
 
 def save_and_report(records: list[dict[str, Any]]) -> None:
+    if not records:
+        raise ValueError("Refusing to overwrite the canonical dataset with an empty record set.")
+    if not INGESTION_AUDIT_PATH.is_file():
+        raise RuntimeError("Ingestion audit is missing; call build_full_dataset() before saving.")
+    audit = json.loads(INGESTION_AUDIT_PATH.read_text(encoding="utf-8"))
+    if audit.get("quarantined_record_count") != 0 or audit.get("validated_record_count") != len(records):
+        raise RuntimeError("Ingestion audit does not confirm that all records were validated.")
+    if audit.get("validated_records_sha256") != _records_sha256(records):
+        raise RuntimeError("Records differ from the latest successful ingestion validation audit.")
+
     INTERIM.mkdir(parents=True, exist_ok=True)
     PROCESSED.mkdir(parents=True, exist_ok=True)
     CACHE.mkdir(parents=True, exist_ok=True)
@@ -298,7 +344,7 @@ def save_and_report(records: list[dict[str, Any]]) -> None:
     parquet_path = PROCESSED / "experiments.parquet"
     df.to_parquet(parquet_path, index=False)
 
-    # Save to authoritative cache path per Challenge Brief §5.2 / §10
+    # Save the canonical table used by the runtime API and model pipeline.
     cache_parquet_path = CACHE / "experiments.parquet"
     df.to_parquet(cache_parquet_path, index=False)
     print(f"Saved authoritative dataset to {cache_parquet_path} ({len(df)} rows)")
@@ -330,28 +376,42 @@ def save_and_report(records: list[dict[str, Any]]) -> None:
     # Compute checksum
     parquet_sha256 = hashlib.sha256(cache_parquet_path.read_bytes()).hexdigest()
 
-    # Generate Data Quality Report
+    write_data_quality_report(df, audit, parquet_sha256)
+
+
+def write_data_quality_report(df: pd.DataFrame, audit: dict[str, Any], parquet_sha256: str) -> None:
+    """Write the quality report from the exact validation audit and dataset frame."""
     missing_summary = df.isnull().sum()
     class_counts = df["outcome"].value_counts().to_dict()
-    mat_counts = df["material"].value_counts().to_dict()
+    mat_counts = df["material"].value_counts().sort_index().to_dict()
     report_counts = df["report_id"].value_counts().to_dict()
-    geom_counts = df["sample_geometry"].value_counts().to_dict()
+    geom_counts = df["sample_geometry"].value_counts().sort_index().to_dict()
+    material_rows = "\n".join(
+        f"| `{name}` | {count} | {count / len(df) * 100:.1f}% |" for name, count in mat_counts.items()
+    )
+    geometry_rows = "\n".join(
+        f"| `{name}` | {count} | {count / len(df) * 100:.1f}% |" for name, count in geom_counts.items()
+    )
 
-    dq_report = f"""# Data Quality & Ingestion Report (Phase 04)
+    dq_report = f"""# Data quality and ingestion report
 
 > **File:** `cache/experiments.parquet` & `data/processed/experiments.parquet`
 > **SHA-256:** `{parquet_sha256}`
 > **Total Records:** {len(df)}
-> **Status:** PASS (100% Schema Validated)
+> **Source Rows:** {audit['source_record_count']}
+> **Schema Validated:** {audit['validated_record_count']}
+> **Quarantined:** {audit['quarantined_record_count']}
+> **Status:** PASS (all source rows validated)
 
 ## 1. Executive Summary
 
-The ingestion pipeline extracted, normalized, and validated **{len(df)} discrete experimental test conditions**
-from peer-reviewed NASA technical reports and flight experiment summaries. Every row represents an actual physical
-test conducted in microgravity (aboard the International Space Station, sounding rockets, or drop towers).
+The ingestion pipeline extracted, normalized, and validated **{len(df)} curated experimental test conditions**
+from NASA technical reports and flight experiment summaries. The table contains the source records selected for
+the microgravity research dataset; it does not claim that all NASA tests or report observations are represented.
 
-No numbers or measurements were synthetically imputed or fabricated. Every row traces directly to a published
-NASA document accession and resolvable URL.
+The canonical dataset is written only when every selected source record passes the `ExperimentRecord` schema.
+Rejected rows and validation errors are saved to `data/interim/quarantine.json`, and any rejection aborts the
+build before canonical dataset files are overwritten.
 
 ---
 
@@ -367,19 +427,12 @@ NASA document accession and resolvable URL.
 ### Combustible Materials
 | Material | Count | Percentage |
 |---|---|---|
-| `PMMA` | {mat_counts.get('PMMA', 0)} | {mat_counts.get('PMMA', 0) / len(df) * 100:.1f}% |
-| `Cotton` | {mat_counts.get('Cotton', 0)} | {mat_counts.get('Cotton', 0) / len(df) * 100:.1f}% |
-| `Cellulose` | {mat_counts.get('Cellulose', 0)} | {mat_counts.get('Cellulose', 0) / len(df) * 100:.1f}% |
-| `Delrin` | {mat_counts.get('Delrin', 0)} | {mat_counts.get('Delrin', 0) / len(df) * 100:.1f}% |
-| `Nomex` | {mat_counts.get('Nomex', 0)} | {mat_counts.get('Nomex', 0) / len(df) * 100:.1f}% |
+{material_rows}
 
 ### Sample Geometry
 | Geometry | Count | Percentage |
 |---|---|---|
-| `sheet` | {geom_counts.get('sheet', 0)} | {geom_counts.get('sheet', 0) / len(df) * 100:.1f}% |
-| `rod` | {geom_counts.get('rod', 0)} | {geom_counts.get('rod', 0) / len(df) * 100:.1f}% |
-| `slab` | {geom_counts.get('slab', 0)} | {geom_counts.get('slab', 0) / len(df) * 100:.1f}% |
-| `sphere` | {geom_counts.get('sphere', 0)} | {geom_counts.get('sphere', 0) / len(df) * 100:.1f}% |
+{geometry_rows}
 
 ### Source Document Attribution (`report_id` Grouping for CV)
 | NASA Report ID | Rows | Citation Link |
@@ -403,10 +456,10 @@ NASA document accession and resolvable URL.
 
 ## 4. Verification & Integrity Checks
 
-1. **Mandatory 4-D Inputs:** All {len(df)} records contain non-null values for `oxygen_pct`, `pressure_kpa`, `flow_cm_s`, and `material`.
+1. **Mandatory Inputs:** All {len(df)} records contain non-null values for `oxygen_pct`, `pressure_kpa`, `flow_cm_s`, and `material`.
 2. **Duplicate Detection:** Zero duplicate `experiment_id` entries detected.
-3. **Physical Plausibility:** All O2 values are within 10–40% vol; all pressures are within 40–120 kPa; all velocities are >= 0.0 cm/s.
-4. **Provenance Integrity:** 100% of rows contain valid HTTPS URLs pointing to real NTRS records.
+3. **Schema Bounds:** Every selected record passed the explicit field constraints in `ExperimentRecord`.
+4. **Provenance Fields:** Every row contains a report ID and source URL field. Schema validation checks URL format, not remote availability.
 """
     (REPORTS / "DATA_QUALITY.md").write_text(dq_report, encoding="utf-8")
     print("Wrote data quality report to reports/DATA_QUALITY.md")

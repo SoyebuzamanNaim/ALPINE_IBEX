@@ -1,7 +1,9 @@
 """Automated test suite for FLARE-X FastAPI Backend (Phase 10)."""
 import pytest
+import numpy as np
 from fastapi.testclient import TestClient
-from src.api.main import app
+from src.api.main import app, _mask_conflicting_grid_points, _mask_joint_domain_grid_points
+from src.api.schemas import CounterfactualRequest
 
 
 @pytest.fixture
@@ -13,10 +15,26 @@ def test_get_health(client):
     res = client.get("/health")
     assert res.status_code == 200
     data = res.json()
-    assert data["status"] == "healthy"
+    assert data["status"] == "degraded"
+    assert data["model_ready"] is False
     assert data["dataset_rows"] == 200
     assert data["model_type"] == "gradient_boosting"
     assert "PMMA" in data["allowed_materials"]
+
+
+def test_api_rejects_oversized_bodies_and_long_free_text(client):
+    oversized = b'{"query":"' + (b"x" * 66_000) + b'"}'
+    too_large = client.post("/scenario/parse", content=oversized, headers={"content-type": "application/json"})
+    assert too_large.status_code == 413
+
+    too_long_query = client.post("/scenario/parse", json={"query": "x" * 2001})
+    assert too_long_query.status_code == 422
+
+    too_long_material = client.post("/predict", json={
+        "oxygen_pct": 19.0, "pressure_kpa": 101.3, "flow_cm_s": 5.0,
+        "material": "x" * 65,
+    })
+    assert too_long_material.status_code == 422
 
 
 def test_post_predict_in_domain(client):
@@ -34,8 +52,9 @@ def test_post_predict_in_domain(client):
     assert data["inputs"] == payload
     assert data["in_training_range"] is True
     assert data["out_of_range_reasons"] == []
-    assert data["prediction"] in ["spread", "marginal_spread", "no_spread"]
-    assert set(data["probabilities"].keys()) == {"no_spread", "marginal_spread", "spread"}
+    assert data["status"] == "model_unvalidated"
+    assert data["prediction"] is None
+    assert data["probabilities"] is None
     assert data["model"]["type"] == "gradient_boosting"
     assert data["model"]["n_train"] == 200
     # Records what the honest data gives, and is not a target. Removing the 49
@@ -78,6 +97,85 @@ def test_post_predict_out_of_range_refusal(client):
     assert "Requested conditions are outside" in data["explanation"]
 
 
+def test_predict_abstains_when_identical_inputs_have_conflicting_outcomes(client):
+    response = client.post("/predict", json={
+        "oxygen_pct": 18.0,
+        "pressure_kpa": 101.3,
+        "flow_cm_s": 3.0,
+        "material": "PMMA",
+    })
+    assert response.status_code == 200
+    result = response.json()
+    assert result["in_training_range"] is True
+    assert result["status"] == "conflicting_evidence"
+    assert result["prediction"] is None
+    assert result["probabilities"] is None
+    assert {"BASS2_O3a_3", "BASS2_O3b_3"} <= {
+        item["experiment_id"] for item in result["nearest_experiments"]
+    }
+
+
+def test_predict_abstains_for_single_condition_material(client):
+    response = client.post("/predict", json={
+        "oxygen_pct": 26.2,
+        "pressure_kpa": 70.7,
+        "flow_cm_s": 20.0,
+        "material": "Cotton",
+    })
+    assert response.status_code == 200
+    result = response.json()
+    assert result["in_training_range"] is True
+    assert result["status"] == "insufficient_material_evidence"
+    assert result["prediction"] is None
+    assert result["probabilities"] is None
+    assert result["sparse_region_warning"] is True
+
+
+def test_predict_withholds_result_if_final_audit_fails(client, monkeypatch):
+    import src.api.main as api_main
+
+    monkeypatch.setattr(api_main, "_model_readiness", lambda: (True, "Test-ready model"))
+    monkeypatch.setattr(api_main.orchestrator.auditor, "audit_prediction_payload", lambda payload: {
+        "passed": False, "errors": ["Injected audit failure"]
+    })
+    response = client.post("/predict", json={
+        "oxygen_pct": 19.0, "pressure_kpa": 101.3,
+        "flow_cm_s": 5.0, "material": "PMMA",
+    })
+    assert response.status_code == 200
+    result = response.json()
+    assert result["status"] == "audit_failed"
+    assert result["prediction"] is None
+    assert result["probabilities"] is None
+
+
+def test_boundary_mask_excludes_conflicting_grid_cells():
+    mask = _mask_conflicting_grid_points(
+        np.array([18.0, 19.0]), np.array([3.0, 3.0]),
+        material="PMMA", pressure_kpa=101.3,
+        valid_mask=np.array([True, True]),
+    )
+    assert mask.tolist() == [False, True]
+
+
+def test_boundary_mask_excludes_jointly_unsupported_cells():
+    mask = _mask_joint_domain_grid_points(
+        np.array([22.0]), np.array([20.0]),
+        material="Cellulose", pressure_kpa=70.0,
+        valid_mask=np.array([True]),
+    )
+    assert mask.tolist() == [False]
+
+
+def test_boundary_mask_excludes_single_condition_material():
+    mask = _mask_joint_domain_grid_points(
+        np.array([26.2]), np.array([20.0]),
+        material="Cotton", pressure_kpa=70.7,
+        valid_mask=np.array([True]),
+    )
+    assert mask.tolist() == [False]
+
+
 def test_get_experiments(client):
     res = client.get("/experiments?limit=10")
     assert res.status_code == 200
@@ -105,13 +203,8 @@ def test_get_model(client):
 
 def test_get_boundary(client):
     res = client.get("/boundary?material=PMMA&pressure_kpa=101.3&o2_steps=12&flow_steps=12")
-    assert res.status_code == 200
-    data = res.json()
-    assert data["material"] == "PMMA"
-    assert len(data["oxygen_grid"]) == 12
-    assert len(data["flow_grid"]) == 12
-    assert len(data["grid_predictions"]) == 12
-    assert len(data["real_experiments"]) > 0
+    assert res.status_code == 503
+    assert "majority baseline" in res.json()["detail"]
 
 
 def test_post_counterfactual(client):
@@ -125,11 +218,43 @@ def test_post_counterfactual(client):
         "changes": {"oxygen_pct": 16.5},
     }
     res = client.post("/counterfactual", json=payload)
-    assert res.status_code == 200
-    data = res.json()
-    assert data["prediction_delta"]["changed"] is True
-    assert "probability_deltas" in data
-    assert "scientific_disclaimer" in data
+    assert res.status_code == 503
+    assert "majority baseline" in res.json()["detail"]
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {},
+        {"unknown": 17.0},
+        {"oxygen_pct": -1.0},
+        {"pressure_kpa": "not a number"},
+        {"flow_cm_s": None},
+        {"material": None},
+        {"oxygen_pct": True},
+        {"oxygen_pct": "1e309"},
+    ],
+)
+def test_counterfactual_rejects_invalid_changes_before_model_gate(client, changes):
+    response = client.post("/counterfactual", json={
+        "baseline": {
+            "oxygen_pct": 21.0, "pressure_kpa": 101.3,
+            "flow_cm_s": 5.0, "material": "PMMA",
+        },
+        "changes": changes,
+    })
+    assert response.status_code == 422
+
+
+def test_counterfactual_normalizes_valid_numeric_changes():
+    request = CounterfactualRequest.model_validate({
+        "baseline": {
+            "oxygen_pct": 21.0, "pressure_kpa": 101.3,
+            "flow_cm_s": 5.0, "material": "PMMA",
+        },
+        "changes": {"oxygen_pct": "19.5"},
+    })
+    assert request.changes == {"oxygen_pct": 19.5}
 
 
 def test_post_sweep(client):
@@ -146,12 +271,8 @@ def test_post_sweep(client):
         "steps": 11,
     }
     res = client.post("/sweep", json=payload)
-    assert res.status_code == 200
-    data = res.json()
-    assert data["parameter"] == "oxygen_pct"
-    assert len(data["points"]) == 11
-    assert data["total_transitions"] >= 1
-    assert data["safety_margin"] is not None
+    assert res.status_code == 503
+    assert "majority baseline" in res.json()["detail"]
 
 
 def test_post_scenario_parse(client):
@@ -162,6 +283,17 @@ def test_post_scenario_parse(client):
     assert data["is_valid"] is True
     assert data["parsed_scenario"]["material"] == "PMMA"
     assert data["parsed_scenario"]["oxygen_pct"] == 18.5
+
+
+def test_scenario_parse_reports_conflicting_values(client):
+    response = client.post("/scenario/parse", json={
+        "query": "PMMA at 21% O2 or 34% O2, 101.3 kPa, 5 cm/s",
+    })
+    assert response.status_code == 200
+    result = response.json()
+    assert result["is_valid"] is False
+    assert result["parsed_scenario"] is None
+    assert any("oxygen" in item.lower() for item in result["ambiguities"])
 
 
 def test_get_datasets(client):

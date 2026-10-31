@@ -1,7 +1,7 @@
 /**
  * FLARE-X Aerospace Mission Control Frontend Application
  * Interacts with FastAPI backend or operates in resilient client-side fallback mode.
- * Grounded in 145 NASA spaceflight experiments (BASS, BASS-II, DARTFire, Exploration).
+ * Presents curated NASA microgravity observations and gated model inference.
  */
 
 // API Base URL (auto-detect if served by FastAPI, else fallback to localhost:8000)
@@ -10,6 +10,22 @@ const API_BASE = (window.location.protocol.startsWith('http') && !window.locatio
       ? 'http://localhost:8000'
       : '')
   : 'http://localhost:8000';
+
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char]);
+}
+
+function safeHttpUrl(value, fallback = '#') {
+  if (!String(value ?? '').trim()) return fallback;
+  try {
+    const url = new URL(String(value ?? ''), window.location.origin);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
 
 // ============================================================================
 // Published NASA flammability boundary - NTRS 20210011385, BASS-II Summary
@@ -29,6 +45,8 @@ const NASA_BOUNDARY = {
   CITATION: 'NTRS 20210011385 Eq (6.1)',
   URL: 'https://ntrs.nasa.gov/citations/20210011385',
   VALID_O2: [13.6, 22.2],
+  VALID_FLOW: [0, 55],             // BASS-II rod tests described in the report abstract
+  NOMINAL_PRESSURE_KPA: 101.3,   // ISS glovebox conditions; no pressure-dependent fit
   // radii of the three cast-PMMA rods flown in BASS-II, in cm
   RADII: { '1/4 inch': 0.3175, '3/8 inch': 0.47625, '1/2 inch': 0.635 },
 
@@ -71,24 +89,20 @@ const state = {
   boundaryData: null,
   activeTab: 'view-scenario-lab',
   sweepRunning: false,
-  experiments: []
-};
-
-// Material sample counts & ranges
-const MATERIAL_SPECS = {
-  'PMMA': { samples: 92, o2: [15.5, 34.0], flow: [0.0, 35.0], p: [56.5, 101.3] },
-  'Cellulose': { samples: 22, o2: [15.5, 34.0], flow: [0.3, 30.0], p: [56.5, 101.3] },
-  'Cotton': { samples: 19, o2: [16.2, 20.8], flow: [0.4, 45.0], p: [101.3, 101.3] },
-  'Nomex': { samples: 7, o2: [20.8, 34.0], flow: [5.0, 20.0], p: [56.5, 101.3] },
-  'Delrin': { samples: 5, o2: [15.0, 21.0], flow: [5.0, 10.0], p: [101.3, 101.3] }
+  experiments: [],
+  materialCounts: {},
+  sweepInterval: null
 };
 
 const FUEL_PROPERTIES = {
   'PMMA': { desc: 'Thermally thick / non-charring acrylic', prop: 'Density: 1.18 g/cm³ · C₅H₈O₂' },
   'Cellulose': { desc: 'Thermally thin ashless filter paper', prop: 'Density: 1.50 g/cm³ · C₆H₁₀O₅' },
   'Cotton': { desc: 'Thin woven porous fabric specimen', prop: 'Density: 1.54 g/cm³ · Natural' },
-  'Nomex': { desc: 'Flame-resistant aramid synthetic polymer', prop: 'Density: 1.38 g/cm³ · Aramid' },
-  'Delrin': { desc: 'Polyoxymethylene engineering plastic', prop: 'Density: 1.41 g/cm³ · POM' }
+  'Nomex': { desc: 'Flame-resistant aramid synthetic polymer', prop: 'Aramid' },
+  'Cotton-Fiberglass': { desc: 'Composite fabric specimen', prop: 'Cotton and fiberglass' },
+  'Mylar': { desc: 'Polyester film specimen', prop: 'Polyester' },
+  'Silicone': { desc: 'Silicone specimen', prop: 'Elastomer' },
+  'Ultem': { desc: 'Polyetherimide specimen', prop: 'Polyetherimide' }
 };
 
 // Smooth Tabular Number Ticker (Emil Kowalski Spec)
@@ -152,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
   triggerScenarioEvaluation();
   fetchBoundarySlice();
   loadDatasetsAndModel();
+  loadModelStatus();
   startReticleLoop();
   updateCoordHud();
 });
@@ -207,6 +222,7 @@ function setupSliders() {
     document.getElementById('readout-o2').textContent = `${state.oxygen_pct.toFixed(1)} %`;
     updateCoordHud();
     debounceEvaluation();
+    scheduleSweepRefresh();
   });
 
   pSlider.addEventListener('input', (e) => {
@@ -215,6 +231,7 @@ function setupSliders() {
     updateCoordHud();
     debounceEvaluation();
     debounceBoundarySlice();
+    scheduleSweepRefresh();
   });
 
   flowSlider.addEventListener('input', (e) => {
@@ -222,25 +239,15 @@ function setupSliders() {
     document.getElementById('readout-flow').textContent = `${state.flow_cm_s.toFixed(1)} cm/s`;
     updateCoordHud();
     debounceEvaluation();
+    scheduleSweepRefresh();
   });
 
   matSelect.addEventListener('change', (e) => {
     state.material = e.target.value;
-    const spec = MATERIAL_SPECS[state.material];
-    if (spec) {
-      document.getElementById('mat-samples-badge').textContent = `${spec.samples} tests`;
-    }
-    const fuelProp = FUEL_PROPERTIES[state.material] || { desc: 'Solid fuel', prop: 'Microgravity' };
-    const specInfo = document.getElementById('fuel-spec-info');
-    if (specInfo) {
-      specInfo.innerHTML = `<span>${fuelProp.desc}</span><span class="spec-prop">${fuelProp.prop}</span>`;
-    }
-    const ribbonFuel = document.getElementById('ribbon-active-fuel');
-    if (ribbonFuel) {
-      ribbonFuel.textContent = `${state.material} (${fuelProp.desc.split('/')[0].trim()})`;
-    }
+    updateMaterialInfo();
     triggerScenarioEvaluation();
     fetchBoundarySlice();
+    scheduleSweepRefresh();
   });
 
   extrapToggle.addEventListener('change', (e) => {
@@ -260,7 +267,26 @@ function setupSliders() {
     }
     updateCoordHud();
     triggerScenarioEvaluation();
+    scheduleSweepRefresh();
   });
+}
+
+function updateMaterialInfo() {
+  const count = state.materialCounts[state.material];
+  const sampleBadge = document.getElementById('mat-samples-badge');
+  if (sampleBadge) sampleBadge.textContent = count == null ? 'Evidence count unavailable' : `${count} observations`;
+  const fuelProp = FUEL_PROPERTIES[state.material] || { desc: 'Solid fuel', prop: 'Microgravity' };
+  const specInfo = document.getElementById('fuel-spec-info');
+  if (specInfo) {
+    const description = document.createElement('span');
+    const property = document.createElement('span');
+    description.textContent = fuelProp.desc;
+    property.className = 'spec-prop';
+    property.textContent = fuelProp.prop;
+    specInfo.replaceChildren(description, property);
+  }
+  const ribbonFuel = document.getElementById('ribbon-active-fuel');
+  if (ribbonFuel) ribbonFuel.textContent = `${state.material} (${fuelProp.desc.split('/')[0].trim()})`;
 }
 
 // Preset Buttons
@@ -306,8 +332,10 @@ function updateInputs(o2, p, flow, mat) {
   document.getElementById('readout-flow').textContent = `${flow.toFixed(1)} cm/s`;
 
   updateCoordHud();
+  updateMaterialInfo();
   triggerScenarioEvaluation();
   fetchBoundarySlice();
+  scheduleSweepRefresh();
 }
 
 function updateCoordHud() {
@@ -364,6 +392,7 @@ function setupCanvasInteraction() {
 
     updateCoordHud();
     debounceEvaluation();
+    scheduleSweepRefresh();
   }
 
   canvas.addEventListener('pointerdown', (e) => {
@@ -382,23 +411,39 @@ function setupCanvasInteraction() {
 let evalTimeout = null;
 function debounceEvaluation() {
   clearTimeout(evalTimeout);
+  setNearestEvidenceStatus('Loading observations for the selected conditions…');
   evalTimeout = setTimeout(triggerScenarioEvaluation, 100);
 }
 
 let boundaryTimeout = null;
 function debounceBoundarySlice() {
   clearTimeout(boundaryTimeout);
+  state.boundaryData = null;
+  drawOfflineCanvas('Loading boundary for selected conditions…');
   boundaryTimeout = setTimeout(fetchBoundarySlice, 200);
 }
 
 // Trigger Scenario Prediction API
+let evaluationGeneration = 0;
+function setNearestEvidenceStatus(message) {
+  const list = document.getElementById('nearest-cards-list');
+  if (list) list.textContent = message;
+}
+
 async function triggerScenarioEvaluation() {
+  const generation = ++evaluationGeneration;
   const payload = {
     oxygen_pct: state.oxygen_pct,
     pressure_kpa: state.pressure_kpa,
     flow_cm_s: state.flow_cm_s,
     material: state.material
   };
+  setNearestEvidenceStatus('Loading observations for the selected conditions…');
+  const isCurrent = () => generation === evaluationGeneration &&
+    payload.oxygen_pct === state.oxygen_pct &&
+    payload.pressure_kpa === state.pressure_kpa &&
+    payload.flow_cm_s === state.flow_cm_s &&
+    payload.material === state.material;
 
   try {
     const res = await fetch(`${API_BASE}/predict`, {
@@ -408,8 +453,10 @@ async function triggerScenarioEvaluation() {
     });
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const data = await res.json();
+    if (!isCurrent()) return;
     renderPredictionResults(data);
   } catch (err) {
+    if (!isCurrent()) return;
     console.warn('API unreachable; falling back to the published NASA boundary:', err);
     // No simulated model output. We show NASA's own published boundary instead,
     // which is deterministic and needs no backend.
@@ -445,7 +492,6 @@ function renderPredictionResults(data) {
   const flow = state.flow_cm_s;
   const da = flow > 0.1 ? (Math.pow(o2 / 21.0, 2) * (15.0 / flow)).toFixed(1) : '> 50.0';
   const pe = (flow * 0.5 / 0.22).toFixed(1);
-  const margin = (o2 - 17.5).toFixed(1);
 
   const daEl = document.getElementById('telemetry-damkohler');
   const peEl = document.getElementById('telemetry-peclet');
@@ -457,13 +503,67 @@ function renderPredictionResults(data) {
   if (daEl) daEl.textContent = `Da ~ ${da} — illustrative scaling only, not a model output`;
   if (peEl) peEl.textContent = `Pe ~ ${pe} — illustrative scaling only, not a model output`;
   if (mgEl) {
-    if (parseFloat(margin) >= 0) {
-      mgEl.textContent = `+${margin}% vs nominal 17.5% LOC reference (literature value, not model-derived)`;
-      mgEl.className = 'phys-val highlight-green';
-    } else {
-      mgEl.textContent = `${margin}% vs nominal 17.5% LOC reference (literature value, not model-derived)`;
-      mgEl.className = 'phys-val';
+    mgEl.textContent = 'Not established for this material and geometry';
+    mgEl.className = 'phys-val';
+  }
+
+  if (data.status === 'conflicting_evidence' || data.status === 'insufficient_material_evidence' || data.status === 'audit_failed') {
+    const conflict = data.status === 'conflicting_evidence';
+    const sparse = data.status === 'insufficient_material_evidence';
+    const reason = data.explanation || (conflict
+      ? 'Experiments at identical model inputs have conflicting outcomes.'
+      : sparse
+        ? 'Too few distinct conditions are recorded for this material.'
+        : 'The final evidence audit failed; no model result is released.');
+    if (stateTierPill) stateTierPill.className = 'state-tier-pill tier-abstention';
+    if (stateTierLabel) stateTierLabel.textContent = conflict ? 'CONFLICTING EVIDENCE'
+      : sparse ? 'INSUFFICIENT MATERIAL EVIDENCE' : 'EVIDENCE AUDIT FAILED';
+    if (stateTierExplainer) stateTierExplainer.textContent = conflict
+      ? 'The four model inputs do not resolve these observations'
+      : sparse ? 'Too few distinct observations for a material-specific estimate'
+        : 'Final evidence verification did not pass';
+    if (alertBanner) alertBanner.classList.remove('hidden');
+    if (alertTitle) alertTitle.textContent = conflict ? 'EXPERIMENTAL OUTCOMES DISAGREE'
+      : sparse ? 'MATERIAL EVIDENCE IS TOO SPARSE' : 'FINAL EVIDENCE AUDIT FAILED';
+    if (alertMsg) alertMsg.textContent = reason;
+    if (badge) {
+      badge.className = 'regime-status-badge regime-refusal';
+      badge.textContent = conflict ? 'CONFLICTING EVIDENCE · NO INFERENCE'
+        : sparse ? 'INSUFFICIENT EVIDENCE · NO INFERENCE' : 'AUDIT FAILED · NO INFERENCE';
     }
+    if (confPill) confPill.textContent = 'NO PROBABILITY AVAILABLE';
+    [pNoSpread, pMarginal, pSpread].forEach(el => { if (el) el.textContent = 'N/A'; });
+    [bNoSpread, bMarginal, bSpread].forEach(el => { if (el) el.style.width = '0%'; });
+    if (briefing) briefing.textContent = conflict
+      ? 'Observed outcomes differ at these recorded conditions. Inspect both source experiments; no single outcome is supported.'
+      : sparse ? 'Too few distinct material conditions have been recorded to support a model estimate. Inspect the available source observations.'
+        : 'The model result failed its final evidence audit and has been withheld. Inspect the available source observations.';
+    if (expText) expText.textContent = reason;
+    renderNearestExperiments(data.nearest_experiments || []);
+    drawBoundaryCanvas();
+    return;
+  }
+
+  if (data.status === 'model_unvalidated') {
+    const validationReason = data.explanation || data.warning_message || 'Model validation is unavailable.';
+    if (stateTierPill) stateTierPill.className = 'state-tier-pill tier-abstention';
+    if (stateTierLabel) stateTierLabel.textContent = 'MODEL INFERENCE WITHHELD';
+    if (stateTierExplainer) stateTierExplainer.textContent = validationReason;
+    if (alertBanner) alertBanner.classList.remove('hidden');
+    if (alertTitle) alertTitle.textContent = 'MODEL VALIDATION GATE';
+    if (alertMsg) alertMsg.textContent = validationReason;
+    if (badge) {
+      badge.className = 'regime-status-badge regime-refusal';
+      badge.textContent = 'MODEL INFERENCE WITHHELD';
+    }
+    if (confPill) confPill.textContent = 'NO PROBABILITY AVAILABLE';
+    [pNoSpread, pMarginal, pSpread].forEach(el => { if (el) el.textContent = 'N/A'; });
+    [bNoSpread, bMarginal, bSpread].forEach(el => { if (el) el.style.width = '0%'; });
+    if (briefing) briefing.textContent = `Model inference is withheld: ${validationReason} Available NASA observations can be inspected below.`;
+    if (expText) expText.textContent = validationReason;
+    renderNearestExperiments(data.nearest_experiments || []);
+    drawBoundaryCanvas();
+    return;
   }
 
   if (!data.in_training_range) {
@@ -471,7 +571,7 @@ function renderPredictionResults(data) {
     if (stateTierPill) {
       stateTierPill.className = 'state-tier-pill tier-abstention';
       if (stateTierLabel) stateTierLabel.textContent = 'INSUFFICIENT EVIDENCE (ABSTENTION)';
-      if (stateTierExplainer) stateTierExplainer.textContent = 'Out-of-Domain Safety Rejection · Zero NASA Flight Data in Regime';
+      if (stateTierExplainer) stateTierExplainer.textContent = 'Requested conditions exceed the documented model envelope';
     }
 
     if (alertBanner) alertBanner.classList.remove('hidden');
@@ -493,7 +593,7 @@ function renderPredictionResults(data) {
     if (bSpread) bSpread.style.width = '0%';
 
     if (briefing) {
-      briefing.textContent = `FLIGHT SAFETY NOTICE: Spacecraft operations cannot be certified in this regime. No published microgravity flight tests support ${state.material} at ${state.oxygen_pct}% O₂ / ${state.flow_cm_s} cm/s. Relying on model extrapolation in unverified atmospheres violates NASA flight safety rules.`;
+      briefing.textContent = `MODEL REFUSAL: The requested combination is outside the supported research envelope. Nearby observations remain available for inspection; no operational conclusion is made.`;
     }
     if (expText) {
       expText.textContent = data.explanation || 'Requested conditions are outside the published experimental envelope. No prediction is made.';
@@ -502,26 +602,31 @@ function renderPredictionResults(data) {
     // In-Domain: Check if it's Tier 1 (Verified Observation) or Tier 2 (Model Estimate)
     if (alertBanner) alertBanner.classList.add('hidden');
 
-    const exactMatch = (data.nearest_experiments || []).find(e => e.distance !== undefined && e.distance < 0.05);
+    const exactMatch = (data.nearest_experiments || []).find(e =>
+      e.material === state.material &&
+      Math.abs(e.oxygen_pct - state.oxygen_pct) < 0.001 &&
+      Math.abs(e.pressure_kpa - state.pressure_kpa) < 0.001 &&
+      Math.abs(e.flow_cm_s - state.flow_cm_s) < 0.001
+    );
 
     if (exactMatch) {
-      // TIER 1: VERIFIED OBSERVATION
+      // A matching observation supports inspection, but does not turn the model result into a measurement.
       if (stateTierPill) {
-        stateTierPill.className = 'state-tier-pill tier-verified';
-        if (stateTierLabel) stateTierLabel.textContent = 'VERIFIED OBSERVATION';
-        if (stateTierExplainer) stateTierExplainer.textContent = `Directly matches NASA flight test ${exactMatch.experiment_id} (${exactMatch.outcome})`;
+        stateTierPill.className = 'state-tier-pill tier-estimate';
+        if (stateTierLabel) stateTierLabel.textContent = 'MODEL ESTIMATE';
+        if (stateTierExplainer) stateTierExplainer.textContent = `Matching observation: ${exactMatch.experiment_id} (${exactMatch.outcome})`;
       }
     } else {
       // TIER 2: MODEL ESTIMATE
       if (stateTierPill) {
         stateTierPill.className = 'state-tier-pill tier-estimate';
         if (stateTierLabel) stateTierLabel.textContent = 'MODEL ESTIMATE';
-        if (stateTierExplainer) stateTierExplainer.textContent = 'Supervised GBDT · Honest Grouped CV 83.45% · Bounded Flight Envelope';
+        if (stateTierExplainer) stateTierExplainer.textContent = `Supervised model · Grouped CV ${(data.model.cv_accuracy * 100).toFixed(1)}% · research estimate`;
       }
     }
 
     const pred = data.prediction;
-    const probs = data.probabilities || { no_spread: 0.01, marginal_spread: 0.02, spread: 0.97 };
+    const probs = data.probabilities;
 
     if (badge) {
       badge.className = `regime-status-badge regime-${pred ? pred.replace('_', '-') : 'spread'}`;
@@ -545,11 +650,11 @@ function renderPredictionResults(data) {
 
     if (briefing) {
       if (pred === 'spread') {
-        briefing.textContent = `HIGH FLAMMABILITY RISK: Forced cabin ventilation of ${state.flow_cm_s} cm/s delivers convective oxidizer that outpaces radiative and conductive heat losses, sustaining steady flame spread across ${state.material}. Quenching requires reducing ventilation to quiescent or dropping oxygen below 17.5%.`;
+        briefing.textContent = `MODEL ESTIMATE: Flame spread is predicted for this scenario. Inspect the cited observations and experimental limitations before using this result.`;
       } else if (pred === 'marginal_spread') {
-        briefing.textContent = `CRITICAL TRANSITION REGIME: Operating near the microgravity flammability limit. Combustion will exhibit unsteady propagation, periodic flame oscillations, or slow self-extinction. Small airflow disturbances may reignite or extinguish flame.`;
+        briefing.textContent = 'MODEL ESTIMATE: Marginal spread is predicted for this scenario. The precise behavior is uncertain; inspect the cited observations and limitations.';
       } else {
-        briefing.textContent = `SAFE / EXTINCTION REGIME: Oxygen flux is starved below the limiting oxygen index (LOI). In microgravity without buoyant replenishment, conductive and radiative cooling extinguishes the reaction zone.`;
+        briefing.textContent = `MODEL ESTIMATE: No sustained spread is predicted for this scenario. This result does not establish operational safety or flight certification.`;
       }
     }
 
@@ -571,6 +676,7 @@ function renderPredictionResults(data) {
 // Shows an oxygen margin against NASA's own fitted limit. No probabilities are
 // shown, because a deterministic boundary does not produce any.
 function renderPublishedBoundary(payload) {
+  setNearestEvidenceStatus('Nearest observations require the backend service.');
   const o2 = payload.oxygen_pct, U = payload.flow_cm_s, mat = payload.material;
   const el = (id) => document.getElementById(id);
   const banner = el('envelope-alert-banner'), aTitle = el('alert-title'), aMsg = el('alert-message');
@@ -604,21 +710,45 @@ function renderPublishedBoundary(payload) {
     return;
   }
 
+  // Equation 6.1 was fitted to cast-PMMA rod tests in the ISS glovebox at
+  // nominal cabin pressure and 0–55 cm/s flow; it has no pressure term.
+  if (Math.abs(payload.pressure_kpa - NASA_BOUNDARY.NOMINAL_PRESSURE_KPA) > 0.05 ||
+      payload.flow_cm_s < NASA_BOUNDARY.VALID_FLOW[0] ||
+      payload.flow_cm_s > NASA_BOUNDARY.VALID_FLOW[1] ||
+      !Number.isFinite(payload.pressure_kpa) || !Number.isFinite(payload.flow_cm_s)) {
+    if (banner) banner.classList.remove('hidden');
+    if (aTitle) aTitle.textContent = 'OUTSIDE DOCUMENTED BOUNDARY CONDITIONS';
+    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} describes cast-PMMA rod tests at nominal ${NASA_BOUNDARY.NOMINAL_PRESSURE_KPA} kPa and ${NASA_BOUNDARY.VALID_FLOW[0]}–${NASA_BOUNDARY.VALID_FLOW[1]} cm/s flow. No margin is reported for this pressure or flow.`;
+    if (badge) { badge.className = 'regime-status-badge regime-refusal'; badge.textContent = 'OUTSIDE PUBLISHED PRESSURE OR FLOW'; }
+    if (pill) pill.textContent = 'NOT APPLICABLE';
+    if (briefing) briefing.textContent = 'The published boundary has no validated pressure adjustment for these conditions, so the tool cannot report a boundary margin.';
+    if (expText) expText.textContent = '';
+    return;
+  }
+
   const r = state.rod_radius_cm || NASA_BOUNDARY.R_O;
   const res = NASA_BOUNDARY.evaluate(o2, U, r);
   if (!res) return;
+
+  if (!res.inFitRange) {
+    if (banner) banner.classList.remove('hidden');
+    if (aTitle) aTitle.textContent = 'OUTSIDE THE RANGE THE BOUNDARY WAS FITTED OVER';
+    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} was fitted over ${NASA_BOUNDARY.VALID_O2[0]} to ${NASA_BOUNDARY.VALID_O2[1]} % O2. At ${o2.toFixed(1)} %, no boundary margin is reported.`;
+    if (badge) { badge.className = 'regime-status-badge regime-refusal'; badge.textContent = 'OUTSIDE PUBLISHED OXYGEN RANGE'; }
+    if (pill) pill.textContent = 'NOT APPLICABLE';
+    if (briefing) briefing.textContent = `The published cast-PMMA boundary covers ${NASA_BOUNDARY.VALID_O2[0]} to ${NASA_BOUNDARY.VALID_O2[1]} % O2. This scenario is outside that range, so the tool cannot report a boundary margin.`;
+    if (expText) expText.textContent = '';
+    return;
+  }
 
   const m = res.margin, sign = m >= 0 ? '+' : '';
   const near = Math.abs(m) < 1.0;        // within 1 % O2 of the limit
 
   if (banner) {
-    if (res.inFitRange && !near) banner.classList.add('hidden');
+    if (!near) banner.classList.add('hidden');
     else banner.classList.remove('hidden');
   }
-  if (!res.inFitRange && aTitle) {
-    aTitle.textContent = 'OUTSIDE THE RANGE THE BOUNDARY WAS FITTED OVER';
-    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} was fitted over ${NASA_BOUNDARY.VALID_O2[0]} to ${NASA_BOUNDARY.VALID_O2[1]} % O2. At ${o2.toFixed(1)} % this is an extrapolation of the published curve.`;
-  } else if (near && aTitle) {
+  if (near && aTitle) {
     aTitle.textContent = 'WITHIN 1 % O2 OF THE PUBLISHED LIMIT';
     if (aMsg) aMsg.textContent = 'This condition sits close to the flammability boundary, where NASA\'s own data shows outcomes depend on ignition history. Treat it as undetermined rather than safe.';
   }
@@ -638,7 +768,7 @@ function renderPublishedBoundary(payload) {
         : `At ${o2.toFixed(1)} % O2 and ${U} cm/s, the condition is ${Math.abs(m).toFixed(2)} points BELOW NASA's published limit of ${res.limitO2.toFixed(2)} %, so an established flame would be expected to extinguish. This says nothing about whether an ignition source could start one.`);
   }
   if (expText) {
-    expText.innerHTML = `Stretch rate a = ${res.stretch.toFixed(1)} s<sup>-1</sup> for a ${(r * 2 * 10).toFixed(2)} mm diameter rod, placing this in the <strong>${res.regime}</strong> regime (separator U/U<sub>D</sub> = 1, U<sub>D</sub> = ${NASA_BOUNDARY.U_D} cm/s). The limit comes from <a href="${res.url}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">${res.citation} ↗</a>, fitted by NASA to cast-PMMA rods. It describes extinction of an <em>established</em> flame and does not predict ignition.`;
+    expText.innerHTML = `Stretch rate a = ${res.stretch.toFixed(1)} s<sup>-1</sup> for a ${(r * 2 * 10).toFixed(2)} mm diameter rod, placing this in the <strong>${escapeHTML(res.regime)}</strong> regime (separator U/U<sub>D</sub> = 1, U<sub>D</sub> = ${NASA_BOUNDARY.U_D} cm/s). The limit comes from <a href="${escapeHTML(safeHttpUrl(res.url, NASA_BOUNDARY.URL))}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">${escapeHTML(res.citation)} ↗</a>, fitted by NASA to cast-PMMA rods. It describes extinction of an <em>established</em> flame and does not predict ignition.`;
   }
 }
 
@@ -717,55 +847,70 @@ function renderNearestExperiments(experiments) {
 
     const dist = exp.distance !== undefined ? `d = ${exp.distance.toFixed(3)}` : 'Exact match';
     const outcomeClass = exp.outcome === 'spread' ? 'badge-spread' : (exp.outcome === 'marginal_spread' ? 'badge-marginal' : 'badge-no-spread');
-    const reportUrl = exp.source_url || `https://ntrs.nasa.gov/citations/${exp.report_id}`;
+    const reportUrl = safeHttpUrl(exp.source_url || `https://ntrs.nasa.gov/citations/${encodeURIComponent(exp.report_id || '')}`, 'https://ntrs.nasa.gov/');
     const eid = exp.experiment_id || 'EXP_OBS';
 
     item.innerHTML = `
       <div class="obs-top-line">
-        <span class="obs-id">${eid} · ${exp.material}</span>
-        <span class="obs-distance">${dist}</span>
+        <span class="obs-id">${escapeHTML(eid)} · ${escapeHTML(exp.material)}</span>
+        <span class="obs-distance">${escapeHTML(dist)}</span>
       </div>
       <div class="obs-conditions">
-        ${exp.oxygen_pct}% O₂ · ${exp.pressure_kpa} kPa · ${exp.flow_cm_s} cm/s
+        ${escapeHTML(exp.oxygen_pct)}% O₂ · ${escapeHTML(exp.pressure_kpa)} kPa · ${escapeHTML(exp.flow_cm_s)} cm/s
       </div>
       <div class="obs-bottom-line">
-        <span class="badge-outcome ${outcomeClass}">${exp.outcome || 'observed'}</span>
+        <span class="badge-outcome ${outcomeClass}">${escapeHTML(exp.outcome || 'observed')}</span>
         <div class="obs-actions" style="display: flex; gap: 8px; align-items: center;">
-          <button type="button" class="btn-trace-cite" onclick="inspectProvenance('${eid}')" title="Inspect full provenance and NTRS citation">
+          <button type="button" class="btn-trace-cite" title="Inspect full provenance and NTRS citation">
             Trace Citation ↗
           </button>
           <a href="${reportUrl}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">
-            NTRS ${exp.report_id || 'Report'}
+            NTRS ${escapeHTML(exp.report_id || 'Report')}
           </a>
         </div>
       </div>
     `;
+    item.querySelector('.btn-trace-cite').addEventListener('click', () => window.inspectProvenance(eid));
     container.appendChild(item);
   });
 }
 
 
 // Fetch 2-D Boundary Slice
+let boundaryGeneration = 0;
 async function fetchBoundarySlice() {
+  const generation = ++boundaryGeneration;
+  const material = state.material;
+  const pressure = state.pressure_kpa;
+  const isCurrent = () => generation === boundaryGeneration &&
+    material === state.material && pressure === state.pressure_kpa;
   const caption = document.getElementById('canvas-slice-caption');
   if (caption) {
-    caption.textContent = `Fixed slice at Pressure = ${state.pressure_kpa.toFixed(1)} kPa, Material = ${state.material}`;
+    caption.textContent = `Fixed slice at Pressure = ${pressure.toFixed(1)} kPa, Material = ${material}`;
   }
+  state.boundaryData = null;
+  drawOfflineCanvas('Loading boundary for selected conditions…');
 
   try {
-    const url = `${API_BASE}/boundary?material=${state.material}&pressure_kpa=${state.pressure_kpa}&o2_steps=28&flow_steps=28`;
+    const url = `${API_BASE}/boundary?material=${encodeURIComponent(material)}&pressure_kpa=${pressure}&o2_steps=28&flow_steps=28`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-    state.boundaryData = await res.json();
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.detail || `HTTP error ${res.status}`);
+    }
+    const data = await res.json();
+    if (!isCurrent()) return;
+    state.boundaryData = data;
     drawBoundaryCanvas();
   } catch (err) {
+    if (!isCurrent()) return;
     console.warn('Boundary slice fetch failed:', err);
     state.boundaryData = null;
-    drawOfflineCanvas();
+    drawOfflineCanvas(err.message);
   }
 }
 
-function drawOfflineCanvas() {
+function drawOfflineCanvas(message = 'Decision boundary unavailable. Check the backend connection.') {
   const canvas = document.getElementById('flammability-boundary-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -775,8 +920,7 @@ function drawOfflineCanvas() {
   ctx.fillStyle = '#64748b';
   ctx.font = '13px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('Live decision boundary slice requires active backend connection.', canvas.width / 2, canvas.height / 2 - 10);
-  ctx.fillText('Launch FastAPI server (localhost:8000) to render empirical boundaries.', canvas.width / 2, canvas.height / 2 + 15);
+  ctx.fillText(message, canvas.width / 2, canvas.height / 2);
 }
 
 // Draw 2-D Flammability Map on HTML5 Canvas
@@ -853,24 +997,6 @@ function drawBoundaryCanvas() {
     ctx.lineTo(padLeft + plotW, y);
   }
   ctx.stroke();
-
-  // Limiting Oxygen Concentration (LOC) vertical dashed guide
-  if (17.5 >= o2Min && 17.5 <= o2Max) {
-    const locX = toX(17.5);
-    ctx.strokeStyle = 'rgba(217, 119, 6, 0.75)';
-    ctx.lineWidth = 1.2;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(locX, padTop);
-    ctx.lineTo(locX, padTop + plotH);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    ctx.fillStyle = '#b45309';
-    ctx.font = '10px "JetBrains Mono", monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('nominal LOC 17.5% (reference)', locX + 6, padTop + 14);
-  }
 
   // Outer Plot Border
   ctx.strokeStyle = '#cbd5e1';
@@ -1029,42 +1155,86 @@ function setupNlpParser() {
 }
 
 // Killer Demo Sweep View (Brief §2) - Completely Dynamic
+let sweepGeneration = 0;
+let sweepRefreshTimeout = null;
+function scheduleSweepRefresh() {
+  ++sweepGeneration;
+  clearTimeout(sweepRefreshTimeout);
+  setSweepUnavailable('Loading sweep for selected conditions…');
+  sweepRefreshTimeout = setTimeout(fetchSweepData, 150);
+}
+
+function setSweepUnavailable(message) {
+  if (state.sweepInterval != null) {
+    clearInterval(state.sweepInterval);
+    state.sweepInterval = null;
+  }
+  state.sweepRunning = false;
+  state.sweepData = null;
+  state.dynamicLocBoundary = null;
+  state.sweepEvidenceBefore = null;
+  state.sweepEvidenceAfter = null;
+  state.sweepError = message;
+  const slider = document.getElementById('sweep-oxygen-slider');
+  const autoBtn = document.getElementById('btn-run-auto-sweep');
+  if (slider) slider.disabled = true;
+  if (autoBtn) autoBtn.disabled = true;
+  if (autoBtn) autoBtn.textContent = '▶ Play Automated Oxygen Sweep';
+  updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
+}
+
 async function fetchSweepData() {
+  const generation = ++sweepGeneration;
+  const scenario = {
+    oxygen_pct: state.oxygen_pct,
+    pressure_kpa: state.pressure_kpa,
+    flow_cm_s: state.flow_cm_s,
+    material: state.material
+  };
+  const isCurrent = () => generation === sweepGeneration &&
+    scenario.oxygen_pct === state.oxygen_pct &&
+    scenario.pressure_kpa === state.pressure_kpa &&
+    scenario.flow_cm_s === state.flow_cm_s &&
+    scenario.material === state.material;
+  setSweepUnavailable('Loading validated sweep data…');
   try {
     const res = await fetch(`${API_BASE}/sweep`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        baseline: {
-          oxygen_pct: state.oxygen_pct,
-          pressure_kpa: state.pressure_kpa,
-          flow_cm_s: state.flow_cm_s,
-          material: state.material
-        },
+        baseline: scenario,
         param: 'oxygen_pct',
         start: 16.0,
         end: 21.0,
         steps: 26
       })
     });
-    if (res.ok) {
-      state.sweepData = await res.json();
-      const trans = state.sweepData.transitions;
-      if (trans && trans.length > 0) {
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.detail || `HTTP error ${res.status}`);
+    }
+    const sweepData = await res.json();
+    if (!isCurrent()) return;
+    const trans = sweepData.transitions;
+    if (!sweepData.points || !trans || trans.length === 0) {
+      setSweepUnavailable('No validated regime transition is available for this sweep.');
+      return;
+    }
+    state.sweepData = sweepData;
+    state.sweepError = null;
+    const slider = document.getElementById('sweep-oxygen-slider');
+    const autoBtn = document.getElementById('btn-run-auto-sweep');
+    if (slider) slider.disabled = false;
+    if (autoBtn) autoBtn.disabled = false;
         const t = trans.find(tr => tr.to_regime === 'spread' || tr.to_regime === 'marginal_spread') || trans[0];
         state.dynamicLocBoundary = t.midpoint;
         state.sweepEvidenceBefore = t.evidence_before;
         state.sweepEvidenceAfter = t.evidence_after;
-      } else if (state.sweepData.safety_margin && state.sweepData.safety_margin.boundary_midpoint) {
-        state.dynamicLocBoundary = state.sweepData.safety_margin.boundary_midpoint;
-      } else {
-        state.dynamicLocBoundary = 17.5;
-      }
-      const slider = document.getElementById('sweep-oxygen-slider');
-      updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
-    }
+    updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
   } catch (err) {
+    if (!isCurrent()) return;
     console.warn('Dynamic sweep fetch error:', err);
+    setSweepUnavailable(err.message);
   }
 }
 
@@ -1078,19 +1248,21 @@ function setupSweepView() {
   });
 
   autoBtn.addEventListener('click', () => {
-    if (state.sweepRunning) return;
+    if (state.sweepRunning || !state.sweepData) return;
     state.sweepRunning = true;
     autoBtn.textContent = '⏳ SWEEPING OXYGEN...';
     let val = 21.0;
-    const interval = setInterval(() => {
-      val -= 0.1;
-      if (val < 16.0) {
-        clearInterval(interval);
+    state.sweepInterval = setInterval(() => {
+      if (!state.sweepRunning) return;
+      val = Math.max(16.0, Math.round((val - 0.1) * 10) / 10);
+      sweepSlider.value = val.toFixed(1);
+      updateSweepPoint(val);
+      if (val <= 16.0) {
+        clearInterval(state.sweepInterval);
+        state.sweepInterval = null;
         state.sweepRunning = false;
         autoBtn.textContent = '▶ Play Automated Oxygen Sweep';
       }
-      sweepSlider.value = val.toFixed(1);
-      updateSweepPoint(val);
     }, 60);
   });
 
@@ -1103,36 +1275,39 @@ function updateSweepPoint(o2Val) {
   const readout = document.getElementById('readout-sweep-o2');
   if (readout) readout.textContent = `${o2Val.toFixed(1)} %`;
 
-  // Dynamically derived from experiment sweep rather than hardcoded!
-  const locBoundary = state.dynamicLocBoundary || 17.5;
+  if (!state.sweepData || state.dynamicLocBoundary == null) {
+    if (marginDisplay) marginDisplay.textContent = 'N/A';
+    if (marginStatus) marginStatus.textContent = state.sweepError || 'Validated sweep unavailable';
+    for (const id of ['tag-above-boundary', 'tag-below-boundary', 'tick-loc-boundary', 'evidence-above-boundary', 'evidence-below-boundary']) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = 'Validated sweep unavailable';
+    }
+    drawSweepCanvas(o2Val);
+    return;
+  }
+
+  const locBoundary = state.dynamicLocBoundary;
   const delta = o2Val - locBoundary;
-  if (marginDisplay) marginDisplay.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)} % O₂`;
+  const sampledPoint = (state.sweepData.points || []).find((point) =>
+    Math.abs(point.oxygen_pct - o2Val) < 0.0005);
+  const hasEstimate = sampledPoint && sampledPoint.prediction != null;
+  if (marginDisplay) marginDisplay.textContent = hasEstimate
+    ? `${delta >= 0 ? '+' : ''}${delta.toFixed(2)} % O₂` : 'N/A';
 
   // Update dynamic boundary tags in UI
   const tagAbove = document.getElementById('tag-above-boundary');
   const tagBelow = document.getElementById('tag-below-boundary');
   const tickLoc = document.getElementById('tick-loc-boundary');
-  if (tagAbove) tagAbove.textContent = `Above Boundary (O₂ > ${locBoundary.toFixed(1)}%)`;
-  if (tagBelow) tagBelow.textContent = `Below Boundary (O₂ ≤ ${locBoundary.toFixed(1)}%)`;
-  if (tickLoc) tickLoc.innerHTML = `<span class="tick-mark">|</span> ${locBoundary.toFixed(1)}% (LOC Boundary)`;
+  if (tagAbove) tagAbove.textContent = `Higher-O₂ side of model transition`;
+  if (tagBelow) tagBelow.textContent = `Lower-O₂ side of model transition`;
+  if (tickLoc) tickLoc.textContent = `${locBoundary.toFixed(1)}% O₂ (model transition)`;
 
   if (marginStatus) {
-    if (delta > 1.0) {
-      marginStatus.className = 'margin-pill safe';
-      marginStatus.textContent = 'Nominal Operating Margin';
-    } else if (delta >= 0.0) {
-      marginStatus.className = 'margin-pill';
-      marginStatus.style.background = 'rgba(217, 119, 6, 0.15)';
-      marginStatus.style.border = '1px solid #d97706';
-      marginStatus.style.color = '#b45309';
-      marginStatus.textContent = 'Critical Near-Boundary Margin';
-    } else {
-      marginStatus.className = 'margin-pill';
-      marginStatus.style.background = 'rgba(56, 189, 248, 0.15)';
-      marginStatus.style.border = '1px solid #0284c7';
-      marginStatus.style.color = '#0369a1';
-      marginStatus.textContent = 'Extinction / Quenched';
-    }
+    marginStatus.className = 'margin-pill';
+    marginStatus.removeAttribute('style');
+    marginStatus.textContent = hasEstimate
+      ? `Model estimate: ${sampledPoint.prediction.replaceAll('_', ' ')}`
+      : 'No model estimate at this point';
   }
 
   // Update real historical evidence boxes from dynamic sweep results
@@ -1141,17 +1316,17 @@ function updateSweepPoint(o2Val) {
   if (evAbove) {
     const exp = (state.sweepEvidenceAfter && state.sweepEvidenceAfter[0]);
     if (exp) {
-      evAbove.innerHTML = `<strong>Real NASA ${exp.investigation || 'Flight'} Test:</strong> ${exp.oxygen_pct}% O₂, ${exp.pressure_kpa} kPa, ${exp.flow_cm_s} cm/s → <em>${exp.outcome}</em> (<a href="${exp.source_url || '#'}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${exp.report_id} ↗</a>, ${state.material})`;
+      evAbove.innerHTML = `<strong>Real NASA ${escapeHTML(exp.investigation || 'Flight')} Test:</strong> ${escapeHTML(exp.oxygen_pct)}% O₂, ${escapeHTML(exp.pressure_kpa)} kPa, ${escapeHTML(exp.flow_cm_s)} cm/s → <em>${escapeHTML(exp.outcome)}</em> (<a href="${escapeHTML(safeHttpUrl(exp.source_url, '#'))}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${escapeHTML(exp.report_id)} ↗</a>, ${escapeHTML(state.material)})`;
     } else {
-      evAbove.innerHTML = `<span class="evidence-unavailable">No flight test on the spread side of this boundary is available for ${state.material} at the current pressure and flow. Adjust the slice to a region with coverage.</span>`;
+      evAbove.textContent = 'No cited experiment is available on this side of the model transition.';
     }
   }
   if (evBelow) {
     const exp = (state.sweepEvidenceBefore && state.sweepEvidenceBefore[0]);
     if (exp) {
-      evBelow.innerHTML = `<strong>Real NASA ${exp.investigation || 'Flight'} Test:</strong> ${exp.oxygen_pct}% O₂, ${exp.pressure_kpa} kPa, ${exp.flow_cm_s} cm/s → <em>${exp.outcome}</em> (<a href="${exp.source_url || '#'}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${exp.report_id} ↗</a>, ${state.material})`;
+      evBelow.innerHTML = `<strong>Real NASA ${escapeHTML(exp.investigation || 'Flight')} Test:</strong> ${escapeHTML(exp.oxygen_pct)}% O₂, ${escapeHTML(exp.pressure_kpa)} kPa, ${escapeHTML(exp.flow_cm_s)} cm/s → <em>${escapeHTML(exp.outcome)}</em> (<a href="${escapeHTML(safeHttpUrl(exp.source_url, '#'))}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${escapeHTML(exp.report_id)} ↗</a>, ${escapeHTML(state.material)})`;
     } else {
-      evBelow.innerHTML = `<strong>Real NASA BASS Test:</strong> 16.5% O₂, 101.3 kPa, 4.0 cm/s → <em>no_spread</em> (<a href="https://ntrs.nasa.gov/citations/20140011099" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS 20140011099 ↗</a>, ${state.material})`;
+      evBelow.textContent = 'No cited experiment is available on this side of the model transition.';
     }
   }
 
@@ -1170,6 +1345,14 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
 
+  if (!state.sweepData || state.dynamicLocBoundary == null) {
+    ctx.fillStyle = '#64748b';
+    ctx.font = '13px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(state.sweepError || 'Validated sweep unavailable', w / 2, h / 2);
+    return;
+  }
+
   const padLeft = 70;
   const padBottom = 40;
   const padTop = 30;
@@ -1182,7 +1365,7 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.strokeRect(padLeft, padTop, pW, pH);
 
   // Transition vertical line derived dynamically
-  const locBoundary = state.dynamicLocBoundary || 17.5;
+  const locBoundary = state.dynamicLocBoundary;
   const boundaryX = padLeft + ((locBoundary - 16.0) / (21.0 - 16.0)) * pW;
   ctx.strokeStyle = 'rgba(217, 119, 6, 0.75)';
   ctx.setLineDash([4, 4]);
@@ -1194,56 +1377,33 @@ function drawSweepCanvas(currentO2 = 21.0) {
 
   ctx.fillStyle = '#b45309';
   ctx.font = '10px "JetBrains Mono", monospace';
-  ctx.fillText(`LOC BOUNDARY (${locBoundary.toFixed(1)}%)`, Math.min(boundaryX + 8, padLeft + pW - 140), padTop + 16);
+  ctx.fillText(`MODEL TRANSITION (${locBoundary.toFixed(1)}%)`, Math.min(boundaryX + 8, padLeft + pW - 180), padTop + 16);
 
   // Check if we have real sweep points from the backend
-  const pts = state.sweepData && state.sweepData.points;
+  const pts = state.sweepData.points;
 
-  // Curve: P(Spread)
-  ctx.strokeStyle = '#dc2626';
-  ctx.lineWidth = 2.4;
-  ctx.beginPath();
-  if (pts && pts.length > 0) {
-    pts.forEach((pt, idx) => {
+  // Refused points leave a gap; they must not be plotted as zero probability.
+  const drawProbabilityCurve = (key, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    let drawing = false;
+    pts.forEach((pt) => {
+      const prob = pt.probabilities?.[key];
+      if (typeof prob !== 'number' || !Number.isFinite(prob)) {
+        drawing = false;
+        return;
+      }
       const x = padLeft + ((pt.oxygen_pct - 16.0) / (21.0 - 16.0)) * pW;
-      const prob = pt.probabilities ? (pt.probabilities.spread || 0) : 0;
       const y = padTop + pH - prob * pH;
-      if (idx === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+      if (drawing) ctx.lineTo(x, y);
+      else ctx.moveTo(x, y);
+      drawing = true;
     });
-  } else {
-    for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
-      const x = padLeft + ((o2 - 16.0) / (21.0 - 16.0)) * pW;
-      const prob = 1 / (1 + Math.exp(-2.5 * (o2 - locBoundary)));
-      const y = padTop + pH - prob * pH;
-      if (o2 === 16.0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-  }
-  ctx.stroke();
-
-  // Curve: P(No Spread)
-  ctx.strokeStyle = '#059669';
-  ctx.lineWidth = 2.4;
-  ctx.beginPath();
-  if (pts && pts.length > 0) {
-    pts.forEach((pt, idx) => {
-      const x = padLeft + ((pt.oxygen_pct - 16.0) / (21.0 - 16.0)) * pW;
-      const prob = pt.probabilities ? (pt.probabilities.no_spread || 0) : 0;
-      const y = padTop + pH - prob * pH;
-      if (idx === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-  } else {
-    for (let o2 = 16.0; o2 <= 21.0; o2 += 0.1) {
-      const x = padLeft + ((o2 - 16.0) / (21.0 - 16.0)) * pW;
-      const prob = 1 / (1 + Math.exp(2.5 * (o2 - (locBoundary - 0.5))));
-      const y = padTop + pH - prob * pH;
-      if (o2 === 16.0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-  }
-  ctx.stroke();
+    ctx.stroke();
+  };
+  drawProbabilityCurve('spread', '#dc2626');
+  drawProbabilityCurve('no_spread', '#059669');
 
   // Current slider marker
   const curX = padLeft + ((currentO2 - 16.0) / (21.0 - 16.0)) * pW;
@@ -1321,15 +1481,15 @@ function renderAtlasTable(rows) {
     const citeUrl = r.source_url || `https://ntrs.nasa.gov/citations/${r.report_id}`;
 
     tr.innerHTML = `
-      <td><strong>${r.experiment_id}</strong></td>
-      <td>${r.investigation}</td>
-      <td>${r.material}</td>
-      <td>${r.oxygen_pct}%</td>
-      <td>${r.pressure_kpa} kPa</td>
-      <td>${r.flow_cm_s} cm/s</td>
-      <td><span class="badge-outcome ${badgeClass}">${r.outcome}</span></td>
-      <td>${r.report_id}</td>
-      <td><a href="${citeUrl}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ↗</a></td>
+      <td><strong>${escapeHTML(r.experiment_id)}</strong></td>
+      <td>${escapeHTML(r.investigation)}</td>
+      <td>${escapeHTML(r.material)}</td>
+      <td>${escapeHTML(r.oxygen_pct)}%</td>
+      <td>${escapeHTML(r.pressure_kpa)} kPa</td>
+      <td>${escapeHTML(r.flow_cm_s)} cm/s</td>
+      <td><span class="badge-outcome ${badgeClass}">${escapeHTML(r.outcome)}</span></td>
+      <td>${escapeHTML(r.report_id)}</td>
+      <td><a href="${escapeHTML(safeHttpUrl(citeUrl, 'https://ntrs.nasa.gov/'))}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ↗</a></td>
     `;
 
     // Click row to probe into Flammability Deck
@@ -1344,6 +1504,67 @@ function renderAtlasTable(rows) {
 }
 
 // Transparency & Investigations Loading
+async function loadModelStatus() {
+  const setText = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  };
+
+  try {
+    const [modelResponse, healthResponse] = await Promise.all([
+      fetch(`${API_BASE}/model`),
+      fetch(`${API_BASE}/health`)
+    ]);
+    if (!modelResponse.ok || !healthResponse.ok) throw new Error('Model metadata unavailable');
+    const [meta, health] = await Promise.all([modelResponse.json(), healthResponse.json()]);
+    const percent = value => `${(value * 100).toFixed(1)}%`;
+
+    state.materialCounts = Object.fromEntries(
+      Object.entries(meta.training_range?.per_material || {}).map(([material, details]) => [material, details.n_samples])
+    );
+    updateMaterialInfo();
+
+    setText('nav-experiment-count', String(meta.n_train));
+    setText('chip-n-train', `${meta.n_train} observations`);
+    setText('chip-cv-acc', percent(meta.cv_accuracy));
+    setText('chip-base-acc', percent(meta.majority_baseline_accuracy));
+    setText('model-kpi-accuracy', percent(meta.cv_accuracy));
+    setText('model-kpi-baseline', percent(meta.majority_baseline_accuracy));
+    setText('model-kpi-balanced', percent(meta.cv_balanced_accuracy));
+    setText('model-kpi-samples', String(meta.n_train));
+    setText('dataset-sha', meta.dataset_sha256
+      ? `${meta.dataset_sha256.slice(0, 8)}…${meta.dataset_sha256.slice(-8)}`
+      : 'Unavailable');
+    setText('model-kpi-comparison', health.model_readiness_reason || 'Model readiness unavailable');
+    setText('integrity-text', health.model_ready
+      ? 'Grouped baseline gate passed; source citations and experimental limits still apply.'
+      : health.model_readiness_reason || 'Model inference is withheld.');
+    setText('status-text', `${meta.n_train} observations · ${health.model_ready ? 'Research model available' : 'Model inference withheld'}`);
+
+    const body = document.getElementById('model-confusion-body');
+    if (body && Array.isArray(meta.confusion_matrix) && Array.isArray(meta.classes)) {
+      body.replaceChildren();
+      meta.classes.forEach((label, index) => {
+        const counts = meta.confusion_matrix[index] || [];
+        const row = document.createElement('tr');
+        const cells = [
+          `${label} (${counts.reduce((sum, value) => sum + value, 0)})`,
+          ...counts.map(String),
+          percent(meta.per_class_recall?.[label] || 0)
+        ];
+        cells.forEach(value => {
+          const cell = document.createElement('td');
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+        body.appendChild(row);
+      });
+    }
+  } catch (error) {
+    setText('status-text', 'Backend unavailable · published PMMA boundary only');
+  }
+}
+
 async function loadDatasetsAndModel() {
   try {
     const res = await fetch(`${API_BASE}/datasets`);
@@ -1356,11 +1577,11 @@ async function loadDatasetsAndModel() {
           const div = document.createElement('div');
           div.className = 'investigation-card';
           div.innerHTML = `
-            <div class="inv-title">${inv.exact_nasa_title || inv.investigation_key || 'NASA Investigation'}</div>
+            <div class="inv-title">${escapeHTML(inv.exact_nasa_title || inv.investigation_key || 'NASA Investigation')}</div>
             <div class="inv-meta">
-              PSI ID: <strong>${inv.psi_id || 'N/A'}</strong> · Role: <strong>${inv.usable_for_prototype_model === 'YES' ? 'Core Training Set' : 'Reference Catalog'}</strong>
+              PSI ID: <strong>${escapeHTML(inv.psi_id || 'N/A')}</strong> · Role: <strong>${inv.usable_for_prototype_model === 'YES' ? 'Core Training Set' : 'Reference Catalog'}</strong>
             </div>
-            <div class="inv-desc">${inv.experiment_objective || inv.description || 'Microgravity combustion flight experiment.'}</div>
+            <div class="inv-desc">${escapeHTML(inv.experiment_objective || inv.description || 'Microgravity combustion flight experiment.')}</div>
           `;
           container.appendChild(div);
         });
@@ -1491,11 +1712,11 @@ function renderConflictResults(data) {
       const tr = document.createElement('tr');
       const statusClass = dim.status === 'MATCH' ? 'status-match' : (dim.status === 'MODERATE_DIFFERENCE' ? 'status-mod' : 'status-mismatch');
       tr.innerHTML = `
-        <td><strong>${dim.dimension}</strong></td>
-        <td>${dim.study_a}</td>
-        <td>${dim.study_b}</td>
-        <td><span class="dim-status-pill ${statusClass}">${dim.status.replace(/_/g, ' ')}</span></td>
-        <td class="dim-impact-cell">${dim.physical_impact}</td>
+        <td><strong>${escapeHTML(dim.dimension)}</strong></td>
+        <td>${escapeHTML(dim.study_a)}</td>
+        <td>${escapeHTML(dim.study_b)}</td>
+        <td><span class="dim-status-pill ${statusClass}">${escapeHTML(String(dim.status).replace(/_/g, ' '))}</span></td>
+        <td class="dim-impact-cell">${escapeHTML(dim.physical_impact)}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -1510,7 +1731,7 @@ function renderConflictResults(data) {
     const lA = document.getElementById('cite-link-a');
     if (tA) tA.textContent = citeA.name;
     if (mA) mA.textContent = citeA.citation;
-    if (lA) lA.href = citeA.url;
+    if (lA) lA.href = safeHttpUrl(citeA.url);
   }
   if (citeB) {
     const tB = document.getElementById('cite-title-b');
@@ -1518,7 +1739,7 @@ function renderConflictResults(data) {
     const lB = document.getElementById('cite-link-b');
     if (tB) tB.textContent = citeB.name;
     if (mB) mB.textContent = citeB.citation;
-    if (lB) lB.href = citeB.url;
+    if (lB) lB.href = safeHttpUrl(citeB.url);
   }
 }
 
@@ -1549,8 +1770,8 @@ function renderCoverageMap(data) {
   const container = document.getElementById('coverage-matrix-container');
   const gapsList = document.getElementById('empirical-gaps-list');
 
-  if (totalRuns) totalRuns.textContent = data.total_verified_experiments || 145;
-  if (matCount) matCount.textContent = data.unique_materials_tested || 5;
+  if (totalRuns) totalRuns.textContent = data.total_verified_experiments ?? '—';
+  if (matCount) matCount.textContent = data.unique_materials_tested ?? '—';
   if (compPct) compPct.textContent = `${(data.coverage_completeness_pct || 0).toFixed(1)}%`;
   if (gapsCount) gapsCount.textContent = data.untested_gap_cells_count || 0;
 
@@ -1562,12 +1783,12 @@ function renderCoverageMap(data) {
 
     let html = '<table class="heatmap-table"><thead><tr><th>Oxygen Concentration</th>';
     flowBins.forEach(fb => {
-      html += `<th>${fb.label}</th>`;
+      html += `<th>${escapeHTML(fb.label)}</th>`;
     });
     html += '</tr></thead><tbody>';
 
     o2Bins.forEach(ob => {
-      html += `<tr><td class="row-o2-header"><strong>${ob.label}</strong></td>`;
+      html += `<tr><td class="row-o2-header"><strong>${escapeHTML(ob.label)}</strong></td>`;
       flowBins.forEach(fb => {
         const cell = grid.find(c => c.o2_bin_id === ob.id && c.flow_bin_id === fb.id);
         const count = cell ? cell.count : 0;
@@ -1577,10 +1798,10 @@ function renderCoverageMap(data) {
         const tooltip = `Tested: ${count} runs | Materials: ${mats} | Spread: ${cell?.spread_count || 0}, Marginal: ${cell?.marginal_count || 0}, Extinction: ${cell?.no_spread_count || 0}`;
 
         html += `
-          <td class="heatmap-cell ${swatchClass}" title="${tooltip}">
+          <td class="heatmap-cell ${swatchClass}" title="${escapeHTML(tooltip)}">
             <div class="cell-inner">
-              <span class="cell-count">${count}</span>
-              <span class="cell-density-tag">${density.replace('_', ' ')}</span>
+              <span class="cell-count">${escapeHTML(count)}</span>
+              <span class="cell-density-tag">${escapeHTML(String(density).replace('_', ' '))}</span>
             </div>
           </td>
         `;
@@ -1599,23 +1820,23 @@ function renderCoverageMap(data) {
       card.className = 'gap-card';
       card.innerHTML = `
         <div class="gap-card-header">
-          <span class="gap-id-badge">${gap.gap_id}</span>
+          <span class="gap-id-badge">${escapeHTML(gap.gap_id)}</span>
           <span class="gap-risk-pill">HIGH MISSION RISK</span>
         </div>
-        <h4 class="gap-title">${gap.title}</h4>
-        <div class="gap-regime-strip"><strong>Target Regime:</strong> ${gap.regime}</div>
-        <div class="gap-materials"><strong>Affected Materials:</strong> ${(gap.materials_affected || []).join(', ')}</div>
+        <h4 class="gap-title">${escapeHTML(gap.title)}</h4>
+        <div class="gap-regime-strip"><strong>Target Regime:</strong> ${escapeHTML(gap.regime)}</div>
+        <div class="gap-materials"><strong>Affected Materials:</strong> ${escapeHTML((gap.materials_affected || []).join(', '))}</div>
         <div class="gap-section">
           <span class="gap-section-label">OPERATIONAL RISK:</span>
-          <p class="gap-text">${gap.operational_risk}</p>
+          <p class="gap-text">${escapeHTML(gap.operational_risk)}</p>
         </div>
         <div class="gap-section">
           <span class="gap-section-label">SCIENTIFIC RATIONALE:</span>
-          <p class="gap-text">${gap.scientific_rationale}</p>
+          <p class="gap-text">${escapeHTML(gap.scientific_rationale)}</p>
         </div>
         <div class="gap-recommended-box">
           <span class="rec-label">RECOMMENDED NASA FLIGHT EXPERIMENT:</span>
-          <p class="rec-text">${gap.recommended_experiment}</p>
+          <p class="rec-text">${escapeHTML(gap.recommended_experiment)}</p>
         </div>
       `;
       gapsList.appendChild(card);
@@ -1667,7 +1888,7 @@ window.inspectProvenance = async function(experimentId) {
     if (condEl) condEl.textContent = `${data.material} · ${data.oxygen_pct}% O₂ · ${data.pressure_kpa} kPa · ${data.flow_cm_s} cm/s forced flow`;
     if (outcomeEl) outcomeEl.textContent = `${data.outcome} (${data.extraction_notes || 'Observed flame behavior'})`;
     if (notesEl) notesEl.textContent = data.extraction_notes || 'Extracted from peer-reviewed NASA Technical Memorandum data tables.';
-    if (ntrsUrlEl) ntrsUrlEl.href = data.source_url || `https://ntrs.nasa.gov/citations/${data.report_id}`;
+    if (ntrsUrlEl) ntrsUrlEl.href = safeHttpUrl(data.source_url || `https://ntrs.nasa.gov/citations/${encodeURIComponent(data.report_id || '')}`, 'https://ntrs.nasa.gov/');
     if (tierPill) tierPill.textContent = data.verification_tier || 'VERIFIED_FLIGHT_TABLE';
     if (originPill) originPill.textContent = data.data_origin || 'direct_measurement';
 

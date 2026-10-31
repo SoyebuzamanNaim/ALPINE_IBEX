@@ -1,14 +1,80 @@
 """Automated tests for Phase 04 Data Ingestion."""
 import hashlib
+import json
 from pathlib import Path
 import pandas as pd
 import pytest
+
+from src.ingestion import build_table
 
 ROOT = Path(__file__).resolve().parents[1]
 PARQUET_FILE = ROOT / "cache" / "experiments.parquet"
 CSV_FILE = ROOT / "data" / "processed" / "experiments.csv"
 MANIFEST_FILE = ROOT / "data" / "metadata" / "source_manifest.csv"
 CORPUS_DIR = ROOT / "cache" / "report_corpus"
+
+
+def _valid_record():
+    return {
+        "experiment_id": "TEST_001",
+        "investigation": "Test Campaign",
+        "material": "PMMA",
+        "material_raw": "cast PMMA rod",
+        "sample_geometry": "rod",
+        "sample_thickness_mm": 6.35,
+        "oxygen_pct": 20.0,
+        "pressure_kpa": 101.3,
+        "flow_cm_s": 5.0,
+        "outcome": "spread",
+        "outcome_raw": "steady spread",
+        "report_id": "20260000001",
+        "source_url": "https://ntrs.nasa.gov/citations/20260000001",
+    }
+
+
+def test_ingestion_quarantine_is_persisted_and_stops_dataset_build(tmp_path, monkeypatch):
+    invalid = _valid_record()
+    invalid["oxygen_pct"] = 120.0
+    monkeypatch.setattr(build_table, "load_bass2_relabelled_rows", lambda: [invalid])
+    monkeypatch.setattr(build_table, "load_saffire_rows", lambda: [])
+    monkeypatch.setattr(build_table, "load_verified_report_rows", lambda: [])
+    monkeypatch.setattr(build_table, "INTERIM", tmp_path)
+    monkeypatch.setattr(build_table, "INGESTION_AUDIT_PATH", tmp_path / "ingestion_audit.json")
+    monkeypatch.setattr(build_table, "QUARANTINE_PATH", tmp_path / "quarantine.json")
+
+    with pytest.raises(build_table.IngestionValidationError, match="1 of 1 source records"):
+        build_table.build_full_dataset()
+
+    audit = json.loads((tmp_path / "ingestion_audit.json").read_text())
+    assert audit["source_record_count"] == 1
+    assert audit["validated_record_count"] == 0
+    assert audit["quarantined_record_count"] == 1
+    quarantined = json.loads((tmp_path / "quarantine.json").read_text())
+    assert quarantined[0]["record"]["experiment_id"] == "TEST_001"
+    with pytest.raises(RuntimeError, match="all records were validated"):
+        build_table.save_and_report([_valid_record()])
+
+
+def test_ingestion_audit_reports_zero_quarantine(tmp_path, monkeypatch):
+    monkeypatch.setattr(build_table, "load_bass2_relabelled_rows", lambda: [_valid_record()])
+    monkeypatch.setattr(build_table, "load_saffire_rows", lambda: [])
+    monkeypatch.setattr(build_table, "load_verified_report_rows", lambda: [])
+    monkeypatch.setattr(build_table, "INTERIM", tmp_path)
+    monkeypatch.setattr(build_table, "INGESTION_AUDIT_PATH", tmp_path / "ingestion_audit.json")
+    monkeypatch.setattr(build_table, "QUARANTINE_PATH", tmp_path / "quarantine.json")
+    (tmp_path / "quarantine.json").write_text("[]")
+
+    records = build_table.build_full_dataset()
+    audit = json.loads((tmp_path / "ingestion_audit.json").read_text())
+    assert len(records) == 1
+    assert audit["source_record_count"] == 1
+    assert audit["validated_record_count"] == 1
+    assert audit["quarantined_record_count"] == 0
+    assert not (tmp_path / "quarantine.json").exists()
+
+    records[0]["outcome"] = "no_spread"
+    with pytest.raises(RuntimeError, match="differ from the latest successful"):
+        build_table.save_and_report(records)
 
 
 def test_files_exist():
