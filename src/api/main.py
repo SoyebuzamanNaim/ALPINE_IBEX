@@ -6,14 +6,16 @@ citations, counterfactual sweeps, and 2-D decision boundary slices.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import logging
+import math
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Path as PathParam, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.agents.interpreter import ScenarioInterpreter
@@ -30,6 +32,7 @@ from src.api.schemas import (
     PredictResponse,
     SweepRequest,
 )
+from src.api.middleware import RequestGuardMiddleware
 from src.features.counterfactual import CounterfactualEngine
 from src.retrieval.corpus_search import ReportCorpusSearcher
 
@@ -50,6 +53,7 @@ app = FastAPI(
     ),
     version="1.0.0",
 )
+app.add_middleware(RequestGuardMiddleware)
 
 # Enable CORS for local dev and frontend clients
 app.add_middleware(
@@ -70,13 +74,48 @@ coverage_engine = ResearchCoverageEngine(data_path=DATA_PATH)
 provenance_service = ProvenanceService(data_path=DATA_PATH, corpus_dir=CORPUS_DIR)
 
 
+def _model_readiness() -> tuple[bool, str]:
+    """Gate public inference on the measured report-grouped baseline comparison."""
+    meta = orchestrator.router.meta
+    score = meta.get("cv_accuracy")
+    baseline = meta.get("majority_baseline_accuracy")
+    if (
+        isinstance(score, bool)
+        or isinstance(baseline, bool)
+        or not isinstance(score, (int, float))
+        or not isinstance(baseline, (int, float))
+        or not math.isfinite(score)
+        or not math.isfinite(baseline)
+        or not 0 <= score <= 1
+        or not 0 <= baseline <= 1
+    ):
+        return False, "Model validation metrics are missing; inference is unavailable."
+    if not DATA_PATH.exists() or hashlib.sha256(DATA_PATH.read_bytes()).hexdigest() != meta.get("dataset_sha256"):
+        return False, "Model dataset hash does not match the current experiments table; inference is unavailable."
+    if score <= baseline:
+        return False, (
+            f"Model grouped accuracy ({score:.1%}) does not exceed the majority "
+            f"baseline ({baseline:.1%}); inference is unavailable."
+        )
+    return True, "Model exceeds the measured majority baseline."
+
+
+def _require_model_ready() -> None:
+    ready, reason = _model_readiness()
+    if not ready:
+        raise HTTPException(status_code=503, detail=reason)
+
+
 @app.get("/health", tags=["System"])
 def health_check() -> dict[str, Any]:
     """Service health check, dataset status, and model readiness."""
     df = pd.read_parquet(DATA_PATH)
     meta = json.loads(META_PATH.read_bytes())
+    model_ready, model_reason = _model_readiness()
     return {
-        "status": "healthy",
+        "status": "healthy" if model_ready else "degraded",
+        "model_ready": model_ready,
+        "model_readiness_reason": model_reason,
         "service": "FLARE-X Microgravity Flammability Engine",
         "version": "1.0.0",
         "dataset_rows": len(df),
@@ -96,13 +135,33 @@ def predict(request: PredictRequest) -> dict[str, Any]:
     with detailed reasons while still returning the nearest historical experiments.
     """
     payload = request.model_dump()
+    model_ready, model_reason = _model_readiness()
+    if not model_ready:
+        envelope = orchestrator.guard.check(**payload)
+        if envelope["in_training_range"] and not envelope.get("requires_abstention"):
+            return {
+                "inputs": payload,
+                "in_training_range": True,
+                "out_of_range_reasons": [],
+                "status": "model_unvalidated",
+                "prediction": None,
+                "probabilities": None,
+                "model": orchestrator.router.get_model_metadata(),
+                "nearest_experiments": envelope["nearest_experiments"],
+                "explanation": model_reason,
+                "warning_message": model_reason,
+                "sparse_region_warning": envelope.get("sparse_region_warning", False),
+                "knn_mean_distance": envelope.get("knn_mean_distance"),
+                "model_ready": False,
+            }
     res = orchestrator.run(payload)
+    res["model_ready"] = model_ready
     return res
 
 
 @app.get("/experiments", tags=["Data"])
 def list_experiments(
-    material: str | None = Query(None, description="Filter by solid fuel material"),
+    material: str | None = Query(None, max_length=64, description="Filter by solid fuel material"),
     limit: int = Query(200, ge=1, le=1000, description="Max rows to return"),
     offset: int = Query(0, ge=0, description="Row offset for pagination"),
 ) -> dict[str, Any]:
@@ -135,6 +194,44 @@ def get_model_info() -> dict[str, Any]:
     return meta
 
 
+def _mask_conflicting_grid_points(
+    oxygen: np.ndarray,
+    flow: np.ndarray,
+    *,
+    material: str,
+    pressure_kpa: float,
+    valid_mask: np.ndarray,
+) -> np.ndarray:
+    """Hide grid cells with opposite observed outcomes at identical model inputs."""
+    mask = valid_mask.copy()
+    for observed_o2, observed_pressure, observed_flow, observed_material in cf_engine.guard.conflicting_conditions:
+        if observed_material != material or not math.isclose(observed_pressure, pressure_kpa, abs_tol=1e-6):
+            continue
+        mask &= ~(
+            np.isclose(oxygen, observed_o2, rtol=0, atol=1e-6)
+            & np.isclose(flow, observed_flow, rtol=0, atol=1e-6)
+        )
+    return mask
+
+
+def _mask_joint_domain_grid_points(
+    oxygen: np.ndarray,
+    flow: np.ndarray,
+    *,
+    material: str,
+    pressure_kpa: float,
+    valid_mask: np.ndarray,
+) -> np.ndarray:
+    """Do not color model predictions outside the material's joint test domain."""
+    mask = valid_mask.copy()
+    if cf_engine.guard.distinct_condition_counts[material] < 3:
+        return np.zeros_like(mask, dtype=bool)
+    domain = cf_engine.guard.joint_domains[material]
+    for index in np.flatnonzero(mask):
+        mask[index] = domain.contains([oxygen[index], pressure_kpa, flow[index]])
+    return mask
+
+
 @app.get("/boundary", tags=["Visualizations"])
 def get_decision_boundary(
     material: str = Query("PMMA", description="Material to slice"),
@@ -146,6 +243,7 @@ def get_decision_boundary(
 
     Includes real experiments projected onto the 2-D slice for overlay plotting.
     """
+    _require_model_ready()
     meta = json.loads(META_PATH.read_bytes())
     t_range = meta["training_range"]
 
@@ -186,6 +284,14 @@ def get_decision_boundary(
         & (o2_flat <= o2_max)
         & (flow_flat >= f_min)
         & (flow_flat <= f_max)
+    )
+    valid_mask = _mask_joint_domain_grid_points(
+        o2_flat, flow_flat, material=material, pressure_kpa=pressure_kpa,
+        valid_mask=valid_mask,
+    )
+    valid_mask = _mask_conflicting_grid_points(
+        o2_flat, flow_flat, material=material, pressure_kpa=pressure_kpa,
+        valid_mask=valid_mask,
     )
 
     preds_flat: list[str | None] = [None] * total_pts
@@ -249,6 +355,7 @@ def get_decision_boundary(
 @app.post("/counterfactual", tags=["Counterfactual"])
 def run_counterfactual(request: CounterfactualRequest) -> dict[str, Any]:
     """Compute prediction and evidence delta between baseline and modified scenario."""
+    _require_model_ready()
     base_dict = request.baseline.model_dump()
     res = cf_engine.compute_perturbation(base_dict, request.changes)
     return res
@@ -256,7 +363,8 @@ def run_counterfactual(request: CounterfactualRequest) -> dict[str, Any]:
 
 @app.post("/sweep", tags=["Counterfactual"])
 def run_sweep(request: SweepRequest) -> dict[str, Any]:
-    """Run 1D parameter sweep to identify flammability regime boundaries and safety margins."""
+    """Run a guarded 1-D sweep and identify model regime transitions."""
+    _require_model_ready()
     base_dict = request.baseline.model_dump()
     res = cf_engine.run_sweep(
         baseline=base_dict,
@@ -288,7 +396,7 @@ def list_datasets() -> dict[str, Any]:
 
 
 @app.get("/sources/{report_id:path}", tags=["Data"])
-def get_source_document(report_id: str) -> dict[str, Any]:
+def get_source_document(report_id: str = PathParam(min_length=1, max_length=128)) -> dict[str, Any]:
     """Retrieve metadata, citation, and abstract for a specific NASA report."""
     # Look up by direct ID or normalized string
     doc = corpus_searcher.get_report(report_id)
@@ -355,7 +463,7 @@ def get_research_coverage() -> dict[str, Any]:
 # ============================================================================
 
 @app.get("/api/provenance/{experiment_id}", tags=["Provenance"])
-def get_experiment_provenance(experiment_id: str) -> dict[str, Any]:
+def get_experiment_provenance(experiment_id: str = PathParam(min_length=1, max_length=128)) -> dict[str, Any]:
     """Retrieve full traceable provenance and original document citation for an experiment."""
     rec = provenance_service.get_provenance(experiment_id)
     if not rec:
@@ -365,10 +473,10 @@ def get_experiment_provenance(experiment_id: str) -> dict[str, Any]:
 
 @app.get("/api/provenance", tags=["Provenance"])
 def query_provenance(
-    material: str | None = Query(None, description="Filter by solid material"),
-    verification_tier: str | None = Query(None, description="Filter by verification tier"),
-    investigation: str | None = Query(None, description="Filter by NASA investigation"),
-    search: str | None = Query(None, description="Search keyword in citations/notes"),
+    material: str | None = Query(None, max_length=64, description="Filter by solid material"),
+    verification_tier: str | None = Query(None, max_length=128, description="Filter by verification tier"),
+    investigation: str | None = Query(None, max_length=128, description="Filter by NASA investigation"),
+    search: str | None = Query(None, max_length=256, description="Search keyword in citations/notes"),
     limit: int = Query(200, ge=1, le=1000),
     offset: int = Query(0, ge=0),
 ) -> dict[str, Any]:

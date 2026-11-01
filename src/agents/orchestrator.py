@@ -94,11 +94,11 @@ class AgentOrchestrator:
         model_meta = self.router.get_model_metadata()
 
         # Handle Out of Envelope Refusal
-        if not env_res["in_training_range"]:
+        if not env_res["in_training_range"] or env_res.get("requires_abstention"):
             state_history.append(OrchestratorState.REFUSED)
             refusal_payload = {
                 "inputs": scenario,
-                "in_training_range": False,
+                "in_training_range": env_res["in_training_range"],
                 "status": env_res["status"],
                 "out_of_range_reasons": env_res["out_of_range_reasons"],
                 "prediction": None,
@@ -106,6 +106,9 @@ class AgentOrchestrator:
                 "model": model_meta,
                 "nearest_experiments": env_res["nearest_experiments"],
                 "explanation": env_res["explanation"],
+                "sparse_region_warning": env_res.get("sparse_region_warning", False),
+                "warning_message": env_res.get("warning_message"),
+                "knn_mean_distance": env_res.get("knn_mean_distance"),
                 "state_history": [s.value for s in state_history],
             }
             state_history.append(OrchestratorState.FINALIZED)
@@ -162,6 +165,16 @@ class AgentOrchestrator:
         prediction_payload["audit_passed"] = audit_res["passed"]
         if not audit_res["passed"]:
             prediction_payload["audit_errors"] = audit_res["errors"]
+            prediction_payload["status"] = "audit_failed"
+            prediction_payload["prediction"] = None
+            prediction_payload["probabilities"] = None
+            prediction_payload["explanation"] = (
+                "The final evidence audit failed. No model result is released. "
+                "Inspect the nearest source experiments instead."
+            )
+            prediction_payload["explanation_source"] = "audit_refusal"
+            prediction_payload["warning_message"] = prediction_payload["explanation"]
+            state_history.append(OrchestratorState.REFUSED)
 
         state_history.append(OrchestratorState.FINALIZED)
         prediction_payload["state_history"] = [s.value for s in state_history]

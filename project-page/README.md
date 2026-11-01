@@ -1,36 +1,30 @@
-# FLARE-X Prescreening Project Page
+# FLARE-X Project Page
 
-A deployable, zero-dependency static single-page site for the FLARE-X NASA Space Apps 2026 prescreening concept.
+A deployable, zero-dependency static page for the FLARE-X research prototype.
 
-## Before publishing
-
-1. Replace any remaining placeholder values in `index.html` with your final registered team names and video URLs.
-2. Replace the disabled video button in the `#pitch` section with the final public/unlisted pitch URL.
-3. Verify every public claim against the team's final evidence and challenge wording.
-4. Keep the prescreening/concept disclosure visible until the relevant feature is actually implemented.
-5. Add any final third-party or generated-asset credits to `CREDITS.md` and the page if used.
-6. Test the live page in desktop, mobile and incognito/private browsing.
+The landing page uses inline CSS and SVG and does not run a prediction script. Its
+"Open the tool" link points to the separate Mission Control application. The
+published PMMA boundary is a cited NASA fit, not the trained classifier.
 
 ## Deploy
 
-### Netlify (Drag & Drop)
-Drag the entire `project-page` directory into [Netlify Drop](https://app.netlify.com/drop) or connect it to a Git repository. No build command is required.
-
-### Vercel
-Import the directory/repository as a static project. No framework or build command is required.
-
 ### GitHub Pages
-Commit these files to a repository, then enable GitHub Pages for the branch containing `/project-page`.
+The repository workflow `.github/workflows/deploy-pages.yml` packages the root
+redirect, `project-page/`, and `app/` together. Use that workflow for the
+published site.
+
+### Other static hosts
+Publish the same three paths together at the site root. Deploying only
+`project-page/` breaks its `../app/` tool link.
 
 ## Files
 
-- `index.html` — complete page content and inline SVG concept visuals
-- `styles.css` — responsive aerospace FLARE-X design system
-- `script.js` — mobile navigation and progressive reveal
+- `index.html` — page content, inline styles and cited SVG figure
 - `DATA_SOURCES.md` — NASA dataset/source notes
 - `LIMITATIONS.md` — scientific boundaries and red lines
 - `CREDITS.md` — team and NASA attribution checklist
 
 ## Important
 
-This prescreening page intentionally does not display fabricated performance metrics. Replace concept/planned wording only after implementation and validation exist.
+The current classifier fails to exceed the majority baseline in report-grouped
+validation. Public model inference is withheld until a validated replacement is available.

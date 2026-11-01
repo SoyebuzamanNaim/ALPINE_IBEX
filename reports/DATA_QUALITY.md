@@ -1,18 +1,22 @@
-# Data Quality & Ingestion Report (Phase 04)
+# Data quality and ingestion report
 
 > **File:** `cache/experiments.parquet` & `data/processed/experiments.parquet`
 > **SHA-256:** `8063f6d900e91ab8bd9a892a4712ca12c2c1522881477a2353a55c2b06adf064`
 > **Total Records:** 200
-> **Status:** PASS (100% Schema Validated)
+> **Source Rows:** 200
+> **Schema Validated:** 200
+> **Quarantined:** 0
+> **Status:** PASS (all source rows validated)
 
 ## 1. Executive Summary
 
-The ingestion pipeline extracted, normalized, and validated **200 discrete experimental test conditions**
-from peer-reviewed NASA technical reports and flight experiment summaries. Every row represents an actual physical
-test conducted in microgravity (aboard the International Space Station, sounding rockets, or drop towers).
+The ingestion pipeline extracted, normalized, and validated **200 curated experimental test conditions**
+from NASA technical reports and flight experiment summaries. The table contains the source records selected for
+the microgravity research dataset; it does not claim that all NASA tests or report observations are represented.
 
-No numbers or measurements were synthetically imputed or fabricated. Every row traces directly to a published
-NASA document accession and resolvable URL.
+The canonical dataset is written only when every selected source record passes the `ExperimentRecord` schema.
+Rejected rows and validation errors are saved to `data/interim/quarantine.json`, and any rejection aborts the
+build before canonical dataset files are overwritten.
 
 ---
 
@@ -28,19 +32,24 @@ NASA document accession and resolvable URL.
 ### Combustible Materials
 | Material | Count | Percentage |
 |---|---|---|
-| `PMMA` | 151 | 75.5% |
-| `Cotton` | 1 | 0.5% |
 | `Cellulose` | 14 | 7.0% |
-| `Delrin` | 0 | 0.0% |
+| `Cotton` | 1 | 0.5% |
+| `Cotton-Fiberglass` | 21 | 10.5% |
+| `Mylar` | 2 | 1.0% |
 | `Nomex` | 5 | 2.5% |
+| `PMMA` | 151 | 75.5% |
+| `Silicone` | 4 | 2.0% |
+| `Ultem` | 2 | 1.0% |
 
 ### Sample Geometry
 | Geometry | Count | Percentage |
 |---|---|---|
-| `sheet` | 93 | 46.5% |
+| `fabric_sheet` | 24 | 12.0% |
 | `rod` | 55 | 27.5% |
+| `sheet` | 93 | 46.5% |
 | `slab` | 23 | 11.5% |
 | `sphere` | 1 | 0.5% |
+| `spherical_section` | 4 | 2.0% |
 
 ### Source Document Attribution (`report_id` Grouping for CV)
 | NASA Report ID | Rows | Citation Link |
@@ -70,7 +79,7 @@ NASA document accession and resolvable URL.
 
 ## 4. Verification & Integrity Checks
 
-1. **Mandatory 4-D Inputs:** All 200 records contain non-null values for `oxygen_pct`, `pressure_kpa`, `flow_cm_s`, and `material`.
+1. **Mandatory Inputs:** All 200 records contain non-null values for `oxygen_pct`, `pressure_kpa`, `flow_cm_s`, and `material`.
 2. **Duplicate Detection:** Zero duplicate `experiment_id` entries detected.
-3. **Physical Plausibility:** All O2 values are within 10–40% vol; all pressures are within 40–120 kPa; all velocities are >= 0.0 cm/s.
-4. **Provenance Integrity:** 100% of rows contain valid HTTPS URLs pointing to real NTRS records.
+3. **Schema Bounds:** Every selected record passed the explicit field constraints in `ExperimentRecord`.
+4. **Provenance Fields:** Every row contains a report ID and source URL field. Schema validation checks URL format, not remote availability.

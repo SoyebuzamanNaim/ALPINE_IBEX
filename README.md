@@ -1,411 +1,71 @@
-# FLARE-X: Microgravity Combustion Flammability Explorer
+# FLARE-X
 
-[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
-[![Grouped CV Accuracy](https://img.shields.io/badge/Grouped%20CV%20Accuracy-83.45%25-brightgreen.svg)](reports/BASELINE_RESULTS.md)
-[![Majority Baseline](https://img.shields.io/badge/Majority%20Baseline-51.72%25-orange.svg)](reports/BASELINE_RESULTS.md)
-[![Flight Tests](https://img.shields.io/badge/NASA%20Flight%20Tests-145%20Ingested-blue.svg)](cache/experiments.parquet)
-[![Tests](https://img.shields.io/badge/Automated%20Tests-78%2F78%20Passing-success.svg)](tests/)
+FLARE-X is a research prototype for exploring NASA microgravity combustion observations. It provides a FastAPI service and a browser interface for evidence lookup, experimental-domain checks, comparisons, and model exploration. It is not a fire-safety certification or operational decision system.
 
-> **NASA International Space Apps Challenge — Challenge #08: "Flame in Freefall"**  
-> *Autonomous Research Prototype & Interactive Decision-Support Tool for Spacecraft Fire Safety.*
+## Current model status
 
----
+The checked-in dataset contains 200 observations. The current grouped cross-validation accuracy is 76.0%, below the 81.5% majority-class baseline. Public model inference is therefore withheld for otherwise eligible conditions. The API returns `model_unvalidated` with no prediction or probabilities. Out-of-domain, conflicting, and sparse-material cases also abstain. See [scientific limitations](docs/LIMITATIONS.md) and the [rebuilt model evaluation](reports/REBUILT_MODEL_EVALUATION.md).
 
-## 1. Executive Summary & Physics Background
+## Quick start
 
-Fire in microgravity behaves fundamentally differently than on Earth. In terrestrial gravity ($1g$), buoyant convection naturally pulls warm combustion gases upward and draws fresh oxygen into the flame base. In the freefall environment of low-Earth orbit (e.g., aboard the International Space Station), buoyancy is virtually eliminated ($g \approx 0$). Transport is governed solely by **molecular diffusion** and **forced spacecraft cabin ventilation**.
-
-Under microgravity conditions:
-- **Flames become rounded or spherical**, soot accumulates around the reaction zone, and burning rates change dramatically.
-- **Low-flow extinction and flammability limits shift non-linearly:** slow air movement ($1\text{ to }5\text{ cm/s}$) can sustain combustion, whereas zero flow often leads to oxygen starvation and self-extinction.
-- **Convective cooling at higher flows:** excessive airflow cools the flame zone aerodynamically, causing blow-off extinction.
-- **Misleading Terrestrial Standards:** Standard $1g$ flammability ratings (such as NASA STD-6001 Test 1) can misclassify materials that burn readily in low-speed forced flows in microgravity.
-
-**FLARE-X** solves this challenge by integrating **145 verified NASA microgravity spaceflight observations** (from BASS, BASS-II, DARTFire, and Exploration Atmospheres), a validated **Gradient Boosted decision model** evaluated with honest grouped cross-validation, a strict **Experimental Envelope Guard**, a **Counterfactual Sweep Engine**, and an **Audited Agentic FSM** that deterministically prevents numerical hallucinations.
-
----
-
-## 2. Key Capabilities & Architectural Innovations
-
-```
-                                  [ User Request ]
-                                         │
-                                         ▼
-                     ┌───────────────────────────────────────┐
-                     │         FSM Agent Orchestrator        │
-                     └───────────────────┬───────────────────┘
-                                         │
-                     ┌───────────────────▼───────────────────┐
-                     │      Experimental Envelope Guard      │
-                     │ (Per-Material Convex Hull & Ranges)  │
-                     └─────────┬───────────────────┬─────────┘
-          Inside Envelope      │                   │ Out of Envelope
-                               ▼                   ▼
-           ┌───────────────────────┐   ┌───────────────────────────┐
-           │ Gradient Boosted Model│   │ REFUSAL CONTRACT          │
-           │ P(Spread / Extinct)   │   │ prediction: null          │
-           └───────────┬───────────┘   │ reasons: [out_of_range...]│
-                       │               │ nearest_experiments: [3]  │
-                       ▼               └───────────┬───────────────┘
-           ┌───────────────────────┐               │
-           │ Counterfactual Engine │               │
-           │ (1D Swarm / Marginal) │               │
-           └───────────┬───────────┘               │
-                       │                           │
-                       ▼                           │
-           ┌───────────────────────────────────┐   │
-           │     Evidence Retrieval Engine     │   │
-           │ (kNN Metric Space + BM25 Search)  │   │
-           └───────────────────┬───────────────┘   │
-                               │                   │
-                               ▼                   │
-           ┌───────────────────────────────────┐   │
-           │    Numerical & Citation Auditor   │◄──┘
-           │ (Strict Regex Token-Match Engine) │
-           └───────────────────┬───────────────┘
-                               │ Verified Output
-                               ▼
-           ┌───────────────────────────────────┐
-           │    Aerospace Mission Control UI   │
-           │ (Canvas Boundary + Scatter Points)│
-           └───────────────────────────────────┘
-```
-
-1. **Strict Experimental Envelope Guard (Challenge Brief §4):**
-   - Refuses predictions when environmental parameters lie outside the empirical flight domain.
-   - For out-of-range scenarios, the system explicitly returns `prediction: null`, provides structured refusal reasons, and retrieves the 3 nearest real historical spaceflight experiments.
-2. **Machine Learning Classifier with Honest Evaluation:**
-   - 5-Fold Grouped Stratified Cross-Validation (`StratifiedGroupKFold(k=5, group=report_id)`) achieves **83.45% pooled out-of-fold accuracy** against a **51.72% majority-class baseline**.
-   - Model parameters, confusion matrix, and feature importances are fully serialized and published in [model_meta.json](models/model_meta.json).
-3. **Counterfactual Engine & Regime Boundary Detection:**
-   - Perturbs individual parameters (e.g. oxygen concentration, forced flow velocity) to calculate distance to flammability extinction boundaries and safety margins.
-4. **Zero-Hallucination Agentic Architecture:**
-   - Employs a finite-state machine with a dedicated regex auditor that checks all numerical figures, thresholds, and NASA report identifiers in textual explanations against the underlying prediction object.
-5. **Interactive Mission Control Interface:**
-   - 2-D decision boundary canvas slicing through oxygen concentration and ventilation velocity with overlaid NASA flight test scatter points.
-   - Live killer-demo: interactive oxygen sweep across the flammability transition zone.
-
----
-
-## 3. Quickstart
-
-### Prerequisites
-- Linux / macOS
-- Python 3.12+
-- `pip` or virtual environment manager
-
-### Single-Command Launch
-To install dependencies, start the FastAPI backend server, and serve the Mission Control UI:
+Requires Python 3.12 or newer.
+`requirements.txt` pins the runtime, test, and transitive Python packages used by CI.
 
 ```bash
-# Clone the repository
-git clone https://github.com/SoyebuzamanNaim/ALPINE_IBEX.git
-cd ALPINE_IBEX
-
-# Create an environment and install dependencies
 python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-
-# Execute single-command launcher
+.venv/bin/python -m pip install -r requirements.txt
 ./scripts/run_local.sh
 ```
 
-Once running:
-- **Interactive Web UI:** [http://localhost:8000](http://localhost:8000)
-- **Interactive REST API Docs (Swagger):** [http://localhost:8000/docs](http://localhost:8000/docs)
-- **API Health Check:** `curl http://localhost:8000/health`
+Open <http://localhost:8000> for the Mission Control UI and <http://localhost:8000/docs> for the interactive API documentation. The launcher uses the checked-in dataset and model artifacts; if either is missing, it rebuilds or trains it.
 
----
-
-## 4. Dataset Provenance & Curation
-
-FLARE-X relies on **145 discrete microgravity combustion test conditions** extracted from six published NASA
-technical reports. Every `report_id` below has been resolved against the live NASA Technical Reports Server
-and its title verified; none is constructed. **Identifier verification is not row-level
-verification** - see "Data integrity" below for a confirmed defect in the extracted values.
-
-| Investigation | NTRS ID | Platform | Materials | Rows | Verified Source |
-|---|---|---|---|---|---|
-| **BASS-II** | `20210011385` | ISS | Cotton-Fiberglass, Nomex, PMMA | 158 | [Burning and Suppression of Solids-II (BASS-II) Summary Report](https://ntrs.nasa.gov/citations/20210011385) · conditions from [NASA PSI PSI-25](https://psi.nasa.gov) (DOI 10.60555/4qc4-de67), outcomes hand-labelled from the report |
-| **GRC Zero Gravity Facility opposed-flow extinction** | `19890014267` | drop_tower | Cellulose | 13 | [An experimental study of opposed flow diffusion flame extinction over a thin fuel in microgravity](https://ntrs.nasa.gov/citations/19890014267) · Ferkul · TABLE I |
-| **Saffire-I** | `20170008805` | ISS | Cotton-Fiberglass, Nomex, PMMA, Silicone | 12 | [Results of Large-Scale Spacecraft Flammability Tests](https://ntrs.nasa.gov/citations/20170008805) |
-| **Exploration Atmospheres flammability limits** | `20080034883` | drop_tower | Cellulose, Mylar, Nomex, Ultem | 7 | [Microgravity Flame Spread in Exploration Atmospheres](https://ntrs.nasa.gov/citations/20080034883) · Olson, Ruff & Miller · Table 1 + fig. 2 caption |
-| **Saffire-III** | `20210011521` | ISS | Cotton, Cotton-Fiberglass, PMMA | 6 | [Fire Safety Implications of Preliminary Results from Saffire IV and V](https://ntrs.nasa.gov/citations/20210011521) |
-| **Saffire-VI** | `20240002981` | ISS | Cotton-Fiberglass, PMMA | 3 | [Preliminary Results from the Saffire VI Experiment](https://ntrs.nasa.gov/citations/20240002981) |
-| **BASS** | `20140011099` | ISS | PMMA | 1 | [Thickness and Fuel Preheating Effects on Material Flammability in Microgravity from the BASS Experiment](https://ntrs.nasa.gov/citations/20140011099) · slide 52 |
-
-**Outcome distribution:** `spread` 163, `no_spread` 35, `marginal_spread` 2
-**Material distribution:** PMMA 151, Cotton-Fiberglass 21, Cellulose 14, Nomex 5, Silicone 4, Mylar 2, Ultem 2, Cotton 1
-
-Every one of the 200 rows carries `verification_tier: HAND_TRANSCRIBED_FROM_SOURCE`: it was read
-off a rendered source table or an exact statement in the text, and the record names which. The
-dataset previously held 49 rows attributed to five reports that no source check could support,
-and a 96-row BASS-II extraction whose oxygen column disagreed with NASA PSI on 77 of 81
-comparable tests. Both are gone. See Addenda 7 and 8 in
-[reports/REBUILT_MODEL_EVALUATION.md](reports/REBUILT_MODEL_EVALUATION.md).
-
-- **Canonical Parquet Store:** [cache/experiments.parquet](cache/experiments.parquet)
-- **Data Integrity SHA-256:** `428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6`
-- **Report Corpus:** [cache/report_corpus/](cache/report_corpus/) — 13 NTRS abstracts with resolvable identifiers
-- **Provenance Registry:** [data/metadata/provenance_registry.json](data/metadata/provenance_registry.json)
-- **Complete Ingestion Documentation:** [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)
-
-> **Scope note.** The dataset covers BASS, BASS-II, Exploration Atmospheres and drop-tower extinction studies.
-> It does **not** contain Saffire, ACME, FLEX or SoFIE flight data. Those campaigns appear only in the
-> Cross-Study Conflict Explorer as cited literature for comparison, never as model training rows.
-
----
-
-## 5. Machine Learning Model Card
-
-| Attribute | Specification |
-|---|---|
-| **Algorithm** | Gradient Boosting Classifier (scikit-learn) |
-| **Target Classes** | `spread` (75), `no_spread` (49), `marginal_spread` (21) |
-| **Input Features** | `oxygen_pct`, `pressure_kpa`, `flow_cm_s`, `material` (4 features) |
-| **Evaluation Scheme** | `StratifiedGroupKFold(k=5, group=report_id)` — Challenge Brief §6 |
-| **Headline Grouped CV Accuracy** | **83.45%** |
-| **Balanced Accuracy / Macro-F1** | 76.22% / 78.09% |
-| **Secondary (stricter) grouping** | 84.14% with `group=investigation` |
-| **Plain Stratified CV** | 81.38% (labelled optimistic) |
-| **Majority Baseline** | 51.72% |
-| **Dataset SHA-256** | `428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6` |
-
-### Confusion Matrix (headline, pooled out-of-fold)
-
-| True \ Pred | `no_spread` | `marginal_spread` | `spread` |
-|---|---|---|---|
-| **`no_spread`** | 37 | 3 | 9 |
-| **`marginal_spread`** | 3 | 12 | 6 |
-| **`spread`** | 1 | 2 | 72 |
-
-### How to read these numbers honestly
-
-- Accuracy is **pooled out-of-fold** across all 145 rows, not an average of fold scores.
-- Groups are very uneven — fold support sizes are `[96, 23, 11, 7, 8]` with fold accuracies
-  `[0.8333, 0.7826, 1.0, 1.0, 0.625]`. The two folds scoring 1.00 hold only
-  11 and 7 samples, so `std_accuracy` is not meaningful.
-- Grouped accuracy **exceeds** plain stratified accuracy. That inversion is a real consequence of this
-  clustering, not a leak: grouped folds hand each fit a more homogeneous training set.
-- Per-material support is thin outside PMMA (92 rows):
-  Cellulose 22, Cotton 19, Delrin 5, Nomex 7.
-
-### Model Serialization
-- Model Artifact: [models/flame_spread_gb.joblib](models/flame_spread_gb.joblib)
-- Metadata, training range & caveats: [models/model_meta.json](models/model_meta.json)
-- All four model families, both CV schemes: [models/metrics.json](models/metrics.json)
-
----
-
-## 6. REST API Specification
-
-Field names below are the live contract from [src/api/schemas.py](src/api/schemas.py).
-
-### `POST /predict`
-
-#### In-Envelope Request
-```json
-{
-  "oxygen_pct": 21.0,
-  "pressure_kpa": 101.3,
-  "flow_cm_s": 5.0,
-  "material": "PMMA"
-}
-```
-
-#### Response shape
-```json
-{
-  "inputs": {"oxygen_pct": 21.0, "pressure_kpa": 101.3, "flow_cm_s": 5.0, "material": "PMMA"},
-  "in_training_range": true,
-  "out_of_range_reasons": [],
-  "prediction": "<class from the trained artifact>",
-  "probabilities": {"no_spread": 0.0, "marginal_spread": 0.0, "spread": 0.0},
-  "model": {
-    "type": "gradient_boosting",
-    "n_train": 145,
-    "cv_accuracy": 0.8345,
-    "cv_scheme": "StratifiedGroupKFold(k=5, group=report_id)",
-    "features": ["oxygen_pct", "pressure_kpa", "flow_cm_s", "material"]
-  },
-  "nearest_experiments": [
-    {"experiment_id": "<id>", "report_id": "<NTRS id>", "oxygen_pct": 0.0, "pressure_kpa": 0.0,
-     "flow_cm_s": 0.0, "material": "PMMA", "outcome": "<observed>", "distance": 0.0,
-     "source_url": "https://ntrs.nasa.gov/citations/<NTRS id>"}
-  ],
-  "explanation": "<deterministic or audited text>"
-}
-```
-
-> **Probability and prediction values above are zero-filled placeholders showing shape only.**
-> Real values come from `models/flame_spread_gb.joblib` at request time. No example result is
-> hard-coded anywhere in the product.
-
-#### Out-of-Envelope Response (refusal contract)
-When any feature falls outside `training_range`, or the material is unknown:
-
-```json
-{
-  "in_training_range": false,
-  "out_of_range_reasons": [
-    {"feature": "oxygen_pct", "value": 45.0, "train_min": 15.0, "train_max": 34.0, "reason": "..."}
-  ],
-  "prediction": null,
-  "probabilities": null,
-  "nearest_experiments": ["... still returned ..."],
-  "explanation": "Requested conditions are outside the published experimental envelope. No prediction is made."
-}
-```
-
-### Other endpoints
-`GET /health` · `GET /experiments` · `GET /model` · `GET /boundary` · `POST /counterfactual` ·
-`POST /sweep` · `POST /scenario/parse` · `GET /datasets` · `GET /sources/{report_id}`
-
----
-
-## 7. Verification & Automated Testing Suite
-
-All modules are covered by 78 automated unit, integration, and red-team tests:
+Run the existing test suite with:
 
 ```bash
-# Activate virtual environment
-source .venv/bin/activate
-
-# Execute complete test suite
-pytest tests/ -q
+.venv/bin/pytest -q
 ```
 
-### Test Coverage Summary
-- [tests/test_schema.py](tests/test_schema.py): Schema models, canonical units, validation rules (3 tests).
-- [tests/test_ingestion.py](tests/test_ingestion.py): Data integrity, Parquet parsing, deduplication, row counts (8 tests).
-- [tests/test_models.py](tests/test_models.py): Model training, grouped cross-validation, baseline comparison (6 tests).
-- [tests/test_retrieval.py](tests/test_retrieval.py): Nearest-neighbor search, BM25 report indexing, precision (6 tests).
-- [tests/test_envelope.py](tests/test_envelope.py): Multi-variable bounds, per-material convex hulls, refusal contracts (6 tests).
-- [tests/test_counterfactual.py](tests/test_counterfactual.py): Single-parameter perturbations, 1D oxygen sweeps (6 tests).
-- [tests/test_agents.py](tests/test_agents.py): Finite-state machine, regex numerical auditor, hallucination rejection (9 tests).
-- [tests/test_api.py](tests/test_api.py): FastAPI endpoints, Section 7 contract compliance, error handling (12 tests).
-- [tests/test_end_to_end.py](tests/test_end_to_end.py): 6 complete operator flight scenarios from request to response (6 tests).
-- [tests/test_red_team.py](tests/test_red_team.py): Adversarial injection, extreme physics parameters, edge cases (6 tests).
+GitHub Actions runs the same suite on Python 3.12 and 3.14, checks JavaScript syntax, and verifies the checked-in model artifacts against the dataset hash and evaluation metrics.
 
-**Result:** `78 passed` (100% passing). Run `.venv/bin/python -m pytest tests/ -q` to reproduce.
+## What is included
 
----
+- Curated observation data and source provenance in `data/`, `cache/`, and `reports/`.
+- Input-domain checks and abstention rules in `src/envelope/`.
+- Model training and validation in `src/compute/model.py`.
+- Evidence retrieval and explanation auditing in `src/retrieval/` and `src/agents/`.
+- Counterfactual and coverage analysis in `src/features/` and `src/analysis/`.
+- FastAPI routes and request guards in `src/api/`.
+- The browser application in `app/`.
 
-## Data integrity: verified defect in the BASS-II rows
+## Rebuild data and model artifacts
 
-The six NTRS identifiers used by this project are genuine and their titles were confirmed
-against the live NASA Technical Reports Server. **The per-row values extracted from the
-largest of those reports were not.**
+The ingestion pipeline reads the curated source tables in `data/processed/`, records validation counts in `data/interim/ingestion_audit.json`, and writes the canonical tables and provenance report. If any row fails schema validation, it saves the row and errors to `data/interim/quarantine.json` and stops before overwriting canonical tables.
 
-NTRS serves machine-readable fulltext for every record:
-
-```
-https://ntrs.nasa.gov/api/citations/<id>/downloads/<filename>.pdf.txt
+```bash
+.venv/bin/python -m src.ingestion.build_table
 ```
 
-Re-reading `20210011385` (BASS-II Summary Report, which supplies 96 of 145 rows) through that
-endpoint and comparing it against `src/ingestion/build_table.py` found:
+Train and evaluate the model from the canonical Parquet table with:
 
-Compared against the **authoritative PSI experimental table**
-(`data/external/psi/PSI-25_Experimental_table_BASS-II.csv`, 129 rows, DOI
-`10.60555/4qc4-de67`, CC0-1.0):
+```bash
+.venv/bin/python src/compute/model.py
+```
 
-| Check | Result |
-|---|---|
-| Calibrated oxygen matches PSI (within 0.05 pts) | **0 of 81 tests** |
-| **Oxygen differs by >0.35 pts** | **77 of 81** |
-| Largest discrepancies | O4 PSI 14.8% vs coded 20.6%; O5 15.1% vs 19.8%; B14 15.0% vs 19.6%; O12 13.6% vs 18.1% |
-| **Test IDs absent from the source** | **3** (`P7`, `P11`, `T8`) |
+Training overwrites model metadata, model metrics, and generated model reports. The API checks the dataset SHA-256 against model metadata and refuses inference when they differ.
 
-The PSI table spans **13.6 to 22.2 % calibrated initial O2**. The current table claims a
-15.0 % floor, so the entire near-limit region the campaign was designed to probe is missing.
+## Repository map
 
-Specific confirmed errors:
+```text
+app/          Browser UI and static assets
+cache/        Runtime dataset and report corpus
+data/         Source, interim, processed, and metadata records
+docs/         Maintained project, API, data, and limitation documentation
+models/       Serialized model and current metadata
+project-page/ Static research overview deployed with GitHub Pages
+reports/      Data-quality and model-evaluation evidence
+scripts/      Local launcher and catalog builder
+src/          API, agents, ingestion, model, analysis, and retrieval code
+tests/        Python and browser-runtime regression tests
+```
 
-- **`B14` outcome is inverted.** The report records 15.0% calibrated O2, spread rate `0.00`,
-  *"only brief ignition, flame extinguished"*. The dataset records 19.6% O2 and `spread`.
-- **Low-flow velocities are fan-potentiometer settings, not cm/s.** Values such as 0.35, 0.40
-  and 0.50 cm/s correspond to pot readings quoted in observations
-  (*"extinguished at pot 0.35"*). In the source tables, `Fan display` is a potentiometer
-  reading and `Air display` is the duct velocity in cm/s; the two were conflated.
-  `data/external/psi/PSI-25_Fan_calibration_data.xlsx` does map
-  `Pot -> Fan Display -> Air Display -> Fan V -> U cm/s`, but only per date and flow-restrictor
-  configuration: pooled across its 27 blocks, pot 10 spans 20 to 59 cm/s. The extinction points
-  sit at pot 0.35 to 0.5, below the lowest calibrated pot of 1.0. These velocities are therefore
-  **not reliably recoverable**, and the rebuild drops pot-labelled numbers rather than converting
-  them. The mid and high velocities need no conversion: the `Air display` column already gives
-  them in cm/s.
-- **Near-limit data was lost.** The real campaign probed 12.7-17% O2, the region where flames
-  actually stop propagating. Those values were replaced with ~18-21% O2, so the learned
-  flammability boundary sits several percentage points too high in oxygen.
-- `build_table.py` calls `pdftotext` and discards the result (`txt` is assigned at line 55 and
-  never read); the committed values are Python literals. With `data/raw/` gitignored and empty,
-  the table cannot currently be regenerated.
-
-### What this means for the reported accuracy
-
-The metrics below are reproducible and the evaluation machinery is sound, but they measure the
-model's fit to **this table**, not verified physical predictive skill. They should not be quoted
-as evidence of real-world flammability prediction until the rows are re-transcribed.
-
-The other 49 rows, from five further reports, have **not** been checked.
-
-**Correction.** An earlier version of this section stated that five test IDs were absent
-from the source and that the low-flow velocities were unrecoverable. Both were wrong, and
-both were found by checking against PSI rather than the narrative report alone. Seven of
-those IDs exist as sub-lettered variants (`O3a/b`, `O5a/b`, `O8a/b`, `O13a/b`, `O15a/b`,
-`P3a/b`, `P13a/b`) that the earlier PDF-based scan did not match; only `P7`, `P11` and
-`T8` are genuinely absent. The velocities are recoverable from the PSI fan calibration.
-
-**Fix path.** A faithful rebuild joins PSI conditions (oxygen, `Air display` velocity,
-material, geometry) to the `Test observations and anomalies` column of NTRS `20210011385`
-on `Test #`. PSI carries no outcome column; the narrative report carries no clean
-conditions. Both are needed. See `data/external/psi/README.md`.
-
----
-## Honest evaluation summary
-
-| Metric | Value |
-|---|---|
-| Leave-one-report-out accuracy (10 model seeds) | **82.28% ± 0.98** |
-| LORO balanced accuracy | 74.75% |
-| LORO macro-F1 | 76.44% |
-| Single-partition grouped accuracy (`group=report_id`) | 83.45% |
-| Majority-class baseline | 51.72% (balanced: 33.33%) |
-| `marginal_spread` recall | 57% (12/21) |
-
-Prefer the **leave-one-report-out** figure. `StratifiedGroupKFold(group=report_id)` produces only
-2 distinct partitions across 200 seeds, so it cannot be averaged over splitter seeds and its
-single value is a best-case draw. Minority-class support is 1-2 rows in three of five folds,
-so `std_accuracy` is not meaningful. The hyperparameters are not accompanied by a tuning record,
-so some selection optimism against these same folds is plausible.
-
-`marginal_spread` recall near 57% is the weakest point, and 9 of 49 true `no_spread` rows are
-predicted as `spread` — for a fire-safety tool that is the expensive direction of error.
-
----
-## 8. System Boundaries & Known Limitations
-
-1. **Sample Size & Material Concentration:**
-   - The database contains 145 discrete tests, heavily concentrated in Polymethyl Methacrylate (PMMA, 92 tests, 63.4%) and thin fabrics.
-   - Materials not present in historical spaceflight records (e.g., Kapton, Silicone, Titanium) trigger immediate refusal.
-2. **Atmospheric & Flow Limits:**
-   - Valid only for oxygen between **15.0% and 34.0% O₂**, pressure between **56.5 and 101.3 kPa**, and forced flow between **0.0 and 45.0 cm/s**. Per-material ranges are narrower and are enforced separately.
-3. **Statistical Surrogate Nature:**
-   - Predictions are empirical machine-learning inferences derived from historical flight experiments. They do not replace formal CFD models or official NASA flight certification procedures.
-   - Full disclosure: [docs/LIMITATIONS.md](docs/LIMITATIONS.md).
-
----
-
-## 9. License & Project Provenance
-
-- **License:** Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
-- **Repository Clean-Room Protocol:** This repository contains the standalone, fully-reproducible research prototype developed for the NASA Space Apps Challenge #08: *Flame in Freefall*.
-- **Documentation Map:**
-  - Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-  - Data Sources: [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)
-  - Reproducibility Guide: [docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md)
-  - Demo Scenarios: [docs/DEMO_SCENARIOS.md](docs/DEMO_SCENARIOS.md)
-  - Presentation Script: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)
-  - Traceability Matrix: [docs/TRACEABILITY_MATRIX.md](docs/TRACEABILITY_MATRIX.md)
+See [architecture](docs/ARCHITECTURE.md), [API contract](docs/API_CONTRACT.md), and [reproduction guide](docs/REPRODUCIBILITY.md) for implementation details.

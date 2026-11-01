@@ -18,6 +18,8 @@ class ScenarioInterpreter:
         "acrylic": "PMMA",
         "poly(methyl methacrylate)": "PMMA",
         "cotton": "Cotton",
+        "cotton-fiberglass": "Cotton-Fiberglass",
+        "cotton fiberglass": "Cotton-Fiberglass",
         "cellulose": "Cellulose",
         "ashless filter paper": "Cellulose",
         "filter paper": "Cellulose",
@@ -25,6 +27,9 @@ class ScenarioInterpreter:
         "polyoxymethylene": "Delrin",
         "pom": "Delrin",
         "nomex": "Nomex",
+        "mylar": "Mylar",
+        "silicone": "Silicone",
+        "ultem": "Ultem",
     }
 
     def __init__(self):
@@ -91,60 +96,81 @@ class ScenarioInterpreter:
         parsed: dict[str, Any] = {}
         lower = text.lower()
 
-        # Extract material
-        found_mat = None
-        for syn, canonical in self.SYNONYMS.items():
-            if re.search(rf"\b{re.escape(syn)}\b", lower):
-                found_mat = canonical
-                break
-        if found_mat:
-            parsed["material"] = found_mat
-        else:
-            # Check capitalized tokens
-            mat_match = re.search(r"\b(pmma|cotton|cellulose|delrin|nomex|teflon|kapton)\b", lower)
-            if mat_match:
-                raw = mat_match.group(1)
-                parsed["material"] = self.SYNONYMS.get(raw, raw.capitalize())
-            else:
-                ambiguities.append("Unrecognized or missing solid fuel material.")
+        number = r"(?<![\w.+\-–—])\d+(?:\.\d+)?(?![\w.+\-–—])"
 
-        # Extract oxygen
-        # e.g., "21% oxygen", "18.5 % o2", "20.9% o2"
-        o2_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:%|pct|percent)\s*(?:oxygen|o2)?", lower)
-        if o2_match:
-            parsed["oxygen_pct"] = float(o2_match.group(1))
-        else:
-            ambiguities.append("Missing oxygen concentration (e.g. '21% O2').")
+        def malformed_or_range(unit: str) -> bool:
+            numeric = r"\d+(?:\.\d+)?"
+            bad = rf"(?:[-+−]\s*{numeric}|{numeric}[eE][+-]?\d+|{numeric}\s*(?:-|–|—|to)\s*{numeric})\s*(?:{unit})"
+            return re.search(bad, lower) is not None
 
-        # Extract pressure
-        # e.g., "101.3 kpa", "1 atm", "sea level", "56.5 kpa", "8.2 psi"
-        if "sea level" in lower or "1 atm" in lower:
-            parsed["pressure_kpa"] = 101.3
-        elif "exploration atmosphere" in lower:
-            parsed["pressure_kpa"] = 56.5
-            if "oxygen_pct" not in parsed:
-                parsed["oxygen_pct"] = 34.0
-        else:
-            p_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:kpa|kilopascals?)", lower)
-            if p_match:
-                parsed["pressure_kpa"] = float(p_match.group(1))
+        def choose_numeric(
+            field: str, label: str, values: list[float], missing: str,
+            tolerance: float = 1e-6, malformed: bool = False,
+        ) -> None:
+            if malformed:
+                ambiguities.append(f"Malformed or ranged {label} value; provide one non-negative numeric value.")
+            elif not values:
+                ambiguities.append(missing)
+            elif max(values) - min(values) > tolerance:
+                ambiguities.append(f"Conflicting {label} values were specified: {', '.join(str(v) for v in values)}.")
             else:
-                psi_match = re.search(r"(\d+(?:\.\d+)?)\s*psi", lower)
-                if psi_match:
-                    parsed["pressure_kpa"] = round(float(psi_match.group(1)) * 6.89476, 2)
-                else:
-                    ambiguities.append("Missing pressure specification (e.g. '101.3 kPa' or 'sea level').")
+                parsed[field] = values[0]
 
-        # Extract flow velocity
-        # e.g., "5 cm/s", "quiescent" (0 cm/s), "10.0 cm/s flow"
-        if "quiescent" in lower or "zero flow" in lower or "stagnant" in lower:
-            parsed["flow_cm_s"] = 0.0
+        # Match longer aliases first so "Cotton-Fiberglass" is one material.
+        material_mentions: list[str] = []
+        occupied: list[tuple[int, int]] = []
+        aliases = {**self.SYNONYMS, "teflon": "Teflon", "kapton": "Kapton"}
+        for alias, canonical in sorted(aliases.items(), key=lambda item: len(item[0]), reverse=True):
+            for match in re.finditer(rf"(?<!\w){re.escape(alias)}(?!\w)", lower):
+                if any(match.start() < end and match.end() > start for start, end in occupied):
+                    continue
+                occupied.append(match.span())
+                material_mentions.append(canonical)
+        distinct_materials = sorted(set(material_mentions))
+        if len(distinct_materials) > 1:
+            ambiguities.append(f"Conflicting material names were specified: {', '.join(distinct_materials)}.")
+        elif distinct_materials:
+            parsed["material"] = distinct_materials[0]
         else:
-            f_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:cm/s|cm\s*s-1|centimeters?\s*per\s*second)", lower)
-            if f_match:
-                parsed["flow_cm_s"] = float(f_match.group(1))
-            else:
-                ambiguities.append("Missing ventilation flow velocity (e.g. '5 cm/s' or 'quiescent').")
+            ambiguities.append("Unrecognized or missing solid fuel material.")
+
+        oxygen_explicit: list[float] = []
+        oxygen_unlabeled: list[float] = []
+        for match in re.finditer(rf"({number})\s*(?:%|pct\b|percent\b)", lower):
+            following = lower[match.end():]
+            if re.match(r"\s*(?:oxygen|o2)\b", following):
+                oxygen_explicit.append(float(match.group(1)))
+            elif not re.match(r"\s*(?:relative\s+humidity|humidity|rh)\b", following):
+                oxygen_unlabeled.append(float(match.group(1)))
+        oxygen_values = oxygen_explicit + oxygen_unlabeled
+        if not oxygen_values and "exploration atmosphere" in lower:
+            oxygen_values.append(34.0)
+        choose_numeric("oxygen_pct", "oxygen", oxygen_values,
+                       "Missing oxygen concentration (e.g. '21% O2').",
+                       malformed=malformed_or_range(r"%|pct\b|percent\b"))
+
+        pressure_values = [float(match.group(1)) for match in re.finditer(
+            rf"({number})\s*(?:kpa|kilopascals?)\b", lower
+        )]
+        pressure_values.extend(round(float(match.group(1)) * 6.89476, 2) for match in re.finditer(
+            rf"({number})\s*psi\b", lower
+        ))
+        if "sea level" in lower or re.search(r"\b1\s*atm\b", lower):
+            pressure_values.append(101.3)
+        if "exploration atmosphere" in lower:
+            pressure_values.append(56.5)
+        choose_numeric("pressure_kpa", "pressure", pressure_values,
+                       "Missing pressure specification (e.g. '101.3 kPa' or 'sea level').",
+                       tolerance=0.1, malformed=malformed_or_range(r"kpa\b|kilopascals?\b|psi\b"))
+
+        flow_values = [float(match.group(1)) for match in re.finditer(
+            rf"({number})\s*(?:cm/s|cm\s*s-1|centimeters?\s*per\s*second)\b", lower
+        )]
+        if any(term in lower for term in ("quiescent", "zero flow", "stagnant")):
+            flow_values.append(0.0)
+        choose_numeric("flow_cm_s", "flow", flow_values,
+                       "Missing ventilation flow velocity (e.g. '5 cm/s' or 'quiescent').",
+                       malformed=malformed_or_range(r"cm/s|cm\s*s-1|centimeters?\s*per\s*second\b"))
 
         is_valid = len(ambiguities) == 0
         return {

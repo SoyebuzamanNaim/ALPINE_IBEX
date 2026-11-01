@@ -1,86 +1,47 @@
-# Reproducibility Guide (Phase 15)
+# Reproduction guide
 
-> **Document Status:** Complete step-by-step instructions to independently reproduce the data ingestion, cross-validation, model artifacts, and test suite for FLARE-X.
+This guide rebuilds the dataset and model artifacts from the source files checked into this repository. The ingestion process does not download missing NASA documents; it reads the curated source tables in `data/processed/`.
 
----
+## Environment
 
-## 1. Prerequisites & Environment Setup
-
-- **Operating System:** Linux (Ubuntu 22.04+ or Debian-based), macOS, or Windows WSL2.
-- **Python Version:** Python 3.12 (or 3.10+).
+Use Python 3.12 or newer. `requirements.txt` is a fully pinned environment lock, including transitive and test packages:
 
 ```bash
-# Clone or navigate to the repository
-cd flare-x-prototype
-
-# Create and activate virtual environment
 python3 -m venv .venv
-source .venv/bin/activate
-
-# Install exact dependencies
-pip install -r requirements.txt
+.venv/bin/python -m pip install -r requirements.txt
 ```
 
----
-
-## 2. Data Ingestion & Hash Verification
-
-To extract the 145 discrete microgravity spaceflight observations from raw NASA PSI/NTRS reports into canonical Parquet and CSV tables:
+## Rebuild the canonical dataset
 
 ```bash
-# Execute full extraction pipeline
-python -c "from src.ingestion.extract import build_all; build_all()"
-
-# Verify SHA-256 dataset checksum
-sha256sum cache/experiments.parquet
-# Expected: 428cec44e6b4b29a22d0cc4bf229d4e594e5c16db87823bf9f71c1b04e633bd6
+.venv/bin/python -m src.ingestion.build_table
 ```
 
----
+This rebuilds `cache/experiments.parquet`, `data/processed/experiments.parquet`, CSV/interim exports, the provenance registry, and `reports/DATA_QUALITY.md`. Validation counts are recorded in `data/interim/ingestion_audit.json`. If any selected source row fails schema validation, the row and errors are written to `data/interim/quarantine.json` and the command stops before overwriting canonical tables. The checked-in canonical table currently contains 200 rows. Compare its SHA-256 with `models/model_meta.json` before using the model; the API performs this check at request time.
 
-## 3. Model Training & Cross-Validation
-
-To train the Gradient Boosting model, evaluate honest 5-fold grouped cross-validation, and write `models/model_meta.json` and `models/metrics.json`:
+## Train and evaluate
 
 ```bash
-python src/compute/model.py
+.venv/bin/python src/compute/model.py
 ```
 
-Expected Output:
-```text
-Loaded 145 microgravity experiments.
-Report-grouped 5-fold CV (report_id):
-  honest grouped CV accuracy: 83.45%
-  balanced accuracy:          72.41%
-  macro F1:                   0.7315
-  majority class baseline:    51.72%
-  optimistic plain CV:        80.69%
-Model saved to: models/flame_spread_gb.joblib
-Metadata saved to: models/model_meta.json
-Metrics saved to: models/metrics.json
-```
+This writes `models/flame_spread_gb.joblib`, `models/model_meta.json`, `models/metrics.json`, `reports/BASELINE_RESULTS.md`, and `docs/MODEL_CARDS.md`. Training is a mutating operation: it replaces these artifacts with results from the current dataset and code. Review the generated diffs before committing them.
 
----
+Current checked-in metadata reports 76.0% grouped accuracy and an 81.5% majority-class baseline. Since the model does not beat that baseline, public model inference remains withheld. The detailed analysis and its caveats are in [REBUILT_MODEL_EVALUATION.md](../reports/REBUILT_MODEL_EVALUATION.md).
 
-## 4. Running the Complete Automated Test Suite
-
-To run all 68 unit, integration, and red-team tests:
+## Run the existing checks
 
 ```bash
-pytest tests/ -v
+.venv/bin/pytest -q
+node --check app/app.js
 ```
 
-Expected: **68 passed in ~7.0s**.
+The suite includes a strict expected failure for the current model-governance requirement that the classifier beat its majority baseline.
 
----
-
-## 5. Launching the Local Application
-
-Execute the single-command runner script:
+## Start the local service
 
 ```bash
 ./scripts/run_local.sh
 ```
 
-- **Mission Control Web App:** [http://localhost:8000](http://localhost:8000)
-- **Interactive REST API Documentation (Swagger):** [http://localhost:8000/docs](http://localhost:8000/docs)
+The UI is served at <http://localhost:8000>; OpenAPI docs are at <http://localhost:8000/docs>.

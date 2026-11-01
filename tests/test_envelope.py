@@ -57,11 +57,59 @@ def test_per_material_out_of_range():
     assert any("Nomex" in r["reason"] for r in res["out_of_range_reasons"])
 
 
-def test_sparse_region_detection():
+def test_joint_domain_refuses_sparse_rectangle_corner():
     guard = EnvelopeGuard()
-    # Cellulose spans 44.1-101.3 kPa, so 70 kPa sits inside its box but far from any test
+    # Every coordinate is individually in range, but this combination is outside
+    # the convex hull of Cellulose experiments.
     res = guard.check(oxygen_pct=22.0, pressure_kpa=70.0, flow_cm_s=20.0, material="Cellulose")
-    assert res["in_training_range"] is True
-    assert res["sparse_region_warning"] is True
-    assert "knn_mean_distance" in res
-    assert isinstance(res["sparse_region_warning"], bool)
+    assert res["in_training_range"] is False
+    assert res["status"] == "joint_extrapolation"
+    assert any(r["feature"] == "joint_domain" for r in res["out_of_range_reasons"])
+    assert len(res["nearest_experiments"]) == 3
+
+
+def test_low_rank_material_joint_domain_rejects_off_line_point():
+    guard = EnvelopeGuard()
+    assert guard.joint_domains["Mylar"].contains([16.5, 70.3, 30.0])
+    assert not guard.joint_domains["Mylar"].contains([16.5, 70.3, 29.0])
+
+
+@pytest.mark.parametrize(
+    "material, oxygen, pressure, flow",
+    [
+        ("Cotton", 26.2, 70.7, 20.0),
+        ("Mylar", 16.0, 70.3, 30.0),
+        ("Silicone", 22.1, 100.0, 20.0),
+        ("Ultem", 23.0, 70.3, 30.0),
+    ],
+)
+def test_material_with_fewer_than_three_distinct_conditions_abstains(
+    material, oxygen, pressure, flow
+):
+    result = EnvelopeGuard().check(oxygen, pressure, flow, material)
+    assert result["in_training_range"] is True
+    assert result["status"] == "insufficient_material_evidence"
+    assert result["requires_abstention"] is True
+    assert result["sparse_region_warning"] is True
+    assert "distinct" in result["explanation"]
+
+
+@pytest.mark.parametrize(
+    "oxygen, pressure, flow, material, expected_ids",
+    [
+        (17.1, 101.3, 5.0, "Cotton-Fiberglass", {"BASS2_T11_5", "BASS2_T22_5"}),
+        (17.3, 101.3, 10.0, "PMMA", {"BASS2_B19_10", "BASS2_T7_10"}),
+        (18.0, 101.3, 3.0, "PMMA", {"BASS2_O3a_3", "BASS2_O3b_3"}),
+        (22.0, 100.0, 20.0, "PMMA", {"SAF_II_8", "SAF_IV_2"}),
+    ],
+)
+def test_identical_inputs_with_conflicting_outcomes_abstain(
+    oxygen, pressure, flow, material, expected_ids
+):
+    result = EnvelopeGuard().check(oxygen, pressure, flow, material)
+    assert result["in_training_range"] is True
+    assert result["status"] == "conflicting_evidence"
+    assert result["requires_abstention"] is True
+    assert result["out_of_range_reasons"] == []
+    assert expected_ids <= {item["experiment_id"] for item in result["nearest_experiments"]}
+    assert "opposite" in result["explanation"].lower() or "conflict" in result["explanation"].lower()

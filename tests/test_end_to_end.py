@@ -30,11 +30,11 @@ def test_e2e_1_supported_scenario(client):
     assert res.status_code == 200
     data = res.json()
 
-    # Flow verification: Input -> Model -> Retrieval -> Composer -> Auditor
+    # Public inference is withheld until grouped validation beats the baseline.
     assert data["in_training_range"] is True
-    assert data["status"] in ["in_domain", "boundary"]
-    assert data["prediction"] == "spread"
-    assert data["probabilities"]["spread"] > 0.80
+    assert data["status"] == "model_unvalidated"
+    assert data["prediction"] is None
+    assert data["probabilities"] is None
     assert data["model"]["n_train"] == 200
     assert len(data["nearest_experiments"]) == 3
 
@@ -42,7 +42,7 @@ def test_e2e_1_supported_scenario(client):
     first_exp = data["nearest_experiments"][0]
     assert first_exp["report_id"] is not None
     assert "ntrs.nasa.gov" in first_exp["source_url"]
-    assert "PMMA" in data["explanation"]
+    assert "majority baseline" in data["explanation"]
 
 
 def test_e2e_2_boundary_scenario(client):
@@ -58,10 +58,10 @@ def test_e2e_2_boundary_scenario(client):
     data = res.json()
 
     assert data["in_training_range"] is True
-    assert data["status"] == "boundary"
-    assert data["prediction"] in ["marginal_spread", "no_spread"]
+    assert data["status"] == "model_unvalidated"
+    assert data["prediction"] is None
     assert data["warning_message"] is not None
-    assert "boundary" in data["warning_message"].lower()
+    assert "majority" in data["warning_message"].lower()
 
 
 def test_e2e_3_unsupported_scenarios(client):
@@ -110,8 +110,8 @@ def test_e2e_4_missing_variable_scenario(client):
     assert any("pressure" in a.lower() for a in data["ambiguities"])
 
 
-def test_e2e_5_sparse_region_scenario(client):
-    """Case 5: Within bounding box but sparse experimental density."""
+def test_e2e_5_jointly_unsupported_scenario(client):
+    """Case 5: Per-feature ranges must not admit an unsupported combination."""
     payload = {
         "oxygen_pct": 22.0,
         "pressure_kpa": 70.0,
@@ -122,10 +122,11 @@ def test_e2e_5_sparse_region_scenario(client):
     assert res.status_code == 200
     data = res.json()
 
-    assert data["in_training_range"] is True
-    assert "sparse_region_warning" in data
-    assert data["knn_mean_distance"] is not None
-    assert isinstance(data["sparse_region_warning"], bool)
+    assert data["in_training_range"] is False
+    assert data["status"] == "joint_extrapolation"
+    assert data["prediction"] is None
+    assert data["probabilities"] is None
+    assert any(reason["feature"] == "joint_domain" for reason in data["out_of_range_reasons"])
 
 
 def test_e2e_6_api_model_failure_handling(client):

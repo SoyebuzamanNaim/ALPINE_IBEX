@@ -1,7 +1,7 @@
 """Counterfactual Engine for FLARE-X.
 
 Enables interactive parameter perturbation, multi-step parameter sweeps,
-regime boundary detection, and safety margin estimation with strict envelope checking.
+regime transition detection, and transition-distance estimates with strict envelope checking.
 """
 from __future__ import annotations
 
@@ -65,17 +65,17 @@ class CounterfactualEngine:
             "material": str(material),
         }
 
-        if not env["in_training_range"]:
+        if not env["in_training_range"] or env.get("requires_abstention"):
             return {
                 "inputs": inputs,
-                "in_training_range": False,
+                "in_training_range": env["in_training_range"],
                 "status": env["status"],
                 "out_of_range_reasons": env["out_of_range_reasons"],
                 "prediction": None,
                 "probabilities": None,
                 "confidence": None,
                 "nearest_experiments": env["nearest_experiments"],
-                "sparse_region_warning": False,
+                "sparse_region_warning": env.get("sparse_region_warning", False),
                 "warning_message": env["warning_message"],
                 "explanation": env["explanation"],
             }
@@ -141,7 +141,7 @@ class CounterfactualEngine:
         # Prediction delta
         base_pred = base_res["prediction"]
         cf_pred = cf_res["prediction"]
-        pred_changed = base_pred != cf_pred
+        pred_changed = None if base_pred is None or cf_pred is None else base_pred != cf_pred
 
         # Probability deltas
         prob_deltas = {}
@@ -237,19 +237,31 @@ class CounterfactualEngine:
 
             prev_pt = pt
 
-        # Safety margin to extinction / no_spread
+        # Distance to the nearest modeled transition involving no_spread. This is
+        # a research estimate, not a safety clearance.
         base_val = float(baseline[param])
+        baseline_result = self.evaluate_scenario(
+            oxygen_pct=baseline["oxygen_pct"],
+            pressure_kpa=baseline["pressure_kpa"],
+            flow_cm_s=baseline["flow_cm_s"],
+            material=baseline["material"],
+        )
         safety_margin = None
-        for t in transitions:
-            if "no_spread" in (t["from_regime"], t["to_regime"]):
-                boundary_mid = t["midpoint"]
+        if baseline_result["prediction"] is not None:
+            eligible = [
+                transition for transition in transitions
+                if "no_spread" in (transition["from_regime"], transition["to_regime"])
+            ]
+            if eligible:
+                nearest = min(eligible, key=lambda item: (abs(base_val - item["midpoint"]), item["midpoint"]))
+                boundary_mid = nearest["midpoint"]
                 safety_margin = {
                     "boundary_midpoint": boundary_mid,
                     "baseline_value": base_val,
                     "delta_to_boundary": round(base_val - boundary_mid, 3),
-                    "is_safe_side": base_val < boundary_mid if start < end else base_val > boundary_mid,
+                    "baseline_predicted_regime": baseline_result["prediction"],
+                    "is_no_spread_side": baseline_result["prediction"] == "no_spread",
                 }
-                break
 
         return {
             "parameter": param,

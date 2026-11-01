@@ -33,7 +33,8 @@ class NearestExperimentRetriever:
     ) -> list[dict[str, Any]]:
         """Find the k nearest real NASA experiments by normalized feature distance.
         
-        A material mismatch receives a large penalty (default 10.0) per Challenge Brief §7.
+        A material mismatch receives a large penalty (default 10.0) so records from other
+        materials do not outrank relevant experiments in nearest-evidence results.
         """
         # Normalized deltas
         delta_o2 = np.abs(self.df["oxygen_pct"].values - oxygen_pct) / self.o2_range
@@ -78,7 +79,7 @@ class NearestExperimentRetriever:
             else:
                 mismatched.append(f"material (observed {row['material']}, requested {material})")
 
-            # Format strictly matching the Challenge Brief §7 API contract
+            # Keep the returned experiment records aligned with the API response schema.
             results.append({
                 "experiment_id": str(row["experiment_id"]),
                 "investigation": str(row["investigation"]),
