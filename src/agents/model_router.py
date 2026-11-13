@@ -1,6 +1,6 @@
 """Model Router Agent for FLARE-X.
 
-Routes requests to the persisted gradient boosted classification model,
+Routes requests to the persisted research classification model,
 formats standardized model metadata, and computes class probabilities.
 """
 from __future__ import annotations
@@ -43,6 +43,10 @@ class ModelRouter:
             "features": self.meta.get(
                 "features", ["oxygen_pct", "pressure_kpa", "flow_cm_s", "material"]
             ),
+            **{key: self.meta.get(key) for key in (
+                "release_mode", "validation_status", "research_warning", "probability_calibration",
+                "majority_baseline_accuracy", "cv_balanced_accuracy", "nested_search",
+            )},
         }
 
     def predict(

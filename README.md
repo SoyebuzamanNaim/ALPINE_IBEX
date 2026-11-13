@@ -4,7 +4,9 @@ FLARE-X is a research prototype for exploring NASA microgravity combustion obser
 
 ## Current model status
 
-The checked-in dataset contains 200 observations. The current grouped cross-validation accuracy is 77.5%, below the 81.5% majority-class baseline. Public model inference is therefore withheld for otherwise eligible conditions. The API returns `model_unvalidated` with no prediction or probabilities. Out-of-domain, conflicting, and sparse-material cases also abstain. See [scientific limitations](docs/LIMITATIONS.md) and the [rebuilt model evaluation](reports/REBUILT_MODEL_EVALUATION.md).
+The serving model is the best four-input candidate found in the 135-configuration search: a linear SVM (C=1.0). Its **84.0% exploratory grouped selection score** exceeds the **81.5% majority baseline**. The full search procedure's nested accuracy is **25.5%**; that evaluates the search procedure, not the fixed SVM alone. This does not establish a validated accuracy improvement.
+
+Guarded research estimates are available for supported conditions. Probabilities are not validated across reports. Out-of-domain, conflicting, sparse-material and failed-audit cases still abstain. The UI and `/model` expose the model's limitations and evidence. See [model card](docs/MODEL_CARDS.md).
 
 ## Quick start
 
@@ -17,7 +19,7 @@ python3 -m venv .venv
 ./scripts/run_local.sh
 ```
 
-Open <http://localhost:8000> for the Mission Control UI and <http://localhost:8000/docs> for the interactive API documentation. The launcher uses the checked-in dataset and model artifacts; if either is missing, it rebuilds or trains it.
+Open <http://localhost:8000> for the Mission Control UI and <http://localhost:8000/docs> for the interactive API documentation. VS Code Live Server at <http://127.0.0.1:5500/app/> also connects to this backend on port 8000. The launcher uses the checked-in dataset and model artifacts; if either is missing, it rebuilds or trains it.
 
 Run the existing test suite with:
 

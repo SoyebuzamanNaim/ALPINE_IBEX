@@ -49,7 +49,7 @@ The numeric fields must be nonnegative and within broad schema bounds: oxygen 0â
 
 `POST /predict` returns HTTP 200 for scientifically meaningful abstentions as well as accepted in-domain results. Clients must inspect `status`, `prediction`, and `probabilities`.
 
-- `model_unvalidated`: current grouped model score (0.775) does not exceed the 0.815 majority baseline. Prediction and probabilities are null.
+- `model_unvalidated`: the loaded model does not pass its dataset/artifact integrity checks or grouped baseline comparison. Prediction and probabilities are null.
 - `conflicting_evidence`: opposite outcomes are present at identical model inputs. Prediction and probabilities are null; conflicting observations are returned.
 - `insufficient_material_evidence`: fewer than three distinct conditions exist for that material. Prediction and probabilities are null.
 - `joint_extrapolation` or an out-of-range refusal: a feature or input combination is outside observed conditions. Prediction and probabilities are null.
@@ -60,3 +60,5 @@ When status is eligible for a model estimate, the response includes `inputs`, `i
 ## Scenario parsing
 
 `POST /scenario/parse` accepts `{"query":"..."}` with at most 2,000 characters. Conflicting mentions of a material or numeric condition are reported as ambiguities rather than silently selecting one mention.
+
+The serving `linear_svm` runs in `release_mode=research`. The 0.84 grouped score is exploratory model-selection evidence. `/model`, `/health`, and prediction metadata expose the full search procedure's nested score separately (0.255), validation status, and calibration limitations. Research availability is not operational certification.

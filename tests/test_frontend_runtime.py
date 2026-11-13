@@ -10,6 +10,74 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_scenario_search_discards_old_responses_and_manual_edit_results():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+    script = r"""
+const fs = require('fs'), vm = require('vm'), assert = require('assert/strict');
+const pending = [], applied = [], nodes = new Map();
+const document = {addEventListener() {}, getElementById(id) {
+  if (!nodes.has(id)) nodes.set(id, {value: '', textContent: '', style: {},
+    addEventListener(name, callback) {this[name] = callback;}});
+  return nodes.get(id);
+}};
+const context = vm.createContext({document, console,
+  window: {location: {protocol: 'file:', hostname: ''}},
+  fetch: () => new Promise(resolve => pending.push(resolve))});
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+context.window.applied = applied;
+vm.runInContext('updateInputs = (...args) => window.applied.push(args); setupNlpParser()', context);
+const query = document.getElementById('nlp-query-input');
+const button = document.getElementById('nlp-query-submit');
+const result = oxygen_pct => ({ok: true, json: async () => ({is_valid: true,
+  parsed_scenario: {oxygen_pct, pressure_kpa: 101.3, flow_cm_s: 5, material: 'PMMA'}})});
+(async () => {
+  query.value = 'older'; const older = button.click();
+  query.value = 'newer'; const newer = button.click();
+  pending[1](result(22)); await newer;
+  pending[0](result(18)); await older;
+  assert.deepEqual(applied.map(args => args[0]), [22], 'Old search replaced the newer search');
+  query.value = 'pending'; const editing = button.click();
+  vm.runInContext('state.oxygen_pct = 24; updateCoordHud()', context);
+  pending[2](result(19)); await editing;
+  assert.equal(applied.length, 1, 'Search replaced a manually edited scenario');
+})().catch(error => {console.error(error); process.exitCode = 1;});
+"""
+    result = subprocess.run(["node", "-e", script], cwd=ROOT, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+
+
+def test_metadata_response_does_not_hide_a_prediction_connection_failure():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+    script = r"""
+const fs = require('fs'), vm = require('vm'), assert = require('assert/strict');
+const pending = [], nodes = new Map();
+const document = {addEventListener() {}, getElementById(id) {
+  if (['fuel-spec-info', 'model-confusion-body'].includes(id)) return null;
+  if (!nodes.has(id)) nodes.set(id, {textContent: '', className: ''});
+  return nodes.get(id);
+}};
+const context = vm.createContext({document, console,
+  window: {location: {protocol: 'file:', hostname: ''}},
+  fetch: () => new Promise(resolve => pending.push(resolve))});
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+(async () => {
+  const request = vm.runInContext('loadModelStatus()', context);
+  vm.runInContext('state.connectionError = true', context);
+  document.getElementById('status-text').textContent = 'Live estimate unavailable';
+  document.getElementById('model-gate-text').textContent = 'ESTIMATE UNAVAILABLE';
+  pending[0]({ok: true, json: async () => ({n_train: 200, type: 'linear_svm'})});
+  pending[1]({ok: true, json: async () => ({model_ready: true})});
+  await request;
+  assert.equal(document.getElementById('status-text').textContent, 'Live estimate unavailable');
+  assert.equal(document.getElementById('model-gate-text').textContent, 'ESTIMATE UNAVAILABLE');
+})().catch(error => {console.error(error); process.exitCode = 1;});
+"""
+    result = subprocess.run(["node", "-e", script], cwd=ROOT, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+
+
 def test_dynamic_experiment_cards_escape_text_and_reject_unsafe_links():
     if not shutil.which("node"):
         pytest.skip("Node.js is unavailable")
@@ -166,7 +234,7 @@ const document = {
   getElementById(id) {
     if (id === 'flammability-boundary-canvas') return canvas;
     if (id === 'sweep-chart-canvas') return null;
-    if (!nodes.has(id)) nodes.set(id, {textContent: '', value: '21'});
+    if (!nodes.has(id)) nodes.set(id, {textContent: '', value: '21', style: {}});
     return nodes.get(id);
   }
 };
@@ -380,7 +448,7 @@ vm.runInContext('drawSweepCanvas = () => {};', context);
       nodes.get('sweep-oxygen-slider').disabled ||
       nodes.get('safety-margin-val').textContent !== 'N/A' ||
       nodes.get('safety-margin-status').textContent !== 'No model transition in this range' ||
-      nodes.get('sweep-title').textContent !== 'Validated model oxygen sweep') {
+          nodes.get('sweep-title').textContent !== 'Research model oxygen sweep') {
     throw new Error('Transition-free model points were hidden or given a fabricated transition');
   }
 })().catch(error => { console.error(error); process.exitCode = 1; });

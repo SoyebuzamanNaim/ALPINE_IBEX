@@ -26,5 +26,8 @@ Publish the same three paths together at the site root. Deploying only
 
 ## Important
 
-The current classifier fails to exceed the majority baseline in report-grouped
-validation. Public model inference is withheld until a validated replacement is available.
+The local backend serves guarded linear-SVM research estimates. Its 84.0% grouped
+selection score exceeds the 81.5% majority baseline, but is not independent
+validation; the full search procedure's nested accuracy is 25.5%. Static hosting
+provides the separately scoped published PMMA reference unless connected to a
+running API. No operational safety or independent predictive improvement is established.

@@ -32,7 +32,7 @@ class PredictRequest(BaseModel):
         ...,
         min_length=1,
         max_length=64,
-        description="Solid fuel material name (PMMA, Cotton, Cellulose, Delrin, Nomex)",
+        description="Solid fuel material name; current supported values are returned by /health",
         examples=["PMMA"],
     )
 
@@ -56,6 +56,13 @@ class ModelMetaSchema(BaseModel):
     cv_accuracy: float
     cv_scheme: str
     features: list[str]
+    release_mode: str | None = None
+    validation_status: str | None = None
+    research_warning: str | None = None
+    probability_calibration: str | None = None
+    majority_baseline_accuracy: float | None = None
+    cv_balanced_accuracy: float | None = None
+    nested_search: dict[str, Any] | None = None
 
 
 class OutOfRangeReasonSchema(BaseModel):

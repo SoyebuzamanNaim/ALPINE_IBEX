@@ -41,7 +41,10 @@ def main() -> None:
         fail(f"dataset has {row_count} rows but model metadata/metrics disagree")
 
     model_results = metrics.get("models", {})
-    gb_report = model_results.get("gradient_boosting", {}).get("report_grouped_cv", {})
+    serving_type = meta.get("type")
+    if metrics.get("serving_model") != serving_type:
+        fail("serving model identity disagrees with metadata")
+    gb_report = model_results.get(serving_type, {}).get("report_grouped_cv", {})
     baseline_report = model_results.get("majority_baseline", {}).get("report_grouped_cv", {})
     for key, report in (
         ("cv_accuracy", gb_report),

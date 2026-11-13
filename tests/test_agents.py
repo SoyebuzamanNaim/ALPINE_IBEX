@@ -117,7 +117,8 @@ def test_evidence_retriever():
 def test_model_router():
     router = ModelRouter()
     meta = router.get_model_metadata()
-    assert meta["type"] == "gradient_boosting"
+    assert meta["type"] == "linear_svm"
+    assert meta["release_mode"] == "research"
     assert meta["n_train"] == 200
     # Scores describe out-of-report transfer and are not a model quality target.
     assert meta["cv_accuracy"] > 0.50

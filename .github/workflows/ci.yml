@@ -32,3 +32,19 @@ jobs:
         run: |
           python -m compileall -q src scripts
           node --check app/app.js
+      - uses: actions/setup-node@v4
+        if: matrix.python-version == '3.12'
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Run live Playwright integration
+        if: matrix.python-version == '3.12'
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm run test:frontend
+      - uses: actions/upload-artifact@v4
+        if: always() && matrix.python-version == '3.12'
+        with:
+          name: frontend-playwright
+          path: /tmp/flare-playwright/

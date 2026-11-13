@@ -30,11 +30,12 @@ def test_e2e_1_supported_scenario(client):
     assert res.status_code == 200
     data = res.json()
 
-    # Public inference is withheld until grouped validation beats the baseline.
+    # The selected SVM serves guarded research estimates with explicit limitations.
     assert data["in_training_range"] is True
-    assert data["status"] == "model_unvalidated"
-    assert data["prediction"] is None
-    assert data["probabilities"] is None
+    assert data["status"] in {"in_domain", "boundary"}
+    assert data["prediction"] in {"spread", "no_spread", "marginal_spread"}
+    assert data["probabilities"] is not None
+    assert data["model"]["validation_status"] == "exploratory_model_selection"
     assert data["model"]["n_train"] == 200
     assert len(data["nearest_experiments"]) == 3
 
@@ -42,7 +43,7 @@ def test_e2e_1_supported_scenario(client):
     first_exp = data["nearest_experiments"][0]
     assert first_exp["report_id"] is not None
     assert "ntrs.nasa.gov" in first_exp["source_url"]
-    assert "majority baseline" in data["explanation"]
+    assert "exploratory" in data["explanation"]
 
 
 def test_e2e_2_boundary_scenario(client):
@@ -58,10 +59,10 @@ def test_e2e_2_boundary_scenario(client):
     data = res.json()
 
     assert data["in_training_range"] is True
-    assert data["status"] == "model_unvalidated"
-    assert data["prediction"] is None
+    assert data["status"] in {"in_domain", "boundary"}
+    assert data["prediction"] is not None
     assert data["warning_message"] is not None
-    assert "majority" in data["warning_message"].lower()
+    assert "exploratory" in data["warning_message"].lower()
 
 
 def test_e2e_3_unsupported_scenarios(client):

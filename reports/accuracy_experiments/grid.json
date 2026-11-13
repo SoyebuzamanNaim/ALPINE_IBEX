@@ -1,0 +1,1433 @@
+[
+  {
+    "id": "exp_000",
+    "kind": "majority",
+    "params": {},
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_001",
+    "kind": "logistic",
+    "params": {
+      "C": 0.01,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_002",
+    "kind": "logistic",
+    "params": {
+      "C": 0.01,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_003",
+    "kind": "logistic",
+    "params": {
+      "C": 0.01,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_004",
+    "kind": "logistic",
+    "params": {
+      "C": 0.1,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_005",
+    "kind": "logistic",
+    "params": {
+      "C": 0.1,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_006",
+    "kind": "logistic",
+    "params": {
+      "C": 0.1,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_007",
+    "kind": "logistic",
+    "params": {
+      "C": 1.0,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_008",
+    "kind": "logistic",
+    "params": {
+      "C": 1.0,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_009",
+    "kind": "logistic",
+    "params": {
+      "C": 1.0,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_010",
+    "kind": "logistic",
+    "params": {
+      "C": 10.0,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_011",
+    "kind": "logistic",
+    "params": {
+      "C": 10.0,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_012",
+    "kind": "logistic",
+    "params": {
+      "C": 10.0,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_013",
+    "kind": "logistic",
+    "params": {
+      "C": 0.01,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_014",
+    "kind": "logistic",
+    "params": {
+      "C": 0.01,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_015",
+    "kind": "logistic",
+    "params": {
+      "C": 0.01,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_016",
+    "kind": "logistic",
+    "params": {
+      "C": 0.1,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_017",
+    "kind": "logistic",
+    "params": {
+      "C": 0.1,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_018",
+    "kind": "logistic",
+    "params": {
+      "C": 0.1,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_019",
+    "kind": "logistic",
+    "params": {
+      "C": 1.0,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_020",
+    "kind": "logistic",
+    "params": {
+      "C": 1.0,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_021",
+    "kind": "logistic",
+    "params": {
+      "C": 1.0,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_022",
+    "kind": "logistic",
+    "params": {
+      "C": 10.0,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_023",
+    "kind": "logistic",
+    "params": {
+      "C": 10.0,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_024",
+    "kind": "logistic",
+    "params": {
+      "C": 10.0,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_025",
+    "kind": "logistic",
+    "params": {
+      "C": 0.01,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_026",
+    "kind": "logistic",
+    "params": {
+      "C": 0.01,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_027",
+    "kind": "logistic",
+    "params": {
+      "C": 0.01,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_028",
+    "kind": "logistic",
+    "params": {
+      "C": 0.1,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_029",
+    "kind": "logistic",
+    "params": {
+      "C": 0.1,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_030",
+    "kind": "logistic",
+    "params": {
+      "C": 0.1,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_031",
+    "kind": "logistic",
+    "params": {
+      "C": 1.0,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_032",
+    "kind": "logistic",
+    "params": {
+      "C": 1.0,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_033",
+    "kind": "logistic",
+    "params": {
+      "C": 1.0,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_034",
+    "kind": "logistic",
+    "params": {
+      "C": 10.0,
+      "class_weight": null
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_035",
+    "kind": "logistic",
+    "params": {
+      "C": 10.0,
+      "class_weight": {
+        "marginal_spread": 1.0,
+        "no_spread": 0.5,
+        "spread": 1.0
+      }
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_036",
+    "kind": "logistic",
+    "params": {
+      "C": 10.0,
+      "class_weight": "balanced"
+    },
+    "pool": "base",
+    "variant": "quadratic"
+  },
+  {
+    "id": "exp_037",
+    "kind": "svm",
+    "params": {
+      "C": 0.1,
+      "class_weight": null,
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_038",
+    "kind": "svm",
+    "params": {
+      "C": 0.1,
+      "class_weight": "balanced",
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_039",
+    "kind": "svm",
+    "params": {
+      "C": 0.1,
+      "class_weight": null,
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_040",
+    "kind": "svm",
+    "params": {
+      "C": 0.1,
+      "class_weight": "balanced",
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_041",
+    "kind": "svm",
+    "params": {
+      "C": 1.0,
+      "class_weight": null,
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_042",
+    "kind": "svm",
+    "params": {
+      "C": 1.0,
+      "class_weight": "balanced",
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_043",
+    "kind": "svm",
+    "params": {
+      "C": 1.0,
+      "class_weight": null,
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_044",
+    "kind": "svm",
+    "params": {
+      "C": 1.0,
+      "class_weight": "balanced",
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_045",
+    "kind": "svm",
+    "params": {
+      "C": 10.0,
+      "class_weight": null,
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_046",
+    "kind": "svm",
+    "params": {
+      "C": 10.0,
+      "class_weight": "balanced",
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_047",
+    "kind": "svm",
+    "params": {
+      "C": 10.0,
+      "class_weight": null,
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_048",
+    "kind": "svm",
+    "params": {
+      "C": 10.0,
+      "class_weight": "balanced",
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_049",
+    "kind": "svm",
+    "params": {
+      "C": 0.1,
+      "class_weight": null,
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_050",
+    "kind": "svm",
+    "params": {
+      "C": 0.1,
+      "class_weight": "balanced",
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_051",
+    "kind": "svm",
+    "params": {
+      "C": 0.1,
+      "class_weight": null,
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_052",
+    "kind": "svm",
+    "params": {
+      "C": 0.1,
+      "class_weight": "balanced",
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_053",
+    "kind": "svm",
+    "params": {
+      "C": 1.0,
+      "class_weight": null,
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_054",
+    "kind": "svm",
+    "params": {
+      "C": 1.0,
+      "class_weight": "balanced",
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_055",
+    "kind": "svm",
+    "params": {
+      "C": 1.0,
+      "class_weight": null,
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_056",
+    "kind": "svm",
+    "params": {
+      "C": 1.0,
+      "class_weight": "balanced",
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_057",
+    "kind": "svm",
+    "params": {
+      "C": 10.0,
+      "class_weight": null,
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_058",
+    "kind": "svm",
+    "params": {
+      "C": 10.0,
+      "class_weight": "balanced",
+      "gamma": "scale"
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_059",
+    "kind": "svm",
+    "params": {
+      "C": 10.0,
+      "class_weight": null,
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_060",
+    "kind": "svm",
+    "params": {
+      "C": 10.0,
+      "class_weight": "balanced",
+      "gamma": 0.1
+    },
+    "pool": "base",
+    "variant": "physical"
+  },
+  {
+    "id": "exp_061",
+    "kind": "svm",
+    "params": {
+      "C": 0.01,
+      "class_weight": null,
+      "kernel": "linear"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_062",
+    "kind": "svm",
+    "params": {
+      "C": 0.01,
+      "class_weight": "balanced",
+      "kernel": "linear"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_063",
+    "kind": "svm",
+    "params": {
+      "C": 0.1,
+      "class_weight": null,
+      "kernel": "linear"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_064",
+    "kind": "svm",
+    "params": {
+      "C": 0.1,
+      "class_weight": "balanced",
+      "kernel": "linear"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_065",
+    "kind": "svm",
+    "params": {
+      "C": 1.0,
+      "class_weight": null,
+      "kernel": "linear"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_066",
+    "kind": "svm",
+    "params": {
+      "C": 1.0,
+      "class_weight": "balanced",
+      "kernel": "linear"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_067",
+    "kind": "forest",
+    "params": {
+      "class_weight": null,
+      "max_depth": 2,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_068",
+    "kind": "forest",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": 2,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_069",
+    "kind": "forest",
+    "params": {
+      "class_weight": null,
+      "max_depth": 2,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_070",
+    "kind": "forest",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": 2,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_071",
+    "kind": "forest",
+    "params": {
+      "class_weight": null,
+      "max_depth": 5,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_072",
+    "kind": "forest",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": 5,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_073",
+    "kind": "forest",
+    "params": {
+      "class_weight": null,
+      "max_depth": 5,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_074",
+    "kind": "forest",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": 5,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_075",
+    "kind": "forest",
+    "params": {
+      "class_weight": null,
+      "max_depth": null,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_076",
+    "kind": "forest",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": null,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_077",
+    "kind": "forest",
+    "params": {
+      "class_weight": null,
+      "max_depth": null,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_078",
+    "kind": "forest",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": null,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_079",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": null,
+      "max_depth": 2,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_080",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": 2,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_081",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": null,
+      "max_depth": 2,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_082",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": 2,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_083",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": null,
+      "max_depth": 5,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_084",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": 5,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_085",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": null,
+      "max_depth": 5,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_086",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": 5,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_087",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": null,
+      "max_depth": null,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_088",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": null,
+      "min_samples_leaf": 1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_089",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": null,
+      "max_depth": null,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_090",
+    "kind": "extra_trees",
+    "params": {
+      "class_weight": "balanced",
+      "max_depth": null,
+      "min_samples_leaf": 4
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_091",
+    "kind": "boosting",
+    "params": {
+      "max_depth": 1,
+      "min_samples_leaf": 3
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_092",
+    "kind": "boosting",
+    "params": {
+      "max_depth": 1,
+      "min_samples_leaf": 8
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_093",
+    "kind": "boosting",
+    "params": {
+      "max_depth": 2,
+      "min_samples_leaf": 3
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_094",
+    "kind": "boosting",
+    "params": {
+      "max_depth": 2,
+      "min_samples_leaf": 8
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_095",
+    "kind": "boosting",
+    "params": {
+      "max_depth": 3,
+      "min_samples_leaf": 3
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_096",
+    "kind": "boosting",
+    "params": {
+      "max_depth": 3,
+      "min_samples_leaf": 8
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_097",
+    "kind": "hist_boosting",
+    "params": {
+      "l2_regularization": 1.0,
+      "max_leaf_nodes": 3
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_098",
+    "kind": "hist_boosting",
+    "params": {
+      "l2_regularization": 10.0,
+      "max_leaf_nodes": 3
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_099",
+    "kind": "hist_boosting",
+    "params": {
+      "l2_regularization": 1.0,
+      "max_leaf_nodes": 7
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_100",
+    "kind": "hist_boosting",
+    "params": {
+      "l2_regularization": 10.0,
+      "max_leaf_nodes": 7
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_101",
+    "kind": "knn",
+    "params": {
+      "n_neighbors": 3,
+      "weights": "uniform"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_102",
+    "kind": "knn",
+    "params": {
+      "n_neighbors": 3,
+      "weights": "distance"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_103",
+    "kind": "knn",
+    "params": {
+      "n_neighbors": 7,
+      "weights": "uniform"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_104",
+    "kind": "knn",
+    "params": {
+      "n_neighbors": 7,
+      "weights": "distance"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_105",
+    "kind": "knn",
+    "params": {
+      "n_neighbors": 15,
+      "weights": "uniform"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_106",
+    "kind": "knn",
+    "params": {
+      "n_neighbors": 15,
+      "weights": "distance"
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_107",
+    "kind": "lda",
+    "params": {
+      "shrinkage": 0.1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_108",
+    "kind": "lda",
+    "params": {
+      "shrinkage": 0.5
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_109",
+    "kind": "lda",
+    "params": {
+      "shrinkage": 0.9
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_110",
+    "kind": "gaussian_nb",
+    "params": {
+      "var_smoothing": 1e-06
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_111",
+    "kind": "gaussian_nb",
+    "params": {
+      "var_smoothing": 0.01
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_112",
+    "kind": "gaussian_nb",
+    "params": {
+      "var_smoothing": 0.1
+    },
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_113",
+    "kind": "production",
+    "params": {},
+    "pool": "base",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_114",
+    "kind": "logistic",
+    "params": {
+      "C": 0.01,
+      "class_weight": null
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_115",
+    "kind": "logistic",
+    "params": {
+      "C": 0.01,
+      "class_weight": "balanced"
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_116",
+    "kind": "logistic",
+    "params": {
+      "C": 0.1,
+      "class_weight": null
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_117",
+    "kind": "logistic",
+    "params": {
+      "C": 0.1,
+      "class_weight": "balanced"
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_118",
+    "kind": "logistic",
+    "params": {
+      "C": 1.0,
+      "class_weight": null
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_119",
+    "kind": "logistic",
+    "params": {
+      "C": 1.0,
+      "class_weight": "balanced"
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_120",
+    "kind": "forest",
+    "params": {
+      "max_depth": 3,
+      "min_samples_leaf": 1
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_121",
+    "kind": "forest",
+    "params": {
+      "max_depth": 3,
+      "min_samples_leaf": 4
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_122",
+    "kind": "forest",
+    "params": {
+      "max_depth": null,
+      "min_samples_leaf": 1
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_123",
+    "kind": "forest",
+    "params": {
+      "max_depth": null,
+      "min_samples_leaf": 4
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_124",
+    "kind": "extra_trees",
+    "params": {
+      "max_depth": 3,
+      "min_samples_leaf": 1
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_125",
+    "kind": "extra_trees",
+    "params": {
+      "max_depth": 3,
+      "min_samples_leaf": 4
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_126",
+    "kind": "extra_trees",
+    "params": {
+      "max_depth": null,
+      "min_samples_leaf": 1
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_127",
+    "kind": "extra_trees",
+    "params": {
+      "max_depth": null,
+      "min_samples_leaf": 4
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_128",
+    "kind": "boosting",
+    "params": {
+      "max_depth": 1
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_129",
+    "kind": "boosting",
+    "params": {
+      "max_depth": 2
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_130",
+    "kind": "boosting",
+    "params": {
+      "max_depth": 3
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_131",
+    "kind": "svm",
+    "params": {
+      "C": 0.1
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_132",
+    "kind": "svm",
+    "params": {
+      "C": 1.0
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_133",
+    "kind": "svm",
+    "params": {
+      "C": 10.0
+    },
+    "pool": "context",
+    "variant": "raw"
+  },
+  {
+    "id": "exp_134",
+    "kind": "majority",
+    "params": {},
+    "pool": "context",
+    "variant": "raw"
+  }
+]

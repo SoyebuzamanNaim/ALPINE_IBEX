@@ -66,6 +66,11 @@ class ProvenanceService:
                             "data_origin": row.get("data_origin", "direct_measurement"),
                             "extraction_notes": row.get("extraction_notes", ""),
                         }
+                    for field in ("sample_geometry", "sample_thickness_mm", "flow_direction",
+                                  "gravity_env", "outcome_raw", "outcome_interpreted"):
+                        value = row.get(field)
+                        if value is not None and not pd.isna(value):
+                            self._registry[eid][field] = value
             except Exception:
                 pass
 

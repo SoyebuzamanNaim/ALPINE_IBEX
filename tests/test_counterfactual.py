@@ -1,11 +1,28 @@
 """Automated tests for Phase 08 Counterfactual Engine."""
 import pytest
+import numpy as np
 from src.features.counterfactual import CounterfactualEngine
 
 
 @pytest.fixture
 def engine():
     return CounterfactualEngine()
+
+
+@pytest.fixture
+def transition_engine(engine):
+    """Test transition bookkeeping independently of the selected model's learned boundary."""
+    class ThresholdModel:
+        def predict(self, rows):
+            return np.where(rows.oxygen_pct.to_numpy() < 18., "no_spread", "spread")
+
+        def predict_proba(self, rows):
+            predictions = self.predict(rows)
+            return np.array([[0.8 if label == prediction else 0.1 for label in engine.classes]
+                             for prediction in predictions])
+
+    engine.model = ThresholdModel()
+    return engine
 
 
 def test_evaluate_scenario_in_domain(engine):
@@ -102,7 +119,8 @@ def test_sweep_has_no_safety_margin_when_baseline_conflicts(engine):
     assert sweep["safety_margin"] is None
 
 
-def test_compute_perturbation_oxygen_drop(engine):
+def test_compute_perturbation_oxygen_drop(transition_engine):
+    engine = transition_engine
     baseline = {
         "oxygen_pct": 19.0,
         "pressure_kpa": 101.3,
@@ -132,7 +150,8 @@ def test_compute_perturbation_oxygen_drop(engine):
     assert len(cf["evidence_delta"]["shared_experiment_ids"]) >= 0
 
 
-def test_run_sweep_oxygen_boundary(engine):
+def test_run_sweep_oxygen_boundary(transition_engine):
+    engine = transition_engine
     baseline = {
         "oxygen_pct": 21.0,
         "pressure_kpa": 101.3,
@@ -165,7 +184,8 @@ def test_run_sweep_oxygen_boundary(engine):
     assert margin["delta_to_boundary"] > 0  # 21% is above the extinction limit
 
 
-def test_sweep_transition_side_is_independent_of_scan_direction(engine):
+def test_sweep_transition_side_is_independent_of_scan_direction(transition_engine):
+    engine = transition_engine
     baseline = {
         "oxygen_pct": 21.0, "pressure_kpa": 101.3,
         "flow_cm_s": 5.0, "material": "PMMA",
@@ -179,6 +199,15 @@ def test_sweep_transition_side_is_independent_of_scan_direction(engine):
     assert first["is_no_spread_side"] is False
     assert second["is_no_spread_side"] is False
     assert "is_safe_side" not in first
+
+
+def test_serving_svm_does_not_invent_transition_in_standard_sweep(engine):
+    result = engine.run_sweep(
+        {"oxygen_pct": 21., "pressure_kpa": 101.3, "flow_cm_s": 5., "material": "PMMA"},
+        "oxygen_pct", 21., 16., steps=11,
+    )
+    assert result["total_transitions"] == 0
+    assert result["safety_margin"] is None
 
 
 def test_sweep_invalid_parameter(engine):

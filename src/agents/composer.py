@@ -51,15 +51,17 @@ class ExplanationComposer:
             if rid and outcome:
                 cite_texts.append(f"{rid} (observed: {outcome})")
 
-        citations = "; ".join(cite_texts) if cite_texts else "historical microgravity flight logs"
+        citations = "; ".join(cite_texts) if cite_texts else "available microgravity observations"
 
         # Construct explanation incorporating only validated numbers
         text = (
             f"Under microgravity conditions without natural buoyant convection, {material} at {o2}% O2, "
-            f"{p} kPa, and {flow} cm/s ventilation is predicted to exhibit {regime_desc} with a probability of {pct_str}. "
+            f"{p} kPa, and {flow} cm/s ventilation has an exploratory model estimate of {regime_desc}, "
+            f"with an estimated class probability of {pct_str}. These probabilities have not been validated across reports. "
             f"In microgravity, forced airflow supplies convective oxygen to the reaction zone while conductive and radiative "
             f"heat losses dictate the flame stabilization boundary. "
-            f"This prediction is supported by the nearest published NASA spaceflight records: {citations}."
+            f"Nearby NASA spaceflight or drop-tower observations for comparison: {citations}. "
+            f"Nearby observations may differ in geometry, flow direction and ignition history; this estimate does not establish safety."
         )
 
         return text

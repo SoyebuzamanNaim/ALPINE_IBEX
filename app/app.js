@@ -4,12 +4,12 @@
  * Presents curated NASA microgravity observations and gated model inference.
  */
 
-// Use the serving origin, except for local static previews on another port.
-const API_BASE = (window.location.protocol.startsWith('http') &&
-  ['localhost', '127.0.0.1'].includes(window.location.hostname) &&
-  window.location.port && window.location.port !== '8000')
+// VS Code Live Server on 5500 serves static files; the model API runs on 8000.
+// FastAPI-hosted pages use their own origin; deployments may set FLARE_API_BASE explicitly.
+const localPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname) && window.location.port === '5500';
+const API_BASE = window.FLARE_API_BASE || (localPreview
   ? `${window.location.protocol}//${window.location.hostname}:8000`
-  : window.location.protocol === 'file:' ? 'http://localhost:8000' : '';
+  : window.location.protocol === 'file:' ? 'http://localhost:8000' : '');
 
 function escapeHTML(value) {
   return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -94,12 +94,14 @@ const state = {
   sweepRunning: false,
   experiments: [],
   materialCounts: {},
+  modelMeta: null,
+  connectionError: false,
   sweepInterval: null
 };
 
 const FUEL_PROPERTIES = {
-  'PMMA': { desc: 'Thermally thick / non-charring acrylic', prop: 'Density: 1.18 g/cm³ · C₅H₈O₂' },
-  'Cellulose': { desc: 'Thermally thin ashless filter paper', prop: 'Density: 1.50 g/cm³ · C₆H₁₀O₅' },
+  'PMMA': { desc: 'Acrylic films, rods and slabs', prop: 'Geometry is not a model input' },
+  'Cellulose': { desc: 'Thin cellulose laboratory wipes', prop: 'Geometry is not a model input' },
   'Cotton': { desc: 'Thin woven porous fabric specimen', prop: 'Density: 1.54 g/cm³ · Natural' },
   'Nomex': { desc: 'Flame-resistant aramid synthetic polymer', prop: 'Aramid' },
   'Cotton-Fiberglass': { desc: 'Composite fabric specimen', prop: 'Cotton and fiberglass' },
@@ -111,6 +113,7 @@ const FUEL_PROPERTIES = {
 // Smooth Tabular Number Ticker (Emil Kowalski Spec)
 function animateNumber(element, endVal, suffix = '', duration = 200) {
   if (!element) return;
+  if (element._animationId) cancelAnimationFrame(element._animationId);
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     element.textContent = `${endVal}${suffix}`;
     element._currentVal = endVal;
@@ -127,12 +130,26 @@ function animateNumber(element, endVal, suffix = '', duration = 200) {
     const current = Math.round(startVal + delta * easeProgress);
     element.textContent = `${current}${suffix}`;
     if (progress < 1) {
-      requestAnimationFrame(step);
+      element._animationId = requestAnimationFrame(step);
     } else {
       element._currentVal = endVal;
     }
   }
-  requestAnimationFrame(step);
+  element._animationId = requestAnimationFrame(step);
+}
+
+function clearProbabilityDisplay(value = 'N/A') {
+  for (const suffix of ['no-spread', 'marginal', 'spread']) {
+    const label = document.getElementById(`val-prob-${suffix}`);
+    if (label) {
+      if (label._animationId) cancelAnimationFrame(label._animationId);
+      label._animationId = null;
+      label._currentVal = undefined;
+      label.textContent = value;
+    }
+    const bar = document.getElementById(`bar-seg-${suffix}`);
+    if (bar) bar.style.width = '0%';
+  }
 }
 
 // Background reticle pulse loop
@@ -154,6 +171,8 @@ function startReticleLoop() {
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('api-docs-link').href = `${API_BASE}/docs`;
+  document.getElementById('model-metadata-link').href = `${API_BASE}/model`;
   setupTabs();
   setupSliders();
   setupPresets();
@@ -178,13 +197,23 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupTabs() {
   const tabs = document.querySelectorAll('[role="tab"]');
   tabs.forEach(tab => {
+    tab.tabIndex = tab.getAttribute('aria-selected') === 'true' ? 0 : -1;
+    tab.addEventListener('keydown', event => {
+      const index = Array.from(tabs).indexOf(tab);
+      const target = event.key === 'ArrowRight' ? (index + 1) % tabs.length
+        : event.key === 'ArrowLeft' ? (index + tabs.length - 1) % tabs.length
+          : event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : null;
+      if (target !== null) { event.preventDefault(); tabs[target].focus(); tabs[target].click(); }
+    });
     tab.addEventListener('click', () => {
       tabs.forEach(t => {
         t.classList.remove('active');
         t.setAttribute('aria-selected', 'false');
+        t.tabIndex = -1;
       });
       tab.classList.add('active');
       tab.setAttribute('aria-selected', 'true');
+      tab.tabIndex = 0;
       tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 
       const targetId = tab.getAttribute('aria-controls');
@@ -198,6 +227,16 @@ function setupTabs() {
         }
       });
       state.activeTab = targetId;
+      if (targetId !== 'view-counterfactual-sweep') {
+        clearTimeout(sweepRefreshTimeout);
+        if (state.sweepInterval != null) {
+          clearInterval(state.sweepInterval);
+          state.sweepInterval = null;
+          state.sweepRunning = false;
+          const button = document.getElementById('btn-run-auto-sweep');
+          if (button) button.textContent = '▶ Play oxygen sweep';
+        }
+      }
 
       if (targetId === 'view-scenario-lab') {
         drawBoundaryCanvas();
@@ -248,6 +287,7 @@ function setupSliders() {
 
   matSelect.addEventListener('change', (e) => {
     state.material = e.target.value;
+    updateCoordHud();
     updateMaterialInfo();
     triggerScenarioEvaluation();
     fetchBoundarySlice();
@@ -267,6 +307,9 @@ function setupSliders() {
       flowSlider.max = '45.0';
       o2Slider.value = '21.0';
       state.oxygen_pct = 21.0;
+      state.flow_cm_s = Math.min(state.flow_cm_s, 45.0);
+      flowSlider.value = state.flow_cm_s;
+      document.getElementById('readout-flow').textContent = `${state.flow_cm_s} cm/s`;
       document.getElementById('readout-o2').textContent = '21.0 %';
     }
     updateCoordHud();
@@ -278,7 +321,13 @@ function setupSliders() {
 function updateMaterialInfo() {
   const count = state.materialCounts[state.material];
   const sampleBadge = document.getElementById('mat-samples-badge');
-  if (sampleBadge) sampleBadge.textContent = count == null ? 'Evidence count unavailable' : `${count} observations`;
+  if (sampleBadge) sampleBadge.textContent = count == null
+    ? state.modelMeta ? '0 recorded observations' : 'Evidence count unavailable' : `${count} observations`;
+  const domain = state.modelMeta?.training_range?.per_material?.[state.material];
+  const domainText = document.getElementById('material-domain');
+  if (domainText) domainText.textContent = domain
+    ? `Recorded ranges: ${domain.oxygen_pct.min}–${domain.oxygen_pct.max}% O₂; ${domain.pressure_kpa.min}–${domain.pressure_kpa.max} kPa; ${domain.flow_cm_s.min}–${domain.flow_cm_s.max} cm/s. Joint coverage is also required.`
+    : 'Recorded material ranges require the backend connection.';
   const fuelProp = FUEL_PROPERTIES[state.material] || { desc: 'Solid fuel', prop: 'Microgravity' };
   const specInfo = document.getElementById('fuel-spec-info');
   if (specInfo) {
@@ -326,14 +375,24 @@ function updateInputs(o2, p, flow, mat) {
   state.flow_cm_s = flow;
   state.material = mat;
 
-  document.getElementById('input-o2').value = o2;
-  document.getElementById('input-pressure').value = p;
-  document.getElementById('input-flow').value = flow;
-  document.getElementById('input-material').value = mat;
+  for (const [id, value] of [['input-o2', o2], ['input-pressure', p], ['input-flow', flow]]) {
+    const input = document.getElementById(id);
+    input.min = Math.min(Number(input.min), value);
+    input.max = Math.max(Number(input.max), value);
+    input.value = value;
+  }
+  const materialInput = document.getElementById('input-material');
+  if (!Array.from(materialInput.options).some(option => option.value === mat)) {
+    const option = document.createElement('option');
+    option.value = mat;
+    option.textContent = `${mat} (no recorded observations)`;
+    materialInput.appendChild(option);
+  }
+  materialInput.value = mat;
 
   document.getElementById('readout-o2').textContent = `${o2.toFixed(1)} %`;
   document.getElementById('readout-pressure').textContent = `${p.toFixed(1)} kPa`;
-  document.getElementById('readout-flow').textContent = `${flow.toFixed(1)} cm/s`;
+  document.getElementById('readout-flow').textContent = `${flow} cm/s`;
 
   updateCoordHud();
   updateMaterialInfo();
@@ -343,6 +402,16 @@ function updateInputs(o2, p, flow, mat) {
 }
 
 function updateCoordHud() {
+  ++parseGeneration;
+  const feedback = document.getElementById('nlp-feedback');
+  if (feedback) feedback.style.display = 'none';
+  for (const [id, o2, pressure, flow] of [
+    ['preset-iss-standard', 21, 101.3, 5], ['preset-exploration', 34, 56.5, 10],
+    ['preset-near-extinction', 16.5, 101.3, 3],
+  ]) {
+    document.getElementById(id)?.classList?.toggle('active-preset', state.material === 'PMMA' &&
+      state.oxygen_pct === o2 && state.pressure_kpa === pressure && state.flow_cm_s === flow);
+  }
   const hud = document.getElementById('coord-hud-val');
   if (hud) {
     hud.textContent = `${state.oxygen_pct.toFixed(1)}% O₂ · ${state.flow_cm_s.toFixed(1)} cm/s · ${state.pressure_kpa.toFixed(1)} kPa`;
@@ -359,15 +428,17 @@ function setupCanvasInteraction() {
   function probeFromEvent(e) {
     if (!state.boundaryData) return;
     const rect = canvas.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    const width = canvas.width || rect.width;
+    const height = canvas.height || rect.height;
+    const clickX = (e.clientX - rect.left) * width / rect.width;
+    const clickY = (e.clientY - rect.top) * height / rect.height;
 
     const padLeft = 70;
     const padBottom = 45;
     const padRight = 35;
     const padTop = 35;
-    const plotW = rect.width - padLeft - padRight;
-    const plotH = rect.height - padTop - padBottom;
+    const plotW = width - padLeft - padRight;
+    const plotH = height - padTop - padBottom;
 
     const b = state.boundaryData;
     const o2Min = b.oxygen_range[0];
@@ -443,6 +514,9 @@ async function triggerScenarioEvaluation() {
     material: state.material
   };
   setNearestEvidenceStatus('Loading observations for the selected conditions…');
+  clearProbabilityDisplay();
+  const badge = document.getElementById('regime-badge');
+  if (badge) badge.textContent = 'Checking selected conditions…';
   const isCurrent = () => generation === evaluationGeneration &&
     payload.oxygen_pct === state.oxygen_pct &&
     payload.pressure_kpa === state.pressure_kpa &&
@@ -455,21 +529,35 @@ async function triggerScenarioEvaluation() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.detail || `HTTP error ${res.status}`);
+    }
     const data = await res.json();
     if (!isCurrent()) return;
+    if (state.connectionError) { state.connectionError = false; loadModelStatus(); }
     renderPredictionResults(data);
   } catch (err) {
     if (!isCurrent()) return;
+    state.connectionError = true;
+    const status = document.getElementById('status-text');
+    const dot = document.getElementById('status-dot');
+    const gate = document.getElementById('model-gate-text');
+    if (status) status.textContent = 'Live estimate unavailable · published reference only';
+    if (dot) dot.className = 'heartbeat-pulse status-offline';
+    if (gate) { gate.textContent = 'ESTIMATE UNAVAILABLE'; gate.className = 'metric-status-offline'; }
     console.warn('API unreachable; falling back to the published NASA boundary:', err);
     // No simulated model output. We show NASA's own published boundary instead,
     // which is deterministic and needs no backend.
     renderPublishedBoundary(payload);
+    const message = document.getElementById('alert-message');
+    if (message) message.textContent = `Live estimate unavailable (${err.message}). ${message.textContent}`;
   }
 }
 
 // Render Prediction UI according to the 4-Tier Scientific State Protocol
 function renderPredictionResults(data) {
+  if (!data.probabilities) clearProbabilityDisplay();
   const alertBanner = document.getElementById('envelope-alert-banner');
   if (alertBanner?.dataset) alertBanner.dataset.kind = !data.in_training_range ? 'out-of-range' :
     data.status === 'model_unvalidated' ? 'validation' : 'evidence';
@@ -627,7 +715,7 @@ function renderPredictionResults(data) {
       if (stateTierPill) {
         stateTierPill.className = 'state-tier-pill tier-estimate';
         if (stateTierLabel) stateTierLabel.textContent = 'MODEL ESTIMATE';
-        if (stateTierExplainer) stateTierExplainer.textContent = `Supervised model · Grouped CV ${(data.model.cv_accuracy * 100).toFixed(1)}% · research estimate`;
+        if (stateTierExplainer) stateTierExplainer.textContent = `Exploratory grouped selection score ${(data.model.cv_accuracy * 100).toFixed(1)}% · research estimate`;
       }
     }
 
@@ -640,7 +728,7 @@ function renderPredictionResults(data) {
     }
 
     const confPct = Math.round((probs[pred] || 0) * 100);
-    if (confPill) confPill.textContent = `${confPct}% Probability`;
+    if (confPill) confPill.textContent = `${confPct}% estimated class probability`;
 
     const pctNo = Math.round((probs.no_spread || 0) * 100);
     const pctMarg = Math.round((probs.marginal_spread || 0) * 100);
@@ -665,8 +753,9 @@ function renderPredictionResults(data) {
     }
 
     if (expText) {
-      expText.textContent = data.explanation || 'Prediction generated from empirical gradient boosted model.';
+      expText.textContent = data.explanation || 'Exploratory estimate from the current research model.';
     }
+    if (data.warning_message && briefing) briefing.textContent += ` ${data.warning_message}`;
   }
 
   // Render Nearest Experiments List
@@ -1106,6 +1195,7 @@ function drawBoundaryCanvas() {
 }
 
 // Scenario Command Search Parser
+let parseGeneration = 0;
 function setupNlpParser() {
   const btn = document.getElementById('nlp-query-submit');
   const input = document.getElementById('nlp-query-input');
@@ -1114,6 +1204,8 @@ function setupNlpParser() {
   btn.addEventListener('click', async () => {
     const text = input.value.trim();
     if (!text) return;
+    const generation = ++parseGeneration;
+    const isCurrent = () => generation === parseGeneration && input.value.trim() === text;
     const feedbackEl = document.getElementById('nlp-feedback');
     if (feedbackEl) {
       feedbackEl.textContent = 'Reading scenario…';
@@ -1128,6 +1220,7 @@ function setupNlpParser() {
       });
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
+      if (!isCurrent()) return;
       if (data.is_valid && data.parsed_scenario) {
         if (feedbackEl) feedbackEl.style.display = 'none';
         const sc = data.parsed_scenario;
@@ -1142,6 +1235,7 @@ function setupNlpParser() {
         }
       }
     } catch (err) {
+      if (!isCurrent()) return;
       console.warn('NLP parser error:', err);
       if (feedbackEl) {
         feedbackEl.textContent = 'Scenario search is unavailable. Check the backend connection and try again.';
@@ -1152,6 +1246,11 @@ function setupNlpParser() {
 
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') btn.click();
+  });
+  input.addEventListener('input', () => {
+    ++parseGeneration;
+    const feedback = document.getElementById('nlp-feedback');
+    if (feedback) feedback.style.display = 'none';
   });
 }
 
@@ -1177,14 +1276,14 @@ function setSweepCopy(mode, message = '') {
     setText('sweep-below-context', 'NASA fitted Eq (6.1) using oxygen readings after burning at extinction. Initial and post-burn oxygen are different measurements.');
     if (canvas) canvas.setAttribute('aria-label', 'NASA PMMA extinction fit with contextual initial oxygen readings from concurrent-flow tests');
   } else if (mode === 'model') {
-    setText('sweep-title', 'Validated model oxygen sweep');
-    setText('sweep-description', 'Model estimates across oxygen concentrations under the selected material, pressure, and flow. Refused points remain blank.');
+    setText('sweep-title', 'Research model oxygen sweep');
+    setText('sweep-description', 'Exploratory model estimates across oxygen concentrations for the selected material, pressure, and flow. Probabilities are not validated across reports. Refused points remain blank; transitions do not establish safety.');
     setText('sweep-metric-label', 'MODEL TRANSITION DISTANCE');
     setText('sweep-above-heading', 'Higher oxygen observations');
     setText('sweep-below-heading', 'Lower oxygen observations');
     setText('sweep-above-context', 'Observed outcomes depend on material geometry, airflow, pressure and ignition history. Inspect source records before drawing a conclusion.');
     setText('sweep-below-context', 'A lower oxygen concentration does not by itself establish extinction for every material or geometry. No safety clearance is inferred from this view.');
-    if (canvas) canvas.setAttribute('aria-label', 'Validated model oxygen probability sweep');
+    if (canvas) canvas.setAttribute('aria-label', 'Exploratory model oxygen probability sweep');
   } else {
     setText('sweep-title', 'Oxygen sweep unavailable for this scenario');
     setText('sweep-description', message);
@@ -1226,7 +1325,9 @@ function scheduleSweepRefresh() {
   ++sweepGeneration;
   clearTimeout(sweepRefreshTimeout);
   setSweepUnavailable('Loading sweep for selected conditions…');
-  sweepRefreshTimeout = setTimeout(fetchSweepData, 150);
+  if (state.activeTab === 'view-counterfactual-sweep') {
+    sweepRefreshTimeout = setTimeout(fetchSweepData, 150);
+  }
 }
 
 function setSweepUnavailable(message) {
@@ -1286,7 +1387,7 @@ async function fetchSweepData() {
     if (!isCurrent()) return;
     const trans = sweepData.transitions;
     if (!Array.isArray(sweepData.points) || sweepData.points.length === 0) {
-      setSweepUnavailable('The validated model returned no sweep points.');
+      setSweepUnavailable('The research model returned no sweep points.');
       return;
     }
     state.sweepData = sweepData;
@@ -1426,7 +1527,6 @@ function setupSweepView() {
     }, 60);
   });
 
-  fetchSweepData();
 }
 
 function updateSweepPoint(o2Val) {
@@ -1443,11 +1543,11 @@ function updateSweepPoint(o2Val) {
   if (!state.sweepData || (state.sweepMode !== 'model' && state.dynamicLocBoundary == null)) {
     if (marginDisplay) marginDisplay.textContent = 'N/A';
     if (marginDisplay) marginDisplay.className = 'margin-figure';
-    if (marginStatus) marginStatus.textContent = state.sweepError || 'Validated sweep unavailable';
+    if (marginStatus) marginStatus.textContent = state.sweepError || 'Research sweep unavailable';
     if (marginStatus) marginStatus.className = 'margin-pill';
     for (const id of ['tag-above-boundary', 'tag-below-boundary', 'tick-loc-boundary', 'evidence-above-boundary', 'evidence-below-boundary']) {
       const el = document.getElementById(id);
-      if (el) el.textContent = 'Validated sweep unavailable';
+      if (el) el.textContent = 'Research sweep unavailable';
     }
     drawSweepCanvas(o2Val);
     return;
@@ -1629,7 +1729,7 @@ function drawPublishedSweepCanvas(currentO2) {
   ctx.fillText('Initial oxygen concentration at test start (% by volume)', (left + right) / 2, h - 8);
 }
 
-// Draw Probability vs O2 Curve Canvas for validated model output.
+// Draw Probability vs O2 Curve Canvas for exploratory model output.
 function drawSweepCanvas(currentO2 = 21.0) {
   if (state.sweepMode === 'published' && state.publishedSweep) {
     drawPublishedSweepCanvas(currentO2);
@@ -1649,7 +1749,7 @@ function drawSweepCanvas(currentO2 = 21.0) {
     ctx.fillStyle = '#64748b';
     ctx.font = '13px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(state.sweepError || 'Validated sweep unavailable', w / 2, h / 2);
+    ctx.fillText(state.sweepError || 'Research sweep unavailable', w / 2, h / 2);
     return;
   }
 
@@ -1743,7 +1843,7 @@ async function setupAtlasView() {
   if (!searchInput || !matFilter || !outFilter) return;
 
   try {
-    const res = await fetch(`${API_BASE}/experiments?limit=200`);
+    const res = await fetch(`${API_BASE}/experiments?limit=1000`);
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const data = await res.json();
     state.experiments = data.experiments;
@@ -1780,13 +1880,16 @@ function renderAtlasTable(rows) {
   const count = document.getElementById('atlas-count');
   if (count) count.textContent = `${rows.length} of ${state.experiments.length} observations shown`;
 
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9">No observations match these filters. Clear the search or choose another material or outcome.</td></tr>';
+  }
   rows.forEach(r => {
     const tr = document.createElement('tr');
     const badgeClass = r.outcome === 'spread' ? 'badge-spread' : (r.outcome === 'marginal_spread' ? 'badge-marginal' : 'badge-no-spread');
     const citeUrl = r.source_url || `https://ntrs.nasa.gov/citations/${r.report_id}`;
 
     tr.innerHTML = `
-      <td><strong>${escapeHTML(r.experiment_id)}</strong></td>
+      <td><button type="button" class="archive-probe" title="Inspect these conditions in the flammability deck">${escapeHTML(r.experiment_id)}</button></td>
       <td>${escapeHTML(r.investigation)}</td>
       <td>${escapeHTML(r.material)}</td>
       <td>${escapeHTML(r.oxygen_pct)}%</td>
@@ -1822,6 +1925,7 @@ async function loadModelStatus() {
     ]);
     if (!modelResponse.ok || !healthResponse.ok) throw new Error('Model metadata unavailable');
     const [meta, health] = await Promise.all([modelResponse.json(), healthResponse.json()]);
+    state.modelMeta = meta;
     const percent = value => `${(value * 100).toFixed(1)}%`;
 
     state.materialCounts = Object.fromEntries(
@@ -1837,20 +1941,25 @@ async function loadModelStatus() {
     setText('model-kpi-baseline', percent(meta.majority_baseline_accuracy));
     setText('model-kpi-balanced', percent(meta.cv_balanced_accuracy));
     setText('model-kpi-samples', String(meta.n_train));
+    setText('model-kpi-nested', meta.nested_search ? percent(meta.nested_search.accuracy) : 'Unavailable');
+    setText('model-validation-note', meta.research_warning || meta.cv_caveat || 'Independent external validation is unavailable.');
+    setText('model-fold-heading', `${meta.loro?.n_groups || meta.cv_fold_sizes?.length || 'Report'}-fold report-grouped confusion matrix`);
     setText('dataset-sha', meta.dataset_sha256
       ? `${meta.dataset_sha256.slice(0, 8)}…${meta.dataset_sha256.slice(-8)}`
       : 'Unavailable');
     setText('model-kpi-comparison', health.model_readiness_reason || 'Model readiness unavailable');
     setText('integrity-text', health.model_ready
-      ? 'Grouped baseline gate passed; source citations and experimental limits still apply.'
+      ? 'Research estimates only. The selection score is exploratory; independent validation and safety certification are absent.'
       : health.model_readiness_reason || 'Model inference is withheld.');
-    setText('status-text', `${meta.n_train} observations · ${health.model_ready ? 'Research model available' : 'Model inference withheld'}`);
-    setText('chip-model-type', meta.type === 'gradient_boosting' ? 'Gradient Boosting' : meta.type || 'Unavailable');
-    setText('model-gate-text', health.model_ready ? 'MODEL AVAILABLE' : 'VALIDATION REQUIRED');
-    const dot = document.getElementById('status-dot');
-    if (dot) dot.className = `heartbeat-pulse ${health.model_ready ? 'status-ready' : 'status-withheld'}`;
-    const gate = document.getElementById('model-gate-text');
-    if (gate) gate.className = health.model_ready ? 'metric-status-ready' : 'metric-status-withheld';
+    setText('chip-model-type', meta.type === 'linear_svm' ? 'Linear SVM' : meta.type === 'gradient_boosting' ? 'Gradient Boosting' : meta.type || 'Unavailable');
+    if (!state.connectionError) {
+      setText('status-text', `${meta.n_train} observations · ${health.model_ready ? 'Research model available' : 'Model inference withheld'}`);
+      setText('model-gate-text', health.model_ready ? 'RESEARCH ESTIMATES' : 'VALIDATION REQUIRED');
+      const dot = document.getElementById('status-dot');
+      if (dot) dot.className = `heartbeat-pulse ${health.model_ready ? 'status-ready' : 'status-withheld'}`;
+      const gate = document.getElementById('model-gate-text');
+      if (gate) gate.className = health.model_ready ? 'metric-status-ready' : 'metric-status-withheld';
+    }
 
     const body = document.getElementById('model-confusion-body');
     if (body && Array.isArray(meta.confusion_matrix) && Array.isArray(meta.classes)) {
@@ -1872,6 +1981,7 @@ async function loadModelStatus() {
       });
     }
   } catch (error) {
+    state.connectionError = true;
     setText('status-text', 'Backend unavailable · published PMMA boundary only');
     setText('model-gate-text', 'SERVICE OFFLINE');
     const dot = document.getElementById('status-dot');
@@ -1889,13 +1999,13 @@ async function loadDatasetsAndModel() {
       const container = document.getElementById('investigation-cards-list');
       if (container) {
         container.innerHTML = '';
-        data.investigations.slice(0, 10).forEach(inv => {
+        data.investigations.forEach(inv => {
           const div = document.createElement('div');
           div.className = 'investigation-card';
           div.innerHTML = `
             <div class="inv-title">${escapeHTML(inv.exact_nasa_title || inv.investigation_key || 'NASA Investigation')}</div>
             <div class="inv-meta">
-              PSI ID: <strong>${escapeHTML(inv.psi_id || 'N/A')}</strong> · Role: <strong>${inv.usable_for_prototype_model === 'YES' ? 'Core Training Set' : 'Reference Catalog'}</strong>
+              PSI ID: <strong>${escapeHTML(inv.psi_id || 'N/A')}</strong> · Catalog role: <strong>${inv.usable_for_prototype_model === 'YES' ? 'Candidate data source' : 'Reference catalog'}</strong>
             </div>
             <div class="inv-desc">${escapeHTML(inv.experiment_objective || inv.description || 'Microgravity combustion flight experiment.')}</div>
           `;
@@ -2152,13 +2262,13 @@ function renderCoverageMap(data) {
       card.innerHTML = `
         <div class="gap-card-header">
           <span class="gap-id-badge">${escapeHTML(gap.gap_id)}</span>
-          <span class="gap-risk-pill">HIGH MISSION RISK</span>
+          <span class="gap-risk-pill">UNTESTED REGION</span>
         </div>
         <h4 class="gap-title">${escapeHTML(gap.title)}</h4>
         <div class="gap-regime-strip"><strong>Target Regime:</strong> ${escapeHTML(gap.regime)}</div>
         <div class="gap-materials"><strong>Affected Materials:</strong> ${escapeHTML((gap.materials_affected || []).join(', '))}</div>
         <div class="gap-section">
-          <span class="gap-section-label">OPERATIONAL RISK:</span>
+          <span class="gap-section-label">RESEARCH CONTEXT:</span>
           <p class="gap-text">${escapeHTML(gap.operational_risk)}</p>
         </div>
         <div class="gap-section">
@@ -2166,7 +2276,7 @@ function renderCoverageMap(data) {
           <p class="gap-text">${escapeHTML(gap.scientific_rationale)}</p>
         </div>
         <div class="gap-recommended-box">
-          <span class="rec-label">RECOMMENDED NASA FLIGHT EXPERIMENT:</span>
+          <span class="rec-label">SUGGESTED FOLLOW-UP STUDY:</span>
           <p class="rec-text">${escapeHTML(gap.recommended_experiment)}</p>
         </div>
       `;
@@ -2180,12 +2290,14 @@ function renderCoverageMap(data) {
 // ==============================================================================
 
 let inspectorTrigger = null;
+let citationGeneration = 0;
 function setupCitationInspector() {
   const closeBtn = document.getElementById('btn-close-inspector');
   const backdrop = document.getElementById('modal-backdrop-close');
   const modal = document.getElementById('modal-citation-inspector');
 
   const hide = () => {
+    ++citationGeneration;
     if (modal) modal.classList.add('hidden');
     if (inspectorTrigger?.isConnected) inspectorTrigger.focus();
   };
@@ -2194,6 +2306,12 @@ function setupCitationInspector() {
   if (backdrop) backdrop.addEventListener('click', hide);
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && modal && !modal.classList.contains('hidden')) hide();
+    if (event.key === 'Tab' && modal && !modal.classList.contains('hidden')) {
+      const focusable = Array.from(modal.querySelectorAll('button, a[href]')).filter(el => !el.hidden && !el.disabled);
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
   });
 }
 
@@ -2201,11 +2319,13 @@ window.inspectProvenance = async function(experimentId) {
   const modal = document.getElementById('modal-citation-inspector');
   if (!modal) return;
   inspectorTrigger = document.activeElement;
+  const generation = ++citationGeneration;
 
   try {
     const res = await fetch(`${API_BASE}/api/provenance/${encodeURIComponent(experimentId)}`);
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const data = await res.json();
+    if (generation !== citationGeneration) return;
 
     const titleEl = document.getElementById('inspect-exp-id');
     const reportTitleEl = document.getElementById('inspect-report-title');
@@ -2221,10 +2341,13 @@ window.inspectProvenance = async function(experimentId) {
     if (titleEl) titleEl.textContent = `NASA Experiment ${data.experiment_id}`;
     if (reportTitleEl) reportTitleEl.textContent = data.report_title || `NASA Technical Report ${data.report_id}`;
     if (citeEl) citeEl.textContent = data.exact_source_citation || `NASA Report ${data.report_id}`;
-    if (invEl) invEl.textContent = `${data.investigation} · Facility: ${data.gravity_env || 'ISS'}`;
+    if (invEl) invEl.textContent = `${data.investigation} · Environment: ${data.gravity_env || 'Not recorded'}`;
     if (condEl) condEl.textContent = `${data.material} · ${data.oxygen_pct}% O₂ · ${data.pressure_kpa} kPa · ${data.flow_cm_s} cm/s forced flow`;
     if (outcomeEl) outcomeEl.textContent = `${data.outcome} (${data.extraction_notes || 'Observed flame behavior'})`;
     if (notesEl) notesEl.textContent = data.extraction_notes || 'Extracted from peer-reviewed NASA Technical Memorandum data tables.';
+    document.getElementById('inspect-sample-context').textContent =
+      `${data.sample_geometry || 'Geometry not recorded'} · ${data.sample_thickness_mm == null ? 'Thickness not recorded' : `${data.sample_thickness_mm} mm`} · ${data.flow_direction || 'Flow direction not recorded'}`;
+    document.getElementById('inspect-observation').textContent = data.outcome_raw || 'Source observation text is not recorded.';
     if (ntrsUrlEl) {
       ntrsUrlEl.href = safeHttpUrl(data.source_url || `https://ntrs.nasa.gov/citations/${encodeURIComponent(data.report_id || '')}`, 'https://ntrs.nasa.gov/');
       ntrsUrlEl.hidden = false;
@@ -2235,12 +2358,15 @@ window.inspectProvenance = async function(experimentId) {
     modal.classList.remove('hidden');
     document.getElementById('btn-close-inspector')?.focus();
   } catch (err) {
+    if (generation !== citationGeneration) return;
     console.warn('Could not inspect provenance:', err);
     document.getElementById('inspect-exp-id').textContent = 'Citation unavailable';
-    for (const id of ['inspect-report-title', 'inspect-citation', 'inspect-investigation', 'inspect-conditions', 'inspect-outcome']) {
+    for (const id of ['inspect-report-title', 'inspect-citation', 'inspect-investigation', 'inspect-conditions', 'inspect-outcome', 'inspect-sample-context', 'inspect-observation']) {
       document.getElementById(id).textContent = '—';
     }
     document.getElementById('inspect-notes').textContent = 'Could not load this citation. Check the backend connection and try again.';
+    document.getElementById('inspect-tier-pill').textContent = 'VERIFICATION UNAVAILABLE';
+    document.getElementById('inspect-origin-pill').textContent = 'ORIGIN UNAVAILABLE';
     document.getElementById('inspect-ntrs-url').hidden = true;
     modal.classList.remove('hidden');
     document.getElementById('btn-close-inspector')?.focus();

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FLARE-X | NASA Microgravity Combustion Flammability Platform</title>
-  <meta name="description" content="Research explorer for 200 curated NASA microgravity observations. Model inference is withheld pending validation.">
+  <meta name="description" content="Research explorer for 200 curated NASA microgravity observations. Exploratory research estimates with source citations and explicit validation limits.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -63,7 +63,7 @@
       <span class="heartbeat-pulse status-withheld" id="status-dot"></span>
       <div class="heartbeat-meta">
         <span class="telemetry-label">MODEL STATUS</span>
-        <span class="telemetry-sub" id="status-text" role="status" aria-live="polite">Model inference withheld pending validation</span>
+        <span class="telemetry-sub" id="status-text" role="status" aria-live="polite">Checking backend and research model…</span>
       </div>
     </div>
   </header>
@@ -90,7 +90,7 @@
     </div>
     <div class="ribbon-metric ribbon-metric-right">
       <span class="metric-dim">MODEL GATE:</span>
-      <span class="metric-status-withheld" id="model-gate-text">VALIDATION REQUIRED</span>
+      <span class="metric-status-withheld" id="model-gate-text">CHECKING MODEL</span>
     </div>
   </div>
 
@@ -140,8 +140,8 @@
               <span class="spec-count" id="mat-samples-badge">Loading evidence…</span>
             </div>
             <select id="input-material" class="instrument-select">
-              <option value="PMMA" selected>PMMA (Cast Poly(methyl methacrylate))</option>
-              <option value="Cellulose">Cellulose (Ashless Thin Filter Paper)</option>
+              <option value="PMMA" selected>PMMA (Acrylic films, rods and slabs)</option>
+              <option value="Cellulose">Cellulose (Thin laboratory wipes)</option>
               <option value="Cotton">Cotton (Thin Woven Fabric)</option>
               <option value="Nomex">Nomex (Aramid Synthetic Fabric)</option>
               <option value="Cotton-Fiberglass">Cotton-Fiberglass (Composite Fabric)</option>
@@ -153,6 +153,7 @@
               <span>Thermally thick / non-charring solid fuel</span>
               <span class="spec-prop">Density: 1.18 g/cm³</span>
             </div>
+            <p class="material-domain" id="material-domain">Connect the backend to inspect recorded material ranges.</p>
           </div>
 
           <!-- Oxygen Concentration Control -->
@@ -164,9 +165,9 @@
               </div>
             </div>
             <div class="slider-track-container">
-              <input type="range" id="input-o2" class="instrument-slider" min="15.0" max="34.0" step="0.1" value="21.0">
+              <input type="range" id="input-o2" class="instrument-slider" min="14.0" max="34.0" step="any" value="21.0">
               <div class="calibrated-ticks">
-                <span class="tick-label"><span class="tick-mark">|</span> 15.0% O₂</span>
+                <span class="tick-label"><span class="tick-mark">|</span> 14.0% O₂</span>
                 <span class="tick-label active-tick"><span class="tick-mark">|</span> 21.0% (Air)</span>
                 <span class="tick-label"><span class="tick-mark">|</span> 34.0% (Max)</span>
               </div>
@@ -182,9 +183,9 @@
               </div>
             </div>
             <div class="slider-track-container">
-              <input type="range" id="input-pressure" class="instrument-slider" min="56.5" max="101.3" step="0.1" value="101.3">
+              <input type="range" id="input-pressure" class="instrument-slider" min="44.1" max="101.3" step="any" value="101.3">
               <div class="calibrated-ticks">
-                <span class="tick-label"><span class="tick-mark">|</span> 56.5 kPa (Exploration)</span>
+                <span class="tick-label"><span class="tick-mark">|</span> 44.1 kPa (Dataset min)</span>
                 <span class="tick-label"><span class="tick-mark">|</span> 70.3 kPa</span>
                 <span class="tick-label active-tick"><span class="tick-mark">|</span> 101.3 kPa (1 atm)</span>
               </div>
@@ -200,7 +201,7 @@
               </div>
             </div>
             <div class="slider-track-container">
-              <input type="range" id="input-flow" class="instrument-slider" min="0.0" max="45.0" step="0.5" value="5.0">
+              <input type="range" id="input-flow" class="instrument-slider" min="0.0" max="45.0" step="any" value="5.0">
               <div class="calibrated-ticks">
                 <span class="tick-label"><span class="tick-mark">|</span> 0.0 cm/s (Quiescent)</span>
                 <span class="tick-label active-tick"><span class="tick-mark">|</span> 5.0 cm/s (BASS)</span>
@@ -213,10 +214,10 @@
           <div class="instrument-module">
             <label for="nlp-query-input" class="module-title">Scenario Condition Search</label>
             <div class="command-search-bar">
-              <input type="text" id="nlp-query-input" class="command-input" placeholder="e.g. 18% O2, 101.3 kPa, 5 cm/s PMMA..." aria-label="Scenario conditions search">
+              <input type="text" id="nlp-query-input" class="command-input" placeholder="e.g. 18% O2, 101.3 kPa, 5 cm/s PMMA..." aria-label="Scenario conditions search" maxlength="2000">
               <button type="button" id="nlp-query-submit" class="btn-command" title="Apply Scenario">Apply</button>
             </div>
-            <div id="nlp-feedback" style="display:none; font-size:11.5px; margin-top:6px; color:var(--color-spread); font-family:var(--font-mono);"></div>
+            <div id="nlp-feedback" role="status" aria-live="polite" style="display:none; font-size:11.5px; margin-top:6px; color:var(--color-spread); font-family:var(--font-mono);"></div>
           </div>
 
           <!-- Out-of-Range Safety Refusal Switch -->
@@ -273,14 +274,14 @@
               <div class="model-telemetry-cluster" id="model-provenance-chip">
                 <div class="telemetry-cell">
                   <span class="cell-label">ALGORITHM</span>
-                  <span class="cell-value" id="chip-model-type">Gradient Boosting</span>
+                  <span class="cell-value" id="chip-model-type">Connect backend</span>
                 </div>
                 <div class="telemetry-cell">
                   <span class="cell-label">DATASET CORPUS</span>
                   <span class="cell-value" id="chip-n-train">—</span>
                 </div>
                 <div class="telemetry-cell">
-                  <span class="cell-label">LEAK-FREE GROUPED CV</span>
+                  <span class="cell-label">EXPLORATORY GROUPED SCORE</span>
                   <span class="cell-value" id="chip-cv-acc">—</span>
                 </div>
                 <div class="telemetry-cell">
@@ -297,7 +298,7 @@
                 <span class="prob-tag marginal"><span class="prob-dot dot-marginal"></span> Marginal Spread: <strong id="val-prob-marginal">N/A</strong></span>
                 <span class="prob-tag spread"><span class="prob-dot dot-spread"></span> Sustained Spread: <strong id="val-prob-spread">N/A</strong></span>
               </div>
-              <div class="segmented-progress-track" id="stacked-probability-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+              <div class="segmented-progress-track" id="stacked-probability-bar" role="img" aria-label="Estimated class probability distribution">
                 <div class="progress-segment seg-no-spread" id="bar-seg-no-spread" style="width: 0%;"></div>
                 <div class="progress-segment seg-marginal" id="bar-seg-marginal" style="width: 0%;"></div>
                 <div class="progress-segment seg-spread" id="bar-seg-spread" style="width: 0%;"></div>
@@ -310,7 +311,7 @@
                 <span class="directive-marker">FLIGHT RULE ADVISORY</span>
               </div>
               <p class="directive-body" id="operator-briefing-text">
-                Inspect the cited observations below. The current classifier does not meet its validation gate and cannot support an operational conclusion.
+                Choose conditions to inspect research estimates and cited observations. An estimate cannot support an operational safety conclusion.
               </p>
             </div>
           </div>
@@ -391,12 +392,12 @@
             </div>
             <div class="explanation-viewport">
               <p class="physics-text" id="explanation-text-display">
-                Loading validated scientific explanation...
+                Loading research estimate and source context…
               </p>
             </div>
             <div class="audit-verification-footer">
               <span class="audit-pass-icon">•</span>
-              <span class="audit-pass-text" id="integrity-text">Model inference is withheld pending validation. Inspect original source records for evidence.</span>
+              <span class="audit-pass-text" id="integrity-text">Exploratory research estimates with source citations and explicit validation limits. Inspect original source records for evidence.</span>
             </div>
           </div>
 
@@ -544,11 +545,11 @@
           <!-- Left: Honest Grouped Cross-Validation Card -->
           <div class="transparency-card">
             <h2 class="section-title">Model Specification &amp; Grouped Cross-Validation</h2>
-            <p class="section-sub">Group-stratified cross-validation preventing information leakage across NASA publication sources.</p>
+            <p class="section-sub">Settings were chosen using these observations. The grouped score is exploratory; it is not independent validation.</p>
 
             <div class="kpi-quad-grid">
               <div class="kpi-cell">
-                <span class="kpi-cell-label">HONEST GROUPED CV ACCURACY</span>
+                <span class="kpi-cell-label">EXPLORATORY SELECTION SCORE</span>
                 <strong class="kpi-cell-number" id="model-kpi-accuracy">—</strong>
                 <span class="kpi-cell-detail">Leave one NASA report out (report_id)</span>
               </div>
@@ -569,8 +570,19 @@
               </div>
             </div>
 
+            <div class="model-validation-summary" role="note">
+              <h3>What this model can support</h3>
+              <p id="model-validation-note">Connect the backend to inspect the model's limitations.</p>
+              <p><strong>Full search procedure nested accuracy: <span id="model-kpi-nested">—</span>.</strong>
+                This evaluates model selection across the candidate pool, not the fixed SVM alone.</p>
+              <p>The four inputs omit geometry, flow direction and ignition history. Only two marginal-spread observations exist.
+                Estimated class probabilities and a “no spread” label do not establish safety.</p>
+              <p><a id="api-docs-link" href="/docs" target="_blank" rel="noopener noreferrer">API reference</a> ·
+                <a id="model-metadata-link" href="/model" target="_blank" rel="noopener noreferrer">Full model metadata</a></p>
+            </div>
+
             <div class="matrix-section">
-              <h3 class="matrix-heading">5-Fold Grouped Confusion Matrix</h3>
+              <h3 class="matrix-heading" id="model-fold-heading">Report-grouped confusion matrix</h3>
               <div class="matrix-table-container">
                 <table class="confusion-data-table">
                   <thead>
@@ -593,7 +605,7 @@
           <!-- Right: Audited NASA Flight Investigations -->
           <div class="transparency-card">
             <h2 class="section-title">Audited NASA Flight Campaigns</h2>
-            <p class="section-sub">23 combustion investigations audited across NASA PSI, NTRS, and OSDR repositories.</p>
+            <p class="section-sub">Catalog entries from NASA PSI, NTRS and OSDR. Catalog inclusion does not mean a study contributed training observations.</p>
 
             <div class="investigations-flow-list" id="investigation-cards-list">
               <!-- Dynamically populated from /datasets -->
@@ -627,7 +639,7 @@
             <label for="select-conflict-case" class="control-label">Canonical Research Conflict Case Studies:</label>
             <select id="select-conflict-case" class="styled-select-input">
               <option value="bass2_vs_saffire">Case 1: BASS-II (Glovebox Microscale) vs. Saffire (Cygnus Vehicle-Scale)</option>
-              <option value="drop_tower_vs_bass2">Case 2: 5.18s Drop Tower (Olson CR-182264) vs. BASS-II (ISS Steady State)</option>
+              <option value="drop_tower_vs_bass2">Case 2: 5.18s Drop Tower (Ferkul CR-182264) vs. BASS-II (ISS Steady State)</option>
               <option value="normobaric_vs_exploration">Case 3: Normobaric Sea Level (101.3 kPa, 21% O2) vs. Exploration Atmosphere (56.5 kPa, 34% O2)</option>
               <option value="sofie_vs_drop_tower">Case 4: SoFIE-MIST (CIR Extended Burn) vs. 5.18s Drop Tower (Radiative Loss)</option>
             </select>
@@ -658,6 +670,7 @@
           <div class="comparability-verdict-card">
             <div class="gauge-col">
               <span class="gauge-label">COMPARABILITY SCORE</span>
+              <p class="module-explainer">Heuristic profile comparison, not a measured probability.</p>
               <div class="score-circle-wrap">
                 <div class="score-number" id="conflict-score-val">0.45</div>
                 <div class="score-max">/ 1.00</div>
@@ -702,7 +715,7 @@
           <div class="reconciliation-card">
             <div class="reconciliation-header">
               <span class="reconcile-symbol">🔬</span>
-              <h3 class="card-inner-title">Authoritative Scientific Reconciliation</h3>
+              <h3 class="card-inner-title">Scientific interpretation</h3>
             </div>
             <p class="reconciliation-body-text" id="conflict-reconciliation-text">
               Loading authoritative NASA combustion physics reconciliation...
@@ -845,11 +858,19 @@
             <span class="detail-val" id="inspect-conditions">PMMA · 20.6% O₂ · 101.3 kPa · 5.0 cm/s</span>
           </div>
           <div class="detail-row">
+            <span class="detail-label">Sample and flow context:</span>
+            <span class="detail-val" id="inspect-sample-context">—</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Source observation:</span>
+            <span class="detail-val" id="inspect-observation">—</span>
+          </div>
+          <div class="detail-row">
             <span class="detail-label">Observed Outcome:</span>
             <span class="detail-val" id="inspect-outcome">spread (Steady opposed flow spread)</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Principal Investigator &amp; Facility:</span>
+            <span class="detail-label">Extraction notes:</span>
             <span class="detail-val" id="inspect-notes">PI: Subrata Bhattacharjee. MSG flow duct.</span>
           </div>
         </div>

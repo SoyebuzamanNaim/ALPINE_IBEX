@@ -2893,10 +2893,11 @@ body.flarex-theme {
 }
 
 @media (max-width: 640px) {
-  .flight-ops-header { padding: 8px 12px 0; }
+  .flight-ops-header { padding: 8px 12px 0; grid-template-columns: max-content minmax(0, 1fr); }
+  .platform-code { white-space: nowrap; }
   .nasa-branch, .header-separator, .platform-desc, .version-tag { display: none; }
   .header-left-cluster { gap: 8px; }
-  .telemetry-heartbeat-cell { padding: 4px 7px; max-width: 185px; min-width: 0; }
+  .telemetry-heartbeat-cell { padding: 4px 7px; max-width: 185px; min-width: 0; justify-self: end; }
   .telemetry-sub { line-height: 1.2; }
   .campaign-telemetry-ribbon { padding: 0 12px; }
   .deck-pane, .deck-pane.center-phase-pane { padding: 12px; }
@@ -2960,3 +2961,20 @@ body.flarex-theme {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Research validation stays visible beside the model's selected score. */
+.model-validation-summary {
+  margin: 20px 0;
+  padding: 16px;
+  background: #fff8e8;
+  color: #4b3c1e;
+  border-radius: 6px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.model-validation-summary h3 { margin: 0 0 8px; font-size: 15px; }
+.model-validation-summary p { margin: 8px 0; font-size: 13px; }
+.model-telemetry-cluster { min-width: 0; flex-wrap: wrap; }
+.telemetry-cell { min-width: 0; overflow-wrap: anywhere; }
+.archive-probe { padding: 2px; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 600; text-align: left; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.material-domain { margin: 10px 0 0; font-size: 11px; line-height: 1.5; color: var(--text-secondary); overflow-wrap: anywhere; }

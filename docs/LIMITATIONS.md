@@ -6,7 +6,7 @@ FLARE-X is a research prototype for examining curated microgravity combustion ob
 
 The canonical table has 200 observations. It is unevenly distributed across materials, source reports, geometries, and experimental campaigns. Four numeric/categorical model inputs cannot encode all factors that affect flame behavior, including sample geometry, flow direction, ignition history, and test procedure. Some observations at identical model inputs have conflicting outcomes; the application abstains on these cases.
 
-The current model reports 77.5% grouped accuracy against an 81.5% majority-class baseline, with 36.2% balanced accuracy and zero recall for `marginal_spread`. It does not demonstrate useful predictive skill. The API blocks public estimates for otherwise eligible conditions as `model_unvalidated`. These figures describe this curated dataset and evaluation split; they are not a claim about physical predictive performance. See [the rebuilt evaluation](../reports/REBUILT_MODEL_EVALUATION.md).
+The serving linear SVM has an 84.0% exploratory grouped selection score against an 81.5% majority baseline, with 40.3% balanced accuracy and zero recall for `marginal_spread`. It detects only 8 of 35 no-spread cases. This score was used to choose the model and is not independent validation. The complete search procedure scored 25.5% under nested report validation; that evaluates the selection procedure, not the fixed SVM alone. Guarded research estimates are available, but useful physical predictive skill and operational safety have not been established. Probabilities have not been validated across reports. See [the model card](MODEL_CARDS.md) and [experiment evidence](../reports/accuracy_experiments/latest.json).
 
 ## Evidence boundaries
 

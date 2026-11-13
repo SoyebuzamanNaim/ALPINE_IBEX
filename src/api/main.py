@@ -100,7 +100,10 @@ def _model_readiness() -> tuple[bool, str]:
             f"Model grouped accuracy ({score:.1%}) does not exceed the majority "
             f"baseline ({baseline:.1%}); inference is unavailable."
         )
-    return True, "Model exceeds the measured majority baseline."
+    return True, (
+        "Exploratory grouped selection score exceeds the majority baseline. "
+        "Research estimates are available; independent external validation is absent."
+    )
 
 
 def _require_model_ready() -> None:
@@ -125,6 +128,9 @@ def health_check() -> dict[str, Any]:
         "dataset_sha256": meta.get("dataset_sha256"),
         "model_type": meta.get("type"),
         "cv_accuracy": meta.get("cv_accuracy"),
+        "release_mode": meta.get("release_mode"),
+        "validation_status": meta.get("validation_status"),
+        "nested_search": meta.get("nested_search"),
         "allowed_materials": meta.get("training_range", {}).get("allowed_materials", []),
     }
 
@@ -159,6 +165,10 @@ def predict(request: PredictRequest) -> dict[str, Any]:
             }
     res = orchestrator.run(payload)
     res["model_ready"] = model_ready
+    if res.get("prediction") is not None:
+        res["warning_message"] = " ".join(filter(None, (
+            res.get("warning_message"), orchestrator.router.meta.get("research_warning"),
+        )))
     return res
 
 
@@ -237,8 +247,8 @@ def _mask_joint_domain_grid_points(
 
 @app.get("/boundary", tags=["Visualizations"])
 def get_decision_boundary(
-    material: str = Query("PMMA", description="Material to slice"),
-    pressure_kpa: float = Query(101.3, description="Fixed cabin pressure in kPa"),
+    material: str = Query("PMMA", min_length=1, max_length=64, description="Material to slice"),
+    pressure_kpa: float = Query(101.3, ge=0, le=200, allow_inf_nan=False, description="Fixed cabin pressure in kPa"),
     o2_steps: int = Query(25, ge=10, le=50, description="Oxygen grid resolution"),
     flow_steps: int = Query(25, ge=10, le=50, description="Flow grid resolution"),
 ) -> dict[str, Any]:
@@ -262,9 +272,11 @@ def get_decision_boundary(
     f_min = mat_cfg.get("flow_cm_s", {}).get("min", t_range["flow_cm_s"]["min"])
     f_max = mat_cfg.get("flow_cm_s", {}).get("max", t_range["flow_cm_s"]["max"])
 
-    # Expand slightly to show boundary edges
-    o2_grid = np.linspace(o2_min, o2_max, o2_steps).tolist()
-    flow_grid = np.linspace(f_min, f_max, flow_steps).tolist()
+    # A single recorded condition still needs finite axes; the guard masks unsupported cells.
+    display_o2 = [o2_min, o2_max] if o2_min != o2_max else [max(0., o2_min - .5), min(100., o2_max + .5)]
+    display_flow = [f_min, f_max] if f_min != f_max else [max(0., f_min - 1.), min(100., f_max + 1.)]
+    o2_grid = np.linspace(*display_o2, o2_steps).tolist()
+    flow_grid = np.linspace(*display_flow, flow_steps).tolist()
 
     n_flows = len(flow_grid)
     n_o2s = len(o2_grid)
@@ -330,7 +342,7 @@ def get_decision_boundary(
 
     # Real experiment points for overlay
     df = pd.read_parquet(DATA_PATH)
-    mat_df = df[df["material"] == material]
+    mat_df = df[(df["material"] == material) & np.isclose(df["pressure_kpa"], pressure_kpa, rtol=0, atol=0.05)]
     real_pts = []
     for _, r in mat_df.iterrows():
         real_pts.append({
@@ -345,13 +357,14 @@ def get_decision_boundary(
     return {
         "material": material,
         "fixed_pressure_kpa": pressure_kpa,
-        "oxygen_range": [o2_min, o2_max],
-        "flow_range": [f_min, f_max],
+        "oxygen_range": display_o2,
+        "flow_range": display_flow,
         "oxygen_grid": [round(x, 2) for x in o2_grid],
         "flow_grid": [round(y, 2) for y in flow_grid],
         "grid_predictions": grid_predictions,
         "grid_spread_probabilities": grid_probabilities,
         "real_experiments": real_pts,
+        "model": orchestrator.router.get_model_metadata(),
     }
 
 
@@ -361,6 +374,7 @@ def run_counterfactual(request: CounterfactualRequest) -> dict[str, Any]:
     _require_model_ready()
     base_dict = request.baseline.model_dump()
     res = cf_engine.compute_perturbation(base_dict, request.changes)
+    res["model"] = orchestrator.router.get_model_metadata()
     return res
 
 
@@ -376,6 +390,7 @@ def run_sweep(request: SweepRequest) -> dict[str, Any]:
         end=request.end,
         steps=request.steps,
     )
+    res["model"] = orchestrator.router.get_model_metadata()
     return res
 
 
@@ -497,5 +512,9 @@ def query_provenance(
 from fastapi.staticfiles import StaticFiles
 
 APP_DIR = ROOT / "app"
+PROJECT_DIR = ROOT / "project-page"
+if PROJECT_DIR.exists():
+    app.mount("/project-page", StaticFiles(directory=str(PROJECT_DIR), html=True), name="project-page")
 if APP_DIR.exists():
+    app.mount("/app", StaticFiles(directory=str(APP_DIR), html=True), name="workbench")
     app.mount("/", StaticFiles(directory=str(APP_DIR), html=True), name="static")

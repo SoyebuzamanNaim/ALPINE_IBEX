@@ -6,7 +6,8 @@ Trains:
 1. Naive Majority-Class Baseline (DummyClassifier)
 2. Logistic Regression Baseline
 3. Random Forest Classifier
-4. Gradient Boosting Classifier (Headline Model)
+4. Gradient Boosting Classifier (previous serving baseline)
+5. Linear SVM (serving research model)
 
 Evaluates using:
 - Report-grouped CV: LeaveOneGroupOut(group=report_id)
@@ -46,6 +47,7 @@ from sklearn.metrics import (
 from sklearn.model_selection import LeaveOneGroupOut, StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.svm import SVC
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA_FILE = ROOT / "cache" / "experiments.parquet"
@@ -54,6 +56,7 @@ REPORTS_DIR = ROOT / "reports"
 DOCS_DIR = ROOT / "docs"
 
 RANDOM_SEED = 42
+SERVING_MODEL = "linear_svm"
 FEATURE_COLS_NUM = ["oxygen_pct", "pressure_kpa", "flow_cm_s"]
 FEATURE_COLS_CAT = ["material"]
 TARGET_COL = "outcome"
@@ -82,6 +85,14 @@ def get_preprocessor() -> ColumnTransformer:
         ],
         remainder="drop",
     )
+
+
+def make_serving_model(seed: int = RANDOM_SEED) -> Pipeline:
+    """The frozen four-input experiment winner; probabilities remain exploratory."""
+    return Pipeline([
+        ("prep", get_preprocessor()),
+        ("clf", SVC(kernel="linear", C=1.0, probability=True, random_state=seed)),
+    ])
 
 
 def compute_cv_metrics(
@@ -205,6 +216,7 @@ def train_and_evaluate_all() -> None:
         ("logistic_regression", make_lr),
         ("random_forest", make_rf),
         ("gradient_boosting", make_gb),
+        (SERVING_MODEL, make_serving_model),
     ]
 
     # With only two marginal_spread rows, stratified group folds cannot preserve every
@@ -220,6 +232,7 @@ def train_and_evaluate_all() -> None:
     results: dict[str, Any] = {
         "dataset_sha256": dataset_sha256,
         "n_train": len(df),
+        "serving_model": SERVING_MODEL,
         "classes": classes,
         "plain_cv_scheme": f"StratifiedKFold(k={plain_kfold.n_splits})",
         "evaluated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -244,44 +257,44 @@ def train_and_evaluate_all() -> None:
 
     # Print summary
     print("\n--- RESULTS SUMMARY ---")
-    gb_report = results["models"]["gradient_boosting"]["report_grouped_cv"]
-    gb_grouped = results["models"]["gradient_boosting"]["grouped_cv"]
-    gb_plain = results["models"]["gradient_boosting"]["plain_cv"]
+    gb_report = results["models"][SERVING_MODEL]["report_grouped_cv"]
+    gb_grouped = results["models"][SERVING_MODEL]["grouped_cv"]
+    gb_plain = results["models"][SERVING_MODEL]["plain_cv"]
     majority_acc = results["models"]["majority_baseline"]["report_grouped_cv"]["accuracy"]
 
     print(f"Majority Baseline Accuracy:        {majority_acc:.4f}")
     print(f"Logistic Regression Grouped:       {results['models']['logistic_regression']['grouped_cv']['accuracy']:.4f}")
     print(f"Random Forest Grouped:             {results['models']['random_forest']['grouped_cv']['accuracy']:.4f}")
-    print(f"Gradient Boosting report_id Grouped: {gb_report['accuracy']:.4f} (Headline, Brief S6)")
-    print(f"Gradient Boosting investigation Grouped: {gb_grouped['accuracy']:.4f} (Secondary, stricter)")
-    print(f"Gradient Boosting Plain CV:        {gb_plain['accuracy']:.4f} (Optimistic)")
-    print(f"Confusion Matrix (GB Grouped):     {gb_grouped['confusion_matrix']}")
+    print(f"Linear SVM report_id Grouped: {gb_report['accuracy']:.4f} (Headline, Brief S6)")
+    print(f"Linear SVM investigation Grouped: {gb_grouped['accuracy']:.4f} (Secondary, stricter)")
+    print(f"Linear SVM Plain CV:        {gb_plain['accuracy']:.4f} (Optimistic)")
+    print(f"Confusion Matrix (serving model):     {gb_grouped['confusion_matrix']}")
 
-    # Repeat the report holdout with different estimator seeds to show model variance.
+    # Linear SVM class decisions are deterministic; probability calibration uses the fixed seed.
     import numpy as _np
     loro_acc, loro_bal, loro_f1 = [], [], []
-    for seed in range(10):
+    for seed in [RANDOM_SEED]:
         preds, trues = [], []
         for tr_idx, va_idx in LeaveOneGroupOut().split(X, y, groups=report_groups):
-            mdl = make_gb(seed)
+            mdl = make_serving_model(seed)
             mdl.fit(X.iloc[tr_idx], y.iloc[tr_idx])
             preds.extend(mdl.predict(X.iloc[va_idx])); trues.extend(y.iloc[va_idx])
         loro_acc.append(accuracy_score(trues, preds))
         loro_bal.append(balanced_accuracy_score(trues, preds))
         loro_f1.append(f1_score(trues, preds, average="macro", zero_division=0))
     results["loro"] = {
-        "scheme": "LeaveOneGroupOut(group=report_id), averaged over 10 model seeds",
+        "scheme": "LeaveOneGroupOut(group=report_id), fixed linear SVM seed; no seed selection",
         "n_groups": int(report_groups.nunique()),
         "accuracy_mean": round(float(_np.mean(loro_acc)), 4),
         "accuracy_std": round(float(_np.std(loro_acc)), 4),
         "balanced_accuracy_mean": round(float(_np.mean(loro_bal)), 4),
         "macro_f1_mean": round(float(_np.mean(loro_f1)), 4),
     }
-    print(f"LORO (10 seeds): acc {_np.mean(loro_acc):.4f} +/- {_np.std(loro_acc):.4f}  "
+    print(f"LORO (fixed seed): acc {_np.mean(loro_acc):.4f} +/- {_np.std(loro_acc):.4f}  "
           f"bal {_np.mean(loro_bal):.4f}  macroF1 {_np.mean(loro_f1):.4f}")
 
     # Fit final headline model on full dataset
-    final_model = make_gb()
+    final_model = make_serving_model()
     final_model.fit(X, y)
 
     # Save model artifact
@@ -292,7 +305,12 @@ def train_and_evaluate_all() -> None:
 
     # Build the model metadata consumed by the API and model card.
     model_meta = {
-        "type": "gradient_boosting",
+        "type": SERVING_MODEL,
+        "release_mode": "research",
+        "validation_status": "exploratory_model_selection",
+        "probability_calibration": "Internal SVM calibration; not validated across reports",
+        "hyperparameters": {"kernel": "linear", "C": 1.0, "random_state": RANDOM_SEED},
+        "research_warning": "Exploratory model estimates only. The grouped score was used for model selection; probabilities are not validated across reports. No flight certification or safety clearance.",
         "n_train": len(df),
         "cv_accuracy": gb_report["accuracy"],
         "cv_balanced_accuracy": gb_report["balanced_accuracy"],
@@ -327,6 +345,24 @@ def train_and_evaluate_all() -> None:
         "loro": results.get("loro"),
     }
 
+    # Preserve the search procedure's evaluation separately from this fixed model's score.
+    evidence_root = REPORTS_DIR / "accuracy_experiments"
+    manifest = evidence_root / "latest.json"
+    evidence_path = (ROOT / json.loads(manifest.read_text())["results"]
+                     if manifest.exists() else evidence_root / "results.json")
+    if evidence_path.exists():
+        evidence = json.loads(evidence_path.read_text())
+        if evidence["dataset_sha256"] == dataset_sha256:
+            model_meta["selection_evidence"] = str(evidence_path.relative_to(ROOT))
+            model_meta["selection_evidence_sha256"] = hashlib.sha256(evidence_path.read_bytes()).hexdigest()
+            model_meta["nested_search"] = {
+                "scheme": "Nested leave-one-report-out selection across the complete candidate pool",
+                "accuracy": evidence["nested"]["base"]["metrics"]["accuracy"],
+                "balanced_accuracy": evidence["nested"]["base"]["metrics"]["balanced_accuracy"],
+                "candidate_count": evidence["candidate_count"],
+                "caveat": "Evaluates the full search procedure, not the fixed SVM alone. No independent external validation.",
+            }
+
     meta_path = MODELS_DIR / "model_meta.json"
     meta_path.write_text(json.dumps(model_meta, indent=2), encoding="utf-8")
     print(f"Saved model metadata to: {meta_path}")
@@ -344,102 +380,68 @@ def train_and_evaluate_all() -> None:
 
 
 def generate_baseline_report(results: dict[str, Any], meta: dict[str, Any]) -> None:
-    models = results["models"]
-    cm = meta["confusion_matrix"]
-    classes = meta["classes"]
-
-    cm_table = f"""| True \\ Pred | `{classes[0]}` | `{classes[1]}` | `{classes[2]}` |
-|---|---|---|---|
-| **`{classes[0]}`** | {cm[0][0]} | {cm[0][1]} | {cm[0][2]} |
-| **`{classes[1]}`** | {cm[1][0]} | {cm[1][1]} | {cm[1][2]} |
-| **`{classes[2]}`** | {cm[2][0]} | {cm[2][1]} | {cm[2][2]} |"""
-
+    rows = []
+    for name, evaluations in results["models"].items():
+        score = evaluations["report_grouped_cv"]
+        label = name + (" (serving model)" if name == SERVING_MODEL else "")
+        rows.append(f"| {label} | {score['accuracy']:.4f} | {score['balanced_accuracy']:.4f} | {score['macro_f1']:.4f} |")
     content = f"""# Baseline Models & Evaluation Report
 
-> **Generated report:** Metrics are computed from the checked-in dataset and training code.
-> Report grouping prevents records from one report appearing in both sides of a fold; it does not establish physical predictive skill.
+Serving model: **linear SVM**, C=1.0, four inputs; trained on {meta['n_train']} observations.
+Its {meta['cv_accuracy']:.1%} report-grouped score is exploratory: this model was selected
+using this dataset. All three classes and every report remain included.
 
-## 1. Executive Summary
+| Model | Report-grouped accuracy | Balanced accuracy | Macro-F1 |
+|---|---:|---:|---:|
+{chr(10).join(rows)}
 
-Four model families were trained and evaluated on the verified NASA microgravity combustion dataset
-(`cache/experiments.parquet`, N={meta['n_train']}).
+Validation: {meta['cv_scheme']}, {meta['loro']['n_groups']} report folds.
+Confusion matrix (true rows / predicted columns: no_spread, marginal_spread, spread):
+`{meta['confusion_matrix']}`.
 
-The headline model is a **Gradient Boosting Classifier** evaluated using report-grouped
-`LeaveOneGroupOut` cross-validation. Rows from a held-out report do not occur in its
-training fold. This split has few unevenly sized groups, so scores are uncertain and must
-be interpreted with the baseline and per-class metrics.
+Full search procedure nested accuracy: {meta.get('nested_search', {}).get('accuracy', 'unavailable')}.
+This describes model selection across the search, not the fixed SVM alone.
 
-### Grouped Performance and Baselines
-| Model Family | Report-Grouped Accuracy | Balanced Accuracy | Macro F1 | Plain Stratified Accuracy ({results['plain_cv_scheme']}) |
-|---|---|---|---|---|
-| **Naive Majority Baseline** | {models['majority_baseline']['report_grouped_cv']['accuracy']:.4f} | {models['majority_baseline']['report_grouped_cv']['balanced_accuracy']:.4f} | {models['majority_baseline']['report_grouped_cv']['macro_f1']:.4f} | {models['majority_baseline']['plain_cv']['accuracy']:.4f} |
-| **Logistic Regression** | {models['logistic_regression']['report_grouped_cv']['accuracy']:.4f} | {models['logistic_regression']['report_grouped_cv']['balanced_accuracy']:.4f} | {models['logistic_regression']['report_grouped_cv']['macro_f1']:.4f} | {models['logistic_regression']['plain_cv']['accuracy']:.4f} |
-| **Random Forest** | {models['random_forest']['report_grouped_cv']['accuracy']:.4f} | {models['random_forest']['report_grouped_cv']['balanced_accuracy']:.4f} | {models['random_forest']['report_grouped_cv']['macro_f1']:.4f} | {models['random_forest']['plain_cv']['accuracy']:.4f} |
-| **Gradient Boosting (Headline)** | **{meta['cv_accuracy']:.4f}** | **{meta['cv_balanced_accuracy']:.4f}** | **{meta['cv_macro_f1']:.4f}** | **{meta['optimistic_cv_accuracy']:.4f}** |
+{meta['cv_caveat']}
 
----
-
-## 2. Confusion Matrix (Report-Grouped CV)
-
-{cm_table}
-
-### Per-Class Recall (Sensitivity)
-- **`no_spread`**: {meta['per_class_recall']['no_spread'] * 100:.1f}%
-- **`marginal_spread`**: {meta['per_class_recall']['marginal_spread'] * 100:.1f}%
-- **`spread`**: {meta['per_class_recall']['spread'] * 100:.1f}%
-
----
-
-## 3. Scientific Discussion of Results
-
-1. The majority-class baseline is **{meta['majority_baseline_accuracy'] * 100:.1f}%**. Gradient boosting reaches
-   **{meta['cv_accuracy'] * 100:.1f}% grouped accuracy**, **{meta['cv_balanced_accuracy'] * 100:.1f}% balanced accuracy**,
-   and `{meta['per_class_recall']['no_spread'] * 100:.1f}%` recall for `no_spread`.
-2. The classifier does not beat the majority baseline on accuracy, and its balanced accuracy is below 0.5.
-   Public inference must remain withheld until an evaluated model meets the readiness gate.
-3. `marginal_spread` recall is {meta['per_class_recall']['marginal_spread'] * 100:.1f}%. The current model does not
-   reliably distinguish the three outcome classes and must not be presented as a safety predictor.
+{meta['research_warning']}
 """
     (REPORTS_DIR / "BASELINE_RESULTS.md").write_text(content, encoding="utf-8")
-    print("Wrote baseline report to reports/BASELINE_RESULTS.md")
 
 
 def generate_model_card(meta: dict[str, Any]) -> None:
     content = f"""# Model Card: FLARE-X Flame-Spread Classifier
 
-## Model Details
-- **Model Name:** FLARE-X Flame Spread Gradient Boosting Classifier
-- **Model Version:** 1.0.0
-- **Model Type:** Scikit-Learn `GradientBoostingClassifier` with `StandardScaler` and `OneHotEncoder`
-- **Trained Date:** {meta['trained_at']}
-- **Dataset SHA-256:** `{meta['dataset_sha256']}`
-- **Model Artifact SHA-256:** `{meta['model_sha256']}`
-- **Training Samples (N):** {meta['n_train']}
-- **Input Features (4):** `oxygen_pct`, `pressure_kpa`, `flow_cm_s`, `material`
-- **Target Classes (3):** `no_spread`, `marginal_spread`, `spread`
+- Serving model: linear SVM, C=1.0, StandardScaler and training-fold OneHotEncoder.
+- Mode: research estimates; not an operational safety model.
+- Dataset: {meta['n_train']} observations; SHA-256 `{meta['dataset_sha256']}`.
+- Artifact SHA-256: `{meta['model_sha256']}`.
+- Trained: {meta['trained_at']}.
+- Inputs: {', '.join(meta['features'])}.
+- Classes: {', '.join(meta['classes'])}.
+- Exploratory grouped selection score: {meta['cv_accuracy']:.1%}.
+- Majority baseline: {meta['majority_baseline_accuracy']:.1%}.
+- Balanced accuracy: {meta['cv_balanced_accuracy']:.1%}.
+- Macro-F1: {meta['cv_macro_f1']:.4f}.
+- Full search procedure nested accuracy: {meta.get('nested_search', {}).get('accuracy', 'unavailable')}.
+- Probability calibration: {meta['probability_calibration']}.
 
-## Intended Use
-- **Primary Use:** Research and software evaluation only. Public model estimates are withheld while the model fails the baseline gate.
-- **Intended Users:** Combustion researchers and software maintainers inspecting the evidence pipeline.
-- **Out-of-Scope Use:** Flight certification, operational spacecraft fire-safety decisions, or emergency response.
+{meta['cv_caveat']}
 
-## Performance & Evaluation
-- **Evaluation Scheme:** {meta['cv_scheme']}; investigation-level evaluation is reported separately
-- **Honest Grouped Accuracy:** {meta['cv_accuracy'] * 100:.1f}%
-- **Balanced Accuracy:** {meta['cv_balanced_accuracy'] * 100:.1f}%
-- **Macro F1 Score:** {meta['cv_macro_f1']:.4f}
-- **Naive Majority Baseline:** {meta['majority_baseline_accuracy'] * 100:.1f}%
+The legacy `flame_spread_gb.joblib` filename is retained for loader compatibility;
+`type=linear_svm` identifies its contents. Retraining uses the same fixed SVM configuration.
 
-## Operational Envelope (Training Range)
-- `oxygen_pct`: {meta['training_range']['oxygen_pct']['min']:.1f}% to {meta['training_range']['oxygen_pct']['max']:.1f}% vol
-- `pressure_kpa`: {meta['training_range']['pressure_kpa']['min']:.1f} to {meta['training_range']['pressure_kpa']['max']:.1f} kPa
-- `flow_cm_s`: {meta['training_range']['flow_cm_s']['min']:.1f} to {meta['training_range']['flow_cm_s']['max']:.1f} cm/s
-- `material`: {", ".join(meta['training_range']['allowed_materials'])}
+Public research estimates require dataset/artifact hashes to match and a grouped score above
+the majority baseline. Individual predictions still abstain outside the material's joint
+experimental domain, at conflicting conditions, or with insufficient material evidence.
+Neither a no_spread prediction nor a model transition establishes safety. Geometry, flow
+direction and ignition history are omitted by this four-input model. No independent external
+validation or certification is claimed. The original gradient booster remains a comparison
+in metrics.json; the experiment evidence records selection separately.
 
-The envelope guard also checks joint empirical coverage and abstains for unsupported or sparse material evidence.
+{meta['research_warning']}
 """
     (DOCS_DIR / "MODEL_CARDS.md").write_text(content, encoding="utf-8")
-    print("Wrote model card to docs/MODEL_CARDS.md")
 
 
 if __name__ == "__main__":

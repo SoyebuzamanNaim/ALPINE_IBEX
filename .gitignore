@@ -13,3 +13,4 @@ data/raw/
 # agent tooling, not part of the submission
 .claude/
 .taste-skill/
+node_modules/

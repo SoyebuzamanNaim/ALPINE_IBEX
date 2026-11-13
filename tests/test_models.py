@@ -3,6 +3,9 @@ from pathlib import Path
 import hashlib
 import json
 import pytest
+import numpy as np
+import pandas as pd
+import joblib
 from src.models.baseline import FlameSpreadPredictor, load_model_meta, load_trained_model
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,7 +39,7 @@ def test_model_meta_schema():
     for k in required_keys:
         assert k in meta, f"Missing key in model_meta: {k}"
 
-    assert meta["type"] == "gradient_boosting"
+    assert meta["type"] == "linear_svm"
     assert meta["model_sha256"] == hashlib.sha256(ARTIFACT_PATH.read_bytes()).hexdigest()
     assert meta["n_train"] >= 100
     assert meta["cv_scheme"] == "LeaveOneGroupOut(group=report_id)"
@@ -45,7 +48,7 @@ def test_model_meta_schema():
 def test_model_metadata_matches_report_grouped_metrics():
     meta = load_model_meta()
     metrics = json.loads(METRICS_PATH.read_bytes())["models"]
-    report_metrics = metrics["gradient_boosting"]["report_grouped_cv"]
+    report_metrics = metrics[meta["type"]]["report_grouped_cv"]
     baseline_metrics = metrics["majority_baseline"]["report_grouped_cv"]
     assert meta["cv_accuracy"] == report_metrics["accuracy"]
     assert meta["cv_balanced_accuracy"] == report_metrics["balanced_accuracy"]
@@ -95,3 +98,18 @@ def test_metrics_comparisons_exist():
     # Check that grouped_cv is populated
     assert "accuracy" in models["gradient_boosting"]["grouped_cv"]
     assert "confusion_matrix" in models["gradient_boosting"]["grouped_cv"]
+
+
+def test_serving_svm_matches_the_selected_experiment_winner():
+    meta = load_model_meta()
+    evidence_path = ROOT / meta["selection_evidence"]
+    assert hashlib.sha256(evidence_path.read_bytes()).hexdigest() == meta["selection_evidence_sha256"]
+    evidence = json.loads(evidence_path.read_text())
+    selected = evidence["nested"]["base"]
+    reference = joblib.load(ROOT / selected["artifact"])
+    serving = load_trained_model()
+    rows = pd.read_parquet(ROOT / "cache/experiments.parquet")[meta["features"]]
+    np.testing.assert_array_equal(serving.predict(rows), reference.predict(rows))
+    assert serving["clf"].kernel == "linear" and serving["clf"].C == 1.0
+    assert meta["release_mode"] == "research"
+    assert meta["cv_accuracy"] == selected["full_data_selection_metrics_tuning_only"]["accuracy"]

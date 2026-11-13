@@ -175,9 +175,10 @@ class CounterfactualEngine:
                 "removed_experiment_ids": removed_ids,
             },
             "scientific_disclaimer": (
-                "Counterfactual predictions reflect empirical gradient-boosted patterns "
-                "from published NASA microgravity experiments. They do not constitute formal "
-                "causal proof and must be validated against physical Navier-Stokes/combustion models."
+                "Counterfactual predictions are exploratory estimates from the current research model "
+                "trained on published NASA microgravity experiments. Probabilities are not validated "
+                "across reports. These estimates do not establish causation, physical extinction limits, "
+                "or operational safety."
             ),
         }
 

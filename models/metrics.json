@@ -1,13 +1,14 @@
 {
   "dataset_sha256": "26c383559b63ddee3cd5e1260fe15924d8438af89b8a8b74e5cf87d353af28e0",
   "n_train": 200,
+  "serving_model": "linear_svm",
   "classes": [
     "no_spread",
     "marginal_spread",
     "spread"
   ],
   "plain_cv_scheme": "StratifiedKFold(k=2)",
-  "evaluated_at": "2026-11-13T10:23:16+00:00",
+  "evaluated_at": "2026-11-13T11:18:41+00:00",
   "models": {
     "majority_baseline": {
       "grouped_cv": {
@@ -572,14 +573,155 @@
           "spread": 0.950920245398773
         }
       }
+    },
+    "linear_svm": {
+      "grouped_cv": {
+        "accuracy": 0.84,
+        "balanced_accuracy": 0.4034,
+        "macro_f1": 0.4215,
+        "fold_accuracies": [
+          0.0,
+          0.8797,
+          1.0,
+          0.5,
+          0.7692,
+          1.0,
+          0.4,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "fold_sizes": [
+          1,
+          158,
+          1,
+          6,
+          13,
+          2,
+          10,
+          1,
+          2,
+          3,
+          3
+        ],
+        "n_groups": 11,
+        "std_accuracy": 0.3207,
+        "confusion_matrix": [
+          [
+            8,
+            0,
+            27
+          ],
+          [
+            0,
+            0,
+            2
+          ],
+          [
+            2,
+            1,
+            160
+          ]
+        ],
+        "per_class_recall": {
+          "no_spread": 0.22857142857142856,
+          "marginal_spread": 0.0,
+          "spread": 0.9815950920245399
+        }
+      },
+      "report_grouped_cv": {
+        "accuracy": 0.84,
+        "balanced_accuracy": 0.4034,
+        "macro_f1": 0.4215,
+        "fold_accuracies": [
+          0.7692,
+          0.5714,
+          0.0,
+          0.5,
+          0.8797,
+          1.0,
+          1.0
+        ],
+        "fold_sizes": [
+          13,
+          7,
+          1,
+          12,
+          158,
+          6,
+          3
+        ],
+        "n_groups": 7,
+        "std_accuracy": 0.3293,
+        "confusion_matrix": [
+          [
+            8,
+            0,
+            27
+          ],
+          [
+            0,
+            0,
+            2
+          ],
+          [
+            2,
+            1,
+            160
+          ]
+        ],
+        "per_class_recall": {
+          "no_spread": 0.22857142857142856,
+          "marginal_spread": 0.0,
+          "spread": 0.9815950920245399
+        }
+      },
+      "plain_cv": {
+        "accuracy": 0.83,
+        "balanced_accuracy": 0.3769,
+        "macro_f1": 0.3809,
+        "fold_accuracies": [
+          0.83,
+          0.83
+        ],
+        "fold_sizes": [
+          100,
+          100
+        ],
+        "n_groups": null,
+        "std_accuracy": 0.0,
+        "confusion_matrix": [
+          [
+            5,
+            0,
+            30
+          ],
+          [
+            0,
+            0,
+            2
+          ],
+          [
+            2,
+            0,
+            161
+          ]
+        ],
+        "per_class_recall": {
+          "no_spread": 0.14285714285714285,
+          "marginal_spread": 0.0,
+          "spread": 0.9877300613496932
+        }
+      }
     }
   },
   "loro": {
-    "scheme": "LeaveOneGroupOut(group=report_id), averaged over 10 model seeds",
+    "scheme": "LeaveOneGroupOut(group=report_id), fixed linear SVM seed; no seed selection",
     "n_groups": 7,
-    "accuracy_mean": 0.7755,
-    "accuracy_std": 0.0047,
-    "balanced_accuracy_mean": 0.3733,
-    "macro_f1_mean": 0.3773
+    "accuracy_mean": 0.84,
+    "accuracy_std": 0.0,
+    "balanced_accuracy_mean": 0.4034,
+    "macro_f1_mean": 0.4215
   }
 }

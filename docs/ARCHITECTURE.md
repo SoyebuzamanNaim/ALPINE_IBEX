@@ -34,6 +34,8 @@ data/processed ──► src/ingestion/build_table.py ──► cache/experiment
 
 ## Inference gate
 
-The checked-in model has 200 training rows, 77.5% grouped accuracy, and an 81.5% majority baseline. Because the model does not exceed that baseline, `/predict` withholds an otherwise eligible estimate as `model_unvalidated`. The API also verifies that the model metadata dataset hash matches `cache/experiments.parquet`. Domain violations, identical-input outcome conflicts, and insufficient material coverage produce explicit abstentions. A final explanation audit failure clears prediction and probability fields before the response is returned.
+The checked-in linear SVM has 200 training rows and an 84.0% exploratory grouped selection score against an 81.5% majority baseline. Guarded research estimates are available; this score was used for selection and is not independent validation. The full search procedure's nested accuracy is 25.5%, which evaluates model selection rather than the fixed SVM alone. Probabilities have not been validated across reports.
+
+The API verifies dataset and model artifact hashes against the loaded metadata. A failed integrity or baseline check returns `model_unvalidated` for an otherwise eligible `/predict` request and HTTP 503 for model-dependent visualization routes. Domain violations, identical-input outcome conflicts, and insufficient material coverage produce explicit abstentions. A final explanation audit failure clears prediction and probability fields before the response is returned.
 
 The request limiter is process-local and keyed by the socket client address. A multi-worker or proxy deployment needs a shared edge limiter configured with trusted proxy handling; the application does not trust arbitrary forwarded client-address headers.

@@ -155,7 +155,7 @@ CANONICAL_CONFLICT_CASES = [
     },
     {
         "case_id": "drop_tower_vs_bass2",
-        "name": "5.18s Drop Tower (Olson CR-182264) vs. BASS-II (ISS Long Duration)",
+        "name": "5.18s Drop Tower (Ferkul CR-182264) vs. BASS-II (ISS Long Duration)",
         "study_a": "Drop_Tower_Olson",
         "study_b": "BASS-II",
         "core_conflict": "Transient extinction boundaries vs. steady-state radiative quenching limits",
@@ -598,7 +598,7 @@ class ConflictExplorerEngine:
             )
         elif {key_a, key_b} == {"Drop_Tower_Olson", "BASS-II"}:
             return (
-                "The NASA GRC 5.18-second drop tower experiments (Olson CR-182264 / Bhattacharjee AIAA-2004-0968) captured pioneering "
+                "The NASA GRC 5.18-second drop tower experiments (Ferkul CR-182264 / Bhattacharjee AIAA-2004-0968) captured pioneering "
                 "extinction boundaries. However, 5.18 seconds is shorter than the characteristic solid thermal diffusion time for "
                 "fuels thicker than 0.2 mm (t_diff = L^2 / alpha > 10 s). Consequently, flames in drop towers may appear to extinguish "
                 "due to insufficient ignition transient recovery. Orbital tests aboard the ISS (BASS-II) allowed steady burns exceeding "

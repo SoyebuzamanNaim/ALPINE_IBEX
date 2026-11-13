@@ -1,23 +1,32 @@
 {
-  "type": "gradient_boosting",
+  "type": "linear_svm",
+  "release_mode": "research",
+  "validation_status": "exploratory_model_selection",
+  "probability_calibration": "Internal SVM calibration; not validated across reports",
+  "hyperparameters": {
+    "kernel": "linear",
+    "C": 1.0,
+    "random_state": 42
+  },
+  "research_warning": "Exploratory model estimates only. The grouped score was used for model selection; probabilities are not validated across reports. No flight certification or safety clearance.",
   "n_train": 200,
-  "cv_accuracy": 0.775,
-  "cv_balanced_accuracy": 0.3618,
-  "cv_macro_f1": 0.3637,
+  "cv_accuracy": 0.84,
+  "cv_balanced_accuracy": 0.4034,
+  "cv_macro_f1": 0.4215,
   "cv_scheme": "LeaveOneGroupOut(group=report_id)",
   "secondary_cv": {
     "scheme": "LeaveOneGroupOut(group=investigation)",
-    "accuracy": 0.775,
-    "balanced_accuracy": 0.3618,
+    "accuracy": 0.84,
+    "balanced_accuracy": 0.4034,
     "rationale": "Coarser grouping: isolates whole flight campaigns."
   },
   "cv_fold_accuracies": [
-    0.6923,
+    0.7692,
     0.5714,
     0.0,
     0.5,
-    0.8101,
-    0.8333,
+    0.8797,
+    1.0,
     1.0
   ],
   "cv_fold_sizes": [
@@ -30,7 +39,7 @@
     3
   ],
   "cv_caveat": "There are 7 report groups with row counts [158, 13, 12, 7, 6, 3, 1]; pooled metrics are row-weighted and dominated by the largest report. Only two marginal_spread records exist, so class-specific performance for that label is not statistically reliable. Treat scores as exploratory, not as evidence for operational or safety use.",
-  "optimistic_cv_accuracy": 0.85,
+  "optimistic_cv_accuracy": 0.83,
   "majority_baseline_accuracy": 0.815,
   "features": [
     "oxygen_pct",
@@ -45,9 +54,9 @@
   ],
   "confusion_matrix": [
     [
-      6,
+      8,
       0,
-      29
+      27
     ],
     [
       0,
@@ -55,19 +64,19 @@
       2
     ],
     [
-      13,
+      2,
       1,
-      149
+      160
     ]
   ],
   "per_class_recall": {
-    "no_spread": 0.17142857142857143,
+    "no_spread": 0.22857142857142856,
     "marginal_spread": 0.0,
-    "spread": 0.9141104294478528
+    "spread": 0.9815950920245399
   },
-  "trained_at": "2026-11-13T10:23:38+00:00",
+  "trained_at": "2026-11-13T11:18:50+00:00",
   "dataset_sha256": "26c383559b63ddee3cd5e1260fe15924d8438af89b8a8b74e5cf87d353af28e0",
-  "model_sha256": "b19a775e2f4af1f76ecf2ed789fa3c95b33d0ab42dae48bd008d201665e06d8a",
+  "model_sha256": "731043ccb86598c4563864b278bb60c3c5be6d4ceef96556c98a522ec3da18ca",
   "training_range": {
     "oxygen_pct": {
       "min": 14.0,
@@ -215,11 +224,20 @@
     }
   },
   "loro": {
-    "scheme": "LeaveOneGroupOut(group=report_id), averaged over 10 model seeds",
+    "scheme": "LeaveOneGroupOut(group=report_id), fixed linear SVM seed; no seed selection",
     "n_groups": 7,
-    "accuracy_mean": 0.7755,
-    "accuracy_std": 0.0047,
-    "balanced_accuracy_mean": 0.3733,
-    "macro_f1_mean": 0.3773
+    "accuracy_mean": 0.84,
+    "accuracy_std": 0.0,
+    "balanced_accuracy_mean": 0.4034,
+    "macro_f1_mean": 0.4215
+  },
+  "selection_evidence": "reports/accuracy_experiments/runs/20261113T111613601552Z/results.json",
+  "selection_evidence_sha256": "8f794c97a24ffc27bea7b2ce2614251bd9a18e5d5f1d4c369ed2f2214855469f",
+  "nested_search": {
+    "scheme": "Nested leave-one-report-out selection across the complete candidate pool",
+    "accuracy": 0.255,
+    "balanced_accuracy": 0.26882851300029215,
+    "candidate_count": 135,
+    "caveat": "Evaluates the full search procedure, not the fixed SVM alone. No independent external validation."
   }
 }

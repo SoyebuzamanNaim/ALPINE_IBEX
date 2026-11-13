@@ -17,7 +17,7 @@ def test_get_health(client):
     data = res.json()
     assert data["status"] == ("healthy" if data["model_ready"] else "degraded")
     assert data["dataset_rows"] == 200
-    assert data["model_type"] == "gradient_boosting"
+    assert data["model_type"] == "linear_svm"
     assert "PMMA" in data["allowed_materials"]
 
 
@@ -58,7 +58,7 @@ def test_post_predict_in_domain(client):
         assert data["status"] == "model_unvalidated"
         assert data["prediction"] is None
         assert data["probabilities"] is None
-    assert data["model"]["type"] == "gradient_boosting"
+    assert data["model"]["type"] == "linear_svm"
     assert data["model"]["n_train"] == 200
     # Scores describe out-of-report transfer and are not a model quality target.
     assert data["model"]["cv_accuracy"] > 0.50
@@ -194,7 +194,7 @@ def test_get_model(client):
     res = client.get("/model")
     assert res.status_code == 200
     data = res.json()
-    assert data["type"] == "gradient_boosting"
+    assert data["type"] == "linear_svm"
     assert data["n_train"] == 200
     assert "confusion_matrix" in data
     assert "training_range" in data
@@ -202,8 +202,11 @@ def test_get_model(client):
 
 def test_get_boundary(client):
     res = client.get("/boundary?material=PMMA&pressure_kpa=101.3&o2_steps=12&flow_steps=12")
-    assert res.status_code == 503
-    assert "majority baseline" in res.json()["detail"]
+    assert res.status_code == 200
+    data = res.json()
+    assert len(data["grid_predictions"]) == 12
+    assert all(abs(row["pressure_kpa"] - 101.3) <= .05 for row in data["real_experiments"])
+    assert data["model"]["release_mode"] == "research"
 
 
 def test_post_counterfactual(client):
@@ -217,8 +220,10 @@ def test_post_counterfactual(client):
         "changes": {"oxygen_pct": 16.5},
     }
     res = client.post("/counterfactual", json=payload)
-    assert res.status_code == 503
-    assert "majority baseline" in res.json()["detail"]
+    assert res.status_code == 200
+    assert res.json()["model"]["validation_status"] == "exploratory_model_selection"
+    assert "exploratory estimates" in res.json()["scientific_disclaimer"]
+    assert "gradient-boosted" not in res.json()["scientific_disclaimer"]
 
 
 @pytest.mark.parametrize(
@@ -270,8 +275,7 @@ def test_post_sweep(client):
         "steps": 11,
     }
     res = client.post("/sweep", json=payload)
-    assert res.status_code == 503
-    assert "majority baseline" in res.json()["detail"]
+    assert res.status_code == 200
 
 
 def test_post_scenario_parse(client):
@@ -318,3 +322,21 @@ def test_get_root_serves_frontend(client):
     assert "text/html" in res.headers["content-type"]
     assert "FLARE-X" in res.text
     assert "flammability-boundary-canvas" in res.text
+
+
+def test_overview_and_workbench_links_are_served(client):
+    for route in ["/project-page/", "/app/", "/app/app.js", "/index.css"]:
+        assert client.get(route).status_code == 200
+
+
+def test_single_condition_material_has_finite_chart_axes_and_no_predictions(client):
+    data = client.get("/boundary?material=Cotton&pressure_kpa=70.7").json()
+    assert data["oxygen_range"][0] < data["oxygen_range"][1]
+    assert data["flow_range"][0] < data["flow_range"][1]
+    assert all(value is None for row in data["grid_predictions"] for value in row)
+
+
+@pytest.mark.parametrize("pressure", ["nan", "inf", "-inf", "-1", "201"])
+def test_boundary_rejects_invalid_pressure(client, pressure):
+    response = client.get("/boundary", params={"pressure_kpa": pressure})
+    assert response.status_code == 422
