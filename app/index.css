@@ -208,6 +208,8 @@ body.flarex-theme {
   gap: 2px;
 }
 
+.ops-tablist { display: flex; align-items: center; gap: 2px; flex: none; }
+
 .ops-nav-btn {
   background: transparent;
   border: none;
@@ -273,9 +275,12 @@ body.flarex-theme {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: var(--color-safe);
-  box-shadow: 0 0 4px var(--color-safe);
+  background-color: var(--color-marginal);
+  box-shadow: 0 0 4px var(--color-marginal);
 }
+
+.heartbeat-pulse.status-ready { background-color: var(--color-safe); box-shadow: 0 0 4px var(--color-safe); }
+.heartbeat-pulse.status-offline { background-color: var(--text-muted); box-shadow: none; }
 
 .heartbeat-meta {
   display: flex;
@@ -342,7 +347,9 @@ body.flarex-theme {
   font-size: 10px;
 }
 
-.metric-status-ok {
+.metric-status-withheld,
+.metric-status-ready,
+.metric-status-offline {
   color: var(--color-safe-light);
   font-weight: 600;
   font-size: 10px;
@@ -351,6 +358,9 @@ body.flarex-theme {
   padding: 1px 6px;
   border-radius: 3px;
 }
+
+.metric-status-withheld { color: #92400e; background: #fffbeb; border-color: #fcd34d; }
+.metric-status-offline { color: #475569; background: #f1f5f9; border-color: #cbd5e1; }
 
 /* ==============================================================================
    3. MAIN WORKBENCH VIEWPORT
@@ -396,6 +406,8 @@ body.flarex-theme {
   flex-direction: column;
   gap: 12px;
 }
+
+.deck-pane > * { flex-shrink: 0; }
 
 .deck-pane.avionics-pane {
   background-color: #f8fafc;
@@ -846,6 +858,27 @@ body.flarex-theme {
   color: #b91c1c;
   line-height: 1.4;
 }
+
+.flight-safety-alert[data-kind="validation"],
+.flight-safety-alert[data-kind="evidence"] {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  box-shadow: none;
+}
+.flight-safety-alert[data-kind="validation"] .alert-hazard-stripes,
+.flight-safety-alert[data-kind="evidence"] .alert-hazard-stripes { background: #d97706; }
+.flight-safety-alert[data-kind="validation"] .alert-title,
+.flight-safety-alert[data-kind="evidence"] .alert-title,
+.flight-safety-alert[data-kind="validation"] .alert-text,
+.flight-safety-alert[data-kind="evidence"] .alert-text { color: #78350f; }
+.flight-safety-alert[data-kind="published"] { background: #eff6ff; border-color: #93c5fd; box-shadow: none; }
+.flight-safety-alert[data-kind="published"] .alert-hazard-stripes { background: var(--nasa-blue); }
+.flight-safety-alert[data-kind="published"] .alert-title,
+.flight-safety-alert[data-kind="published"] .alert-text { color: #1e3a8a; }
+.flight-safety-alert[data-kind="offline"] { background: #f1f5f9; border-color: #94a3b8; box-shadow: none; }
+.flight-safety-alert[data-kind="offline"] .alert-hazard-stripes { background: #64748b; }
+.flight-safety-alert[data-kind="offline"] .alert-title,
+.flight-safety-alert[data-kind="offline"] .alert-text { color: #334155; }
 
 /* Operational Flammability Status HUD */
 .flammability-status-hud {
@@ -1371,6 +1404,17 @@ body.flarex-theme {
   gap: 16px;
 }
 
+.panel-inner-container {
+  height: 100%;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+.panel-header-block { margin-bottom: 16px; }
+.view-heading { font-size: 18px; line-height: 1.3; color: var(--text-pure); margin: 4px 0; }
+.view-description { max-width: 78ch; color: var(--text-secondary); line-height: 1.55; }
+
 .view-header-row {
   display: flex;
   justify-content: space-between;
@@ -1417,6 +1461,8 @@ body.flarex-theme {
   color: var(--color-safe);
 }
 
+.margin-figure.published { color: var(--nasa-blue); }
+
 .margin-pill {
   font-size: 10px;
   padding: 1px 6px;
@@ -1428,6 +1474,15 @@ body.flarex-theme {
   border: 1px solid var(--color-safe-border);
   color: var(--color-safe);
 }
+
+.margin-pill.published {
+  background: var(--nasa-blue-subtle);
+  border: 1px solid #bfdbfe;
+  color: #1e3a8a;
+}
+
+#sweep-source-link { display: inline-block; margin-top: 6px; font-size: 11px; }
+#sweep-source-link[hidden] { display: none; }
 
 .sweep-control-strip {
   display: flex;
@@ -1478,8 +1533,12 @@ body.flarex-theme {
   padding: 14px;
   display: flex;
   justify-content: center;
+  min-width: 0;
+  overflow-x: auto;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
+
+.sweep-scroll-hint { display: none; }
 
 #sweep-chart-canvas {
   width: 100%;
@@ -1548,11 +1607,27 @@ body.flarex-theme {
   color: var(--text-secondary);
 }
 
+.sweep-observation {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 5px 0;
+}
+.sweep-observation + .sweep-observation { border-top: 1px solid var(--border-hairline); }
+.sweep-observation a { margin-left: auto; }
+
 /* View 3: Flight Archive Database Table */
 .table-filter-cluster {
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+.archive-count {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
 }
 
 .filter-search-input {
@@ -1617,11 +1692,12 @@ body.flarex-theme {
 /* View 4: Model Specification & Transparency */
 .transparency-dual-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
 .transparency-card {
+  min-width: 0;
   background: #ffffff;
   border: 1px solid var(--border-hairline);
   border-radius: 6px;
@@ -1634,7 +1710,7 @@ body.flarex-theme {
 
 .kpi-quad-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -1670,6 +1746,7 @@ body.flarex-theme {
 }
 
 .matrix-section {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1682,6 +1759,7 @@ body.flarex-theme {
 }
 
 .matrix-table-container {
+  min-width: 0;
   overflow-x: auto;
   border: 1px solid var(--border-hairline);
   border-radius: 5px;
@@ -1942,10 +2020,12 @@ body.flarex-theme {
   align-items: center;
   gap: 12px;
   flex: 1;
+  min-width: 0;
 }
 
 .picker-half {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -1987,6 +2067,10 @@ body.flarex-theme {
   gap: 20px;
 }
 
+.conflict-results-deck[hidden] { display: none; }
+.analysis-status { color: var(--text-secondary); font-size: 12px; margin: 0 0 12px; }
+.analysis-status:empty { display: none; }
+
 /* Verdict & Gauge Card */
 .comparability-verdict-card {
   background: var(--bg-pane);
@@ -1994,7 +2078,7 @@ body.flarex-theme {
   border-radius: 8px;
   padding: 20px 24px;
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: 180px minmax(0, 1fr);
   gap: 24px;
   align-items: center;
 }
@@ -2037,6 +2121,7 @@ body.flarex-theme {
 }
 
 .verdict-col {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -2093,6 +2178,7 @@ body.flarex-theme {
 /* Dimensions Table */
 .dimensions-card,
 .reconciliation-card {
+  min-width: 0;
   background: var(--bg-pane);
   border: 1px solid var(--border-hairline);
   border-radius: 8px;
@@ -2107,6 +2193,7 @@ body.flarex-theme {
 }
 
 .dimensions-table-wrap {
+  max-width: 100%;
   overflow-x: auto;
 }
 
@@ -2276,6 +2363,7 @@ body.flarex-theme {
 }
 
 .coverage-heatmap-card {
+  min-width: 0;
   background: var(--bg-pane);
   border: 1px solid var(--border-hairline);
   border-radius: 8px;
@@ -2336,6 +2424,8 @@ body.flarex-theme {
   border-collapse: collapse;
   font-size: 12px;
 }
+
+.heatmap-grid-scroll { max-width: 100%; overflow-x: auto; }
 
 .heatmap-table th {
   background: var(--bg-deep);
@@ -2457,11 +2547,12 @@ body.flarex-theme {
 
 .gap-cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
 
 .gap-card {
+  min-width: 0;
   background: var(--bg-pane);
   border: 1px solid var(--border-hairline);
   border-radius: 8px;
@@ -2724,27 +2815,142 @@ body.flarex-theme {
   }
 }
 
+@media (max-width: 1600px) {
+  .flight-ops-header {
+    height: auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 12px;
+    padding: 8px 16px 0;
+  }
+  .header-left-cluster { min-width: 0; }
+  .ops-nav-deck {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .ops-nav-btn { flex: none; }
+  .telemetry-heartbeat-cell { max-width: 260px; }
+  .telemetry-heartbeat-cell { grid-column: 2; grid-row: 1; }
+}
+
 @media (max-width: 1024px) {
   html, body {
     overflow-y: auto;
     height: auto;
   }
+  html, body { overflow-x: hidden; }
   .workbench-viewport {
     overflow: visible;
+    flex: none;
+    min-height: 0;
   }
+  .view-panel.active,
+  .full-view-container {
+    height: auto;
+    overflow: visible;
+  }
+  .panel-inner-container { height: auto; overflow: visible; }
+  .study-picker-duo { flex-wrap: wrap; }
+  .picker-half { flex: 1 1 240px; }
+  .styled-select-input { min-width: 0; width: 100%; }
+  .gap-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .flight-deck-grid {
     grid-template-columns: 1fr;
     height: auto;
   }
   .deck-pane {
     height: auto;
+    overflow: visible;
     border-right: none;
     border-bottom: 1px solid var(--border-hairline);
   }
+  .hud-top-split,
+  .phase-header-bar,
+  .view-header-row,
+  .sweep-control-strip { flex-wrap: wrap; }
+  .phase-header-bar { gap: 10px; }
+  .phase-legend { flex-wrap: wrap; gap: 6px 12px; }
+  .phase-space-container { min-height: 430px; }
+  .canvas-work-area { min-height: 240px; }
+  .physics-telemetry-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .docked-status-strip {
+    height: auto;
+    min-height: 28px;
+    flex-wrap: wrap;
+    padding: 7px 16px;
+    gap: 5px 18px;
+  }
+  .strip-item-right { margin-left: 0; }
   .transparency-dual-layout,
   .boundary-comparison-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
+}
+
+@media (max-width: 640px) {
+  .flight-ops-header { padding: 8px 12px 0; }
+  .nasa-branch, .header-separator, .platform-desc, .version-tag { display: none; }
+  .header-left-cluster { gap: 8px; }
+  .telemetry-heartbeat-cell { padding: 4px 7px; max-width: 185px; min-width: 0; }
+  .telemetry-sub { line-height: 1.2; }
+  .campaign-telemetry-ribbon { padding: 0 12px; }
+  .deck-pane, .deck-pane.center-phase-pane { padding: 12px; }
+  .hud-top-split { gap: 12px; }
+  .model-telemetry-cluster { flex-wrap: wrap; }
+  .telemetry-cell { flex: 1 1 45%; }
+  .prob-labels-row { flex-wrap: wrap; gap: 4px 10px; }
+  .regime-indicator-wrap { flex-wrap: wrap; }
+  .regime-status-badge { font-size: 13px; }
+  .phase-space-container { min-height: 430px; }
+  .phase-header-bar { align-items: flex-start; }
+  .phase-legend { font-size: 10px; }
+  .physics-telemetry-bar { gap: 8px; padding: 10px; }
+  .canvas-coordinate-badge { left: 8px; right: 8px; justify-content: center; }
+  .coord-val { font-size: 9px; }
+  .full-view-container { padding: 14px 12px; }
+  .panel-inner-container { padding: 14px 12px; }
+  .conflict-selection-card { padding: 14px; }
+  .case-presets-row, .custom-study-row { align-items: stretch; flex-direction: column; }
+  .control-label { min-width: 0; }
+  .styled-select-input { min-width: 0; width: 100%; }
+  .study-picker-duo { flex-wrap: wrap; width: 100%; }
+  .picker-half { flex: 1 1 100%; min-width: 0; }
+  .vs-divider { padding: 0; }
+  .comparability-verdict-card { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 16px; }
+  .gauge-col { align-items: flex-start; border-right: none; border-bottom: 1px solid var(--border-hairline); padding: 0 0 10px; }
+  .verdict-badge { max-width: 100%; white-space: normal; }
+  .dimensions-card, .reconciliation-card { padding: 16px; }
+  .dimensions-table { min-width: 800px; }
+  .citations-split-deck { grid-template-columns: minmax(0, 1fr); }
+  .matrix-table-container { max-width: 100%; }
+  .confusion-data-table { min-width: 480px; }
+  .transparency-card { padding: 16px; }
+  .table-filter-cluster { flex-wrap: wrap; width: 100%; }
+  .safety-margin-metric-box { align-items: flex-start; width: 100%; }
+  .sweep-control-strip { flex-direction: column; align-items: stretch; gap: 12px; }
+  .sweep-scrubber-unit { min-width: 0; width: 100%; }
+  .sweep-control-strip .btn-action-primary { width: 100%; }
+  .sweep-scroll-hint { display: block; color: var(--text-muted); font-size: 11px; }
+  .sweep-canvas-card { justify-content: flex-start; }
+  #sweep-chart-canvas { min-width: 900px; }
+  .filter-search-input { width: 100%; }
+  .table-filter-select { flex: 1 1 140px; width: auto; }
+  .coverage-kpi-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gap-cards-grid { grid-template-columns: minmax(0, 1fr); }
+  .coverage-heatmap-card { padding: 14px; }
+  .heatmap-legend { flex-wrap: wrap; gap: 6px 12px; }
+  .modal-dialog-card { max-height: 90dvh; overflow-y: auto; padding: 16px; }
+  .detail-row { grid-template-columns: 1fr; gap: 2px; }
+}
+
+:where(button, a, input, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--nasa-blue);
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

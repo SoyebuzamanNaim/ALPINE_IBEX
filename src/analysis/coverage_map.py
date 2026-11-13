@@ -6,15 +6,12 @@ and identifies critical scientific knowledge gaps (untested mission-critical reg
 """
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
-import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA_PATH = ROOT / "cache" / "experiments.parquet"
-PROVENANCE_PATH = ROOT / "data" / "metadata" / "provenance_registry.json"
 
 
 O2_BINS = [

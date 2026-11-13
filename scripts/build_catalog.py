@@ -10,7 +10,6 @@ Outputs:
 from __future__ import annotations
 
 import csv
-import hashlib
 import json
 import urllib.request
 from datetime import datetime, timezone
@@ -69,13 +68,33 @@ CATALOG_FIELDS = [
 ]
 
 
+def _validate_psi_records(records: dict[str, dict]) -> None:
+    if not isinstance(records, dict):
+        raise ValueError("Invalid PSI record format: expected an object.")
+    missing = sorted(set(PRIORITY_SHORTLIST) - records.keys())
+    if missing:
+        raise ValueError("PSI response is missing shortlisted investigations: " + ", ".join(missing))
+    for psi_id in PRIORITY_SHORTLIST:
+        rec = records[psi_id]
+        if not isinstance(rec, dict):
+            raise ValueError(f"Invalid PSI record for {psi_id}: expected an object.")
+        title = rec.get("Title") or rec.get("Proposal Title")
+        if not isinstance(title, str) or not title.strip():
+            raise ValueError(f"PSI record {psi_id} has no title.")
+
+
 def fetch_psi_data() -> dict[str, dict]:
     DATA_RAW_PSI.mkdir(parents=True, exist_ok=True)
     cache_file = DATA_RAW_PSI / "psi_investigations.json"
     if cache_file.exists():
-        data = json.loads(cache_file.read_bytes())
-        print(f"Loaded {len(data)} PSI records from local cache.")
-        return data
+        try:
+            data = json.loads(cache_file.read_bytes())
+            _validate_psi_records(data)
+        except (OSError, ValueError, TypeError) as exc:
+            print(f"Ignoring invalid PSI cache ({exc}); fetching a fresh response.")
+        else:
+            print(f"Loaded {len(data)} PSI records from local cache.")
+            return data
 
     url = "https://psi.nasa.gov/geode-py/ws/repo/search?data_source=psi&size=150"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (FLARE-X Catalog Builder)"})
@@ -91,12 +110,18 @@ def fetch_psi_data() -> dict[str, dict]:
         if acc:
             records[acc] = src
 
-    cache_file.write_bytes(json.dumps(records, indent=2).encode("utf-8"))
+    _validate_psi_records(records)
+
+    temporary_cache = cache_file.with_suffix(".json.tmp")
+    temporary_cache.write_text(json.dumps(records, indent=2), encoding="utf-8")
+    temporary_cache.replace(cache_file)
     print(f"Fetched and cached {len(records)} PSI records.")
     return records
 
 
 def build_catalog_and_audit(records: dict[str, dict]) -> None:
+    _validate_psi_records(records)
+
     DATA_META.mkdir(parents=True, exist_ok=True)
     DOCS.mkdir(parents=True, exist_ok=True)
 
@@ -105,9 +130,9 @@ def build_catalog_and_audit(records: dict[str, dict]) -> None:
 
     for psi_id, (short_name, usable, notes) in sorted(PRIORITY_SHORTLIST.items()):
         rec = records.get(psi_id, {})
-        exact_title = rec.get("Title") or rec.get("Proposal Title") or f"{short_name} Microgravity Investigation"
+        exact_title = (rec.get("Title") or rec.get("Proposal Title")).strip()
         nasa_url = f"https://psi.nasa.gov/physci/repo/data/investigations/{psi_id}"
-        obj = (rec.get("Objectives") or rec.get("Proposal Title") or "Microgravity combustion research.").strip().replace("\n", " ")
+        obj = (rec.get("Objectives") or "Objective not provided by PSI.").strip().replace("\n", " ")
         
         # Detailed parameters based on NASA physical sciences domain
         if "BASS" in short_name:
@@ -159,9 +184,9 @@ def build_catalog_and_audit(records: dict[str, dict]) -> None:
             citations = f"NASA {psi_id}"
             role = "Contextual reference only"
 
-        raw_avail = "Available (NASA PSI public release)"
-        proc_avail = "Available (Processed tables in NTRS Technical Reports & PSI data files)"
-        access = "Open Access / Public Domain (US Government Work)"
+        raw_avail = "Not checked by this catalog builder"
+        proc_avail = "Not checked by this catalog builder"
+        access = "Not checked by this catalog builder"
 
         catalog_rows.append({
             "investigation_key": short_name,
@@ -175,7 +200,7 @@ def build_catalog_and_audit(records: dict[str, dict]) -> None:
             "numerical_variables": num_vars,
             "imagery_video": imagery,
             "time_series_sensors": sensors,
-            "scientific_outputs": (rec.get("Publication Title") or "Scientific publications in combustion journals")[:200],
+            "scientific_outputs": (rec.get("Publication Title") or "Not provided by PSI")[:200],
             "approximate_scale": scale,
             "access_constraints": access,
             "citation_metadata": citations,
@@ -186,8 +211,8 @@ def build_catalog_and_audit(records: dict[str, dict]) -> None:
         audit_sections.append(f"""### {short_name} ({psi_id})
 - **Exact NASA Title:** {exact_title}
 - **NASA URL:** [{nasa_url}]({nasa_url})
-- **Flight Platform:** {rec.get('Flight Platform') or 'International Space Station (ISS)'}
-- **Research Area:** {rec.get('Research Area', 'Combustion Science')} ({rec.get('SubResearch Area', 'Microgravity Combustion')})
+- **Flight Platform:** {rec.get('Flight Platform') or 'Not provided by PSI'}
+- **Research Area:** {rec.get('Research Area') or 'Not provided by PSI'} ({rec.get('SubResearch Area') or 'Not provided by PSI'})
 - **Usable for Prototype Modeling:** **{'YES' if usable else 'NO'}**
 - **Modeling Role:** {role}
 - **Key Variables:** {num_vars}
@@ -263,10 +288,10 @@ A major trap in applied AI projects is merging physically incompatible combustio
 
 ## 4. Data Access & Provenance Verification
 
-- All PSI investigation records were queried live from `https://psi.nasa.gov/geode-py/ws/repo/search`.
-- NTRS reports and summary documents were retrieved through `https://ntrs.nasa.gov/api/citations/`.
-- Every report has an active SHA256 checksum in `data/metadata/source_manifest.csv`.
-- No NASA fields, variables, experiment names, or URLs were fabricated.
+- PSI investigation records were loaded from the local cache or queried from `https://psi.nasa.gov/geode-py/ws/repo/search` when no cache was present.
+- This catalog builder does not fetch NTRS reports or verify their checksums. NTRS download hashes, when available, are recorded separately in `data/metadata/source_manifest.csv`.
+- Catalog rows are written only when every shortlisted investigation has a PSI record and title; missing source records stop the build rather than receiving generated titles.
+- Measurement variables, access notes, and modeling roles are curated catalog annotations, not fields verified by the PSI query.
 """
     audit_path.write_text(audit_content, encoding="utf-8")
     print(f"Wrote dataset audit documentation to {audit_path}.")

@@ -4,12 +4,12 @@
  * Presents curated NASA microgravity observations and gated model inference.
  */
 
-// API Base URL (auto-detect if served by FastAPI, else fallback to localhost:8000)
-const API_BASE = (window.location.protocol.startsWith('http') && !window.location.origin.includes('file'))
-  ? (window.location.hostname === 'localhost' && window.location.port && window.location.port !== '8000' && window.location.port !== '80' && window.location.port !== '443'
-      ? 'http://localhost:8000'
-      : '')
-  : 'http://localhost:8000';
+// Use the serving origin, except for local static previews on another port.
+const API_BASE = (window.location.protocol.startsWith('http') &&
+  ['localhost', '127.0.0.1'].includes(window.location.hostname) &&
+  window.location.port && window.location.port !== '8000')
+  ? `${window.location.protocol}//${window.location.hostname}:8000`
+  : window.location.protocol === 'file:' ? 'http://localhost:8000' : '';
 
 function escapeHTML(value) {
   return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -36,8 +36,8 @@ function safeHttpUrl(value, fallback = '#') {
 //   a    = (3/2)*(U/r)*(r/r_o)^0.5                 r_o = 0.318 cm
 //   regime separator: U/U_D = 1 with U_D = 2 cm/s
 //
-// Fitted to cast-PMMA rods over 13.6-22.2 % O2. It describes extinction of an
-// ESTABLISHED flame, so it does not predict whether ignition will take hold.
+// Fitted to concurrent-flow cast-PMMA rods over 13.6-22.2 % O2. It describes
+// extinction of an ESTABLISHED flame, so it does not predict whether ignition will take hold.
 // ============================================================================
 const NASA_BOUNDARY = {
   R_O: 0.318,                       // cm, the 1/4-inch base rod radius
@@ -68,9 +68,8 @@ const NASA_BOUNDARY = {
     return {
       stretch: a,
       limitO2: limit,
-      margin: o2_pct - limit,
+      initialO2Offset: o2_pct - limit,
       regime: this.regime(U_cm_s),
-      flammable: o2_pct > limit,
       inFitRange: o2_pct >= this.VALID_O2[0] && o2_pct <= this.VALID_O2[1],
       citation: this.CITATION,
       url: this.URL
@@ -87,6 +86,10 @@ const state = {
   flow_cm_s: 5.0,
   extrapolate: false,
   boundaryData: null,
+  sweepMode: null,
+  publishedSweep: null,
+  sweepObservations: [],
+  sweepEvidenceError: null,
   activeTab: 'view-scenario-lab',
   sweepRunning: false,
   experiments: [],
@@ -173,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Tab Navigation
 function setupTabs() {
-  const tabs = document.querySelectorAll('.ops-nav-btn, .nav-tab');
+  const tabs = document.querySelectorAll('[role="tab"]');
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       tabs.forEach(t => {
@@ -182,6 +185,7 @@ function setupTabs() {
       });
       tab.classList.add('active');
       tab.setAttribute('aria-selected', 'true');
+      tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 
       const targetId = tab.getAttribute('aria-controls');
       document.querySelectorAll('.view-panel').forEach(panel => {
@@ -467,6 +471,8 @@ async function triggerScenarioEvaluation() {
 // Render Prediction UI according to the 4-Tier Scientific State Protocol
 function renderPredictionResults(data) {
   const alertBanner = document.getElementById('envelope-alert-banner');
+  if (alertBanner?.dataset) alertBanner.dataset.kind = !data.in_training_range ? 'out-of-range' :
+    data.status === 'model_unvalidated' ? 'validation' : 'evidence';
   const alertTitle = document.getElementById('alert-title');
   const alertMsg = document.getElementById('alert-message');
   const badge = document.getElementById('regime-badge');
@@ -673,13 +679,14 @@ function renderPredictionResults(data) {
 // TIER 4: SERVICE UNAVAILABLE (Honest state without simulated mock predictions)
 // Render the published NASA boundary result. Used when the backend is unreachable
 // (the static GitHub Pages deployment) and as a physics cross-check when it is not.
-// Shows an oxygen margin against NASA's own fitted limit. No probabilities are
+// Shows NASA's fitted reference and labels the input-to-fit offset. No probabilities are
 // shown, because a deterministic boundary does not produce any.
 function renderPublishedBoundary(payload) {
   setNearestEvidenceStatus('Nearest observations require the backend service.');
   const o2 = payload.oxygen_pct, U = payload.flow_cm_s, mat = payload.material;
   const el = (id) => document.getElementById(id);
   const banner = el('envelope-alert-banner'), aTitle = el('alert-title'), aMsg = el('alert-message');
+  if (banner?.dataset) banner.dataset.kind = 'published';
   const badge = el('regime-badge'), pill = el('confidence-pill');
   const briefing = el('operator-briefing-text'), expText = el('explanation-text-display');
   const tierPill = el('state-tier-pill'), tierLabel = el('state-tier-label'), tierExp = el('state-tier-explainer');
@@ -698,19 +705,19 @@ function renderPublishedBoundary(payload) {
     if (tierExp) tierExp.textContent = `${NASA_BOUNDARY.CITATION} · deterministic, not a trained model`;
   }
 
-  // The fit is for cast-PMMA rods only. Say so rather than extrapolating it.
+  // The fit is for concurrent-flow cast-PMMA rods only. Say so rather than extrapolating it.
   if (mat !== 'PMMA') {
     if (banner) banner.classList.remove('hidden');
     if (aTitle) aTitle.textContent = 'OUTSIDE THE PUBLISHED BOUNDARY FIT';
-    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} was fitted to cast-PMMA rods. It is not validated for ${mat}, so no margin is reported here. Use the flight-archive view to see the real experiments for this material.`;
+    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} was fitted to concurrent-flow cast-PMMA rods. It is not validated for ${mat}, so no margin is reported here. Use the flight-archive view to see the real experiments for this material.`;
     if (badge) { badge.className = 'regime-status-badge regime-refusal'; badge.textContent = 'NO PUBLISHED BOUNDARY FOR THIS MATERIAL'; }
     if (pill) pill.textContent = 'NOT APPLICABLE';
-    if (briefing) briefing.textContent = `The published NASA boundary covers cast-PMMA rods. For ${mat}, this tool can show you the real flight tests that exist but cannot place you against a validated limit.`;
+    if (briefing) briefing.textContent = `The published NASA boundary covers concurrent-flow cast-PMMA rods. For ${mat}, this tool can show you the real flight tests that exist but cannot place you against a validated limit.`;
     if (expText) expText.textContent = '';
     return;
   }
 
-  // Equation 6.1 was fitted to cast-PMMA rod tests in the ISS glovebox at
+  // Equation 6.1 was fitted to concurrent-flow cast-PMMA rod tests in the ISS glovebox at
   // nominal cabin pressure and 0–55 cm/s flow; it has no pressure term.
   if (Math.abs(payload.pressure_kpa - NASA_BOUNDARY.NOMINAL_PRESSURE_KPA) > 0.05 ||
       payload.flow_cm_s < NASA_BOUNDARY.VALID_FLOW[0] ||
@@ -718,7 +725,7 @@ function renderPublishedBoundary(payload) {
       !Number.isFinite(payload.pressure_kpa) || !Number.isFinite(payload.flow_cm_s)) {
     if (banner) banner.classList.remove('hidden');
     if (aTitle) aTitle.textContent = 'OUTSIDE DOCUMENTED BOUNDARY CONDITIONS';
-    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} describes cast-PMMA rod tests at nominal ${NASA_BOUNDARY.NOMINAL_PRESSURE_KPA} kPa and ${NASA_BOUNDARY.VALID_FLOW[0]}–${NASA_BOUNDARY.VALID_FLOW[1]} cm/s flow. No margin is reported for this pressure or flow.`;
+    if (aMsg) aMsg.textContent = `${NASA_BOUNDARY.CITATION} describes concurrent-flow cast-PMMA rod tests at nominal ${NASA_BOUNDARY.NOMINAL_PRESSURE_KPA} kPa and ${NASA_BOUNDARY.VALID_FLOW[0]}–${NASA_BOUNDARY.VALID_FLOW[1]} cm/s flow. No margin is reported for this pressure or flow.`;
     if (badge) { badge.className = 'regime-status-badge regime-refusal'; badge.textContent = 'OUTSIDE PUBLISHED PRESSURE OR FLOW'; }
     if (pill) pill.textContent = 'NOT APPLICABLE';
     if (briefing) briefing.textContent = 'The published boundary has no validated pressure adjustment for these conditions, so the tool cannot report a boundary margin.';
@@ -741,39 +748,24 @@ function renderPublishedBoundary(payload) {
     return;
   }
 
-  const m = res.margin, sign = m >= 0 ? '+' : '';
-  const near = Math.abs(m) < 1.0;        // within 1 % O2 of the limit
-
-  if (banner) {
-    if (!near) banner.classList.add('hidden');
-    else banner.classList.remove('hidden');
-  }
-  if (near && aTitle) {
-    aTitle.textContent = 'WITHIN 1 % O2 OF THE PUBLISHED LIMIT';
-    if (aMsg) aMsg.textContent = 'This condition sits close to the flammability boundary, where NASA\'s own data shows outcomes depend on ignition history. Treat it as undetermined rather than safe.';
-  }
-
+  const offset = res.initialO2Offset;
+  if (banner) banner.classList.remove('hidden');
+  if (aTitle) aTitle.textContent = 'PUBLISHED FIT USES POST-BURN OXYGEN';
+  if (aMsg) aMsg.textContent = 'The selected oxygen is an initial condition. NASA fitted this extinction curve using oxygen measured after burning, so an extinction margin cannot be determined from this input.';
   if (badge) {
-    badge.className = 'regime-status-badge ' + (near ? 'regime-marginal' : (res.flammable ? 'regime-spread' : 'regime-no-spread'));
-    badge.textContent = near ? 'NEAR THE LIMIT — UNDETERMINED'
-      : (res.flammable ? 'ABOVE THE FLAMMABILITY LIMIT' : 'BELOW THE FLAMMABILITY LIMIT');
+    badge.className = 'regime-status-badge regime-marginal';
+    badge.textContent = 'PUBLISHED REFERENCE ONLY';
   }
-  if (pill) pill.textContent = `${sign}${m.toFixed(2)} % O2 vs limit`;
-
-  if (briefing) {
-    briefing.textContent = near
-      ? `At ${o2.toFixed(1)} % O2 and ${U} cm/s the condition is ${Math.abs(m).toFixed(2)} percentage points from NASA's published limit of ${res.limitO2.toFixed(2)} % O2. That is inside the band where the flight data itself is inconsistent, so this is not a safety clearance.`
-      : (res.flammable
-        ? `At ${o2.toFixed(1)} % O2 and ${U} cm/s, a flame on cast PMMA is ${m.toFixed(2)} percentage points of oxygen ABOVE NASA's published limit of ${res.limitO2.toFixed(2)} %. Reducing oxygen by ${m.toFixed(2)} points would reach the boundary.`
-        : `At ${o2.toFixed(1)} % O2 and ${U} cm/s, the condition is ${Math.abs(m).toFixed(2)} points BELOW NASA's published limit of ${res.limitO2.toFixed(2)} %, so an established flame would be expected to extinguish. This says nothing about whether an ignition source could start one.`);
-  }
+  if (pill) pill.textContent = `${offset >= 0 ? '+' : ''}${offset.toFixed(2)} initial O₂ offset`;
+  if (briefing) briefing.textContent = `At ${U} cm/s, NASA's concurrent-flow fit is ${res.limitO2.toFixed(2)} % post-burn O₂. The selected ${o2.toFixed(1)} % is initial O₂, so the ${Math.abs(offset).toFixed(2)}-point numerical difference is not an extinction margin or a predicted outcome.`;
   if (expText) {
-    expText.innerHTML = `Stretch rate a = ${res.stretch.toFixed(1)} s<sup>-1</sup> for a ${(r * 2 * 10).toFixed(2)} mm diameter rod, placing this in the <strong>${escapeHTML(res.regime)}</strong> regime (separator U/U<sub>D</sub> = 1, U<sub>D</sub> = ${NASA_BOUNDARY.U_D} cm/s). The limit comes from <a href="${escapeHTML(safeHttpUrl(res.url, NASA_BOUNDARY.URL))}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">${escapeHTML(res.citation)} ↗</a>, fitted by NASA to cast-PMMA rods. It describes extinction of an <em>established</em> flame and does not predict ignition.`;
+    expText.innerHTML = `Stretch rate a = ${res.stretch.toFixed(1)} s<sup>-1</sup> for a ${(r * 2 * 10).toFixed(2)} mm diameter rod, on the <strong>${escapeHTML(res.regime)}</strong> branch (separator U/U<sub>D</sub> = 1, U<sub>D</sub> = ${NASA_BOUNDARY.U_D} cm/s). The limit comes from <a href="${escapeHTML(safeHttpUrl(res.url, NASA_BOUNDARY.URL))}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">${escapeHTML(res.citation)} ↗</a>, fitted by NASA to concurrent-flow cast-PMMA rods using post-burn oxygen. It describes extinction of an <em>established</em> flame and does not predict ignition.`;
   }
 }
 
 function renderOfflineUnavailable(payload, err) {
   const alertBanner = document.getElementById('envelope-alert-banner');
+  if (alertBanner?.dataset) alertBanner.dataset.kind = 'offline';
   const alertTitle = document.getElementById('alert-title');
   const alertMsg = document.getElementById('alert-message');
   const badge = document.getElementById('regime-badge');
@@ -1122,6 +1114,11 @@ function setupNlpParser() {
   btn.addEventListener('click', async () => {
     const text = input.value.trim();
     if (!text) return;
+    const feedbackEl = document.getElementById('nlp-feedback');
+    if (feedbackEl) {
+      feedbackEl.textContent = 'Reading scenario…';
+      feedbackEl.style.display = 'block';
+    }
 
     try {
       const res = await fetch(`${API_BASE}/scenario/parse`, {
@@ -1129,14 +1126,14 @@ function setupNlpParser() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: text })
       });
+      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
-      const feedbackEl = document.getElementById('nlp-feedback');
       if (data.is_valid && data.parsed_scenario) {
         if (feedbackEl) feedbackEl.style.display = 'none';
         const sc = data.parsed_scenario;
         updateInputs(sc.oxygen_pct, sc.pressure_kpa, sc.flow_cm_s, sc.material);
       } else {
-        const msg = 'Could not parse scenario: ' + (data.ambiguities || []).join('; ');
+        const msg = 'Could not parse scenario: ' + ((data.ambiguities || []).join('; ') || 'Add oxygen, pressure, flow, and material.');
         if (feedbackEl) {
           feedbackEl.textContent = msg;
           feedbackEl.style.display = 'block';
@@ -1146,6 +1143,10 @@ function setupNlpParser() {
       }
     } catch (err) {
       console.warn('NLP parser error:', err);
+      if (feedbackEl) {
+        feedbackEl.textContent = 'Scenario search is unavailable. Check the backend connection and try again.';
+        feedbackEl.style.display = 'block';
+      }
     }
   });
 
@@ -1154,9 +1155,73 @@ function setupNlpParser() {
   });
 }
 
-// Killer Demo Sweep View (Brief §2) - Completely Dynamic
+// Oxygen sweep: use guarded model output when available, otherwise the separate
+// published BASS-II cast-PMMA relation under its documented conditions.
 let sweepGeneration = 0;
 let sweepRefreshTimeout = null;
+function setSweepCopy(mode, message = '') {
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+  const source = document.getElementById('sweep-source-link');
+  const canvas = document.getElementById('sweep-chart-canvas');
+  if (source) source.hidden = mode !== 'published';
+  if (mode === 'published') {
+    setText('sweep-title', 'Published PMMA oxygen sweep');
+    setText('sweep-description', 'NASA BASS-II Eq (6.1) is a concurrent-flow extinction fit for established flames. The plotted test observations show initial oxygen at test start; they are context only because the fit uses oxygen measured after burning. This is not a model prediction or ignition test.');
+    setText('sweep-metric-label', 'INITIAL O₂ OFFSET · NOT A SAFETY MARGIN');
+    setText('sweep-above-heading', 'Matching concurrent-flow tests');
+    setText('sweep-below-heading', 'Measurement basis');
+    setText('sweep-above-context', 'Examples show initial oxygen at test start and reported outcome. They provide context only, not validation points for the fitted curve.');
+    setText('sweep-below-context', 'NASA fitted Eq (6.1) using oxygen readings after burning at extinction. Initial and post-burn oxygen are different measurements.');
+    if (canvas) canvas.setAttribute('aria-label', 'NASA PMMA extinction fit with contextual initial oxygen readings from concurrent-flow tests');
+  } else if (mode === 'model') {
+    setText('sweep-title', 'Validated model oxygen sweep');
+    setText('sweep-description', 'Model estimates across oxygen concentrations under the selected material, pressure, and flow. Refused points remain blank.');
+    setText('sweep-metric-label', 'MODEL TRANSITION DISTANCE');
+    setText('sweep-above-heading', 'Higher oxygen observations');
+    setText('sweep-below-heading', 'Lower oxygen observations');
+    setText('sweep-above-context', 'Observed outcomes depend on material geometry, airflow, pressure and ignition history. Inspect source records before drawing a conclusion.');
+    setText('sweep-below-context', 'A lower oxygen concentration does not by itself establish extinction for every material or geometry. No safety clearance is inferred from this view.');
+    if (canvas) canvas.setAttribute('aria-label', 'Validated model oxygen probability sweep');
+  } else {
+    setText('sweep-title', 'Oxygen sweep unavailable for this scenario');
+    setText('sweep-description', message);
+    setText('sweep-metric-label', 'OXYGEN SWEEP');
+    setText('sweep-above-context', '');
+    setText('sweep-below-context', '');
+    if (canvas) canvas.setAttribute('aria-label', 'Oxygen sweep unavailable');
+  }
+}
+
+function publishedSweepFor(scenario) {
+  if (scenario.material !== 'PMMA' ||
+      Math.abs(scenario.pressure_kpa - NASA_BOUNDARY.NOMINAL_PRESSURE_KPA) > 0.05 ||
+      scenario.flow_cm_s < NASA_BOUNDARY.VALID_FLOW[0] ||
+      scenario.flow_cm_s > NASA_BOUNDARY.VALID_FLOW[1]) return null;
+  const limitO2 = NASA_BOUNDARY.limitO2(NASA_BOUNDARY.stretch(scenario.flow_cm_s, state.rod_radius_cm));
+  return Number.isFinite(limitO2) ? { limitO2, flow: scenario.flow_cm_s } : null;
+}
+
+function configureSweepSlider(mode) {
+  const slider = document.getElementById('sweep-oxygen-slider');
+  if (!slider) return;
+  const [min, max] = mode === 'published' ? NASA_BOUNDARY.VALID_O2 : [16.0, 21.0];
+  slider.min = min.toFixed(1);
+  slider.max = max.toFixed(1);
+  slider.value = Math.min(max, Math.max(min, state.oxygen_pct)).toFixed(1);
+  slider.disabled = false;
+  const minTick = document.getElementById('sweep-tick-min');
+  const maxTick = document.getElementById('sweep-tick-max');
+  if (minTick) minTick.textContent = `| ${min.toFixed(1)}% O₂`;
+  if (maxTick) maxTick.textContent = `| ${max.toFixed(1)}% O₂`;
+  const autoBtn = document.getElementById('btn-run-auto-sweep');
+  if (autoBtn) {
+    autoBtn.disabled = false;
+    autoBtn.textContent = '▶ Play oxygen sweep';
+  }
+}
 function scheduleSweepRefresh() {
   ++sweepGeneration;
   clearTimeout(sweepRefreshTimeout);
@@ -1171,6 +1236,10 @@ function setSweepUnavailable(message) {
   }
   state.sweepRunning = false;
   state.sweepData = null;
+  state.sweepMode = null;
+  state.publishedSweep = null;
+  state.sweepObservations = [];
+  state.sweepEvidenceError = null;
   state.dynamicLocBoundary = null;
   state.sweepEvidenceBefore = null;
   state.sweepEvidenceAfter = null;
@@ -1179,7 +1248,7 @@ function setSweepUnavailable(message) {
   const autoBtn = document.getElementById('btn-run-auto-sweep');
   if (slider) slider.disabled = true;
   if (autoBtn) autoBtn.disabled = true;
-  if (autoBtn) autoBtn.textContent = '▶ Play Automated Oxygen Sweep';
+  if (autoBtn) autoBtn.textContent = '▶ Play oxygen sweep';
   updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
 }
 
@@ -1196,7 +1265,7 @@ async function fetchSweepData() {
     scenario.pressure_kpa === state.pressure_kpa &&
     scenario.flow_cm_s === state.flow_cm_s &&
     scenario.material === state.material;
-  setSweepUnavailable('Loading validated sweep data…');
+  setSweepUnavailable('Loading oxygen sweep…');
   try {
     const res = await fetch(`${API_BASE}/sweep`, {
       method: 'POST',
@@ -1216,26 +1285,113 @@ async function fetchSweepData() {
     const sweepData = await res.json();
     if (!isCurrent()) return;
     const trans = sweepData.transitions;
-    if (!sweepData.points || !trans || trans.length === 0) {
-      setSweepUnavailable('No validated regime transition is available for this sweep.');
+    if (!Array.isArray(sweepData.points) || sweepData.points.length === 0) {
+      setSweepUnavailable('The validated model returned no sweep points.');
       return;
     }
     state.sweepData = sweepData;
+    state.sweepMode = 'model';
     state.sweepError = null;
+    setSweepCopy('model');
+    configureSweepSlider('model');
     const slider = document.getElementById('sweep-oxygen-slider');
-    const autoBtn = document.getElementById('btn-run-auto-sweep');
-    if (slider) slider.disabled = false;
-    if (autoBtn) autoBtn.disabled = false;
-        const t = trans.find(tr => tr.to_regime === 'spread' || tr.to_regime === 'marginal_spread') || trans[0];
-        state.dynamicLocBoundary = t.midpoint;
-        state.sweepEvidenceBefore = t.evidence_before;
-        state.sweepEvidenceAfter = t.evidence_after;
+    const t = (trans || []).find(tr => tr.to_regime === 'spread' || tr.to_regime === 'marginal_spread') || (trans || [])[0];
+    state.dynamicLocBoundary = t?.midpoint ?? null;
+    state.sweepEvidenceBefore = t?.evidence_before || null;
+    state.sweepEvidenceAfter = t?.evidence_after || null;
     updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
   } catch (err) {
     if (!isCurrent()) return;
-    console.warn('Dynamic sweep fetch error:', err);
-    setSweepUnavailable(err.message);
+    const published = publishedSweepFor(scenario);
+    if (!published) {
+      const reason = scenario.material !== 'PMMA'
+        ? 'The published relation applies only to cast-PMMA rods; this material has no available oxygen sweep while model validation is pending.'
+        : Math.abs(scenario.pressure_kpa - NASA_BOUNDARY.NOMINAL_PRESSURE_KPA) > 0.05
+          ? 'The published PMMA relation has no pressure adjustment. Select 101.3 kPa to explore it; model inference remains withheld.'
+          : 'The selected flow is outside the published PMMA relation. Model inference remains withheld.';
+      setSweepUnavailable(reason);
+      setSweepCopy(null, reason);
+      return;
+    }
+    state.sweepMode = 'published';
+    state.publishedSweep = published;
+    state.sweepObservations = null;
+    state.sweepError = null;
+    setSweepCopy('published');
+    configureSweepSlider('published');
+    const slider = document.getElementById('sweep-oxygen-slider');
+    updateSweepPoint(parseFloat(slider ? slider.value : 21.0));
+    loadPublishedSweepObservations(generation, scenario);
   }
+}
+
+async function loadPublishedSweepObservations(generation, scenario) {
+  try {
+    const response = await fetch(`${API_BASE}/experiments?material=PMMA&limit=1000`);
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+    const data = await response.json();
+    if (generation !== sweepGeneration || state.sweepMode !== 'published' ||
+        scenario.material !== state.material || scenario.pressure_kpa !== state.pressure_kpa ||
+        scenario.flow_cm_s !== state.flow_cm_s) return;
+    const diameterMm = state.rod_radius_cm * 20;
+    state.sweepObservations = (data.experiments || []).filter((row) =>
+      row.investigation === 'BASS-II' && row.sample_geometry === 'rod' &&
+      row.flow_direction === 'concurrent' &&
+      Math.abs(row.sample_thickness_mm - diameterMm) < 0.1 &&
+      Math.abs(row.pressure_kpa - scenario.pressure_kpa) < 0.05 &&
+      Math.abs(row.flow_cm_s - scenario.flow_cm_s) < 0.1 &&
+      row.oxygen_pct >= NASA_BOUNDARY.VALID_O2[0] &&
+      row.oxygen_pct <= NASA_BOUNDARY.VALID_O2[1]);
+    updateSweepPoint(parseFloat(document.getElementById('sweep-oxygen-slider')?.value || '21'));
+  } catch (error) {
+    if (generation !== sweepGeneration || state.sweepMode !== 'published') return;
+    state.sweepObservations = [];
+    state.sweepEvidenceError = 'Source observations need the backend connection.';
+    updateSweepPoint(parseFloat(document.getElementById('sweep-oxygen-slider')?.value || '21'));
+  }
+}
+
+function renderPublishedSweepEvidence(selectedO2) {
+  const observations = state.sweepObservations;
+  const count = document.getElementById('tag-above-boundary');
+  const examples = document.getElementById('evidence-above-boundary');
+  const note = document.getElementById('tag-below-boundary');
+  const basis = document.getElementById('evidence-below-boundary');
+  if (count) count.textContent = state.sweepEvidenceError
+    ? 'Observations unavailable'
+    : observations ? `${observations.length} concurrent-flow tests` : 'Loading observations…';
+  if (examples) {
+    if (!observations) examples.textContent = 'Loading matching BASS-II concurrent-flow rod tests…';
+    else if (state.sweepEvidenceError) examples.textContent = state.sweepEvidenceError;
+    else if (observations.length === 0) examples.textContent = `No concurrent-flow BASS-II 1/4-inch PMMA rod test at ${state.publishedSweep.flow.toFixed(1)} cm/s is recorded.`;
+    else examples.innerHTML = observations
+      .slice()
+      .sort((a, b) => Math.abs(a.oxygen_pct - selectedO2) - Math.abs(b.oxygen_pct - selectedO2))
+      .slice(0, 6)
+      .map(row => `<div class="sweep-observation"><strong>${escapeHTML(row.oxygen_pct)}% initial O₂</strong><span>${escapeHTML(row.outcome)} · ${escapeHTML(row.experiment_id)}</span><a href="${escapeHTML(safeHttpUrl(row.source_url, NASA_BOUNDARY.URL))}" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NTRS ${escapeHTML(row.report_id)} ↗</a></div>`)
+      .join('');
+  }
+  if (note) note.textContent = 'Fit and observation fields';
+  if (basis) basis.textContent = 'Eq (6.1) uses oxygen measured after burning at extinction. These test records provide initial oxygen only, so their points are shown for context and must not be read as measurements above or below the fitted boundary.';
+}
+
+function updatePublishedSweepPoint(o2Val) {
+  const limit = state.publishedSweep.limitO2;
+  const delta = o2Val - limit;
+  const distance = document.getElementById('safety-margin-val');
+  const status = document.getElementById('safety-margin-status');
+  const tick = document.getElementById('tick-loc-boundary');
+  if (distance) {
+    distance.className = 'margin-figure published';
+    distance.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)} points`;
+  }
+  if (status) {
+    status.className = 'margin-pill published';
+    status.textContent = 'Not an extinction margin: NASA used post-burn O₂';
+  }
+  if (tick) tick.textContent = `${limit.toFixed(2)}% O₂ (NASA fit)`;
+  renderPublishedSweepEvidence(o2Val);
+  drawSweepCanvas(o2Val);
 }
 
 function setupSweepView() {
@@ -1248,20 +1404,24 @@ function setupSweepView() {
   });
 
   autoBtn.addEventListener('click', () => {
-    if (state.sweepRunning || !state.sweepData) return;
+    if (state.sweepRunning || (!state.sweepData && state.sweepMode !== 'published')) return;
     state.sweepRunning = true;
-    autoBtn.textContent = '⏳ SWEEPING OXYGEN...';
-    let val = 21.0;
+    autoBtn.textContent = 'Sweeping oxygen…';
+    const min = Number.parseFloat(sweepSlider.min) || 16.0;
+    const max = Number.parseFloat(sweepSlider.max) || 21.0;
+    let val = max;
+    sweepSlider.value = val.toFixed(1);
+    updateSweepPoint(val);
     state.sweepInterval = setInterval(() => {
       if (!state.sweepRunning) return;
-      val = Math.max(16.0, Math.round((val - 0.1) * 10) / 10);
+      val = Math.max(min, Math.round((val - 0.1) * 10) / 10);
       sweepSlider.value = val.toFixed(1);
       updateSweepPoint(val);
-      if (val <= 16.0) {
+      if (val <= min) {
         clearInterval(state.sweepInterval);
         state.sweepInterval = null;
         state.sweepRunning = false;
-        autoBtn.textContent = '▶ Play Automated Oxygen Sweep';
+        autoBtn.textContent = '▶ Play oxygen sweep';
       }
     }, 60);
   });
@@ -1275,9 +1435,16 @@ function updateSweepPoint(o2Val) {
   const readout = document.getElementById('readout-sweep-o2');
   if (readout) readout.textContent = `${o2Val.toFixed(1)} %`;
 
-  if (!state.sweepData || state.dynamicLocBoundary == null) {
+  if (state.sweepMode === 'published' && state.publishedSweep) {
+    updatePublishedSweepPoint(o2Val);
+    return;
+  }
+
+  if (!state.sweepData || (state.sweepMode !== 'model' && state.dynamicLocBoundary == null)) {
     if (marginDisplay) marginDisplay.textContent = 'N/A';
+    if (marginDisplay) marginDisplay.className = 'margin-figure';
     if (marginStatus) marginStatus.textContent = state.sweepError || 'Validated sweep unavailable';
+    if (marginStatus) marginStatus.className = 'margin-pill';
     for (const id of ['tag-above-boundary', 'tag-below-boundary', 'tick-loc-boundary', 'evidence-above-boundary', 'evidence-below-boundary']) {
       const el = document.getElementById(id);
       if (el) el.textContent = 'Validated sweep unavailable';
@@ -1285,6 +1452,29 @@ function updateSweepPoint(o2Val) {
     drawSweepCanvas(o2Val);
     return;
   }
+
+  if (state.sweepMode === 'model' && state.dynamicLocBoundary == null) {
+    if (marginDisplay) {
+      marginDisplay.className = 'margin-figure';
+      marginDisplay.textContent = 'N/A';
+    }
+    if (marginStatus) {
+      marginStatus.className = 'margin-pill';
+      marginStatus.textContent = 'No model transition in this range';
+    }
+    for (const id of ['tag-above-boundary', 'tag-below-boundary', 'tick-loc-boundary']) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = 'No transition in this range';
+    }
+    for (const id of ['evidence-above-boundary', 'evidence-below-boundary']) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = 'No transition-side observation applies to this sweep.';
+    }
+    drawSweepCanvas(o2Val);
+    return;
+  }
+
+  if (marginDisplay) marginDisplay.className = 'margin-figure';
 
   const locBoundary = state.dynamicLocBoundary;
   const delta = o2Val - locBoundary;
@@ -1333,8 +1523,118 @@ function updateSweepPoint(o2Val) {
   drawSweepCanvas(o2Val);
 }
 
-// Draw Probability vs O2 Curve Canvas
+function drawPublishedSweepCanvas(currentO2) {
+  const canvas = document.getElementById('sweep-chart-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const { width: w, height: h } = canvas;
+  const [min, max] = NASA_BOUNDARY.VALID_O2;
+  const left = 155;
+  const right = w - 36;
+  const toX = oxygen => left + ((oxygen - min) / (max - min)) * (right - left);
+  const limit = state.publishedSweep.limitO2;
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#1e293b';
+  ctx.font = '13px Inter, sans-serif';
+  ctx.fillText('Published extinction fit for an established flame', left, 27);
+  ctx.font = '11px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#64748b';
+  ctx.fillText('No model probabilities are shown', left, 44);
+
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(left, 102);
+  ctx.lineTo(right, 102);
+  ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#475569';
+  [14, 16, 18, 20, 22].forEach(oxygen => {
+    const x = toX(oxygen);
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, 95);
+    ctx.lineTo(x, 109);
+    ctx.stroke();
+    ctx.fillText(`${oxygen}%`, x, 126);
+  });
+
+  const limitX = toX(limit);
+  ctx.strokeStyle = '#b45309';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 4]);
+  ctx.beginPath();
+  ctx.moveTo(limitX, 56);
+  ctx.lineTo(limitX, 248);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#92400e';
+  ctx.textAlign = 'left';
+  ctx.fillText(`NASA fit ${limit.toFixed(2)}%`, Math.max(left + 5, limitX + 7), 69);
+
+  const selectedX = toX(currentO2);
+  ctx.strokeStyle = '#1d4ed8';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(selectedX, 78);
+  ctx.lineTo(selectedX, 113);
+  ctx.stroke();
+  ctx.fillStyle = '#1d4ed8';
+  ctx.beginPath();
+  ctx.arc(selectedX, 102, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.textAlign = selectedX > right - 100 ? 'right' : 'left';
+  ctx.fillText(`Selected ${currentO2.toFixed(1)}%`, selectedX > right - 100 ? selectedX - 8 : selectedX + 8, 85);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#475569';
+  ctx.fillText('Concurrent-flow BASS-II tests · initial O₂ at test start (context only)', left, 158);
+  const rowY = { spread: 184, marginal_spread: 210, no_spread: 236 };
+  const rowLabel = { spread: 'Spread', marginal_spread: 'Marginal', no_spread: 'No spread' };
+  const rowColor = { spread: '#dc2626', marginal_spread: '#d97706', no_spread: '#059669' };
+  Object.keys(rowY).forEach(outcome => {
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#475569';
+    ctx.fillText(rowLabel[outcome], left - 12, rowY[outcome] + 4);
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(left, rowY[outcome]);
+    ctx.lineTo(right, rowY[outcome]);
+    ctx.stroke();
+  });
+
+  const observations = state.sweepObservations;
+  if (observations?.length) {
+    observations.forEach((row, index) => {
+      const y = rowY[row.outcome];
+      if (y == null) return;
+      ctx.beginPath();
+      ctx.arc(toX(row.oxygen_pct), y + (index % 3 - 1) * 3, 4, 0, Math.PI * 2);
+      ctx.fillStyle = rowColor[row.outcome];
+      ctx.fill();
+    });
+  } else {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#64748b';
+    ctx.fillText(state.sweepEvidenceError || (observations ? 'No matching observations at this flow.' : 'Loading matching observations…'), (left + right) / 2, 211);
+  }
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#64748b';
+  ctx.fillText('Initial oxygen concentration at test start (% by volume)', (left + right) / 2, h - 8);
+}
+
+// Draw Probability vs O2 Curve Canvas for validated model output.
 function drawSweepCanvas(currentO2 = 21.0) {
+  if (state.sweepMode === 'published' && state.publishedSweep) {
+    drawPublishedSweepCanvas(currentO2);
+    return;
+  }
   const canvas = document.getElementById('sweep-chart-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -1345,7 +1645,7 @@ function drawSweepCanvas(currentO2 = 21.0) {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
 
-  if (!state.sweepData || state.dynamicLocBoundary == null) {
+  if (!state.sweepData) {
     ctx.fillStyle = '#64748b';
     ctx.font = '13px monospace';
     ctx.textAlign = 'center';
@@ -1366,18 +1666,20 @@ function drawSweepCanvas(currentO2 = 21.0) {
 
   // Transition vertical line derived dynamically
   const locBoundary = state.dynamicLocBoundary;
-  const boundaryX = padLeft + ((locBoundary - 16.0) / (21.0 - 16.0)) * pW;
-  ctx.strokeStyle = 'rgba(217, 119, 6, 0.75)';
-  ctx.setLineDash([4, 4]);
-  ctx.beginPath();
-  ctx.moveTo(boundaryX, padTop);
-  ctx.lineTo(boundaryX, padTop + pH);
-  ctx.stroke();
-  ctx.setLineDash([]);
+  if (locBoundary != null) {
+    const boundaryX = padLeft + ((locBoundary - 16.0) / (21.0 - 16.0)) * pW;
+    ctx.strokeStyle = 'rgba(217, 119, 6, 0.75)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(boundaryX, padTop);
+    ctx.lineTo(boundaryX, padTop + pH);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-  ctx.fillStyle = '#b45309';
-  ctx.font = '10px "JetBrains Mono", monospace';
-  ctx.fillText(`MODEL TRANSITION (${locBoundary.toFixed(1)}%)`, Math.min(boundaryX + 8, padLeft + pW - 180), padTop + 16);
+    ctx.fillStyle = '#b45309';
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.fillText(`MODEL TRANSITION (${locBoundary.toFixed(1)}%)`, Math.min(boundaryX + 8, padLeft + pW - 180), padTop + 16);
+  }
 
   // Check if we have real sweep points from the backend
   const pts = state.sweepData.points;
@@ -1416,7 +1718,7 @@ function drawSweepCanvas(currentO2 = 21.0) {
 
   ctx.beginPath();
   ctx.arc(curX, padTop + pH / 2, 5, 0, Math.PI * 2);
-  ctx.fillStyle = currentO2 >= locBoundary ? 'rgba(220, 38, 38, 0.25)' : 'rgba(5, 150, 105, 0.25)';
+  ctx.fillStyle = locBoundary == null ? 'rgba(29, 78, 216, 0.2)' : currentO2 >= locBoundary ? 'rgba(220, 38, 38, 0.25)' : 'rgba(5, 150, 105, 0.25)';
   ctx.fill();
   ctx.beginPath();
   ctx.arc(curX, padTop + pH / 2, 2.5, 0, Math.PI * 2);
@@ -1442,13 +1744,14 @@ async function setupAtlasView() {
 
   try {
     const res = await fetch(`${API_BASE}/experiments?limit=200`);
-    if (res.ok) {
-      const data = await res.json();
-      state.experiments = data.experiments;
-      renderAtlasTable(state.experiments);
-    }
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const data = await res.json();
+    state.experiments = data.experiments;
+    renderAtlasTable(state.experiments);
   } catch (err) {
     console.warn('Could not load experiments from API:', err);
+    const count = document.getElementById('atlas-count');
+    if (count) count.textContent = 'Observations unavailable. Start the local service and reload.';
   }
 
   function applyFilters() {
@@ -1474,8 +1777,10 @@ function renderAtlasTable(rows) {
   const tbody = document.getElementById('atlas-table-body');
   if (!tbody) return;
   tbody.innerHTML = '';
+  const count = document.getElementById('atlas-count');
+  if (count) count.textContent = `${rows.length} of ${state.experiments.length} observations shown`;
 
-  rows.slice(0, 100).forEach(r => {
+  rows.forEach(r => {
     const tr = document.createElement('tr');
     const badgeClass = r.outcome === 'spread' ? 'badge-spread' : (r.outcome === 'marginal_spread' ? 'badge-marginal' : 'badge-no-spread');
     const citeUrl = r.source_url || `https://ntrs.nasa.gov/citations/${r.report_id}`;
@@ -1540,6 +1845,12 @@ async function loadModelStatus() {
       ? 'Grouped baseline gate passed; source citations and experimental limits still apply.'
       : health.model_readiness_reason || 'Model inference is withheld.');
     setText('status-text', `${meta.n_train} observations · ${health.model_ready ? 'Research model available' : 'Model inference withheld'}`);
+    setText('chip-model-type', meta.type === 'gradient_boosting' ? 'Gradient Boosting' : meta.type || 'Unavailable');
+    setText('model-gate-text', health.model_ready ? 'MODEL AVAILABLE' : 'VALIDATION REQUIRED');
+    const dot = document.getElementById('status-dot');
+    if (dot) dot.className = `heartbeat-pulse ${health.model_ready ? 'status-ready' : 'status-withheld'}`;
+    const gate = document.getElementById('model-gate-text');
+    if (gate) gate.className = health.model_ready ? 'metric-status-ready' : 'metric-status-withheld';
 
     const body = document.getElementById('model-confusion-body');
     if (body && Array.isArray(meta.confusion_matrix) && Array.isArray(meta.classes)) {
@@ -1562,6 +1873,11 @@ async function loadModelStatus() {
     }
   } catch (error) {
     setText('status-text', 'Backend unavailable · published PMMA boundary only');
+    setText('model-gate-text', 'SERVICE OFFLINE');
+    const dot = document.getElementById('status-dot');
+    if (dot) dot.className = 'heartbeat-pulse status-offline';
+    const gate = document.getElementById('model-gate-text');
+    if (gate) gate.className = 'metric-status-offline';
   }
 }
 
@@ -1673,7 +1989,13 @@ async function loadConflictExplorerData() {
   executeConflictAnalysis(a, b);
 }
 
+let conflictGeneration = 0;
 async function executeConflictAnalysis(studyA, studyB) {
+  const generation = ++conflictGeneration;
+  const status = document.getElementById('conflict-status');
+  const results = document.getElementById('conflict-results-container');
+  if (status) status.textContent = 'Comparing the selected studies…';
+  if (results) results.hidden = true;
   try {
     const res = await fetch(`${API_BASE}/api/conflict/compare-studies`, {
       method: 'POST',
@@ -1682,9 +2004,14 @@ async function executeConflictAnalysis(studyA, studyB) {
     });
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const data = await res.json();
+    if (generation !== conflictGeneration) return;
     renderConflictResults(data);
+    if (results) results.hidden = false;
+    if (status) status.textContent = '';
   } catch (err) {
+    if (generation !== conflictGeneration) return;
     console.warn('Conflict analysis request failed:', err);
+    if (status) status.textContent = 'Comparison unavailable. Check the backend connection and try again.';
   }
 }
 
@@ -1752,13 +2079,17 @@ function setupCoverageMapView() {
 }
 
 async function loadCoverageMapData() {
+  const status = document.getElementById('coverage-status');
+  if (status) status.textContent = 'Loading coverage data…';
   try {
     const res = await fetch(`${API_BASE}/api/coverage-map`);
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const data = await res.json();
     renderCoverageMap(data);
+    if (status) status.textContent = '';
   } catch (err) {
     console.warn('Coverage map fetch failed:', err);
+    if (status) status.textContent = 'Coverage data unavailable. Check the backend connection and try again.';
   }
 }
 
@@ -1848,6 +2179,7 @@ function renderCoverageMap(data) {
 // FLARE-X EVIDENCE ATLAS: CITATION INSPECTOR & PROVENANCE MODAL
 // ==============================================================================
 
+let inspectorTrigger = null;
 function setupCitationInspector() {
   const closeBtn = document.getElementById('btn-close-inspector');
   const backdrop = document.getElementById('modal-backdrop-close');
@@ -1855,15 +2187,20 @@ function setupCitationInspector() {
 
   const hide = () => {
     if (modal) modal.classList.add('hidden');
+    if (inspectorTrigger?.isConnected) inspectorTrigger.focus();
   };
 
   if (closeBtn) closeBtn.addEventListener('click', hide);
   if (backdrop) backdrop.addEventListener('click', hide);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal && !modal.classList.contains('hidden')) hide();
+  });
 }
 
 window.inspectProvenance = async function(experimentId) {
   const modal = document.getElementById('modal-citation-inspector');
   if (!modal) return;
+  inspectorTrigger = document.activeElement;
 
   try {
     const res = await fetch(`${API_BASE}/api/provenance/${encodeURIComponent(experimentId)}`);
@@ -1888,13 +2225,25 @@ window.inspectProvenance = async function(experimentId) {
     if (condEl) condEl.textContent = `${data.material} · ${data.oxygen_pct}% O₂ · ${data.pressure_kpa} kPa · ${data.flow_cm_s} cm/s forced flow`;
     if (outcomeEl) outcomeEl.textContent = `${data.outcome} (${data.extraction_notes || 'Observed flame behavior'})`;
     if (notesEl) notesEl.textContent = data.extraction_notes || 'Extracted from peer-reviewed NASA Technical Memorandum data tables.';
-    if (ntrsUrlEl) ntrsUrlEl.href = safeHttpUrl(data.source_url || `https://ntrs.nasa.gov/citations/${encodeURIComponent(data.report_id || '')}`, 'https://ntrs.nasa.gov/');
+    if (ntrsUrlEl) {
+      ntrsUrlEl.href = safeHttpUrl(data.source_url || `https://ntrs.nasa.gov/citations/${encodeURIComponent(data.report_id || '')}`, 'https://ntrs.nasa.gov/');
+      ntrsUrlEl.hidden = false;
+    }
     if (tierPill) tierPill.textContent = data.verification_tier || 'VERIFIED_FLIGHT_TABLE';
     if (originPill) originPill.textContent = data.data_origin || 'direct_measurement';
 
     modal.classList.remove('hidden');
+    document.getElementById('btn-close-inspector')?.focus();
   } catch (err) {
     console.warn('Could not inspect provenance:', err);
+    document.getElementById('inspect-exp-id').textContent = 'Citation unavailable';
+    for (const id of ['inspect-report-title', 'inspect-citation', 'inspect-investigation', 'inspect-conditions', 'inspect-outcome']) {
+      document.getElementById(id).textContent = '—';
+    }
+    document.getElementById('inspect-notes').textContent = 'Could not load this citation. Check the backend connection and try again.';
+    document.getElementById('inspect-ntrs-url').hidden = true;
+    modal.classList.remove('hidden');
+    document.getElementById('btn-close-inspector')?.focus();
   }
 };
 

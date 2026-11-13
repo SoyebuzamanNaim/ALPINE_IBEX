@@ -13,6 +13,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import re
 import sys
 import time
 import urllib.request
@@ -64,6 +65,8 @@ def _append_manifest(row: dict) -> None:
 
 
 def fetch(report_id: str, with_pdf: bool = True) -> dict:
+    if not re.fullmatch(r"[0-9]+", report_id):
+        raise ValueError("NTRS report ID must contain only ASCII digits.")
     out = RAW / report_id
     out.mkdir(parents=True, exist_ok=True)
     meta_bytes = _get(API.format(id=report_id))
@@ -102,6 +105,6 @@ if __name__ == "__main__":
     for rid in sys.argv[1:]:
         try:
             info = fetch(rid)
-            print(f"OK  {rid}  {len(info['pdfs'])} pdf  {info['title'][:90]}")
+            print(f"OK  {rid}  {len(info['pdfs'])} pdf  {(info.get('title') or 'Untitled')[:90]}")
         except Exception as exc:
             print(f"ERR {rid}  {exc}")

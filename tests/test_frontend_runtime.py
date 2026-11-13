@@ -248,6 +248,149 @@ if (readout !== '16.0 %' || vm.runInContext('state.sweepRunning', context)) {
     assert result.returncode == 0, result.stderr
 
 
+def test_unvalidated_model_uses_only_applicable_published_pmma_sweep():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const nodes = new Map();
+const document = {
+  addEventListener() {},
+  getElementById(id) {
+    if (!nodes.has(id)) nodes.set(id, {
+      textContent: '', value: '21.0', style: {}, className: '', disabled: false,
+      removeAttribute() {}, setAttribute() {}
+    });
+    return nodes.get(id);
+  }
+};
+const fetch = async () => ({ok: false, status: 503, json: async () => ({detail: 'Model validation gate'})});
+const context = vm.createContext({
+  document, fetch, window: {location: {protocol: 'file:', origin: 'null', hostname: ''}}, console
+});
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+vm.runInContext('drawSweepCanvas = () => {}; renderPublishedSweepEvidence = () => {};', context);
+(async () => {
+  await vm.runInContext('fetchSweepData()', context);
+  if (vm.runInContext('state.sweepMode', context) !== 'published' ||
+      vm.runInContext('state.sweepData', context) !== null ||
+      nodes.get('sweep-oxygen-slider').disabled ||
+      !nodes.get('sweep-metric-label').textContent.includes('NOT A SAFETY MARGIN') ||
+      !nodes.get('safety-margin-status').textContent.includes('Not an extinction margin') ||
+      !nodes.get('sweep-description').textContent.includes('not a model prediction')) {
+    throw new Error('Applicable published sweep was not distinguished from model output');
+  }
+  vm.runInContext('state.material = "Cotton"', context);
+  await vm.runInContext('fetchSweepData()', context);
+  if (vm.runInContext('state.sweepMode', context) !== null ||
+      !nodes.get('sweep-oxygen-slider').disabled ||
+      !nodes.get('sweep-description').textContent.includes('only to cast-PMMA')) {
+    throw new Error('Published PMMA fit was applied to another material');
+  }
+})().catch(error => { console.error(error); process.exitCode = 1; });
+"""
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_published_sweep_shows_only_concurrent_initial_oxygen_context():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const nodes = new Map();
+const document = {
+  addEventListener() {},
+  getElementById(id) {
+    if (!nodes.has(id)) nodes.set(id, {textContent: '', innerHTML: '', className: '', value: '21.0', style: {}});
+    return nodes.get(id);
+  }
+};
+const row = {
+  investigation: 'BASS-II', sample_geometry: 'rod', sample_thickness_mm: 6.35,
+  pressure_kpa: 101.3, flow_cm_s: 5, oxygen_pct: 15.4, outcome: 'spread',
+  report_id: '20210011385', source_url: 'https://ntrs.nasa.gov/citations/20210011385'
+};
+const fetch = async () => ({ok: true, json: async () => ({experiments: [
+  {...row, experiment_id: 'CONCURRENT', flow_direction: 'concurrent'},
+  {...row, experiment_id: 'OPPOSED', flow_direction: 'opposed'}
+]})});
+const context = vm.createContext({
+  document, fetch, window: {location: {protocol: 'file:', origin: 'null', hostname: ''}}, console
+});
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+vm.runInContext('drawSweepCanvas = () => {}; sweepGeneration = 1; state.sweepMode = "published"; state.publishedSweep = {limitO2: 13.8, flow: 5};', context);
+(async () => {
+  await vm.runInContext('loadPublishedSweepObservations(1, {material: "PMMA", pressure_kpa: 101.3, flow_cm_s: 5})', context);
+  const observations = vm.runInContext('state.sweepObservations', context);
+  const examples = nodes.get('evidence-above-boundary').innerHTML;
+  if (observations.length !== 1 || observations[0].experiment_id !== 'CONCURRENT' ||
+      !examples.includes('15.4% initial O₂') || examples.includes('OPPOSED') ||
+      !nodes.get('evidence-below-boundary').textContent.includes('after burning')) {
+    throw new Error('The published fit mixed opposed-flow or initial and post-burn evidence');
+  }
+})().catch(error => { console.error(error); process.exitCode = 1; });
+"""
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_validated_sweep_without_transition_still_shows_model_points():
+    if not shutil.which("node"):
+        pytest.skip("Node.js is unavailable")
+
+    script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const nodes = new Map();
+const document = {
+  addEventListener() {},
+  getElementById(id) {
+    if (!nodes.has(id)) nodes.set(id, {
+      textContent: '', value: '21.0', style: {}, className: '', disabled: false,
+      removeAttribute() {}, setAttribute() {}
+    });
+    return nodes.get(id);
+  }
+};
+const fetch = async () => ({
+  ok: true,
+  json: async () => ({
+    points: [{oxygen_pct: 16, prediction: 'spread', probabilities: {spread: 0.8}},
+             {oxygen_pct: 21, prediction: 'spread', probabilities: {spread: 0.9}}],
+    transitions: []
+  })
+});
+const context = vm.createContext({
+  document, fetch, window: {location: {protocol: 'file:', origin: 'null', hostname: ''}}, console
+});
+vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
+vm.runInContext('drawSweepCanvas = () => {};', context);
+(async () => {
+  await vm.runInContext('fetchSweepData()', context);
+  if (vm.runInContext('state.sweepMode', context) !== 'model' ||
+      nodes.get('sweep-oxygen-slider').disabled ||
+      nodes.get('safety-margin-val').textContent !== 'N/A' ||
+      nodes.get('safety-margin-status').textContent !== 'No model transition in this range' ||
+      nodes.get('sweep-title').textContent !== 'Validated model oxygen sweep') {
+    throw new Error('Transition-free model points were hidden or given a fabricated transition');
+  }
+})().catch(error => { console.error(error); process.exitCode = 1; });
+"""
+    result = subprocess.run(
+        ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
 def test_conflicting_evidence_is_shown_as_abstention():
     if not shutil.which("node"):
         pytest.skip("Node.js is unavailable")
@@ -374,6 +517,12 @@ vm.runInContext('renderPublishedBoundary({oxygen_pct: 21, pressure_kpa: 56.5, fl
 if (nodes.get('confidence-pill').textContent !== 'NOT APPLICABLE') throw new Error('Pressure extrapolation shown');
 vm.runInContext('renderPublishedBoundary({oxygen_pct: 21, pressure_kpa: 101.3, flow_cm_s: 60, material: "PMMA"})', context);
 if (nodes.get('confidence-pill').textContent !== 'NOT APPLICABLE') throw new Error('Flow extrapolation shown');
+vm.runInContext('renderPublishedBoundary({oxygen_pct: 21, pressure_kpa: 101.3, flow_cm_s: 5, material: "PMMA"})', context);
+if (nodes.get('regime-badge').textContent !== 'PUBLISHED REFERENCE ONLY' ||
+    !nodes.get('operator-briefing-text').textContent.includes('not an extinction margin') ||
+    !nodes.get('explanation-text-display').innerHTML.includes('post-burn oxygen')) {
+  throw new Error('Initial oxygen was treated as a post-burn extinction measurement');
+}
 """
     result = subprocess.run(
         ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False

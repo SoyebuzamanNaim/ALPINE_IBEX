@@ -20,8 +20,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
-import re
-import subprocess
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -48,17 +47,6 @@ class IngestionValidationError(RuntimeError):
 def _records_sha256(records: list[dict[str, Any]]) -> str:
     payload = json.dumps(records, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
-
-
-def get_pdftotext(pdf_path: Path, first_page: int, last_page: int) -> str:
-    """Run pdftotext -layout on a page range if PDF exists."""
-    if not pdf_path.exists():
-        return ""
-    try:
-        cmd = ["pdftotext", "-layout", "-f", str(first_page), "-l", str(last_page), str(pdf_path), "-"]
-        return subprocess.check_output(cmd).decode("utf-8", errors="ignore")
-    except Exception:
-        return ""
 
 
 # Flow direction per principal investigator, read off the appendix test matrices of
@@ -273,6 +261,23 @@ def build_full_dataset() -> list[dict[str, Any]]:
             validated_records.append(valid_obj.model_dump())
         except ValidationError as exc:
             quarantined.append({"record": r, "error": str(exc)})
+
+    duplicate_ids = {
+        experiment_id
+        for experiment_id, count in Counter(r["experiment_id"] for r in validated_records).items()
+        if count > 1
+    }
+    if duplicate_ids:
+        unique_records = []
+        for record in validated_records:
+            if record["experiment_id"] in duplicate_ids:
+                quarantined.append({
+                    "record": record,
+                    "error": f"Duplicate experiment_id: {record['experiment_id']}",
+                })
+            else:
+                unique_records.append(record)
+        validated_records = unique_records
 
     INTERIM.mkdir(parents=True, exist_ok=True)
     audit = {

@@ -5,6 +5,7 @@ Exposes ambiguities, converts standard operational synonyms, and validates types
 """
 from __future__ import annotations
 
+import math
 import re
 from typing import Any
 
@@ -32,9 +33,6 @@ class ScenarioInterpreter:
         "ultem": "Ultem",
     }
 
-    def __init__(self):
-        pass
-
     def parse(self, input_data: str | dict[str, Any]) -> dict[str, Any]:
         """Parse structured dictionary or natural language string into canonical parameters."""
         if isinstance(input_data, dict):
@@ -51,7 +49,12 @@ class ScenarioInterpreter:
         # 1. Oxygen
         if "oxygen_pct" in payload:
             try:
-                parsed["oxygen_pct"] = float(payload["oxygen_pct"])
+                if isinstance(payload["oxygen_pct"], bool):
+                    raise ValueError
+                value = float(payload["oxygen_pct"])
+                if not math.isfinite(value):
+                    raise ValueError
+                parsed["oxygen_pct"] = value
             except (ValueError, TypeError):
                 ambiguities.append("Invalid 'oxygen_pct' value; must be numeric.")
         else:
@@ -60,7 +63,12 @@ class ScenarioInterpreter:
         # 2. Pressure
         if "pressure_kpa" in payload:
             try:
-                parsed["pressure_kpa"] = float(payload["pressure_kpa"])
+                if isinstance(payload["pressure_kpa"], bool):
+                    raise ValueError
+                value = float(payload["pressure_kpa"])
+                if not math.isfinite(value):
+                    raise ValueError
+                parsed["pressure_kpa"] = value
             except (ValueError, TypeError):
                 ambiguities.append("Invalid 'pressure_kpa' value; must be numeric.")
         else:
@@ -69,7 +77,12 @@ class ScenarioInterpreter:
         # 3. Flow
         if "flow_cm_s" in payload:
             try:
-                parsed["flow_cm_s"] = float(payload["flow_cm_s"])
+                if isinstance(payload["flow_cm_s"], bool):
+                    raise ValueError
+                value = float(payload["flow_cm_s"])
+                if not math.isfinite(value):
+                    raise ValueError
+                parsed["flow_cm_s"] = value
             except (ValueError, TypeError):
                 ambiguities.append("Invalid 'flow_cm_s' value; must be numeric.")
         else:

@@ -1,8 +1,9 @@
 """Pydantic schemas for the FLARE-X FastAPI service."""
 from __future__ import annotations
 
+import math
 from typing import Any, Literal
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class PredictRequest(BaseModel):
@@ -106,6 +107,24 @@ class SweepRequest(BaseModel):
     start: float
     end: float
     steps: int = Field(default=25, ge=2, le=100)
+
+    @field_validator("start", "end", mode="before")
+    @classmethod
+    def reject_boolean_endpoints(cls, value: Any) -> Any:
+        if isinstance(value, bool):
+            raise ValueError("Sweep endpoints must be numeric values, not booleans.")
+        return value
+
+    @model_validator(mode="after")
+    def validate_sweep_range(self) -> "SweepRequest":
+        bounds = {"oxygen_pct": 100.0, "pressure_kpa": 200.0, "flow_cm_s": 100.0}
+        for endpoint in (self.start, self.end):
+            if not math.isfinite(endpoint) or not 0 <= endpoint <= bounds[self.param]:
+                raise ValueError(
+                    f"{self.param} sweep endpoints must be finite and within "
+                    f"[0, {bounds[self.param]}]."
+                )
+        return self
 
 
 class ParseRequest(BaseModel):

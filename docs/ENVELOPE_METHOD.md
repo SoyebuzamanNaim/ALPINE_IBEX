@@ -70,3 +70,17 @@ When `in_training_range` is `false`:
   "explanation": "Requested conditions are outside the published experimental envelope. No prediction is made."
 }
 ```
+
+## 4. Separate published PMMA reference
+
+The browser may show NASA BASS-II Eq. (6.1) as a published reference when the selected conditions match
+its documented cast-PMMA rod domain. NASA describes this fitted extinction boundary in the concurrent-flow
+rod tests and builds the plotted boundary from oxygen readings after burning at extinction ([NASA/TM-20210011385,
+§§6.1.2 and 6.1.4.4](https://ntrs.nasa.gov/citations/20210011385)). It describes the extinction of an established
+flame; it is not an ignition prediction or FLARE-X model output. The scenario form has no flow-direction input,
+so the fit is presented as a concurrent-flow reference rather than assigned to an observed test direction.
+
+The API's BASS-II `oxygen_pct` field records the initial oxygen concentration from the PSI test matrix. It is not
+the post-burn oxygen value used to fit Eq. (6.1). The oxygen sweep therefore labels the numerical difference as an
+initial-oxygen comparison, shows matching concurrent-flow test readings in a separate context lane, and does not
+classify observations as above or below the fitted boundary. These displays do not establish a safety margin.

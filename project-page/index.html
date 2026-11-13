@@ -236,27 +236,27 @@ footer a { color:var(--muted); }
     <div class="sec">
       <div>
         <p class="eyebrow">The tool</p>
-        <h2>A distance, not a verdict.</h2>
-        <p>Set an atmosphere and an airflow. The tool reports how far that condition sits from
-          NASA's own published limit, in percentage points of oxygen.</p>
-        <p>It reports a <strong>margin</strong> rather than a yes or no, because a margin is what an
-          operator can act on and a label is not.</p>
+        <h2>A reference, not a verdict.</h2>
+        <p>Set an atmosphere and an airflow to inspect NASA's published extinction fit for
+          concurrent-flow cast PMMA rods.</p>
+        <p>The entered oxygen is an initial condition. NASA fitted this curve with oxygen
+          measured after burning, so its numerical offset is not an extinction margin.</p>
         <p>The trained classifier currently scores below the majority-class baseline on grouped
           validation, so live model inference is withheld. The published boundary shown here applies
-          only to the cast PMMA rod conditions for which NASA fitted it.</p>
+          only to the concurrent-flow cast PMMA rod conditions for which NASA fitted it.</p>
       </div>
       <div class="ui" data-ui>
         <div class="ui-bar"><span>Scenario</span><span>Cast PMMA rod · 6.35 mm</span></div>
         <div class="ui-body">
-          <div class="ui-row"><span>Oxygen</span><b>21.0 % O₂</b></div>
+          <div class="ui-row"><span>Initial oxygen</span><b>21.0 % O₂</b></div>
           <div class="ui-row"><span>Pressure</span><b>101.3 kPa</b></div>
           <div class="ui-row"><span>Forced flow</span><b>5.0 cm/s</b></div>
           <div class="ui-row"><span>Stretch rate</span><b>23.6 s⁻¹ · blowoff side</b></div>
-          <div class="ui-row"><span>Published limit here</span><b>13.79 % O₂</b></div>
+          <div class="ui-row"><span>Published post-burn fit here</span><b>13.79 % O₂</b></div>
           <div class="ui-verdict">
-            <div class="ui-margin">+7.21 % O₂ above the limit</div>
-            <p class="ui-note">Lowering oxygen by 7.21 points would reach the boundary.
-              From NTRS 20210011385 Eq (6.1) — NASA's fit, evaluated here, not a model we trained.</p>
+            <div class="ui-margin">+7.21 points · initial O₂ offset</div>
+            <p class="ui-note">This compares different measurements and does not predict extinction.
+              Source: <a href="https://ntrs.nasa.gov/citations/20210011385">NASA BASS-II Summary Report, Eq (6.1)</a>.</p>
           </div>
         </div>
       </div>
@@ -296,6 +296,9 @@ footer a { color:var(--muted); }
         <h2>Every number has a report.</h2>
         <p>Each identifier below was resolved against NASA's Technical Reports Server and its title
           checked. None was constructed.</p>
+        <p>For research context, see the <a href="https://psi.nasa.gov/physci/repo/search?q=combustion">NASA PSI combustion search</a>,
+          <a href="https://www.nasa.gov/glenn/glenn-expertise-space-exploration/physical-sciences-program/combustion-science/">NASA Combustion Science</a>,
+          and <a href="https://www.nasa.gov/missions/station/a-researchers-guide-to-combustion-science/">A Researcher's Guide to Combustion Science</a>.</p>
       </div>
       <ul class="plain refs">
         <li><a href="https://ntrs.nasa.gov/citations/20210011385">20210011385</a><span class="r-title">Burning and Suppression of Solids-II: Summary Report</span><span class="r-auth">Olson, Ferkul, Bhattacharjee et al.</span></li>

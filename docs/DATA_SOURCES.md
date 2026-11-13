@@ -201,3 +201,22 @@ Non-solid combustion investigations were reviewed and explicitly segregated from
 - **Droplet Combustion (FLEX / FLEX-2):** Isolated spherical droplets burning in quiescent atmospheres exhibit $d^2$ evaporation law mechanics distinct from solid-fuel surface pyrolysis.
 - **Gaseous Diffusion Flames (ACME, SPICE, SLICE):** Gaseous burner experiments study sooting limits and chemical kinetics rather than solid polymer flame spread.
 Both are documented in `data/metadata/dataset_catalog.csv` but excluded from `cache/experiments.parquet`.
+
+## 4. NASA background and public resources
+
+These NASA pages provide investigation context, educational material, historical safety lessons, or examples of
+technology transfer. They are useful background references; they do not supply rows to the FLARE-X dataset or
+validate its model.
+
+### Combustion science and research
+
+- [PSI Data Repository search: combustion investigations](https://psi.nasa.gov/physci/repo/search?q=combustion) — NASA's catalog for physical-sciences investigations and their released data. The curated experiment rows used here are cited individually above and in the provenance registry.
+- [NASA Combustion Science](https://www.nasa.gov/glenn/glenn-expertise-space-exploration/physical-sciences-program/combustion-science/) — overview of combustion research in microgravity and the archived BASS, FLEX, Saffire, and related investigations.
+- [A Researcher's Guide to Combustion Science](https://www.nasa.gov/missions/station/a-researchers-guide-to-combustion-science/) — broader guide to ISS combustion research, prior work, and research opportunities.
+- [NASA ScienceCasts: The Power of Studying Combustion on the ISS](https://www.youtube.com/watch?v=W1oXykoz9zg) — short public introduction to combustion research aboard the ISS.
+
+### Historical safety and technology-transfer context
+
+- [Apollo 1](https://sma.nasa.gov/sma-disciplines/accllp/apollo-1) and [Apollo 13](https://sma.nasa.gov/sma-disciplines/accllp/apollo-13) — NASA mission histories and investigation records. They are historical safety context, not sources for the experiment dataset.
+- [Fire aboard Space Station Mir](https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/) — NASA history article about the 1997 Mir fire.
+- [Fireman's Air Tanks](https://spinoff.nasa.gov/node/9582), [Fire Detector](https://spinoff.nasa.gov/node/9407), and [New Technology for the Fire Attire](https://spinoff.nasa.gov/node/9918) — NASA Spinoff summaries of fire-safety technologies and applications. These technology-transfer articles are not combustion measurements or evidence of FLARE-X model performance.

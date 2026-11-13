@@ -32,10 +32,11 @@
     </div>
 
     <!-- Central Workspace Navigation Tabs -->
-    <nav class="ops-nav-deck" role="tablist" aria-label="Workstation View Navigation">
+    <nav class="ops-nav-deck" aria-label="Workstation navigation">
       <a href="../project-page/" class="ops-nav-btn" style="text-decoration: none;" title="Return to Public Project Overview">
         <span class="nav-key">[←]</span> Overview
       </a>
+      <div class="ops-tablist" role="tablist" aria-label="Workstation views">
       <button class="ops-nav-btn active" id="tab-lab-btn" role="tab" aria-selected="true" aria-controls="view-scenario-lab">
         <span class="nav-key">[1]</span> Flammability Deck
       </button>
@@ -46,7 +47,7 @@
         <span class="nav-key">[3]</span> Coverage Map
       </button>
       <button class="ops-nav-btn" id="tab-sweep-btn" role="tab" aria-selected="false" aria-controls="view-counterfactual-sweep">
-        <span class="nav-key">[4]</span> Model Oxygen Sweep
+        <span class="nav-key">[4]</span> Oxygen Sweep
       </button>
       <button class="ops-nav-btn" id="tab-atlas-btn" role="tab" aria-selected="false" aria-controls="view-experiment-atlas">
         <span class="nav-key">[5]</span> Experiment Archive <span class="nav-count-badge" id="nav-experiment-count">—</span>
@@ -54,14 +55,15 @@
       <button class="ops-nav-btn" id="tab-model-btn" role="tab" aria-selected="false" aria-controls="view-model-transparency">
         <span class="nav-key">[6]</span> Model Provenance
       </button>
+      </div>
     </nav>
 
     <!-- Telemetry Link & Heartbeat Indicator -->
     <div class="telemetry-heartbeat-cell">
-      <span class="heartbeat-pulse" id="status-dot"></span>
+      <span class="heartbeat-pulse status-withheld" id="status-dot"></span>
       <div class="heartbeat-meta">
         <span class="telemetry-label">MODEL STATUS</span>
-        <span class="telemetry-sub" id="status-text">Model inference withheld pending validation</span>
+        <span class="telemetry-sub" id="status-text" role="status" aria-live="polite">Model inference withheld pending validation</span>
       </div>
     </div>
   </header>
@@ -88,7 +90,7 @@
     </div>
     <div class="ribbon-metric ribbon-metric-right">
       <span class="metric-dim">MODEL GATE:</span>
-      <span class="metric-status-ok">VALIDATION REQUIRED</span>
+      <span class="metric-status-withheld" id="model-gate-text">VALIDATION REQUIRED</span>
     </div>
   </div>
 
@@ -223,8 +225,8 @@
               <input type="checkbox" id="toggle-extrapolate">
               <span class="guard-toggle-switch"></span>
               <span class="guard-text">
-                <strong>Simulate Out-of-Envelope Extrapolation</strong>
-                <small>Probes conditions beyond the documented research table</small>
+                <strong>Explore outside documented ranges</strong>
+                <small>Shows abstention and nearby evidence without a prediction</small>
               </span>
             </label>
           </div>
@@ -236,7 +238,7 @@
         <main class="deck-pane center-phase-pane">
 
           <!-- Out-of-Envelope Safety Refusal Alert Banner -->
-          <div class="flight-safety-alert hidden" id="envelope-alert-banner" role="alert">
+          <div class="flight-safety-alert hidden" id="envelope-alert-banner" data-kind="validation" role="alert">
             <div class="alert-hazard-stripes"></div>
             <div class="alert-content-body">
               <div class="alert-headline-row">
@@ -410,15 +412,16 @@
       <div class="full-view-container">
         <div class="view-header-row">
           <div>
-            <h2 class="section-title">Parametric Oxygen Sweep &amp; Model Transition</h2>
-            <p class="section-sub">
-              Model-dependent oxygen sweep. Results appear only when grouped validation exceeds the majority baseline.
+            <h2 class="section-title" id="sweep-title">Published PMMA oxygen sweep</h2>
+            <p class="section-sub" id="sweep-description">
+              NASA BASS-II Eq (6.1) is a concurrent-flow extinction fit for established flames. Test observations below show initial oxygen for context; the fit uses oxygen measured after burning. No extinction margin or model prediction is shown.
             </p>
+            <a id="sweep-source-link" href="https://ntrs.nasa.gov/citations/20210011385" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NASA BASS-II summary report, Eq (6.1) ↗</a>
           </div>
           <div class="safety-margin-metric-box" id="safety-margin-display">
-            <span class="margin-caption">MODEL TRANSITION DISTANCE</span>
+            <span class="margin-caption" id="sweep-metric-label">INITIAL O₂ OFFSET · NOT A SAFETY MARGIN</span>
             <strong class="margin-figure" id="safety-margin-val">N/A</strong>
-            <span class="margin-pill" id="safety-margin-status">Validated sweep unavailable</span>
+            <span class="margin-pill" id="safety-margin-status">Loading sweep…</span>
           </div>
         </div>
 
@@ -429,31 +432,32 @@
               <label for="sweep-oxygen-slider" class="module-title">Sweep Oxygen Concentration [X_O₂]</label>
               <span class="value-readout" id="readout-sweep-o2">21.0 %</span>
             </div>
-            <input type="range" id="sweep-oxygen-slider" class="instrument-slider sweep-slider" min="16.0" max="21.0" step="0.1" value="21.0">
+            <input type="range" id="sweep-oxygen-slider" class="instrument-slider sweep-slider" min="13.6" max="22.2" step="0.1" value="21.0">
             <div class="calibrated-ticks">
-              <span class="tick-label"><span class="tick-mark">|</span> 16.0% O₂</span>
-              <span class="tick-label active-tick" id="tick-loc-boundary">Validated boundary unavailable</span>
-              <span class="tick-label"><span class="tick-mark">|</span> 21.0% O₂</span>
+              <span class="tick-label" id="sweep-tick-min"><span class="tick-mark">|</span> 13.6% O₂</span>
+              <span class="tick-label active-tick" id="tick-loc-boundary">Loading published boundary…</span>
+              <span class="tick-label" id="sweep-tick-max"><span class="tick-mark">|</span> 22.2% O₂</span>
             </div>
           </div>
           <button type="button" class="btn-action-primary" id="btn-run-auto-sweep">
-            ▶ Play Automated Oxygen Sweep
+            ▶ Play oxygen sweep
           </button>
         </div>
 
-        <!-- Sweep Probability Graph Canvas -->
+        <!-- Oxygen sweep chart -->
+        <p class="sweep-scroll-hint">Swipe across the plot to inspect the full oxygen range.</p>
         <div class="sweep-canvas-card">
-          <canvas id="sweep-chart-canvas" width="1120" height="280" aria-label="Model oxygen sweep, unavailable until validation passes"></canvas>
+          <canvas id="sweep-chart-canvas" width="1120" height="280" aria-label="NASA PMMA extinction fit with contextual initial oxygen readings from concurrent-flow tests"></canvas>
         </div>
 
         <!-- Side-by-Side Regime Boundary Evidence Cards -->
         <div class="boundary-comparison-grid" id="boundary-dual-cards-grid">
           <div class="regime-evidence-card card-spread-side">
             <div class="evidence-header">
-              <span class="regime-tag tag-spread" id="tag-above-boundary">Validated sweep unavailable</span>
-              <h3>Higher oxygen observations</h3>
+              <span class="regime-tag tag-spread" id="tag-above-boundary">Loading observations…</span>
+              <h3 id="sweep-above-heading">Matching concurrent-flow tests</h3>
             </div>
-            <p>Observed outcomes depend on material geometry, airflow, pressure and ignition history. Inspect source records before drawing a conclusion.</p>
+            <p id="sweep-above-context">Examples show initial oxygen at test start and reported outcome. They provide context only, not validation points for the fitted curve.</p>
             <div class="citation-evidence-box" id="evidence-above-boundary">
               <strong>Nearest Real NASA Test:</strong> Loading flight data...
             </div>
@@ -461,10 +465,10 @@
 
           <div class="regime-evidence-card card-extinction-side">
             <div class="evidence-header">
-              <span class="regime-tag tag-extinction" id="tag-below-boundary">Validated sweep unavailable</span>
-              <h3>Lower oxygen observations</h3>
+              <span class="regime-tag tag-extinction" id="tag-below-boundary">Loading observations…</span>
+              <h3 id="sweep-below-heading">Measurement basis</h3>
             </div>
-            <p>A lower oxygen concentration does not by itself establish extinction for every material or geometry. No safety clearance is inferred from this view.</p>
+            <p id="sweep-below-context">NASA fitted Eq (6.1) using oxygen readings after burning at extinction. Initial and post-burn oxygen are different measurements.</p>
             <div class="citation-evidence-box" id="evidence-below-boundary">
               <strong>Nearest Real NASA Test:</strong> Loading flight data...
             </div>
@@ -484,7 +488,7 @@
             <p class="section-sub">200 curated NASA microgravity observations from spaceflight and drop-tower studies, with source citations and interpreted outcome labels.</p>
           </div>
           <div class="table-filter-cluster">
-            <input type="text" id="atlas-search-input" class="filter-search-input" placeholder="Search by report ID, test ID, material...">
+            <input type="search" id="atlas-search-input" class="filter-search-input" placeholder="Search by report ID, test ID, material..." aria-label="Search experiments">
             <select id="atlas-filter-material" class="instrument-select table-filter-select">
               <option value="">All Materials</option>
               <option value="PMMA">PMMA</option>
@@ -504,6 +508,8 @@
             </select>
           </div>
         </div>
+
+        <p class="archive-count" id="atlas-count" role="status" aria-live="polite">Loading observations…</p>
 
         <div class="database-table-wrapper">
           <table class="flight-archive-table" id="atlas-table">
@@ -646,7 +652,8 @@
         </div>
 
         <!-- Dynamic Conflict Output Deck -->
-        <div class="conflict-results-deck" id="conflict-results-container">
+        <p class="analysis-status" id="conflict-status" role="status" aria-live="polite">Choose a comparison to load live results.</p>
+        <div class="conflict-results-deck" id="conflict-results-container" hidden>
           <!-- Top Verdict & Comparability Gauge Card -->
           <div class="comparability-verdict-card">
             <div class="gauge-col">
@@ -742,6 +749,8 @@
             Highlighting empirical white spaces reveals where the curated research has observations and where no matching experiments are recorded.
           </p>
         </div>
+
+        <p class="analysis-status" id="coverage-status" role="status" aria-live="polite">Loading coverage data…</p>
 
         <!-- Metric KPI Tiles -->
         <div class="coverage-kpi-bar">

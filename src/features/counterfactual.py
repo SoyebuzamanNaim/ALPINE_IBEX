@@ -154,7 +154,8 @@ class CounterfactualEngine:
         # Evidence delta
         base_exp_ids = [e["experiment_id"] for e in base_res.get("nearest_experiments", [])]
         cf_exp_ids = [e["experiment_id"] for e in cf_res.get("nearest_experiments", [])]
-        shared_ids = list(set(base_exp_ids).intersection(cf_exp_ids))
+        cf_exp_id_set = set(cf_exp_ids)
+        shared_ids = [eid for eid in base_exp_ids if eid in cf_exp_id_set]
         added_ids = [eid for eid in cf_exp_ids if eid not in base_exp_ids]
         removed_ids = [eid for eid in base_exp_ids if eid not in cf_exp_ids]
 
