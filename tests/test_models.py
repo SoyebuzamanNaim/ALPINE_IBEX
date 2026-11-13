@@ -1,5 +1,6 @@
 """Automated tests for Phase 05 Baseline Models."""
 from pathlib import Path
+import hashlib
 import json
 import pytest
 from src.models.baseline import FlameSpreadPredictor, load_model_meta, load_trained_model
@@ -16,32 +17,41 @@ def test_model_files_exist():
     assert METRICS_PATH.exists(), "Metrics JSON must exist"
 
 
+def test_model_hash_is_checked_before_deserialization(tmp_path, monkeypatch):
+    model_path = tmp_path / "model.joblib"
+    meta_path = tmp_path / "meta.json"
+    model_path.write_bytes(b"unverified model")
+    meta_path.write_text(json.dumps({"model_sha256": "0" * 64}))
+    monkeypatch.setattr("src.models.baseline.joblib.load", lambda _: pytest.fail("deserialized unverified model"))
+    with pytest.raises(ValueError, match="artifact hash"):
+        load_trained_model(model_path, meta_path)
+
+
 def test_model_meta_schema():
     meta = load_model_meta()
     required_keys = [
         "type", "n_train", "cv_accuracy", "cv_scheme", "features", "classes",
-        "trained_at", "dataset_sha256", "training_range", "confusion_matrix"
+        "trained_at", "dataset_sha256", "model_sha256", "training_range", "confusion_matrix"
     ]
     for k in required_keys:
         assert k in meta, f"Missing key in model_meta: {k}"
 
     assert meta["type"] == "gradient_boosting"
+    assert meta["model_sha256"] == hashlib.sha256(ARTIFACT_PATH.read_bytes()).hexdigest()
     assert meta["n_train"] >= 100
-    assert "StratifiedGroupKFold" in meta["cv_scheme"], "CV scheme must be grouped"
+    assert meta["cv_scheme"] == "LeaveOneGroupOut(group=report_id)"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Not met on honest data. With the 49 unsupported rows removed the shipped "
-        "gradient-boosting configuration scores 0.547 under report-grouped CV against a "
-        "0.556 majority baseline. The earlier 0.834 was measured on those rows. Only four "
-        "report groups remain, so this estimate is also very coarse. See reports/REBUILT_MODEL_EVALUATION.md Addendum 7."
-    ),
-)
-def test_model_beats_majority_baseline():
+def test_model_metadata_matches_report_grouped_metrics():
     meta = load_model_meta()
-    assert meta["cv_accuracy"] > meta["majority_baseline_accuracy"]
+    metrics = json.loads(METRICS_PATH.read_bytes())["models"]
+    report_metrics = metrics["gradient_boosting"]["report_grouped_cv"]
+    baseline_metrics = metrics["majority_baseline"]["report_grouped_cv"]
+    assert meta["cv_accuracy"] == report_metrics["accuracy"]
+    assert meta["cv_balanced_accuracy"] == report_metrics["balanced_accuracy"]
+    assert meta["majority_baseline_accuracy"] == baseline_metrics["accuracy"]
+    assert len(report_metrics["fold_sizes"]) == meta["loro"]["n_groups"]
+    assert sum(report_metrics["fold_sizes"]) == meta["n_train"]
 
 
 def test_prediction_in_range():

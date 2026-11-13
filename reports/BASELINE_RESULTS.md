@@ -9,17 +9,17 @@ Four model families were trained and evaluated on the verified NASA microgravity
 (`cache/experiments.parquet`, N=200).
 
 The headline model is a **Gradient Boosting Classifier** evaluated using report-grouped
-`StratifiedGroupKFold` cross-validation. Rows from a held-out report do not occur in its
+`LeaveOneGroupOut` cross-validation. Rows from a held-out report do not occur in its
 training fold. This split has few unevenly sized groups, so scores are uncertain and must
 be interpreted with the baseline and per-class metrics.
 
 ### Grouped Performance and Baselines
-| Model Family | Report-Grouped Accuracy | Balanced Accuracy | Macro F1 | Plain Stratified Accuracy |
+| Model Family | Report-Grouped Accuracy | Balanced Accuracy | Macro F1 | Plain Stratified Accuracy (StratifiedKFold(k=2)) |
 |---|---|---|---|---|
 | **Naive Majority Baseline** | 0.8150 | 0.3333 | 0.2994 | 0.8150 |
-| **Logistic Regression** | 0.6600 | 0.4120 | 0.3780 | 0.8400 |
-| **Random Forest** | 0.7950 | 0.3925 | 0.4004 | 0.8300 |
-| **Gradient Boosting (Headline)** | **0.7600** | **0.3557** | **0.3603** | **0.8350** |
+| **Logistic Regression** | 0.6600 | 0.4120 | 0.3780 | 0.8500 |
+| **Random Forest** | 0.8000 | 0.3870 | 0.3933 | 0.8300 |
+| **Gradient Boosting (Headline)** | **0.7750** | **0.3618** | **0.3637** | **0.8500** |
 
 ---
 
@@ -29,19 +29,19 @@ be interpreted with the baseline and per-class metrics.
 |---|---|---|---|
 | **`no_spread`** | 6 | 0 | 29 |
 | **`marginal_spread`** | 0 | 0 | 2 |
-| **`spread`** | 13 | 4 | 146 |
+| **`spread`** | 13 | 1 | 149 |
 
 ### Per-Class Recall (Sensitivity)
 - **`no_spread`**: 17.1%
 - **`marginal_spread`**: 0.0%
-- **`spread`**: 89.6%
+- **`spread`**: 91.4%
 
 ---
 
 ## 3. Scientific Discussion of Results
 
 1. The majority-class baseline is **81.5%**. Gradient boosting reaches
-   **76.0% grouped accuracy**, **35.6% balanced accuracy**,
+   **77.5% grouped accuracy**, **36.2% balanced accuracy**,
    and `17.1%` recall for `no_spread`.
 2. The classifier does not beat the majority baseline on accuracy, and its balanced accuracy is below 0.5.
    Public inference must remain withheld until an evaluated model meets the readiness gate.

@@ -238,9 +238,9 @@ a design preference here — it is the only honest output.
 ## Conclusion
 
 The headline stays at **0.7821 balanced accuracy**, and it is not improvable with this data. The
-remaining levers are data, not modelling: more extinction observations at known cm/s velocities,
-and the ignition-governing inputs (igniter power, duration, preheat) that are recorded in the PSI
-table but are not yet features.
+remaining lever is more source-supported extinction observations at known cm/s velocities.
+BASS-II's PSI tables and NTRS observations do not provide per-test igniter power or duration;
+see Addendum 3.
 
 
 ---
@@ -600,7 +600,7 @@ Saffire-VI     20240002981    3    Cotton-Fiberglass, PMMA
 BASS           20140011099    1    PMMA
 ```
 
-163 spread, 35 no_spread, 2 marginal_spread. Oxygen 14.0-24.0 %, pressure 44.1-101.3 kPa, flow
+163 spread, 35 no_spread, 2 marginal_spread. Oxygen 14.0-31.0 %, pressure 44.1-101.3 kPa, flow
 0-45 cm/s. **Every row now carries `HAND_TRANSCRIBED_FROM_SOURCE`** - there is no longer a single
 row in the dataset that cannot be traced to a rendered table or an exact statement.
 
@@ -628,3 +628,154 @@ material, oxygen, pressure and flow and carry opposite outcomes.** No model with
 features can be right about all of them; near the limit the result depends on whether a flame
 was established before the flow changed, which the features do not express. That is a floor on
 the achievable error, and it is in the data, not the model.
+
+---
+
+# Addendum 9: PSI-25 source verification and earlier retraining (2026-11-13)
+
+## NASA source retrieval
+
+The NASA PSI-25 landing page identifies **Version 4**, DOI `10.60555/4qc4-de67`, updated
+2025-11-24. The published experiment CSV was fetched from NASA's repository service using its
+listed filename, `PSI-25_Experimental table_BASS-II.csv`. Its 16,590-byte response has SHA-256
+`71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042`, exactly matching the
+checked-in source file (whose local filename replaces the space with an underscore).
+See [NASA PSI-25](https://psi.nasa.gov/physci/repo/data/investigations/PSI-25) and
+[`data/external/psi/README.md`](../data/external/psi/README.md) for the source endpoint and
+revision distinction.
+
+The standard ingestion command was then run from those checked-in source records:
+
+```
+Ingestion validation passed: 200/200 records; 0 quarantined.
+```
+
+The canonical `cache/experiments.parquet` was regenerated from source. No distinct NASA dataset,
+source file, or labeled record was removed. The NASA 1-g threshold and spread-rate tables remain
+available as separate datasets because they measure different conditions or targets; their
+provenance files remain in `data/processed/`.
+
+## Retrained application model
+
+`src/compute/model.py` was run on the rebuilt canonical table. Its report-grouped headline
+remains:
+
+| Model | Accuracy | Balanced accuracy | Macro F1 |
+|---|---:|---:|---:|
+| Majority baseline | 0.8150 | 0.3333 | 0.2994 |
+| Logistic regression | 0.6600 | 0.4120 | 0.3780 |
+| Random forest | 0.7950 | 0.3925 | 0.4004 |
+| Gradient boosting | 0.7600 | 0.3557 | 0.3603 |
+
+The existing gradient-boosted model was retrained and its metrics, model card, and metadata
+were regenerated. It still fails the baseline gate, so the application must continue withholding
+its inference. Accuracy is particularly misleading here: a majority-only answer scores 81.5%,
+and the two `marginal_spread` records cannot support a reliable third class.
+
+## Alternative classification check
+
+As a research-only check, the 198 settled rows were evaluated as `spread` versus `no_spread`
+with class-weighted logistic regression. The two `marginal_spread` observations remain in the
+canonical dataset and three-class training run; they are left unresolved only for this binary
+comparison. Splitting by BASS-II test, Saffire campaign, and source report kept repeated
+conditions together (85 groups):
+
+| Evaluation | Accuracy | Balanced accuracy | Macro F1 | `no_spread` precision | `no_spread` recall |
+|---|---:|---:|---:|---:|---:|
+| Leave one condition group out | 0.7576 | 0.7181 | 0.6652 | 0.3898 | 0.6571 |
+| Leave one NASA report out (7 groups) | 0.4848 | 0.5413 | 0.4467 | 0.1982 | 0.6286 |
+
+The condition-group score is not a generalization result across investigations. Holding out a
+whole report collapses `no_spread` precision to 0.1982; the model issues 89 false `no_spread`
+calls against 163 actual `spread` rows. That is not a reliable or safe model, even though its
+balanced accuracy is above chance. This comparison does not replace or remove the current
+three-class model.
+
+## Research implication
+
+NASA describes BASS-II as studying ignition, flame growth, flame spread, and extinction while
+varying oxygen, forced-flow speed/direction, and sample geometry. The BASS-II report also
+describes tests where ignition occurs before airflow is changed. Those are distinct phases of
+the experiment, while the current target combines ignition failures and flame extinction into
+`no_spread`. A paper on PMMA-cylinder flame spread likewise reports a non-monotonic response to
+low opposed-flow velocity and different microgravity behavior at low oxygen
+([Fernández-Pello et al., *The Effect of Gravity on Flame Spread over PMMA Cylinders*](https://pmc.ncbi.nlm.nih.gov/articles/PMC5760683/)).
+This supports preserving geometry, gravity, ignition history, and failure mode as explicit
+context; it does not justify pooling the separate NASA datasets into one unqualified target.
+I also checked the newer [NASA PSI-62 record](https://psi.nasa.gov/physci/repo/data/investigations/PSI-62)
+(DOI `10.60555/e9xp-ex83`), which describes flame-spread model validation against BASS/BASS-II.
+Its PSI record has no experimental table, and the downloadable archive contains metadata only,
+so it contributes useful research context but no new labeled training rows.
+
+## Checks run
+
+- `.venv/bin/pytest -q`: 159 passed, 1 expected failure (the baseline-readiness gate remains unmet).
+- `.venv/bin/python -m src.ingestion.build_table`: 200/200 valid, zero quarantined.
+- `.venv/bin/python src/compute/model.py`: completed; artifacts regenerated from the verified table.
+- `.venv/bin/python scripts/verify_artifacts.py`: verifies the serialized model and dataset hashes.
+- `node --check app/app.js`: checks the application client script.
+
+## Addendum 10: evaluation method before Saffire oxygen correction
+
+The earlier grouped splitter used five stratified folds even though the rare
+`marginal_spread` class has only two examples. The training pipeline now uses
+`LeaveOneGroupOut` for both report-level and investigation-level evaluations, so each complete
+source group is held out exactly once without asking the splitter to preserve an impossible
+class distribution. The 10-seed report-held-out result remains 0.7565 accuracy, 0.3648 balanced
+accuracy, and 0.3729 macro F1; the application model still does not beat the 0.815 majority
+baseline.
+
+I tested the existing NASA `sample_geometry`, `flow_direction`, and `gravity_env` fields as
+additional inputs with fold-local preprocessing. The fixed gradient-boosting setup reached
+0.775 accuracy, 0.369 balanced accuracy, and 0.373 macro F1, with 0.200 recall for `no_spread`.
+This remains below the majority baseline and is not a validated improvement. These inputs are
+also absent from the application request form, so this exploratory model was not promoted or
+saved as the production artifact. The NASA values and source rows remain intact in the canonical
+dataset.
+
+An intermediate review's "four report groups" and "21 training rows" description referred to
+the 117-row snapshot before PSI-25 reconciliation. The current dataset has 200 rows and seven
+report groups, with sizes 158, 13, 12, 7, 6, 3, and 1. The model and API docs now describe the
+current grouping method and the report-weighting limitation.
+
+The strict expected-failure test for beating the majority baseline has been replaced by passing
+checks that bind metadata to the evaluated metrics and verify API withholding when validation
+does not meet the gate. This keeps the suite green without treating the model's current failure
+as success or claiming improved predictive performance.
+
+## Addendum 11: Saffire PSI retrieval, source correction, and current evaluation
+
+NASA's [PSI-98](https://psi.nasa.gov/physci/repo/data/investigations/PSI-98),
+[PSI-99](https://psi.nasa.gov/physci/repo/data/investigations/PSI-99), and
+[PSI-100](https://psi.nasa.gov/physci/repo/data/investigations/PSI-100)
+experimental CSVs are now preserved under `data/external/psi/`, with byte counts,
+SHA-256 hashes, DOIs, and download URLs in its README and the source manifest.
+These tables corroborate existing Saffire conditions; they do not provide new
+independent labeled experiments. The existing BASS and BASS-II source datasets
+remain in place.
+
+The [NTRS 20170008805](https://ntrs.nasa.gov/citations/20170008805)
+Table I and the PSI-99 table both report Saffire-II sample 2-8 oxygen as
+`22.1 to 22.0` and sample 2-9 as `22.0 to 21.9`. Because the model uses
+**initial** oxygen, their canonical values were corrected from 22.0 to 22.1
+and from 21.9 to 22.0 respectively. Disagreements between PSI-99 and the
+NTRS report for samples 2-1 and 2-6 remain documented, with NTRS values
+retained.
+
+The complete 200-row dataset was rebuilt and the same gradient-boosting
+pipeline retrained. Its current leave-one-report-out results are:
+
+| Model | Accuracy | Balanced accuracy | Macro F1 |
+|---|---:|---:|---:|
+| Majority baseline | 0.8150 | 0.3333 | 0.2994 |
+| Logistic regression | 0.6600 | 0.4120 | 0.3780 |
+| Random forest | 0.8000 | 0.3870 | 0.3933 |
+| Gradient boosting | 0.7750 | 0.3618 | 0.3637 |
+
+The correction raised the gradient-boosting held-out accuracy from 0.7600
+to 0.7750, but the model still trails the majority baseline and identifies
+none of the two `marginal_spread` rows. The 10-seed report holdout averages
+0.7755 accuracy and 0.3733 balanced accuracy. These are estimates on seven
+unevenly sized report groups, dominated by the 158-row BASS-II report;
+they are not evidence of robust cross-investigation prediction. Public
+inference remains withheld by the application readiness gate.

@@ -100,7 +100,7 @@ def test_material_with_fewer_than_three_distinct_conditions_abstains(
         (17.1, 101.3, 5.0, "Cotton-Fiberglass", {"BASS2_T11_5", "BASS2_T22_5"}),
         (17.3, 101.3, 10.0, "PMMA", {"BASS2_B19_10", "BASS2_T7_10"}),
         (18.0, 101.3, 3.0, "PMMA", {"BASS2_O3a_3", "BASS2_O3b_3"}),
-        (22.0, 100.0, 20.0, "PMMA", {"SAF_II_8", "SAF_IV_2"}),
+        (22.0, 100.0, 20.0, "PMMA", {"SAF_II_9", "SAF_IV_2"}),
     ],
 )
 def test_identical_inputs_with_conflicting_outcomes_abstain(

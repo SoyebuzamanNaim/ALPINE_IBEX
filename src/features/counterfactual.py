@@ -9,11 +9,11 @@ import json
 from pathlib import Path
 from typing import Any
 
-import joblib
 import numpy as np
 import pandas as pd
 
 from src.envelope.guard import EnvelopeGuard
+from src.models.baseline import load_trained_model
 from src.retrieval.nearest import NearestExperimentRetriever
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -36,7 +36,7 @@ class CounterfactualEngine:
         if not meta_path.exists():
             raise FileNotFoundError(f"Metadata file missing: {meta_path}")
 
-        self.model = joblib.load(model_path)
+        self.model = load_trained_model(model_path, meta_path)
         self.meta = json.loads(meta_path.read_bytes())
         self.guard = EnvelopeGuard(meta_path=meta_path, data_path=data_path)
         self.retriever = NearestExperimentRetriever(data_path=data_path)

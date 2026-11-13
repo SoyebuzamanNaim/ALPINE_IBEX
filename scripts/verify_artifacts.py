@@ -28,10 +28,13 @@ def main() -> None:
     meta = json.loads(META_PATH.read_text(encoding="utf-8"))
     metrics = json.loads(METRICS_PATH.read_text(encoding="utf-8"))
     dataset_hash = hashlib.sha256(DATA_PATH.read_bytes()).hexdigest()
+    model_hash = hashlib.sha256(MODEL_PATH.read_bytes()).hexdigest()
     if meta.get("dataset_sha256") != dataset_hash:
         fail("model metadata dataset SHA-256 does not match cache/experiments.parquet")
     if metrics.get("dataset_sha256") != dataset_hash:
         fail("metrics dataset SHA-256 does not match cache/experiments.parquet")
+    if meta.get("model_sha256") != model_hash:
+        fail("model metadata SHA-256 does not match models/flame_spread_gb.joblib")
 
     row_count = len(pd.read_parquet(DATA_PATH))
     if meta.get("n_train") != row_count or metrics.get("n_train") != row_count:
@@ -40,8 +43,19 @@ def main() -> None:
     model_results = metrics.get("models", {})
     gb_report = model_results.get("gradient_boosting", {}).get("report_grouped_cv", {})
     baseline_report = model_results.get("majority_baseline", {}).get("report_grouped_cv", {})
-    for key, report in (("cv_accuracy", gb_report), ("majority_baseline_accuracy", baseline_report)):
-        expected = report.get("accuracy")
+    for key, report in (
+        ("cv_accuracy", gb_report),
+        ("cv_balanced_accuracy", gb_report),
+        ("cv_macro_f1", gb_report),
+        ("majority_baseline_accuracy", baseline_report),
+    ):
+        metric_key = {
+            "cv_accuracy": "accuracy",
+            "cv_balanced_accuracy": "balanced_accuracy",
+            "cv_macro_f1": "macro_f1",
+            "majority_baseline_accuracy": "accuracy",
+        }[key]
+        expected = report.get(metric_key)
         actual = meta.get(key)
         if not isinstance(actual, (int, float)) or not isinstance(expected, (int, float)):
             fail(f"missing {key} in metadata or report-grouped metrics")

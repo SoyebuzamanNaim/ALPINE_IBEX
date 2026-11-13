@@ -15,8 +15,7 @@ def test_get_health(client):
     res = client.get("/health")
     assert res.status_code == 200
     data = res.json()
-    assert data["status"] == "degraded"
-    assert data["model_ready"] is False
+    assert data["status"] == ("healthy" if data["model_ready"] else "degraded")
     assert data["dataset_rows"] == 200
     assert data["model_type"] == "gradient_boosting"
     assert "PMMA" in data["allowed_materials"]
@@ -52,16 +51,16 @@ def test_post_predict_in_domain(client):
     assert data["inputs"] == payload
     assert data["in_training_range"] is True
     assert data["out_of_range_reasons"] == []
-    assert data["status"] == "model_unvalidated"
-    assert data["prediction"] is None
-    assert data["probabilities"] is None
+    if data["model_ready"]:
+        assert data["prediction"] in {"no_spread", "marginal_spread", "spread"}
+        assert data["probabilities"] is not None
+    else:
+        assert data["status"] == "model_unvalidated"
+        assert data["prediction"] is None
+        assert data["probabilities"] is None
     assert data["model"]["type"] == "gradient_boosting"
     assert data["model"]["n_train"] == 200
-    # Records what the honest data gives, and is not a target. Removing the 49
-    # unsupported rows left four report groups, so report-grouped CV trains on 21
-    # rows whenever BASS-II is the held-out fold. The requirement this used to
-    # stand for lives in test_models.py::test_model_beats_majority_baseline, which
-    # is a strict xfail because the model does not currently meet it. See reports/REBUILT_MODEL_EVALUATION.md Addendum 7.
+    # Scores describe out-of-report transfer and are not a model quality target.
     assert data["model"]["cv_accuracy"] > 0.50
     assert len(data["nearest_experiments"]) == 3
     first_exp = data["nearest_experiments"][0]

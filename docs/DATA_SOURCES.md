@@ -8,7 +8,7 @@
 
 | Investigation | Gravity Environment | Materials | Rows | Verified Source |
 |---|---|---|---|---|
-| **BASS-II** | ISS | Cotton-Fiberglass, Nomex, PMMA | 158 | [NTRS 20210011385](https://ntrs.nasa.gov/citations/20210011385) + [PSI-25](https://psi.nasa.gov) |
+| **BASS-II** | ISS | Cotton-Fiberglass, Nomex, PMMA | 158 | [NTRS 20210011385](https://ntrs.nasa.gov/citations/20210011385) + [PSI-25](https://psi.nasa.gov/physci/repo/data/investigations/PSI-25) |
 | **GRC Zero Gravity Facility opposed-flow extinction** | drop_tower | Cellulose | 13 | [NTRS 19890014267](https://ntrs.nasa.gov/citations/19890014267) |
 | **Saffire-I** | ISS | Cotton-Fiberglass, Nomex, PMMA, Silicone | 12 | [NTRS 20170008805](https://ntrs.nasa.gov/citations/20170008805) |
 | **Exploration Atmospheres flammability limits** | drop_tower | Cellulose, Mylar, Nomex, Ultem | 7 | [NTRS 20080034883](https://ntrs.nasa.gov/citations/20080034883) |
@@ -17,7 +17,7 @@
 | **BASS** | ISS | PMMA | 1 | [NTRS 20140011099](https://ntrs.nasa.gov/citations/20140011099) |
 
 **Total ingested observations:** 200 rows, drawn from 7 distinct NTRS reports, spanning
-14.0-24.0 % oxygen and 44.1-101.3 kPa.
+14.0-31.0 % oxygen and 44.1-101.3 kPa.
 
 BASS-II conditions come from NASA PSI (PSI-25, DOI 10.60555/4qc4-de67, CC0-1.0), which publishes
 the calibrated values but no outcome column; the outcomes are hand-assigned from the report's
@@ -37,8 +37,8 @@ Row-level provenance lives in `data/metadata/provenance_registry.json`.
 ## 2. Audited Report Corpus & Identifiers
 
 `cache/report_corpus/*.json` holds 13 verified NTRS records (title, abstract, URL).
-Four of these supply the training rows; the rest provide supporting context and are **not**
-used as model inputs.
+Seven supply rows to the current 200-observation canonical dataset; the other six provide
+supporting context and are **not** model inputs.
 
 1. **`19890014267`** — "An experimental study of opposed flow diffusion flame extinction over a thin fuel in microgravity" ([NTRS record](https://ntrs.nasa.gov/citations/19890014267)) · _training rows_
 2. **`19970020617`** — "Extinguishment of a Diffusion Flame Over a PMMA Cylinder by Depressurization in Low-Gravity" ([NTRS record](https://ntrs.nasa.gov/citations/19970020617)) · _context only_
@@ -56,18 +56,30 @@ used as model inputs.
 
 ---
 
-## 2b. Supplementary verified dataset: Saffire (not yet used for training)
+## 2b. Audited Saffire source extract (included in the canonical dataset)
 
 `data/processed/experiments_saffire_verified.csv` holds **21 hand-transcribed microgravity
-rows** from the Saffire large-scale spacecraft fire experiments. It is kept separate from
-`experiments.parquet` because that table has an unresolved integrity defect (see the data
-integrity section of the root README).
+rows** from the Saffire large-scale spacecraft fire experiments. This file remains available as
+an auditable source extract; all 21 rows are also included in `cache/experiments.parquet` and in
+the current model training run.
 
 | Source | Table | Flights | Rows |
 |---|---|---|---|
-| [20170008805](https://ntrs.nasa.gov/citations/20170008805) | Table I "Summary of Samples, Test Conditions, and Selected Results" | Saffire I, II | 12 |
+| [20170008805](https://ntrs.nasa.gov/citations/20170008805) | Table I "Summary of Samples, Test Conditions, and Selected Results"; cross-checked with [PSI-98](https://psi.nasa.gov/physci/repo/data/investigations/PSI-98) and [PSI-99](https://psi.nasa.gov/physci/repo/data/investigations/PSI-99) | Saffire I, II | 12 |
 | [20210011521](https://ntrs.nasa.gov/citations/20210011521) | Table 1 "Saffire IV-V Sample Test Conditions"; Table 2 (thin samples) | Saffire III, IV, V | 6 |
 | [20240002981](https://ntrs.nasa.gov/citations/20240002981) | Table 1 "Saffire IV-VI Sample Test Conditions" | Saffire VI | 3 |
+
+[PSI-100](https://psi.nasa.gov/physci/repo/data/investigations/PSI-100)
+also supplies a Saffire-III sample matrix. Its two condition rows are retained in
+`data/external/psi/` as source data, but do not add independently labeled outcomes
+to the NTRS-derived training extract. The DOI and file hashes for all three
+Saffire PSI tables are recorded in [the PSI source README](../data/external/psi/README.md).
+
+Two Saffire-II oxygen entries were corrected after comparing PSI-99 and NTRS Table I:
+sample 2-8 changed from end-of-burn 22.0% to initial 22.1%, and sample 2-9
+from end-of-burn 21.9% to initial 22.0%. PSI-99 conflicts with the NTRS report
+on sample 2-1 oxygen and sample 2-6 flow, so those NTRS values are retained and
+the discrepancies are described in the PSI source README.
 
 **Why these were chosen.** Unlike the BASS-II appendix matrices, these reports tabulate the
 test conditions explicitly (material, length, flow cm/s, flow direction, ambient pressure kPa,
@@ -78,17 +90,11 @@ report cited on that row. Two values are cross-report material properties and ar
 such in `extraction_notes` rather than presented as measurements from their own report
 (`SAF_III_1` and `SAF_IV_1` thickness, taken from the SIBAL specification in 20170008805).
 
-**What it adds**
-
-- **Pressure below the current floor:** 3 rows at 54.1, 54.6 and 55.2 kPa (existing minimum 56.5 kPa).
-- **Two materials outside the current five:** Silicone (with a 0.27 / 0.37 / 0.61 / 1.03 mm
-  thickness series, all non-propagating) and Cotton-Fiberglass (SIBAL, 75% cotton / 25% fiberglass).
-- **Explicit negative outcomes**, which the existing table is short of: four silicone samples
-  recorded as "Insignificant" burn with ~0 burn length, and a Nomex sample that "was not ignited".
-- A tabulated **opposed-flow** case at reduced pressure (Saffire V-4, 72.6 kPa, 25.7% O2).
-
-It does **not** extend the oxygen axis: the maximum here is 31.0%, inside the existing 34% range.
-Flow is 20-25 cm/s throughout, so it does not extend the flow axis either. Outcome labels follow
+**Coverage in the canonical dataset.** Saffire contributes 21 flight rows at 54.1-100.0 kPa and
+21.0-31.0 % oxygen, including the dataset's highest oxygen conditions. Its samples include
+Cotton-Fiberglass (SIBAL), Nomex, PMMA, Silicone, and Cotton. The tabulated opposed-flow
+reduced-pressure case Saffire V-4 is 72.6 kPa and 25.7 % O2. Flow is 20-25 cm/s throughout, so
+these rows do not extend the canonical flow range. Outcome labels follow
 `docs/LABELING_PROTOCOL.md`; 2 of 21 are marked `outcome_interpreted`.
 
 **Not included:** the Saffire VI Nomex sample, which the report states "did not ignite" but omits
@@ -106,7 +112,8 @@ NTRS `20210011385` on `Test #`.
 **What is authoritative in this file**
 
 - `oxygen_pct` is `Calibrated initial O2 % by vol` straight from the PSI table. Range
-  **14.2 to 22.2 %**, including the near-limit region missing from `cache/experiments.parquet`.
+  **14.2 to 22.2 %**. In the current canonical table, all 158 BASS-II rows match their PSI
+  test's initial oxygen value after joining on `Test #`.
 - `flow_cm_s` comes from the PSI `Air display` column, which is the duct velocity in cm/s.
   Six tests checked by hand against the source reproduce exactly (`B1`, `B3`, `B14`, `B18`,
   `O4`, `P1`), on both oxygen and velocity.
@@ -126,9 +133,9 @@ classified as spread). Outcome is the safety-critical column, and the existing d
 repository was caused by exactly this kind of unchecked derivation. Conditions are machine
 -recoverable; outcomes are not.
 
-**To finish the rebuild:** fill `outcome` per row from the `observation` column following
-`docs/LABELING_PROTOCOL.md`, confirming or overriding `suggested_outcome`, then merge into
-`cache/experiments.parquet` and retrain. 119 tests is a few hours of careful reading.
+**For any future labeling work:** review each `observation` against the exact test and velocity
+using `docs/LABELING_PROTOCOL.md`. Keep the outcome blank when the narrative does not identify
+that condition; do not merge a candidate row or retrain from a guessed mapping.
 
 **A note on low-flow velocities.** `PSI-25_Fan_calibration_data.xlsx` does map potentiometer
 settings to velocity, but pooled across its 27 calibration blocks the same pot maps to a wide
@@ -204,19 +211,27 @@ Both are documented in `data/metadata/dataset_catalog.csv` but excluded from `ca
 
 ## 4. NASA background and public resources
 
-These NASA pages provide investigation context, educational material, historical safety lessons, or examples of
-technology transfer. They are useful background references; they do not supply rows to the FLARE-X dataset or
-validate its model.
+These NASA resources provide discovery, research, educational, historical-safety, or
+technology-transfer context. They are not row-level evidence unless a specific investigation
+record is cited above, and they do not validate FLARE-X model performance. For dataset facts,
+use the PSI records, NTRS reports, and row-level registry cited in Sections 1–2.
 
 ### Combustion science and research
 
-- [PSI Data Repository search: combustion investigations](https://psi.nasa.gov/physci/repo/search?q=combustion) — NASA's catalog for physical-sciences investigations and their released data. The curated experiment rows used here are cited individually above and in the provenance registry.
-- [NASA Combustion Science](https://www.nasa.gov/glenn/glenn-expertise-space-exploration/physical-sciences-program/combustion-science/) — overview of combustion research in microgravity and the archived BASS, FLEX, Saffire, and related investigations.
-- [A Researcher's Guide to Combustion Science](https://www.nasa.gov/missions/station/a-researchers-guide-to-combustion-science/) — broader guide to ISS combustion research, prior work, and research opportunities.
-- [NASA ScienceCasts: The Power of Studying Combustion on the ISS](https://www.youtube.com/watch?v=W1oXykoz9zg) — short public introduction to combustion research aboard the ISS.
+- NASA, [PSI Data Repository: Combustion Science search](https://psi.nasa.gov/physci/repo/search?q=combustion) — discovery search for physical-sciences investigation records and released data.
+- NASA Glenn Research Center, [Combustion Science](https://www.nasa.gov/glenn/glenn-expertise-space-exploration/physical-sciences-program/combustion-science/) — program overview of NASA combustion research and investigations.
+- NASA PSI, [PSI-62: Concurrent Flame Spread Modeling using Flamelet Generated Manifolds](https://psi.nasa.gov/physci/repo/data/investigations/PSI-62) (DOI `10.60555/e9xp-ex83`) — related model-validation research using BASS/BASS-II benchmarks. PSI's current record has no experimental table; its only downloadable archive contains investigation metadata, so it is context rather than new row-level training data.
+- NASA, [A Researcher's Guide to International Space Station Combustion Science](https://www.nasa.gov/missions/station/a-researchers-guide-to-combustion-science/) (2015) — review of ISS combustion investigations and research opportunities.
+- NASA ScienceCasts, [The Power of Studying Combustion on the ISS](https://www.youtube.com/watch?v=W1oXykoz9zg) (2018; 3 min 36 sec) — educational introduction to ISS combustion research.
 
-### Historical safety and technology-transfer context
+### Historical safety references
 
-- [Apollo 1](https://sma.nasa.gov/sma-disciplines/accllp/apollo-1) and [Apollo 13](https://sma.nasa.gov/sma-disciplines/accllp/apollo-13) — NASA mission histories and investigation records. They are historical safety context, not sources for the experiment dataset.
-- [Fire aboard Space Station Mir](https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/) — NASA history article about the 1997 Mir fire.
-- [Fireman's Air Tanks](https://spinoff.nasa.gov/node/9582), [Fire Detector](https://spinoff.nasa.gov/node/9407), and [New Technology for the Fire Attire](https://spinoff.nasa.gov/node/9918) — NASA Spinoff summaries of fire-safety technologies and applications. These technology-transfer articles are not combustion measurements or evidence of FLARE-X model performance.
+- NASA Safety and Mission Assurance, [Apollo 1](https://sma.nasa.gov/sma-disciplines/accllp/apollo-1) — mission, pre-launch fire, investigation, and lessons learned.
+- NASA Safety and Mission Assurance, [Apollo 13](https://sma.nasa.gov/sma-disciplines/accllp/apollo-13) — mission, oxygen-tank failure, investigation, and lessons learned.
+- NASA History, [25 Years Ago: Fire Aboard Space Station Mir](https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/) — historical account of the 1997 Mir fire.
+
+### Fire-safety technology transfer
+
+- NASA Spinoff, [Fireman's Air Tanks](https://spinoff.nasa.gov/node/9582) (originally published 1976) — firefighter breathing equipment adapted from spacesuit technology.
+- NASA Spinoff, [Fire Detector](https://spinoff.nasa.gov/node/9407) (originally published 1978) — shuttle fire-detection technology described as distinguishing combustion particles from dust.
+- NASA Spinoff, [New Technology for the Fire Attire](https://spinoff.nasa.gov/node/9918) (originally published 1982) — firefighter protective clothing drawing on space-suit and spacecraft thermal-protection technology.

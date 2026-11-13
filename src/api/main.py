@@ -41,6 +41,7 @@ logger = logging.getLogger("flare_x_api")
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA_PATH = ROOT / "cache" / "experiments.parquet"
+MODEL_PATH = ROOT / "models" / "flame_spread_gb.joblib"
 META_PATH = ROOT / "models" / "model_meta.json"
 CORPUS_DIR = ROOT / "cache" / "report_corpus"
 CATALOG_PATH = ROOT / "data" / "metadata" / "dataset_catalog.csv"
@@ -48,8 +49,8 @@ CATALOG_PATH = ROOT / "data" / "metadata" / "dataset_catalog.csv"
 app = FastAPI(
     title="FLARE-X Microgravity Flammability API",
     description=(
-        "Research and operational prototype predicting solid fuel flame-spread regimes "
-        "under microgravity conditions using empirical NASA spaceflight data."
+        "Research prototype for exploring NASA microgravity combustion evidence "
+        "and guarded flame-spread model results."
     ),
     version="1.0.0",
 )
@@ -92,6 +93,8 @@ def _model_readiness() -> tuple[bool, str]:
         return False, "Model validation metrics are missing; inference is unavailable."
     if not DATA_PATH.exists() or hashlib.sha256(DATA_PATH.read_bytes()).hexdigest() != meta.get("dataset_sha256"):
         return False, "Model dataset hash does not match the current experiments table; inference is unavailable."
+    if not MODEL_PATH.exists() or hashlib.sha256(MODEL_PATH.read_bytes()).hexdigest() != meta.get("model_sha256"):
+        return False, "Model artifact hash does not match its metadata; inference is unavailable."
     if score <= baseline:
         return False, (
             f"Model grouped accuracy ({score:.1%}) does not exceed the majority "

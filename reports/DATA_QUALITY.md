@@ -1,7 +1,7 @@
 # Data quality and ingestion report
 
 > **File:** `cache/experiments.parquet` & `data/processed/experiments.parquet`
-> **SHA-256:** `8063f6d900e91ab8bd9a892a4712ca12c2c1522881477a2353a55c2b06adf064`
+> **SHA-256:** `26c383559b63ddee3cd5e1260fe15924d8438af89b8a8b74e5cf87d353af28e0`
 > **Total Records:** 200
 > **Source Rows:** 200
 > **Schema Validated:** 200

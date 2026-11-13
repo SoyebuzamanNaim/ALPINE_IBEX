@@ -1,6 +1,6 @@
 # Counterfactual engine
 
-> **Document Status:** Current contract for guarded what-if scenarios and model sweeps. Public model inference is withheld until grouped validation exceeds the majority baseline.
+> **Document Status:** Research specification for guarded what-if scenarios and model sweeps. These routes are unavailable while grouped validation fails the model-readiness gate.
 
 ## 1. Safety and Scientific Philosophy
 
@@ -8,7 +8,7 @@ In spacecraft fire safety engineering (e.g. NASA-STD-6001, Exploration Atmospher
 - *"If cabin ventilation fans drop flow from 20 cm/s to 5 cm/s, does PMMA extinguish or burn more vigorously?"*
 - *"How does the research model's estimate change as cabin oxygen varies?"*
 
-The FLARE-X Counterfactual Engine provides answers by querying the gradient-boosted empirical model trained on published microgravity tests, while enforcing five strict scientific guardrails:
+The counterfactual algorithms describe how a future validated model may be queried against published microgravity tests. At present, `/counterfactual` and `/sweep` return HTTP 503 because the persisted classifier has not passed the readiness gate. Internal engine calls are diagnostic only. The design requires five scientific guardrails:
 
 1. **Non-Causal Framing:** Observational machine learning predictions are explicitly labeled as model inferences, accompanied by a scientific disclaimer.
 2. **Mandatory Envelope Verification:** Every perturbed point and sweep step passes through `EnvelopeGuard`. If an adjustment pushes conditions outside the tested domain, the engine refuses the prediction (`prediction: null`) and lists the out-of-range parameters.
@@ -28,7 +28,7 @@ HTTP 422. Every sampled point can independently abstain.
 
 ---
 
-## 3. Mathematical & Algorithmic Formulation
+## 3. Planned Mathematical & Algorithmic Formulation
 
 ### 3.1 Single-Point Perturbation (`compute_perturbation`)
 Given baseline scenario $\mathbf{x}_{\text{base}} = [O_2, P, v, M]$ and modification vector $\Delta \mathbf{x}$:

@@ -4,7 +4,7 @@ FLARE-X is a research prototype for exploring NASA microgravity combustion obser
 
 ## Current model status
 
-The checked-in dataset contains 200 observations. The current grouped cross-validation accuracy is 76.0%, below the 81.5% majority-class baseline. Public model inference is therefore withheld for otherwise eligible conditions. The API returns `model_unvalidated` with no prediction or probabilities. Out-of-domain, conflicting, and sparse-material cases also abstain. See [scientific limitations](docs/LIMITATIONS.md) and the [rebuilt model evaluation](reports/REBUILT_MODEL_EVALUATION.md).
+The checked-in dataset contains 200 observations. The current grouped cross-validation accuracy is 77.5%, below the 81.5% majority-class baseline. Public model inference is therefore withheld for otherwise eligible conditions. The API returns `model_unvalidated` with no prediction or probabilities. Out-of-domain, conflicting, and sparse-material cases also abstain. See [scientific limitations](docs/LIMITATIONS.md) and the [rebuilt model evaluation](reports/REBUILT_MODEL_EVALUATION.md).
 
 ## Quick start
 

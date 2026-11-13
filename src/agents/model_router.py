@@ -1,6 +1,6 @@
 """Model Router Agent for FLARE-X.
 
-Routes requests to the validated gradient boosted classification model,
+Routes requests to the persisted gradient boosted classification model,
 formats standardized model metadata, and computes class probabilities.
 """
 from __future__ import annotations
@@ -9,8 +9,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-import joblib
 import pandas as pd
+
+from src.models.baseline import load_trained_model
 
 ROOT = Path(__file__).resolve().parents[2]
 MODEL_PATH = ROOT / "models" / "flame_spread_gb.joblib"
@@ -26,7 +27,7 @@ class ModelRouter:
         if not meta_path.exists():
             raise FileNotFoundError(f"Metadata missing: {meta_path}")
 
-        self.model = joblib.load(model_path)
+        self.model = load_trained_model(model_path, meta_path)
         self.meta = json.loads(meta_path.read_bytes())
         self.classes = list(self.model.classes_)
 
@@ -37,7 +38,7 @@ class ModelRouter:
             "n_train": self.meta.get("n_train"),
             "cv_accuracy": self.meta.get("cv_accuracy"),
             "cv_scheme": self.meta.get(
-                "cv_scheme", "StratifiedGroupKFold(k=5, group=report_id)"
+                "cv_scheme", "LeaveOneGroupOut(group=report_id)"
             ),
             "features": self.meta.get(
                 "features", ["oxygen_pct", "pressure_kpa", "flow_cm_s", "material"]

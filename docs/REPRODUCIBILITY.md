@@ -17,7 +17,7 @@ python3 -m venv .venv
 .venv/bin/python -m src.ingestion.build_table
 ```
 
-This rebuilds `cache/experiments.parquet`, `data/processed/experiments.parquet`, CSV/interim exports, the provenance registry, and `reports/DATA_QUALITY.md`. Validation counts are recorded in `data/interim/ingestion_audit.json`. If any selected source row fails schema validation, the row and errors are written to `data/interim/quarantine.json` and the command stops before overwriting canonical tables. The checked-in canonical table currently contains 200 rows. Compare its SHA-256 with `models/model_meta.json` before using the model; the API performs this check at request time.
+This rebuilds `cache/experiments.parquet`, `data/processed/experiments.parquet`, CSV/interim exports, the provenance registry, and `reports/DATA_QUALITY.md`. Validation counts are recorded in `data/interim/ingestion_audit.json`. If any selected source row fails schema validation, the row and errors are written to `data/interim/quarantine.json` and the command stops before overwriting canonical tables. The checked-in canonical table currently contains 200 rows. The API checks both the dataset and serialized model SHA-256 values against `models/model_meta.json` before allowing inference.
 
 ## Train and evaluate
 
@@ -27,7 +27,7 @@ This rebuilds `cache/experiments.parquet`, `data/processed/experiments.parquet`,
 
 This writes `models/flame_spread_gb.joblib`, `models/model_meta.json`, `models/metrics.json`, `reports/BASELINE_RESULTS.md`, and `docs/MODEL_CARDS.md`. Training is a mutating operation: it replaces these artifacts with results from the current dataset and code. Review the generated diffs before committing them.
 
-Current checked-in metadata reports 76.0% grouped accuracy and an 81.5% majority-class baseline. Since the model does not beat that baseline, public model inference remains withheld. The detailed analysis and its caveats are in [REBUILT_MODEL_EVALUATION.md](../reports/REBUILT_MODEL_EVALUATION.md).
+Current checked-in metadata reports 77.5% grouped accuracy and an 81.5% majority-class baseline. Since the model does not beat that baseline, public model inference remains withheld. The detailed analysis and its caveats are in [REBUILT_MODEL_EVALUATION.md](../reports/REBUILT_MODEL_EVALUATION.md).
 
 ## Run the existing checks
 
@@ -36,7 +36,7 @@ Current checked-in metadata reports 76.0% grouped accuracy and an 81.5% majority
 node --check app/app.js
 ```
 
-The suite includes a strict expected failure for the current model-governance requirement that the classifier beat its majority baseline.
+The suite verifies that model metadata matches the evaluated report-grouped metrics and that the API withholds predictions while the readiness gate is unmet. It does not treat model quality failure as an expected test failure.
 
 ## Start the local service
 

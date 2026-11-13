@@ -19,10 +19,28 @@ Primary NASA data foundation planned for FLARE-X:
 
 Final implementation should preserve investigation identifiers, experiment/test identifiers, source files, original units, canonical units, DOI/source attribution and dataset/version provenance.
 
-## NASA background and safety resources
+## NASA background and safety references
 
-These links explain the broader NASA research and safety context. They are supporting references and are not inputs to the FLARE-X dataset or evidence of model validation.
+The following sources add scientific, historical, and technology-transfer context. They are
+not source records for the curated experiment rows and do not validate FLARE-X predictions.
+The PSI search is a discovery catalog; row-level evidence is cited to the specific PSI records
+and NASA Technical Reports Server (NTRS) reports in [`docs/DATA_SOURCES.md`](../docs/DATA_SOURCES.md).
 
-- **Combustion research:** [NASA PSI combustion search](https://psi.nasa.gov/physci/repo/search?q=combustion), [NASA Combustion Science](https://www.nasa.gov/glenn/glenn-expertise-space-exploration/physical-sciences-program/combustion-science/), [A Researcher's Guide to Combustion Science](https://www.nasa.gov/missions/station/a-researchers-guide-to-combustion-science/), and [NASA ScienceCasts: The Power of Studying Combustion on the ISS](https://www.youtube.com/watch?v=W1oXykoz9zg).
-- **Mission safety history:** NASA histories of [Apollo 1](https://sma.nasa.gov/sma-disciplines/accllp/apollo-1), [Apollo 13](https://sma.nasa.gov/sma-disciplines/accllp/apollo-13), and the [1997 Mir fire](https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/).
-- **Fire-safety technology transfer:** NASA Spinoff articles on [Fireman's Air Tanks](https://spinoff.nasa.gov/node/9582), [Fire Detector](https://spinoff.nasa.gov/node/9407), and [New Technology for the Fire Attire](https://spinoff.nasa.gov/node/9918).
+### Combustion science
+
+- NASA, [PSI Data Repository: combustion science search](https://psi.nasa.gov/physci/repo/search?q=combustion) — discovery page for physical-sciences investigation records and data.
+- NASA Glenn Research Center, [Combustion Science](https://www.nasa.gov/glenn/glenn-expertise-space-exploration/physical-sciences-program/combustion-science/) — overview of NASA microgravity combustion research and investigations.
+- NASA, [A Researcher's Guide to International Space Station Combustion Science](https://www.nasa.gov/missions/station/a-researchers-guide-to-combustion-science/) (2015) — research guide covering ISS combustion investigations and research opportunities.
+- NASA ScienceCasts, [The Power of Studying Combustion on the ISS](https://www.youtube.com/watch?v=W1oXykoz9zg) (2018; 3 min 36 sec) — educational video introduction to combustion research aboard the ISS.
+
+### Mission and fire-safety history
+
+- NASA Safety and Mission Assurance, [Apollo 1](https://sma.nasa.gov/sma-disciplines/accllp/apollo-1) — crewed mission, pre-launch cabin fire, investigation, and lessons learned.
+- NASA Safety and Mission Assurance, [Apollo 13](https://sma.nasa.gov/sma-disciplines/accllp/apollo-13) — mission history, oxygen-tank failure, investigation, and lessons learned.
+- NASA History, [25 Years Ago: Fire Aboard Space Station Mir](https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/) — account of the 1997 fire during the Mir program.
+
+### Fire-safety technology transfer
+
+- NASA Spinoff, [Fireman's Air Tanks](https://spinoff.nasa.gov/node/9582) (originally published 1976) — firefighter breathing equipment adapted from spacesuit technology.
+- NASA Spinoff, [Fire Detector](https://spinoff.nasa.gov/node/9407) (originally published 1978) — shuttle smoke-detection technology described as distinguishing combustion particles from dust.
+- NASA Spinoff, [New Technology for the Fire Attire](https://spinoff.nasa.gov/node/9918) (originally published 1982) — firefighter protective clothing using materials and design concepts developed for space applications.

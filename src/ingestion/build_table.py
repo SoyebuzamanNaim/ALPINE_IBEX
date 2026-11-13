@@ -177,7 +177,7 @@ def load_saffire_rows() -> list[dict[str, Any]]:
                 "source_url": row["source_url"],
                 "source_page": None,
                 "source_table": "Saffire flight report",
-                "exact_source_citation": f"NTRS {row['report_id']}, {row['experiment_id']}",
+                "exact_source_citation": row["ignition_source"] or f"NTRS {row['report_id']}, {row['experiment_id']}",
                 "verification_tier": "HAND_TRANSCRIBED_FROM_SOURCE",
                 "data_origin": "direct_measurement",
                 "extraction_method": "table_parsed",

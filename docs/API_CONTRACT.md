@@ -49,7 +49,7 @@ The numeric fields must be nonnegative and within broad schema bounds: oxygen 0â
 
 `POST /predict` returns HTTP 200 for scientifically meaningful abstentions as well as accepted in-domain results. Clients must inspect `status`, `prediction`, and `probabilities`.
 
-- `model_unvalidated`: current grouped model score (0.760) does not exceed the 0.815 majority baseline. Prediction and probabilities are null.
+- `model_unvalidated`: current grouped model score (0.775) does not exceed the 0.815 majority baseline. Prediction and probabilities are null.
 - `conflicting_evidence`: opposite outcomes are present at identical model inputs. Prediction and probabilities are null; conflicting observations are returned.
 - `insufficient_material_evidence`: fewer than three distinct conditions exist for that material. Prediction and probabilities are null.
 - `joint_extrapolation` or an out-of-range refusal: a feature or input combination is outside observed conditions. Prediction and probabilities are null.

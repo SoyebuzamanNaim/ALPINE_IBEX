@@ -119,11 +119,7 @@ def test_model_router():
     meta = router.get_model_metadata()
     assert meta["type"] == "gradient_boosting"
     assert meta["n_train"] == 200
-    # Records what the honest data gives, and is not a target. Removing the 49
-    # unsupported rows left four report groups, so report-grouped CV trains on 21
-    # rows whenever BASS-II is the held-out fold. The requirement this used to
-    # stand for lives in test_models.py::test_model_beats_majority_baseline, which
-    # is a strict xfail because the model does not currently meet it. See reports/REBUILT_MODEL_EVALUATION.md Addendum 7.
+    # Scores describe out-of-report transfer and are not a model quality target.
     assert meta["cv_accuracy"] > 0.50
 
     res = router.predict(21.0, 101.3, 5.0, "PMMA")

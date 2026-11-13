@@ -1,6 +1,8 @@
 """Shared models interface and prediction helper."""
 from __future__ import annotations
 
+import hashlib
+import io
 import json
 from pathlib import Path
 from typing import Any
@@ -13,10 +15,16 @@ MODEL_PATH = ROOT / "models" / "flame_spread_gb.joblib"
 META_PATH = ROOT / "models" / "model_meta.json"
 
 
-def load_trained_model():
-    if not MODEL_PATH.exists():
-        raise FileNotFoundError(f"Missing model artifact: {MODEL_PATH}")
-    return joblib.load(MODEL_PATH)
+def load_trained_model(model_path: Path = MODEL_PATH, meta_path: Path = META_PATH):
+    if not model_path.exists():
+        raise FileNotFoundError(f"Missing model artifact: {model_path}")
+    if not meta_path.exists():
+        raise FileNotFoundError(f"Missing model metadata: {meta_path}")
+    meta = json.loads(meta_path.read_bytes())
+    model_bytes = model_path.read_bytes()
+    if hashlib.sha256(model_bytes).hexdigest() != meta.get("model_sha256"):
+        raise ValueError(f"Model artifact hash does not match metadata: {model_path}")
+    return joblib.load(io.BytesIO(model_bytes))
 
 
 def load_model_meta() -> dict[str, Any]:

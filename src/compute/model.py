@@ -9,9 +9,9 @@ Trains:
 4. Gradient Boosting Classifier (Headline Model)
 
 Evaluates using:
-- Report-grouped CV: StratifiedGroupKFold(group=report_id), up to five folds
-- Secondary, stricter: StratifiedGroupKFold(k=5, group=investigation)
-- Optimistic CV: StratifiedKFold(k=5)
+- Report-grouped CV: LeaveOneGroupOut(group=report_id)
+- Secondary, stricter: LeaveOneGroupOut(group=investigation)
+- Optimistic CV: StratifiedKFold, capped by the least-supported class
 Outputs:
 - models/flame_spread_gb.joblib
 - models/model_meta.json
@@ -43,7 +43,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
 )
-from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
+from sklearn.model_selection import LeaveOneGroupOut, StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
@@ -207,25 +207,26 @@ def train_and_evaluate_all() -> None:
         ("gradient_boosting", make_gb),
     ]
 
-# Grouped splitters: investigation-level and report-level; plus plain stratified CV.
-    # A grouped splitter cannot ask for more folds than it has groups, and dropping the 49
-    # unsupported rows left only four distinct report_ids, so the report-grouped splitter
-    # takes whatever is available up to 5. See Addendum 7.
-    group_kfold = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
-    report_kfold = StratifiedGroupKFold(
-        n_splits=min(5, report_groups.nunique()), shuffle=True, random_state=RANDOM_SEED
+    # With only two marginal_spread rows, stratified group folds cannot preserve every
+    # class in each fold. Leave out complete investigations/reports instead.
+    group_kfold = LeaveOneGroupOut()
+    report_kfold = LeaveOneGroupOut()
+    plain_kfold = StratifiedKFold(
+        n_splits=min(5, int(y.value_counts().min())),
+        shuffle=True,
+        random_state=RANDOM_SEED,
     )
-    plain_kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
 
     results: dict[str, Any] = {
         "dataset_sha256": dataset_sha256,
         "n_train": len(df),
         "classes": classes,
+        "plain_cv_scheme": f"StratifiedKFold(k={plain_kfold.n_splits})",
         "evaluated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "models": {},
     }
 
-    print("Evaluating models with zero-leakage campaign-grouped CV and optimistic CV...")
+    print("Evaluating models with leave-one-investigation/report-out CV and optimistic CV...")
     for model_name, factory in models_to_eval:
         print(f" -> {model_name}...")
         # 1. Investigation-grouped CV
@@ -256,10 +257,7 @@ def train_and_evaluate_all() -> None:
     print(f"Gradient Boosting Plain CV:        {gb_plain['accuracy']:.4f} (Optimistic)")
     print(f"Confusion Matrix (GB Grouped):     {gb_grouped['confusion_matrix']}")
 
-    # Seed-averaged leave-one-report-out: the robust reference metric. The grouped
-    # splitter above yields only 2 distinct partitions across 200 seeds, so averaging
-    # over model seeds under true LORO is the only way to show spread.
-    from sklearn.model_selection import LeaveOneGroupOut
+    # Repeat the report holdout with different estimator seeds to show model variance.
     import numpy as _np
     loro_acc, loro_bal, loro_f1 = [], [], []
     for seed in range(10):
@@ -289,6 +287,7 @@ def train_and_evaluate_all() -> None:
     # Save model artifact
     artifact_path = MODELS_DIR / "flame_spread_gb.joblib"
     joblib.dump(final_model, artifact_path)
+    model_sha256 = hashlib.sha256(artifact_path.read_bytes()).hexdigest()
     print(f"\nSaved model artifact to: {artifact_path}")
 
     # Build the model metadata consumed by the API and model card.
@@ -298,9 +297,9 @@ def train_and_evaluate_all() -> None:
         "cv_accuracy": gb_report["accuracy"],
         "cv_balanced_accuracy": gb_report["balanced_accuracy"],
         "cv_macro_f1": gb_report["macro_f1"],
-        "cv_scheme": f"StratifiedGroupKFold(k={report_kfold.n_splits}, group=report_id)",
+        "cv_scheme": "LeaveOneGroupOut(group=report_id)",
         "secondary_cv": {
-            "scheme": "StratifiedGroupKFold(k=5, group=investigation)",
+            "scheme": "LeaveOneGroupOut(group=investigation)",
             "accuracy": gb_grouped["accuracy"],
             "balanced_accuracy": gb_grouped["balanced_accuracy"],
             "rationale": "Coarser grouping: isolates whole flight campaigns.",
@@ -308,17 +307,12 @@ def train_and_evaluate_all() -> None:
         "cv_fold_accuracies": gb_report["fold_accuracies"],
         "cv_fold_sizes": gb_report["fold_sizes"],
         "cv_caveat": (
-            "Accuracy is pooled out-of-fold over all rows, not a mean of folds. "
-            "Group sizes are highly uneven (96/23/11/8/5/2), so per-fold accuracy on the "
-            "smallest groups rests on very few samples; std_accuracy is not meaningful and "
-            "marginal_spread support is 1-2 rows in three of five folds. "
-            "StratifiedGroupKFold(group=report_id) yields only 2 distinct partitions across "
-            "200 seeds, so it is effectively leave-one-report-out and cannot be averaged over "
-            "splitter seeds. Grouped accuracy slightly exceeds plain stratified accuracy "
-            "because within-report neighbours are parametric-sweep siblings that straddle the "
-            "extinction boundary: the nearest same-report neighbour agrees in label 55% of the "
-            "time versus 62% for the nearest cross-report neighbour, so same-report training "
-            "rows actively mislead. Most of the remaining gap is single-seed noise."
+            f"There are {report_groups.nunique()} report groups with row counts "
+            f"{report_groups.value_counts().sort_values(ascending=False).tolist()}; "
+            "pooled metrics are row-weighted and dominated by the largest report. "
+            "Only two marginal_spread records exist, so class-specific performance for "
+            "that label is not statistically reliable. Treat scores as exploratory, not "
+            "as evidence for operational or safety use."
         ),
         "optimistic_cv_accuracy": gb_plain["accuracy"],
         "majority_baseline_accuracy": majority_acc,
@@ -328,6 +322,7 @@ def train_and_evaluate_all() -> None:
         "per_class_recall": gb_report["per_class_recall"],
         "trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "dataset_sha256": dataset_sha256,
+        "model_sha256": model_sha256,
         "training_range": training_range,
         "loro": results.get("loro"),
     }
@@ -370,12 +365,12 @@ Four model families were trained and evaluated on the verified NASA microgravity
 (`cache/experiments.parquet`, N={meta['n_train']}).
 
 The headline model is a **Gradient Boosting Classifier** evaluated using report-grouped
-`StratifiedGroupKFold` cross-validation. Rows from a held-out report do not occur in its
+`LeaveOneGroupOut` cross-validation. Rows from a held-out report do not occur in its
 training fold. This split has few unevenly sized groups, so scores are uncertain and must
 be interpreted with the baseline and per-class metrics.
 
 ### Grouped Performance and Baselines
-| Model Family | Report-Grouped Accuracy | Balanced Accuracy | Macro F1 | Plain Stratified Accuracy |
+| Model Family | Report-Grouped Accuracy | Balanced Accuracy | Macro F1 | Plain Stratified Accuracy ({results['plain_cv_scheme']}) |
 |---|---|---|---|---|
 | **Naive Majority Baseline** | {models['majority_baseline']['report_grouped_cv']['accuracy']:.4f} | {models['majority_baseline']['report_grouped_cv']['balanced_accuracy']:.4f} | {models['majority_baseline']['report_grouped_cv']['macro_f1']:.4f} | {models['majority_baseline']['plain_cv']['accuracy']:.4f} |
 | **Logistic Regression** | {models['logistic_regression']['report_grouped_cv']['accuracy']:.4f} | {models['logistic_regression']['report_grouped_cv']['balanced_accuracy']:.4f} | {models['logistic_regression']['report_grouped_cv']['macro_f1']:.4f} | {models['logistic_regression']['plain_cv']['accuracy']:.4f} |
@@ -418,6 +413,7 @@ def generate_model_card(meta: dict[str, Any]) -> None:
 - **Model Type:** Scikit-Learn `GradientBoostingClassifier` with `StandardScaler` and `OneHotEncoder`
 - **Trained Date:** {meta['trained_at']}
 - **Dataset SHA-256:** `{meta['dataset_sha256']}`
+- **Model Artifact SHA-256:** `{meta['model_sha256']}`
 - **Training Samples (N):** {meta['n_train']}
 - **Input Features (4):** `oxygen_pct`, `pressure_kpa`, `flow_cm_s`, `material`
 - **Target Classes (3):** `no_spread`, `marginal_spread`, `spread`
