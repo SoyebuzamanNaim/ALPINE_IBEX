@@ -51,3 +51,20 @@ def test_provenance_api():
     assert len(data["records"]) <= 10
     for rec in data["records"]:
         assert rec["material"] == "PMMA"
+
+
+def test_provenance_keeps_canonical_source_location_and_never_invents_conditions(tmp_path):
+    import pandas as pd
+
+    path = tmp_path / "observations.parquet"
+    pd.DataFrame([{"experiment_id": "TEST", "material": "Nomex", "oxygen_pct": 18.0,
+                   "report_id": "123", "source_page": 9, "source_table": "Table 2",
+                   "outcome": "no_spread", "sample_thickness_mm": None}]).to_parquet(path)
+    service = ProvenanceService(data_path=path, corpus_dir=tmp_path / "missing")
+    record = service.get_provenance("TEST")
+    assert record["source_page"] == 9
+    assert record["source_table"] == "Table 2"
+    assert record["sample_thickness_mm"] is None
+    assert "flow_cm_s" not in record
+    assert record["document_type"] is None
+    assert service.get_provenance("NONEXISTENT") is None

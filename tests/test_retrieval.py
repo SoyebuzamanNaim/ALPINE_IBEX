@@ -26,6 +26,28 @@ def test_nearest_retrieval_sorting():
     assert distances == sorted(distances), "Results must be strictly sorted by ascending distance"
 
 
+def test_similarity_ranking_exposes_score_context_and_limits():
+    import math
+
+    retriever = NearestExperimentRetriever()
+    results = retriever.find_nearest(21.0, 101.3, 5.0, "Nomex", k=len(retriever.df))
+    assert any(r["similarity_ranking"]["material_penalty"] == 10.0 for r in results)
+    for record in results:
+        ranking = record["similarity_ranking"]
+        expected = math.sqrt(sum(d ** 2 for d in ranking["normalized_differences"].values()))
+        assert ranking["numeric_distance"] == pytest.approx(expected)
+        assert record["distance"] == pytest.approx(expected + ranking["material_penalty"], abs=0.00005)
+        row = retriever.df[retriever.df.experiment_id == record["experiment_id"]].iloc[0]
+        assert record["sample_geometry"] == row.sample_geometry
+        assert record["flow_direction"] == (row.flow_direction if isinstance(row.flow_direction, str) else None)
+        assert record["ignition_history"] is None
+        summary = record["interpretation"]
+        assert summary["method"] == "deterministic_record_template"
+        assert "unspecified" in " ".join(summary["conditions_differ"])
+        assert "not scientific reliability" in summary["cannot_conclude"]
+        assert str(row.outcome) in summary["observed"]
+
+
 def test_corpus_search_bm25():
     searcher = ReportCorpusSearcher()
     res = searcher.search("PMMA flame spread rods microgravity", top_k=3)
@@ -40,6 +62,23 @@ def test_passage_extraction():
     passage = searcher.extract_supporting_passage("20210011385", ["BASS", "oxygen", "flame"])
     assert len(passage) > 20
     assert "BASS" in passage or "O2" in passage or "oxygen" in passage.lower()
+
+
+def test_corpus_punctuation_and_decimal_passages(tmp_path):
+    import json
+
+    abstract = "PMMA measurements cover 13.6 to 22.2 percent oxygen. Geometry was recorded separately."
+    for report_id, title, text in (
+        ("1", "PMMA measurements", abstract),
+        ("2", "Cotton observations", "A separate cotton experiment was recorded."),
+        ("3", "Cellulose observations", "A separate cellulose experiment was recorded."),
+    ):
+        (tmp_path / f"{report_id}.json").write_text(json.dumps({
+            "report_id": report_id, "title": title, "abstract": text, "keywords": [],
+        }))
+    searcher = ReportCorpusSearcher(tmp_path)
+    assert searcher.search("PMMA,")[0]["report_id"] == "1"
+    assert searcher.extract_supporting_passage("1", ["PMMA"]) == abstract.split(". Geometry")[0] + "."
 
 
 def test_evidence_engine_bundle():

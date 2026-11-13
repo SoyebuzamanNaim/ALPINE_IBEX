@@ -4,6 +4,7 @@
   },
   "private": true,
   "scripts": {
-    "test:frontend": "node tests/frontend.playwright.cjs"
+    "test:frontend": "node tests/frontend.playwright.cjs",
+    "test:demo": "node scripts/check_demo.cjs"
   }
 }

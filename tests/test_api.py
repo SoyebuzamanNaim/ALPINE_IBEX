@@ -21,6 +21,36 @@ def test_get_health(client):
     assert "PMMA" in data["allowed_materials"]
 
 
+def test_evidence_and_report_search_work_without_the_optional_model(client, monkeypatch):
+    monkeypatch.setattr("src.api.main.orchestrator", None)
+    response = client.post("/evidence", json={"oxygen_pct": 19, "pressure_kpa": 101.3, "flow_cm_s": 5, "material": "PMMA"})
+    assert response.status_code == 200
+    result = response.json()
+    assert result["prediction"] is None
+    assert result["selected_result"]["observed"]
+    assert len(result["dataset_sha256"]) == 64
+    assert len(result["nearest_experiments"]) == 3
+    assert client.get("/health").json()["evidence_ready"] is True
+    assert client.post("/predict", json=result["scenario"]).status_code == 503
+    reports = client.get("/reports/search?query=PMMA%20extinction").json()
+    assert reports["reports"]
+    assert "not scientific reliability" in reports["ranking"]
+
+
+@pytest.mark.parametrize("field", ["oxygen_pct", "pressure_kpa", "flow_cm_s"])
+def test_numeric_conditions_reject_booleans(client, field):
+    payload = {"oxygen_pct": 19, "pressure_kpa": 101.3, "flow_cm_s": 5, "material": "PMMA", field: True}
+    assert client.post("/predict", json=payload).status_code == 422
+    assert client.post("/evidence", json=payload).status_code == 422
+
+
+def test_unsupported_context_is_not_silently_ignored(client):
+    payload = {"oxygen_pct": 19, "pressure_kpa": 101.3, "flow_cm_s": 5, "material": "PMMA", "sample_geometry": "rod"}
+    assert client.post("/evidence", json=payload).status_code == 422
+    assert client.post("/predict", json=payload).status_code == 422
+    assert client.get("/sources/fabricated-20210011385-suffix").status_code == 404
+
+
 def test_api_rejects_oversized_bodies_and_long_free_text(client):
     oversized = b'{"query":"' + (b"x" * 66_000) + b'"}'
     too_large = client.post("/scenario/parse", content=oversized, headers={"content-type": "application/json"})

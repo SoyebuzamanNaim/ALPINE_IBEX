@@ -10,12 +10,16 @@ published PMMA boundary is a cited NASA fit, not the trained classifier.
 
 ### GitHub Pages
 The repository workflow `.github/workflows/deploy-pages.yml` packages the root
-redirect, `project-page/`, and `app/` together. Use that workflow for the
-published site.
+redirect, `project-page/`, and `app/` together. It requires a deployed public HTTPS
+FastAPI URL in the repository variable `FLARE_API_BASE`, and verifies the evidence
+workflow in a fresh browser before and after publication. See the
+[deployment and recording guide](../docs/DEPLOYMENT.md).
 
-### Other static hosts
-Publish the same three paths together at the site root. Deploying only
-`project-page/` breaks its `../app/` tool link.
+### Other hosts
+Publish the same three paths together at the site root. Set the API URL in
+`app/config.js`, or serve the whole repository through FastAPI on one origin.
+Deploying only `project-page/` breaks its `../app/` tool link. A static page alone
+cannot demonstrate live retrieval, coverage or citation inspection.
 
 ## Files
 
@@ -26,8 +30,8 @@ Publish the same three paths together at the site root. Deploying only
 
 ## Important
 
-The local backend serves guarded linear-SVM research estimates. Its 84.0% grouped
-selection score exceeds the 81.5% majority baseline, but is not independent
-validation; the full search procedure's nested accuracy is 25.5%. Static hosting
-provides the separately scoped published PMMA reference unless connected to a
-running API. No operational safety or independent predictive improvement is established.
+The evidence workflow is the pitch: similarity ranking, explicit condition differences,
+original citations, dataset coverage and team proposals. Summaries use deterministic
+templates. The optional model has no independent validation; its evaluation and limitations
+are in the [model card](../docs/MODEL_CARDS.md). The published PMMA reference has its own
+restricted scope. Neither provides operational safety clearance.

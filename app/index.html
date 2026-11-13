@@ -3,31 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FLARE-X | NASA Microgravity Combustion Flammability Platform</title>
+  <title>FLARE-X | Microgravity Combustion Evidence Explorer</title>
   <meta name="description" content="Research explorer for 200 curated NASA microgravity observations. Exploratory research estimates with source citations and explicit validation limits.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="index.css">
 </head>
 <body class="flarex-theme">
+  <a class="skip-link" href="#main-container">Skip to the evidence workspace</a>
 
   <!-- ============================================================================== -->
   <!-- DOCKED PRIMARY FLIGHT OPERATIONS HEADER                                        -->
   <!-- ============================================================================== -->
   <header class="flight-ops-header" id="flight-ops-header">
     <div class="header-left-cluster">
-      <div class="nasa-insignia" aria-label="NASA GRC PSI Emblem">
-        <span class="nasa-wordmark">NASA</span>
-        <span class="nasa-branch">GRC / PSI</span>
+      <div class="nasa-insignia" aria-label="FLARE-X independent research prototype">
+        <span class="nasa-wordmark">FX</span>
+        <span class="nasa-branch">Evidence atlas</span>
       </div>
       <div class="header-separator"></div>
       <div class="platform-identity">
         <div class="platform-title-row">
           <h1 class="platform-code">FLARE-X</h1>
-          <span class="version-tag">CIR-FS v2.4</span>
+          <span class="version-tag">Research prototype</span>
         </div>
-        <span class="platform-desc">Microgravity Solid Fuel Combustion Flammability Platform</span>
+        <span class="platform-desc">Independent research using NASA open data</span>
       </div>
     </div>
 
@@ -38,10 +39,10 @@
       </a>
       <div class="ops-tablist" role="tablist" aria-label="Workstation views">
       <button class="ops-nav-btn active" id="tab-lab-btn" role="tab" aria-selected="true" aria-controls="view-scenario-lab">
-        <span class="nav-key">[1]</span> Flammability Deck
+        <span class="nav-key">[1]</span> Evidence desk
       </button>
       <button class="ops-nav-btn" id="tab-conflict-btn" role="tab" aria-selected="false" aria-controls="view-conflict-explorer">
-        <span class="nav-key">[2]</span> Conflict Explorer
+        <span class="nav-key">[2]</span> Compare studies
       </button>
       <button class="ops-nav-btn" id="tab-coverage-btn" role="tab" aria-selected="false" aria-controls="view-coverage-map">
         <span class="nav-key">[3]</span> Coverage Map
@@ -62,7 +63,7 @@
     <div class="telemetry-heartbeat-cell">
       <span class="heartbeat-pulse status-withheld" id="status-dot"></span>
       <div class="heartbeat-meta">
-        <span class="telemetry-label">MODEL STATUS</span>
+        <span class="telemetry-label">Model status</span>
         <span class="telemetry-sub" id="status-text" role="status" aria-live="polite">Checking backend and research model…</span>
       </div>
     </div>
@@ -71,33 +72,16 @@
   <!-- ============================================================================== -->
   <!-- REAL-TIME CAMPAIGN TELEMETRY RIBBON                                            -->
   <!-- ============================================================================== -->
-  <div class="campaign-telemetry-ribbon" id="campaign-telemetry-ribbon" role="region" aria-label="System Flight Telemetry">
-    <div class="ribbon-metric">
-      <span class="metric-dim">CAMPAIGNS:</span>
-      <span class="metric-val">BASS · BASS-II · Saffire · Exploration Atmospheres · GRC drop tower</span>
-    </div>
-    <div class="ribbon-metric">
-      <span class="metric-dim">FACILITY:</span>
-      <span class="metric-val">ISS Combustion Integrated Rack (CIR) / MSG</span>
-    </div>
-    <div class="ribbon-metric">
-      <span class="metric-dim">ACTIVE FUEL:</span>
-      <span class="metric-val highlight" id="ribbon-active-fuel">PMMA (Poly(methyl methacrylate))</span>
-    </div>
-    <div class="ribbon-metric">
-      <span class="metric-dim">RECORDED DATASET SHA-256:</span>
-      <span class="metric-val mono-tag" id="dataset-sha">Connect backend</span>
-    </div>
-    <div class="ribbon-metric ribbon-metric-right">
-      <span class="metric-dim">MODEL GATE:</span>
-      <span class="metric-status-withheld" id="model-gate-text">CHECKING MODEL</span>
-    </div>
+  <div class="campaign-telemetry-ribbon" id="campaign-telemetry-ribbon">
+    <div class="ribbon-metric"><span class="metric-dim">Scenario material:</span><span class="metric-val" id="ribbon-active-fuel">PMMA</span></div>
+    <div class="ribbon-metric"><span class="metric-dim">Dataset:</span><span class="metric-val mono-tag" id="dataset-sha">Connect backend</span></div>
+    <div class="ribbon-metric ribbon-metric-right"><span class="metric-dim">Research model:</span><span class="metric-status-withheld" id="model-gate-text">Checking model</span></div>
   </div>
 
   <!-- ============================================================================== -->
   <!-- MAIN MULTI-PANE ENGINEERING WORKBENCH                                          -->
   <!-- ============================================================================== -->
-  <main class="workbench-viewport" id="main-container">
+  <main class="workbench-viewport" id="main-container" tabindex="-1">
 
     <!-- ========================================================================== -->
     <!-- VIEW 1: FLAMMABILITY DECK (INTERACTIVE WORKSPACE)                          -->
@@ -110,20 +94,20 @@
         <!-- ---------------------------------------------------------------------- -->
         <aside class="deck-pane avionics-pane" id="control-panel">
           <div class="pane-header-strip">
-            <span class="pane-title">ENVIRONMENTAL INSTRUMENTATION</span>
-            <span class="pane-sub-badge">TELEMETRY IN</span>
+            <span class="pane-title">Scenario conditions</span>
+            <span class="pane-sub-badge">Inputs</span>
           </div>
 
           <!-- Quick Scenario Presets -->
           <div class="instrument-module">
-            <span class="module-title">Operational Flight Presets</span>
+            <span class="module-title">Example research scenarios</span>
             <div class="preset-matrix">
               <button type="button" class="btn-flight-preset active-preset" id="preset-iss-standard" title="Nominal ISS Cabin Atmosphere">
                 <span class="preset-name">ISS Baseline</span>
                 <span class="preset-vals">21.0% O₂ · 101.3 kPa · 5 cm/s</span>
               </button>
-              <button type="button" class="btn-flight-preset" id="preset-exploration" title="Exploration Atmosphere (Gateway / Lunar Lander)">
-                <span class="preset-name">Exploration Cabin</span>
+              <button type="button" class="btn-flight-preset" id="preset-exploration" title="Illustrative research scenario; not a spacecraft atmosphere specification">
+                <span class="preset-name">Exploration example</span>
                 <span class="preset-vals">34.0% O₂ · 56.5 kPa · 10 cm/s</span>
               </button>
               <button type="button" class="btn-flight-preset" id="preset-near-extinction" title="Lower-oxygen example conditions">
@@ -236,18 +220,38 @@
         <!-- ---------------------------------------------------------------------- -->
         <!-- PANE B: 2D FLAMMABILITY PHASE SPACE & PREDICTION HUD (CENTER)          -->
         <!-- ---------------------------------------------------------------------- -->
-        <main class="deck-pane center-phase-pane">
+        <div class="deck-pane center-phase-pane">
+          <section class="evidence-overview" aria-labelledby="evidence-heading">
+            <h2 id="evidence-heading">What did NASA record?</h2>
+            <p><a href="#control-panel">Change the scenario conditions</a></p>
+            <p id="evidence-overview-status" role="status" aria-live="polite">Looking up indexed observations for these conditions…</p>
+            <div id="evidence-overview-body"></div>
+            <button type="button" id="download-evidence" disabled>Download this evidence</button>
+          </section>
+          <section class="report-search-panel" aria-labelledby="report-search-heading">
+            <h2 id="report-search-heading">Find a report</h2>
+            <form id="report-search-form" class="report-search-form">
+              <label class="sr-only" for="report-search-input">Search indexed report titles and abstracts</label>
+              <input type="search" id="report-search-input" maxlength="500" placeholder="Try extinction, PMMA or exploration atmospheres" required>
+              <button type="submit">Search reports</button>
+            </form>
+            <p id="report-search-status" role="status" aria-live="polite">Search uses indexed titles, abstracts and keywords. Relevance is not scientific reliability.</p>
+            <div id="report-search-results"></div>
+          </section>
+          <details id="research-model-panel" class="research-model-panel">
+            <summary>Explore the optional research model</summary>
+            <p class="module-explainer">Estimates are exploratory and have no independent validation. The evidence above remains available when the model cannot run.</p>
 
           <!-- Out-of-Envelope Safety Refusal Alert Banner -->
           <div class="flight-safety-alert hidden" id="envelope-alert-banner" data-kind="validation" role="alert">
             <div class="alert-hazard-stripes"></div>
             <div class="alert-content-body">
               <div class="alert-headline-row">
-                <span class="alert-symbol">⛔</span>
-                <strong class="alert-title" id="alert-title">MODEL INFERENCE WITHHELD</strong>
+                <span class="alert-symbol"></span>
+                <strong class="alert-title" id="alert-title">Model inference withheld</strong>
               </div>
               <p class="alert-text" id="alert-message">
-                The current classifier has not exceeded the majority baseline under grouped validation. No model prediction is available.
+                Connect the backend to inspect source observations and the current model status.
               </p>
             </div>
           </div>
@@ -259,34 +263,30 @@
                 <div class="scientific-state-tier" id="scientific-state-tier">
                   <span class="state-tier-pill tier-abstention" id="state-tier-pill">
                     <span class="tier-dot">●</span>
-                    <span class="tier-label" id="state-tier-label">MODEL INFERENCE WITHHELD</span>
+                    <span class="tier-label" id="state-tier-label">Model inference withheld</span>
                   </span>
-                  <span class="tier-explainer" id="state-tier-explainer">Grouped validation has not met the majority baseline</span>
+                  <span class="tier-explainer" id="state-tier-explainer">Connect the backend to inspect the current model status</span>
                 </div>
-                <span class="hud-category-label">CLASSIFIED FLAMMABILITY REGIME</span>
+                <span class="hud-category-label">Classified flammability regime</span>
                 <div class="regime-indicator-wrap">
-                  <div class="regime-status-badge regime-refusal" id="regime-badge">MODEL INFERENCE WITHHELD</div>
-                  <span class="confidence-tag" id="confidence-pill">NO PROBABILITY AVAILABLE</span>
+                  <div class="regime-status-badge regime-refusal" id="regime-badge">Model inference withheld</div>
+                  <span class="confidence-tag" id="confidence-pill">No probability available</span>
                 </div>
               </div>
 
               <!-- Model Provenance Telemetry Group -->
               <div class="model-telemetry-cluster" id="model-provenance-chip">
                 <div class="telemetry-cell">
-                  <span class="cell-label">ALGORITHM</span>
+                  <span class="cell-label">Algorithm</span>
                   <span class="cell-value" id="chip-model-type">Connect backend</span>
                 </div>
                 <div class="telemetry-cell">
-                  <span class="cell-label">DATASET CORPUS</span>
+                  <span class="cell-label">Dataset corpus</span>
                   <span class="cell-value" id="chip-n-train">—</span>
                 </div>
                 <div class="telemetry-cell">
-                  <span class="cell-label">EXPLORATORY GROUPED SCORE</span>
-                  <span class="cell-value" id="chip-cv-acc">—</span>
-                </div>
-                <div class="telemetry-cell">
-                  <span class="cell-label">MAJORITY BASELINE</span>
-                  <span class="cell-value" id="chip-base-acc">—</span>
+                  <span class="cell-label">Validation</span>
+                  <span class="cell-value">No independent validation</span>
                 </div>
               </div>
             </div>
@@ -308,7 +308,7 @@
             <!-- Flight Safety Directive -->
             <div class="flight-safety-directive" id="operator-safety-briefing">
               <div class="directive-lead">
-                <span class="directive-marker">FLIGHT RULE ADVISORY</span>
+                <span class="directive-marker">Research interpretation</span>
               </div>
               <p class="directive-body" id="operator-briefing-text">
                 Choose conditions to inspect research estimates and cited observations. An estimate cannot support an operational safety conclusion.
@@ -353,17 +353,18 @@
                 <strong class="phys-val" id="telemetry-peclet">Illustrative scaling only</strong>
               </div>
               <div class="phys-col">
-                <span class="phys-label">GENERAL QUENCHING MARGIN</span>
+                <span class="phys-label">General quenching margin</span>
                 <strong class="phys-val" id="telemetry-margin">Not established</strong>
               </div>
               <div class="phys-col">
-                <span class="phys-label">BUOYANCY SUPPRESSION</span>
+                <span class="phys-label">Buoyancy suppression</span>
                 <strong class="phys-val">10⁻⁶ g (Microgravity)</strong>
               </div>
             </div>
           </div>
 
-        </main>
+          </details>
+        </div>
 
         <!-- ---------------------------------------------------------------------- -->
         <!-- PANE C: EMPIRICAL GROUND TRUTH & PHYSICAL REASONING (RIGHT)            -->
@@ -373,11 +374,11 @@
           <!-- Reference Flight Experiments (Nearest NASA Records) -->
           <div class="evidence-module" id="nearest-experiments-card">
             <div class="pane-header-strip">
-              <span class="pane-title">EMPIRICAL GROUND TRUTH (NASA NTRS)</span>
-              <span class="pane-sub-badge">NASA OBSERVATIONS</span>
+              <span class="pane-title">Similarity ranking · NASA records</span>
+              <span class="pane-sub-badge">NASA observations</span>
             </div>
             <p class="module-explainer">
-              Nearest empirical observations in normalized feature space:
+              Ranked by oxygen, pressure and airflow proximity with a material penalty. Lower distance does not mean greater scientific reliability. Geometry, flow direction and ignition history are not ranked. Record summaries use deterministic templates.
             </p>
             <div class="nearest-flight-list" id="nearest-cards-list">
               <!-- Dynamically populated -->
@@ -387,8 +388,8 @@
           <!-- Bounded Combustion Physics Reasoning -->
           <div class="evidence-module" id="explanation-card">
             <div class="pane-header-strip">
-              <span class="pane-title">GOVERNING COMBUSTION MECHANISM</span>
-              <span class="pane-sub-badge">PHYSICS BASIS</span>
+              <span class="pane-title">Result explanation</span>
+              <span class="pane-sub-badge">Template summary</span>
             </div>
             <div class="explanation-viewport">
               <p class="physics-text" id="explanation-text-display">
@@ -397,7 +398,7 @@
             </div>
             <div class="audit-verification-footer">
               <span class="audit-pass-icon">•</span>
-              <span class="audit-pass-text" id="integrity-text">Exploratory research estimates with source citations and explicit validation limits. Inspect original source records for evidence.</span>
+              <span class="audit-pass-text" id="integrity-text">Deterministic templates summarize recorded evidence and model estimates. Number and citation checks do not verify scientific interpretation. Inspect the original sources.</span>
             </div>
           </div>
 
@@ -420,7 +421,7 @@
             <a id="sweep-source-link" href="https://ntrs.nasa.gov/citations/20210011385" target="_blank" rel="noopener noreferrer" class="citation-ntrs-link">NASA BASS-II summary report, Eq (6.1) ↗</a>
           </div>
           <div class="safety-margin-metric-box" id="safety-margin-display">
-            <span class="margin-caption" id="sweep-metric-label">INITIAL O₂ OFFSET · NOT A SAFETY MARGIN</span>
+            <span class="margin-caption" id="sweep-metric-label">Initial O₂ offset · not a safety margin</span>
             <strong class="margin-figure" id="safety-margin-val">N/A</strong>
             <span class="margin-pill" id="safety-margin-status">Loading sweep…</span>
           </div>
@@ -446,6 +447,15 @@
         </div>
 
         <!-- Oxygen sweep chart -->
+        <p id="sweep-sampling-note" class="sweep-sampling-note" role="status">Loading sweep samples…</p>
+        <div id="sweep-model-key" hidden>
+          <div class="phase-legend sweep-model-legend" aria-label="Model probability legend">
+            <span><span class="sweep-series series-spread"></span>Spread</span>
+            <span><span class="sweep-series series-marginal"></span>Marginal spread</span>
+            <span><span class="sweep-series series-no-spread"></span>No spread</span>
+          </div>
+          <p id="sweep-point-details" class="sweep-sampling-note" aria-live="polite"></p>
+        </div>
         <p class="sweep-scroll-hint">Swipe across the plot to inspect the full oxygen range.</p>
         <div class="sweep-canvas-card">
           <canvas id="sweep-chart-canvas" width="1120" height="280" aria-label="NASA PMMA extinction fit with contextual initial oxygen readings from concurrent-flow tests"></canvas>
@@ -549,22 +559,22 @@
 
             <div class="kpi-quad-grid">
               <div class="kpi-cell">
-                <span class="kpi-cell-label">EXPLORATORY SELECTION SCORE</span>
+                <span class="kpi-cell-label">Exploratory selection score</span>
                 <strong class="kpi-cell-number" id="model-kpi-accuracy">—</strong>
                 <span class="kpi-cell-detail">Leave one NASA report out (report_id)</span>
               </div>
               <div class="kpi-cell">
-                <span class="kpi-cell-label">MAJORITY-CLASS BASELINE</span>
+                <span class="kpi-cell-label">Majority-class baseline</span>
                 <strong class="kpi-cell-number" id="model-kpi-baseline">—</strong>
                 <span class="kpi-cell-detail" id="model-kpi-comparison">Connect backend for current evaluation</span>
               </div>
               <div class="kpi-cell">
-                <span class="kpi-cell-label">BALANCED ACCURACY</span>
+                <span class="kpi-cell-label">Balanced accuracy</span>
                 <strong class="kpi-cell-number" id="model-kpi-balanced">—</strong>
                 <span class="kpi-cell-detail">Class-balanced macro recall</span>
               </div>
               <div class="kpi-cell">
-                <span class="kpi-cell-label">CURATED OBSERVATIONS</span>
+                <span class="kpi-cell-label">Curated observations</span>
                 <strong class="kpi-cell-number" id="model-kpi-samples">—</strong>
                 <span class="kpi-cell-detail">Spaceflight and drop-tower observations</span>
               </div>
@@ -623,10 +633,10 @@
       <div class="panel-inner-container">
         <div class="panel-header-block">
           <div class="header-tag-row">
-            <span class="hero-tag">FLARE-X EVIDENCE ATLAS</span>
-            <span class="hero-tag tag-accent">CROSS-STUDY COMPARABILITY ENGINE</span>
+            <span class="hero-tag">FLARE-X evidence atlas</span>
+            <span class="hero-tag tag-accent">Cross-study comparability engine</span>
           </div>
-          <h2 class="view-heading">Scientific Evidence Conflict Explorer</h2>
+          <h2 class="view-heading">Compare recorded test conditions</h2>
           <p class="view-description">
             NASA microgravity combustion experiments investigate fire physics across vastly different scales, durations, and aerodynamic regimes. 
             This engine evaluates whether two disparate investigations can meaningfully be compared, reconciling apparent contradictions through non-dimensional scaling and physical mechanics.
@@ -647,7 +657,7 @@
           </div>
 
           <div class="custom-study-row">
-            <span class="custom-label">OR COMPARE CUSTOM STUDIES:</span>
+            <span class="custom-label">Or compare custom studies:</span>
             <div class="study-picker-duo">
               <div class="picker-half">
                 <label for="select-study-a" class="sub-label">Investigation A:</label>
@@ -669,22 +679,22 @@
           <!-- Top Verdict & Comparability Gauge Card -->
           <div class="comparability-verdict-card">
             <div class="gauge-col">
-              <span class="gauge-label">COMPARABILITY SCORE</span>
-              <p class="module-explainer">Heuristic profile comparison, not a measured probability.</p>
+              <span class="gauge-label">Matching recorded dimensions</span>
+              <p class="module-explainer">Recorded conditions only; missing context stays unknown.</p>
               <div class="score-circle-wrap">
-                <div class="score-number" id="conflict-score-val">0.45</div>
-                <div class="score-max">/ 1.00</div>
+                <div class="score-number" id="conflict-score-val">—</div>
+                <div class="score-max">No scientific reliability score</div>
               </div>
             </div>
             <div class="verdict-col">
               <div class="verdict-badge-wrap">
-                <span class="verdict-badge" id="conflict-verdict-badge">COMPLEMENTARY DIFFERENT REGIMES</span>
+                <span class="verdict-badge" id="conflict-verdict-badge">Complementary different regimes</span>
               </div>
               <p class="verdict-summary-text" id="conflict-verdict-summary">
                 Studies investigate distinct but complementary regimes of spacecraft fire safety. Scale and flow direction differences prevent direct numerical pooling, but comparing them provides vital bounding envelope insights.
               </p>
               <div class="cautionary-strip" id="conflict-caution-box">
-                <span class="caution-icon">⚠️</span>
+                <span class="caution-icon"></span>
                 <span class="caution-text" id="conflict-caution-text">Do NOT aggregate numerical measurements directly into an unstratified regression model.</span>
               </div>
             </div>
@@ -700,8 +710,8 @@
                     <th>Physical Dimension</th>
                     <th id="dim-th-study-a">Study A</th>
                     <th id="dim-th-study-b">Study B</th>
-                    <th>Comparability Status</th>
-                    <th>Physical Mechanism &amp; Discrepancy Driver</th>
+                    <th>Recorded agreement</th>
+                    <th>Interpretation limit</th>
                   </tr>
                 </thead>
                 <tbody id="conflict-dimensions-tbody">
@@ -714,26 +724,26 @@
           <!-- Deep Physical Reconciliation Narrative -->
           <div class="reconciliation-card">
             <div class="reconciliation-header">
-              <span class="reconcile-symbol">🔬</span>
+              <span class="reconcile-symbol"></span>
               <h3 class="card-inner-title">Scientific interpretation</h3>
             </div>
             <p class="reconciliation-body-text" id="conflict-reconciliation-text">
-              Loading authoritative NASA combustion physics reconciliation...
+              Loading recorded-condition comparison…
             </p>
           </div>
 
           <!-- Cited NASA Documentation Cards -->
           <div class="citations-split-deck">
             <div class="study-citation-card" id="citation-card-a">
-              <span class="card-tag">STUDY A CITATION</span>
-              <h4 class="citation-title" id="cite-title-a">BASS-II (NASA/TM-20210011385)</h4>
+              <span class="card-tag">Study a citation</span>
+              <h4 class="citation-title" id="cite-title-a">Bass-ii (NASA/tm-20210011385)</h4>
               <p class="citation-meta" id="cite-meta-a">NASA NTRS 20210011385 · Subrata Bhattacharjee et al.</p>
               <a href="https://ntrs.nasa.gov/citations/20210011385" target="_blank" rel="noopener noreferrer" class="btn-ntrs-external" id="cite-link-a">
                 Open Official NASA NTRS Report ↗
               </a>
             </div>
             <div class="study-citation-card" id="citation-card-b">
-              <span class="card-tag">STUDY B CITATION</span>
+              <span class="card-tag">Study b citation</span>
               <h4 class="citation-title" id="cite-title-b">Saffire-I / Saffire-II (NASA/TM-20170000230)</h4>
               <p class="citation-meta" id="cite-meta-b">NASA NTRS 20170000230 · Gary A. Ruff, David L. Urban</p>
               <a href="https://ntrs.nasa.gov/citations/20170000230" target="_blank" rel="noopener noreferrer" class="btn-ntrs-external" id="cite-link-b">
@@ -753,13 +763,13 @@
       <div class="panel-inner-container">
         <div class="panel-header-block">
           <div class="header-tag-row">
-            <span class="hero-tag">FLARE-X EVIDENCE ATLAS</span>
-            <span class="hero-tag tag-accent">LITERATURE COVERAGE DENSITY</span>
+            <span class="hero-tag">FLARE-X evidence atlas</span>
+            <span class="hero-tag tag-accent">Indexed dataset coverage</span>
           </div>
-          <h2 class="view-heading">NASA Research Coverage Map &amp; Empirical White Spaces</h2>
+          <h2 class="view-heading">FLARE-X Dataset Coverage &amp; Team Proposals</h2>
           <p class="view-description">
-            Exposes the multi-dimensional density of the curated NASA microgravity combustion observations.
-            Highlighting empirical white spaces reveals where the curated research has observations and where no matching experiments are recorded.
+            Shows the multi-dimensional density of the curated NASA microgravity combustion observations.
+            Counts show where the current FLARE-X dataset has matching observations. They do not describe the completeness of the wider literature.
           </p>
         </div>
 
@@ -769,19 +779,19 @@
         <div class="coverage-kpi-bar">
           <div class="cov-kpi-tile">
             <span class="kpi-num" id="cov-total-runs">—</span>
-            <span class="kpi-lbl">CURATED OBSERVATIONS</span>
+            <span class="kpi-lbl">Curated observations</span>
           </div>
           <div class="cov-kpi-tile">
             <span class="kpi-num" id="cov-materials-count">—</span>
-            <span class="kpi-lbl">MATERIALS TESTED</span>
+            <span class="kpi-lbl">Materials tested</span>
           </div>
           <div class="cov-kpi-tile">
             <span class="kpi-num" id="cov-completeness-pct">—</span>
-            <span class="kpi-lbl">GRID SPACE COMPLETENESS</span>
+            <span class="kpi-lbl">Occupied oxygen–flow bins</span>
           </div>
           <div class="cov-kpi-tile">
             <span class="kpi-num" id="cov-gaps-count">—</span>
-            <span class="kpi-lbl">UNTESTED KNOWLEDGE VOIDS</span>
+            <span class="kpi-lbl">Bins with no indexed data</span>
           </div>
         </div>
 
@@ -793,7 +803,7 @@
               <span class="legend-unit"><span class="cell-swatch swatch-high"></span> High Density (&ge;10 tests)</span>
               <span class="legend-unit"><span class="cell-swatch swatch-mod"></span> Moderate (3-9 tests)</span>
               <span class="legend-unit"><span class="cell-swatch swatch-sparse"></span> Sparse (1-2 tests)</span>
-              <span class="legend-unit"><span class="cell-swatch swatch-gap"></span> Untested Gap (0 tests)</span>
+              <span class="legend-unit"><span class="cell-swatch swatch-gap"></span> No indexed observations (0)</span>
             </div>
           </div>
 
@@ -802,17 +812,17 @@
           </div>
 
           <div class="heatmap-footnote">
-            <strong>SCIENTIFIC PRINCIPLE:</strong> Empty space on this map indicates no recorded observations in the curated NASA microgravity dataset; it does not establish a safe non-flammable condition.
+            <strong>Dataset scope:</strong> An empty bin means: No matching observations in the current FLARE-X dataset. Counts aggregate materials, pressures and geometries within oxygen–airflow bins; occupied bins do not establish coverage for a specific scenario. Empty bins establish neither a literature gap nor safety.
           </div>
         </div>
 
-        <!-- Empirical White Spaces (Critical NASA Safety Research Gaps) -->
+        <!-- Team proposals with computed indexed observation counts -->
         <div class="white-spaces-deck">
           <div class="ws-header-row">
-            <span class="ws-icon">🛰️</span>
+            <span class="ws-icon"></span>
             <div>
-              <h3 class="card-inner-title">Identified NASA Empirical White Spaces (Mission Knowledge Gaps)</h3>
-              <p class="section-sub">High-priority operational flight regimes lacking empirical microgravity combustion data.</p>
+              <h3 class="card-inner-title">Team-Proposed Experiments</h3>
+              <p class="section-sub">Team-selected study ideas with counts from the current FLARE-X dataset. These are not independently verified gaps in the wider literature.</p>
             </div>
           </div>
 
@@ -834,7 +844,7 @@
     <div class="modal-dialog-card">
       <div class="modal-header-strip">
         <div class="modal-tag-row">
-          <span class="modal-pill-tier" id="inspect-tier-pill">VERIFIED_FLIGHT_TABLE</span>
+          <span class="modal-pill-tier" id="inspect-tier-pill">Verified_flight_table</span>
           <span class="modal-pill-origin" id="inspect-origin-pill">direct_measurement</span>
         </div>
         <button type="button" class="btn-modal-close" id="btn-close-inspector" aria-label="Close Inspector">&times;</button>
@@ -889,23 +899,16 @@
   <!-- ============================================================================== -->
   <footer class="docked-status-strip">
     <div class="strip-item">
-      <span class="strip-label">NASA GRC FLIGHT CODE:</span>
+      <span class="strip-label">NASA source families:</span>
       <span class="strip-val">BASS · BASS-II · Saffire · drop tower</span>
     </div>
-    <div class="strip-item">
-      <span class="strip-label">NASA OBSERVATIONS:</span>
-      <span class="strip-val">See live experiment archive</span>
-    </div>
-    <div class="strip-item">
-      <span class="strip-label">CROSS-VALIDATION:</span>
-      <span class="strip-val">Grouped model validation reported above</span>
-    </div>
     <div class="strip-item strip-item-right">
-      <span class="strip-label">SAFETY CONTRACT:</span>
-      <span class="strip-val">Inference requires backend validation</span>
+      <span class="strip-label">Use:</span>
+      <span class="strip-val">Research interpretation; no safety clearance</span>
     </div>
   </footer>
 
+  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

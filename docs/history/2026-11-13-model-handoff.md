@@ -1,3 +1,5 @@
+> Historical snapshot from earlier on 2026-11-13. Model figures and runtime status below are not current. See the maintained model card, API contract and submission guide.
+
 # FLARE-X handoff for the next agent
 
 **Snapshot:** 2026-11-13, `/home/naiminator/Codebase/ALPINE_IBEX`, branch `master`.
@@ -17,7 +19,7 @@ app show predictions.
 
 ## Dataset and provenance
 
-- Canonical model input: [`cache/experiments.parquet`](cache/experiments.parquet),
+- Canonical model input: [`cache/experiments.parquet`](../../cache/experiments.parquet),
   200 source-verified microgravity rows: 158 BASS-II, 21 Saffire, 21 other NASA
   report rows. Outcomes: 163 `spread`, 35 `no_spread`, 2 `marginal_spread`.
   The rows come from seven NTRS report groups. The separate NASA 1-g tables and
@@ -28,16 +30,16 @@ app show predictions.
   (DOI `10.60555/4qc4-de67`) by `Test #`. Its 158 retained rows match the
   calibrated **initial** oxygen entries. Outcome labels come from the
   [BASS-II NTRS report](https://ntrs.nasa.gov/citations/20210011385) and the
-  [labeling protocol](docs/LABELING_PROTOCOL.md), not from a PSI outcome column.
+  [labeling protocol](../../docs/LABELING_PROTOCOL.md), not from a PSI outcome column.
   The PSI-26 BASS table records test identities but lacks outcome labels.
 - NASA PSI-98, PSI-99, and PSI-100 experimental CSVs were newly downloaded to
-  [`data/external/psi/`](data/external/psi/), recorded in
-  [`data/metadata/source_manifest.csv`](data/metadata/source_manifest.csv), and
+  [`data/external/psi/`](../../data/external/psi/), recorded in
+  [`data/metadata/source_manifest.csv`](../../data/metadata/source_manifest.csv), and
   byte-compared against NASA's live download endpoints on 2026-11-13. File names,
   DOIs, byte counts, SHA-256 hashes, URLs, and source discrepancies are in the
-  [PSI source README](data/external/psi/README.md). These tables verify existing
+  [PSI source README](../../data/external/psi/README.md). These tables verify existing
   Saffire records but add **no independent labeled experiments**.
-- In [`experiments_saffire_verified.csv`](data/processed/experiments_saffire_verified.csv),
+- In [`experiments_saffire_verified.csv`](../../data/processed/experiments_saffire_verified.csv),
   Saffire-II sample `SAF_II_8` now uses initial O2 **22.1%** (previously final
   22.0%) and `SAF_II_9` uses initial **22.0%** (previously final 21.9%). Both
   [PSI-99](https://psi.nasa.gov/physci/repo/data/investigations/PSI-99)
@@ -49,22 +51,22 @@ app show predictions.
   The curated rows retain NTRS values (approximately 22.1% and 25 cm/s);
   PSI-99 lists approximately 21.5% and 20 cm/s. Do not overwrite either value
   without a source reconciliation. PSI-98 and PSI-100 also have ambiguous
-  headers/units. See the [PSI source README](data/external/psi/README.md).
+  headers/units. See the [PSI source README](../../data/external/psi/README.md).
 - The user's broader NASA combustion, ISS, Apollo, Mir, and firefighter
   technology links are cited in
-  [`project-page/DATA_SOURCES.md`](project-page/DATA_SOURCES.md) as context.
+  [`project-page/DATA_SOURCES.md`](../../project-page/DATA_SOURCES.md) as context.
   They do not supply training labels or validate predictions. Row-level NASA
-  evidence is documented in [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md).
+  evidence is documented in [`docs/DATA_SOURCES.md`](../../docs/DATA_SOURCES.md).
 
 ## Model and application state
 
-The training entry point is [`src/compute/model.py`](src/compute/model.py).
+The training entry point is [`src/compute/model.py`](../../src/compute/model.py).
 It evaluates majority, logistic regression, random forest, and gradient boosting
 with `LeaveOneGroupOut(group=report_id)` as the headline split, a separate
 investigation holdout, and an explicitly optimistic 2-fold stratified split.
 There are seven uneven report groups with sizes 158, 13, 12, 7, 6, 3, and 1;
 the pooled score is dominated by BASS-II. Current report-held-out results from
-[`models/metrics.json`](models/metrics.json):
+[`models/metrics.json`](../../models/metrics.json):
 
 | Model | Accuracy | Balanced accuracy | Macro F1 |
 |---|---:|---:|---:|
@@ -90,14 +92,14 @@ At this snapshot, `GET /health` returns `degraded` and `model_ready: false`;
 `GET /model` reports the metrics; `POST /predict` for an otherwise eligible
 condition returns `model_unvalidated` with null prediction and probabilities.
 Other envelope, conflict, and sparse-evidence abstentions remain active.
-See [`src/api/main.py`](src/api/main.py),
-[`scripts/verify_artifacts.py`](scripts/verify_artifacts.py),
-[`docs/API_CONTRACT.md`](docs/API_CONTRACT.md), and the current
-[evaluation addendum](reports/REBUILT_MODEL_EVALUATION.md#addendum-11-saffire-psi-retrieval-source-correction-and-current-evaluation).
+See [`src/api/main.py`](../../src/api/main.py),
+[`scripts/verify_artifacts.py`](../../scripts/verify_artifacts.py),
+[`docs/API_CONTRACT.md`](../../docs/API_CONTRACT.md), and the current
+[evaluation addendum](../../reports/REBUILT_MODEL_EVALUATION.md#addendum-11-saffire-psi-retrieval-source-correction-and-current-evaluation).
 
 Exploratory threshold changes, class-weighted models, extra geometry/direction
 features, and a BASS-II-only test did not establish a safe or robust accuracy
-gain. The [evaluation report](reports/REBUILT_MODEL_EVALUATION.md) separates
+gain. The [evaluation report](../../reports/REBUILT_MODEL_EVALUATION.md) separates
 historical experiments from Addendum 11's current results. A published PMMA-rod
 boundary is a citable reference within its stated scope, not a validated
 classifier prediction.
@@ -134,7 +136,7 @@ git -c core.whitespace=cr-at-eol diff --check
 The ingestion command reads curated local source tables; it does not fetch
 missing NASA files. Training overwrites the saved model, metadata, metrics,
 baseline report, and model card. Use the repository's pinned `.venv` or install
-[`requirements.txt`](requirements.txt) before running tests. Local app launcher:
+[`requirements.txt`](../../requirements.txt) before running tests. Local app launcher:
 `./scripts/run_local.sh`.
 
 ## Next work
@@ -144,7 +146,7 @@ baseline report, and model card. Use the repository's pinned `.venv` or install
 2. Pursue **new, independently verifiable `no_spread` and marginal outcomes**,
    with exact test condition, initial oxygen, flow units, geometry, ignition
    history, and NASA citation. The BASS-II
-   [`bass2_labelling_worksheet.csv`](data/processed/bass2_labelling_worksheet.csv)
+   [`bass2_labelling_worksheet.csv`](../../data/processed/bass2_labelling_worksheet.csv)
    contains unresolved candidates; most cannot be assigned automatically from
    the narrative. Keep uncertain labels blank and follow the labeling protocol.
 3. Evaluate any new model with whole tests/reports held out, compare against

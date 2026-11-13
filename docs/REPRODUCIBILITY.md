@@ -62,12 +62,12 @@ The UI is served at <http://localhost:8000>; OpenAPI docs are at <http://localho
 
 ## Frontend connection and browser checks
 
-FastAPI serves the workbench at `/` and `/app/`, the overview at `/project-page/`, and the API on the same origin. Any local FastAPI port works. VS Code Live Server at `http://127.0.0.1:5500/app/` automatically connects to the API at `http://127.0.0.1:8000`; start it with `./scripts/run_local.sh`. GitHub Pages hosts static files only; set `window.FLARE_API_BASE` to a reachable API origin before loading `app.js` to enable live results there. Opening the static app without a backend shows explicit unavailable states and the separately scoped NASA PMMA reference where applicable.
+FastAPI serves the workbench at `/` and `/app/`, the overview at `/project-page/`, and the API on the same origin. Any local FastAPI port works. Start the API with `./scripts/run_local.sh`. In a second terminal at the repository root, run `.venv/bin/python -m http.server 5501 --bind 127.0.0.1` and open `http://127.0.0.1:5501/app/`. This static preview and VS Code Live Server at `http://127.0.0.1:5500/app/` automatically connect to the API at `http://127.0.0.1:8000`. See the [README](../README.md#run-locally) for the complete setup and connectivity commands. GitHub Pages hosts static files only. Its build requires repository variable `FLARE_API_BASE`, writes it into `app/config.js` before `app.js`, and checks the exact public demo URL in a fresh browser. See the [deployment guide](DEPLOYMENT.md). Opening the static app without a backend shows explicit unavailable states and the separately scoped NASA PMMA reference where applicable.
 
 The Playwright integration suite is `tests/frontend.playwright.cjs`. Install its pinned dependencies with `npm ci`, install Chromium with `npx playwright install chromium`, then run `npm run test:frontend`. It starts a temporary API on port 8010. To check the Live Server page against an already running API, use:
 
 ```bash
-FLARE_TEST_URL=http://127.0.0.1:8000 FLARE_FRONTEND_URL=http://127.0.0.1:5500/app/ npm run test:frontend
+FLARE_TEST_URL=http://127.0.0.1:8000 FLARE_FRONTEND_URL=http://127.0.0.1:5501/app/ npm run test:frontend
 ```
 
 It saves desktop and mobile screenshots and a JSON report under `/tmp/flare-playwright/`. CI runs the same browser checks and uploads the evidence.

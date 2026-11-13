@@ -24,8 +24,8 @@
   --text-pure: #0f172a;
   --text-primary: #1e293b;
   --text-secondary: #475569;
-  --text-muted: #64748b;
-  --text-dim: #94a3b8;
+  --text-muted: #526071;
+  --text-dim: #596875;
 
   /* Calibrated Aerospace Semantic Accents */
   --nasa-blue: #1d4ed8;
@@ -33,7 +33,7 @@
   --nasa-blue-active: #1e40af;
   --nasa-blue-subtle: #eff6ff;
 
-  --color-spread: #dc2626;
+  --color-spread: #b91c1c;
   --color-spread-light: #b91c1c;
   --color-spread-bg: #fef2f2;
   --color-spread-border: #fecaca;
@@ -43,12 +43,12 @@
   --color-marginal-bg: #fffbeb;
   --color-marginal-border: #fde68a;
 
-  --color-safe: #059669;
+  --color-safe: #047857;
   --color-safe-light: #047857;
   --color-safe-bg: #ecfdf5;
   --color-safe-border: #a7f3d0;
 
-  --color-telemetry: #0284c7;
+  --color-telemetry: #075985;
   --color-telemetry-dim: #0369a1;
 
   /* Typography Stacks */
@@ -78,8 +78,8 @@ html, body {
   background-color: var(--bg-deep);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -119,7 +119,7 @@ body.flarex-theme {
   padding: 0 20px;
   user-select: none;
   z-index: 100;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
 }
 
 .header-left-cluster {
@@ -136,20 +136,20 @@ body.flarex-theme {
   border: 1px solid #072b6b;
   padding: 4px 9px;
   border-radius: 4px;
-  box-shadow: 0 1px 2px rgba(11, 61, 145, 0.2);
+
 }
 
 .nasa-wordmark {
   font-family: var(--font-sans);
   font-weight: 800;
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  font-size: 13px;
+  letter-spacing: normal;
   color: #ffffff;
 }
 
 .nasa-branch {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
   color: #93c5fd;
   border-left: 1px solid rgba(255, 255, 255, 0.25);
@@ -176,14 +176,14 @@ body.flarex-theme {
 .platform-code {
   font-size: 16px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: normal;
   color: var(--text-pure);
   line-height: 1.2;
 }
 
 .version-tag {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-safe-light);
   background: var(--color-safe-bg);
@@ -193,7 +193,7 @@ body.flarex-theme {
 }
 
 .platform-desc {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -215,12 +215,12 @@ body.flarex-theme {
   border: none;
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   padding: 6px 14px;
   border-radius: 4px;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -228,8 +228,8 @@ body.flarex-theme {
 }
 
 .nav-key {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -242,7 +242,7 @@ body.flarex-theme {
   background: #ffffff;
   color: var(--nasa-blue);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+
 }
 
 .ops-nav-btn.active .nav-key {
@@ -250,8 +250,8 @@ body.flarex-theme {
 }
 
 .nav-count-badge {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
   background: #e2e8f0;
   color: #334155;
@@ -268,7 +268,7 @@ body.flarex-theme {
   border: 1px solid var(--border-hairline);
   padding: 5px 12px;
   border-radius: 5px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
 }
 
 .heartbeat-pulse {
@@ -276,11 +276,11 @@ body.flarex-theme {
   height: 7px;
   border-radius: 50%;
   background-color: var(--color-marginal);
-  box-shadow: 0 0 4px var(--color-marginal);
+
 }
 
-.heartbeat-pulse.status-ready { background-color: var(--color-safe); box-shadow: 0 0 4px var(--color-safe); }
-.heartbeat-pulse.status-offline { background-color: var(--text-muted); box-shadow: none; }
+.heartbeat-pulse.status-ready { background-color: var(--color-safe); }
+.heartbeat-pulse.status-offline { background-color: var(--text-muted); }
 
 .heartbeat-meta {
   display: flex;
@@ -288,15 +288,15 @@ body.flarex-theme {
 }
 
 .telemetry-label {
-  font-family: var(--font-mono);
-  font-size: 9px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: normal;
   color: var(--color-safe-light);
 }
 
 .telemetry-sub {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -313,8 +313,8 @@ body.flarex-theme {
   padding: 0 20px;
   gap: 20px;
   overflow-x: auto;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 13px;
 }
 
 .ribbon-metric {
@@ -330,7 +330,7 @@ body.flarex-theme {
 
 .metric-dim {
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .metric-val {
@@ -344,7 +344,7 @@ body.flarex-theme {
 
 .metric-val.mono-tag {
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .metric-status-withheld,
@@ -352,7 +352,7 @@ body.flarex-theme {
 .metric-status-offline {
   color: var(--color-safe-light);
   font-weight: 600;
-  font-size: 10px;
+  font-size: 13px;
   background: var(--color-safe-bg);
   border: 1px solid var(--color-safe-border);
   padding: 1px 6px;
@@ -436,16 +436,16 @@ body.flarex-theme {
 }
 
 .pane-title {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: normal;
   color: var(--text-secondary);
 }
 
 .pane-sub-badge {
-  font-family: var(--font-mono);
-  font-size: 9px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-telemetry);
   background: #f0f9ff;
@@ -463,7 +463,7 @@ body.flarex-theme {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
   transition: border-color var(--dur-fast) var(--ease);
 }
 
@@ -472,7 +472,7 @@ body.flarex-theme {
 }
 
 .module-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
   display: block;
@@ -485,8 +485,8 @@ body.flarex-theme {
 }
 
 .spec-count {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--color-telemetry);
   background: #f0f9ff;
   border: 1px solid #bae6fd;
@@ -512,7 +512,7 @@ body.flarex-theme {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  transition: all var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 
 .btn-flight-preset:hover {
@@ -529,17 +529,17 @@ body.flarex-theme {
   border-color: #93c5fd;
   background: #eff6ff;
   color: var(--nasa-blue);
-  box-shadow: 0 1px 2px rgba(29, 78, 216, 0.08);
+
 }
 
 .preset-name {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 
 .preset-vals {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -554,7 +554,7 @@ body.flarex-theme {
   border: 1px solid var(--border-medium);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   padding: 7px 10px;
   border-radius: 4px;
@@ -569,14 +569,14 @@ body.flarex-theme {
 .fuel-spec-info {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
+  font-size: 13px;
   color: var(--text-muted);
   border-top: 1px solid var(--border-hairline);
   padding-top: 6px;
 }
 
 .spec-prop {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-secondary);
 }
 
@@ -595,8 +595,8 @@ body.flarex-theme {
 }
 
 .value-readout {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
   color: var(--nasa-blue);
 }
@@ -628,7 +628,7 @@ body.flarex-theme {
   border-radius: 50%;
   background: #ffffff;
   border: 2px solid var(--nasa-blue);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
   cursor: grab;
   transition: transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
@@ -649,7 +649,7 @@ body.flarex-theme {
   border-radius: 50%;
   background: #ffffff;
   border: 2px solid var(--nasa-blue);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
   cursor: grab;
 }
 
@@ -657,8 +657,8 @@ body.flarex-theme {
 .calibrated-ticks {
   display: flex;
   justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 9px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -690,7 +690,7 @@ body.flarex-theme {
   border: 1px solid var(--border-medium);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 13px;
   padding: 6px 9px;
   border-radius: 4px;
   outline: none;
@@ -704,12 +704,12 @@ body.flarex-theme {
   background: #f1f5f9;
   border: 1px solid var(--border-medium);
   color: var(--text-primary);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
   padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 
 .btn-command:hover {
@@ -764,7 +764,7 @@ body.flarex-theme {
   height: 14px;
   border-radius: 50%;
   background: #ffffff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+
   transition: transform var(--dur-fast) var(--ease);
 }
 
@@ -783,12 +783,12 @@ body.flarex-theme {
 }
 
 .guard-text strong {
-  font-size: 11px;
+  font-size: 13px;
   color: #991b1b;
 }
 
 .guard-text small {
-  font-size: 10px;
+  font-size: 13px;
   color: #7f1d1d;
   line-height: 1.3;
 }
@@ -808,7 +808,7 @@ body.flarex-theme {
   align-items: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.08);
+
 }
 
 .flight-safety-alert.hidden {
@@ -821,13 +821,7 @@ body.flarex-theme {
   bottom: 0;
   left: 0;
   width: 6px;
-  background: repeating-linear-gradient(
-    45deg,
-    #dc2626,
-    #dc2626 10px,
-    #fee2e2 10px,
-    #fee2e2 20px
-  );
+  background: repeating-none;
 }
 
 .alert-content-body {
@@ -846,15 +840,15 @@ body.flarex-theme {
 }
 
 .alert-title {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 700;
   color: #991b1b;
-  letter-spacing: 0.02em;
+  letter-spacing: normal;
 }
 
 .alert-text {
-  font-size: 11px;
+  font-size: 13px;
   color: #b91c1c;
   line-height: 1.4;
 }
@@ -863,7 +857,7 @@ body.flarex-theme {
 .flight-safety-alert[data-kind="evidence"] {
   background: #fffbeb;
   border-color: #fcd34d;
-  box-shadow: none;
+
 }
 .flight-safety-alert[data-kind="validation"] .alert-hazard-stripes,
 .flight-safety-alert[data-kind="evidence"] .alert-hazard-stripes { background: #d97706; }
@@ -871,11 +865,11 @@ body.flarex-theme {
 .flight-safety-alert[data-kind="evidence"] .alert-title,
 .flight-safety-alert[data-kind="validation"] .alert-text,
 .flight-safety-alert[data-kind="evidence"] .alert-text { color: #78350f; }
-.flight-safety-alert[data-kind="published"] { background: #eff6ff; border-color: #93c5fd; box-shadow: none; }
+.flight-safety-alert[data-kind="published"] { background: #eff6ff; border-color: #93c5fd; }
 .flight-safety-alert[data-kind="published"] .alert-hazard-stripes { background: var(--nasa-blue); }
 .flight-safety-alert[data-kind="published"] .alert-title,
 .flight-safety-alert[data-kind="published"] .alert-text { color: #1e3a8a; }
-.flight-safety-alert[data-kind="offline"] { background: #f1f5f9; border-color: #94a3b8; box-shadow: none; }
+.flight-safety-alert[data-kind="offline"] { background: #f1f5f9; border-color: #94a3b8; }
 .flight-safety-alert[data-kind="offline"] .alert-hazard-stripes { background: #64748b; }
 .flight-safety-alert[data-kind="offline"] .alert-title,
 .flight-safety-alert[data-kind="offline"] .alert-text { color: #334155; }
@@ -889,7 +883,7 @@ body.flarex-theme {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
 }
 
 .hud-top-split {
@@ -906,10 +900,10 @@ body.flarex-theme {
 }
 
 .hud-category-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: normal;
   color: var(--text-muted);
 }
 
@@ -922,7 +916,7 @@ body.flarex-theme {
 .regime-status-badge {
   font-size: 15px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: normal;
   padding: 5px 14px;
   border-radius: 4px;
   color: #ffffff;
@@ -932,17 +926,18 @@ body.flarex-theme {
 
 .regime-status-badge.regime-spread {
   background: var(--color-spread);
-  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.25);
+
 }
 
 .regime-status-badge.regime-marginal {
   background: var(--color-marginal);
-  box-shadow: 0 1px 3px rgba(217, 119, 6, 0.25);
+  color: #1f2937;
+
 }
 
 .regime-status-badge.regime-no-spread {
   background: var(--color-safe);
-  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.25);
+
 }
 
 .regime-status-badge.regime-refusal {
@@ -951,8 +946,8 @@ body.flarex-theme {
 }
 
 .confidence-tag {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
   background: #f1f5f9;
   border: 1px solid var(--border-medium);
@@ -982,14 +977,14 @@ body.flarex-theme {
 }
 
 .cell-label {
-  font-family: var(--font-mono);
-  font-size: 9px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-muted);
 }
 
 .cell-value {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -1008,7 +1003,7 @@ body.flarex-theme {
 .prob-labels-row {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .prob-tag {
@@ -1063,15 +1058,15 @@ body.flarex-theme {
 }
 
 .directive-marker {
-  font-family: var(--font-mono);
-  font-size: 9px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 700;
   color: var(--nasa-blue);
-  letter-spacing: 0.05em;
+  letter-spacing: normal;
 }
 
 .directive-body {
-  font-size: 11.5px;
+  font-size: 13px;
   color: #334155;
   line-height: 1.45;
 }
@@ -1086,7 +1081,7 @@ body.flarex-theme {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
 }
 
 .phase-header-bar {
@@ -1104,14 +1099,14 @@ body.flarex-theme {
 }
 
 .phase-main-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-pure);
 }
 
 .phase-sub-title {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -1119,7 +1114,7 @@ body.flarex-theme {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
@@ -1138,7 +1133,7 @@ body.flarex-theme {
 .chip-spread { background: #fee2e2; border: 1px solid var(--color-spread); }
 .chip-marginal { background: #fef3c7; border: 1px solid var(--color-marginal); }
 .chip-extinction { background: #d1fae5; border: 1px solid var(--color-safe); }
-.chip-glyph-flight { color: #1e293b; font-size: 12px; }
+.chip-glyph-flight { color: #1e293b; font-size: 13px; }
 .chip-glyph-probe { color: var(--nasa-blue); font-size: 14px; }
 
 /* Canvas Work Area */
@@ -1172,19 +1167,19 @@ body.flarex-theme {
   gap: 6px;
   align-items: center;
   pointer-events: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
 }
 
 .coord-label {
-  font-family: var(--font-mono);
-  font-size: 9px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 700;
   color: var(--nasa-blue);
 }
 
 .coord-val {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-primary);
 }
 
@@ -1195,11 +1190,11 @@ body.flarex-theme {
   color: #0f172a;
   padding: 6px 10px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 13px;
   pointer-events: none;
   z-index: 50;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  font-family: var(--font-mono);
+
+  font-family: var(--font-sans);
 }
 
 .canvas-tooltip.hidden {
@@ -1223,15 +1218,15 @@ body.flarex-theme {
 }
 
 .phys-label {
-  font-family: var(--font-mono);
-  font-size: 9px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-muted);
-  letter-spacing: 0.04em;
+  letter-spacing: normal;
 }
 
 .phys-val {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
@@ -1251,11 +1246,11 @@ body.flarex-theme {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+
 }
 
 .module-explainer {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -1278,7 +1273,7 @@ body.flarex-theme {
 
 .flight-obs-card:hover {
   border-color: var(--border-medium);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
 }
 
 .obs-top-line {
@@ -1288,15 +1283,15 @@ body.flarex-theme {
 }
 
 .obs-id {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .obs-distance {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--nasa-blue);
   background: #eff6ff;
   border: 1px solid #bfdbfe;
@@ -1305,8 +1300,8 @@ body.flarex-theme {
 }
 
 .obs-conditions {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
@@ -1319,12 +1314,12 @@ body.flarex-theme {
 }
 
 .badge-outcome {
-  font-family: var(--font-mono);
-  font-size: 9px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 3px;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .badge-spread {
@@ -1346,10 +1341,10 @@ body.flarex-theme {
 }
 
 .citation-ntrs-link {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--nasa-blue);
   text-decoration: none;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   display: flex;
   align-items: center;
   gap: 3px;
@@ -1369,7 +1364,7 @@ body.flarex-theme {
 }
 
 .physics-text {
-  font-size: 11.5px;
+  font-size: 13px;
   color: #334155;
   line-height: 1.5;
 }
@@ -1383,12 +1378,12 @@ body.flarex-theme {
 
 .audit-pass-icon {
   color: var(--color-safe);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .audit-pass-text {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -1431,7 +1426,7 @@ body.flarex-theme {
 }
 
 .section-sub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
   max-width: 800px;
 }
@@ -1446,12 +1441,12 @@ body.flarex-theme {
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
 }
 
 .margin-caption {
-  font-family: var(--font-mono);
-  font-size: 9px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -1464,7 +1459,7 @@ body.flarex-theme {
 .margin-figure.published { color: var(--nasa-blue); }
 
 .margin-pill {
-  font-size: 10px;
+  font-size: 13px;
   padding: 1px 6px;
   border-radius: 3px;
 }
@@ -1481,7 +1476,7 @@ body.flarex-theme {
   color: #1e3a8a;
 }
 
-#sweep-source-link { display: inline-block; margin-top: 6px; font-size: 11px; }
+#sweep-source-link { display: inline-block; margin-top: 6px; font-size: 13px; }
 #sweep-source-link[hidden] { display: none; }
 
 .sweep-control-strip {
@@ -1493,7 +1488,7 @@ body.flarex-theme {
   border-radius: 6px;
   padding: 12px 18px;
   gap: 30px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
 }
 
 .sweep-scrubber-unit {
@@ -1508,14 +1503,14 @@ body.flarex-theme {
   color: #ffffff;
   border: none;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(29, 78, 216, 0.2);
-  transition: all var(--dur-fast) var(--ease);
+
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 
 .btn-action-primary:hover {
@@ -1535,13 +1530,15 @@ body.flarex-theme {
   justify-content: center;
   min-width: 0;
   overflow-x: auto;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  flex-shrink: 0;
+
 }
 
 .sweep-scroll-hint { display: none; }
 
 #sweep-chart-canvas {
   width: 100%;
+  height: 280px;
   max-height: 280px;
   background: #ffffff;
 }
@@ -1560,7 +1557,7 @@ body.flarex-theme {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
 }
 
 .card-spread-side {
@@ -1578,8 +1575,8 @@ body.flarex-theme {
 }
 
 .regime-tag {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 700;
   align-self: flex-start;
   padding: 2px 7px;
@@ -1603,7 +1600,7 @@ body.flarex-theme {
   border: 1px solid var(--border-hairline);
   border-radius: 4px;
   padding: 8px 10px;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
@@ -1626,15 +1623,15 @@ body.flarex-theme {
 
 .archive-count {
   color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 13px;
 }
 
 .filter-search-input {
   background: var(--bg-input);
   border: 1px solid var(--border-medium);
   color: var(--text-primary);
-  font-size: 12px;
+  font-size: 13px;
   padding: 7px 12px;
   border-radius: 4px;
   width: 260px;
@@ -1655,21 +1652,21 @@ body.flarex-theme {
   border: 1px solid var(--border-hairline);
   border-radius: 6px;
   background: #ffffff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
 }
 
 .flight-archive-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 13px;
   text-align: left;
 }
 
 .flight-archive-table th {
   background: #f8fafc;
   color: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
   padding: 10px 14px;
   border-bottom: 1px solid var(--border-medium);
@@ -1705,7 +1702,7 @@ body.flarex-theme {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
 }
 
 .kpi-quad-grid {
@@ -1725,8 +1722,8 @@ body.flarex-theme {
 }
 
 .kpi-cell-label {
-  font-family: var(--font-mono);
-  font-size: 9px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -1741,7 +1738,7 @@ body.flarex-theme {
 }
 
 .kpi-cell-detail {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
@@ -1753,7 +1750,7 @@ body.flarex-theme {
 }
 
 .matrix-heading {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -1768,7 +1765,7 @@ body.flarex-theme {
 .confusion-data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .confusion-data-table th,
@@ -1786,7 +1783,7 @@ body.flarex-theme {
 
 .confusion-data-table th {
   background: #f8fafc;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-muted);
 }
 
@@ -1820,19 +1817,19 @@ body.flarex-theme {
 }
 
 .inv-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-pure);
 }
 
 .inv-meta {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--nasa-blue);
 }
 
 .inv-desc {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
@@ -1840,16 +1837,18 @@ body.flarex-theme {
    8. DOCKED FOOTER STATUS STRIP (28px)
    ============================================================================== */
 .docked-status-strip {
-  height: 28px;
-  min-height: 28px;
+  height: auto;
+  min-height: 36px;
+  flex-shrink: 0;
   background-color: #ffffff;
   border-top: 1px solid var(--border-hairline);
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  gap: 24px;
-  font-family: var(--font-mono);
-  font-size: 10px;
+  padding: 6px 20px;
+  gap: 6px 24px;
+  flex-wrap: wrap;
+  font-family: var(--font-sans);
+  font-size: 13px;
   user-select: none;
 }
 
@@ -1890,15 +1889,15 @@ body.flarex-theme {
   gap: 6px;
   padding: 3px 9px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  font-family: var(--font-mono);
+  letter-spacing: normal;
+  text-transform: none;
+  font-family: var(--font-sans);
 }
 
 .tier-dot {
-  font-size: 9px;
+  font-size: 13px;
 }
 
 .state-tier-pill.tier-verified {
@@ -1934,9 +1933,9 @@ body.flarex-theme {
 }
 
 .tier-explainer {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 /* Card citation action button */
@@ -1944,13 +1943,13 @@ body.flarex-theme {
   background: #f1f5f9;
   border: 1px solid var(--border-hairline);
   color: var(--nasa-blue);
-  font-size: 10.5px;
+  font-size: 13px;
   font-weight: 600;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   padding: 3px 8px;
   border-radius: 3px;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-out);
+  transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 
 .btn-trace-cite:hover {
@@ -1971,7 +1970,7 @@ body.flarex-theme {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+
 }
 
 .case-presets-row,
@@ -1983,18 +1982,18 @@ body.flarex-theme {
 }
 
 .control-label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
   min-width: 250px;
 }
 
 .custom-label {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-muted);
-  letter-spacing: 0.04em;
+  letter-spacing: normal;
 }
 
 .styled-select-input {
@@ -2004,7 +2003,7 @@ body.flarex-theme {
   border: 1px solid var(--border-medium);
   border-radius: 5px;
   background: var(--bg-input);
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--text-pure);
   outline: none;
   transition: border-color var(--dur-fast) var(--ease-out);
@@ -2012,7 +2011,7 @@ body.flarex-theme {
 
 .styled-select-input:focus {
   border-color: var(--nasa-blue);
-  box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+
 }
 
 .study-picker-duo {
@@ -2032,17 +2031,17 @@ body.flarex-theme {
 }
 
 .sub-label {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-muted);
 }
 
 .vs-divider {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: 800;
   color: var(--nasa-blue);
   padding: 0 4px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .btn-execute-analysis {
@@ -2051,7 +2050,7 @@ body.flarex-theme {
   border: none;
   border-radius: 5px;
   padding: 8px 18px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);
@@ -2068,7 +2067,7 @@ body.flarex-theme {
 }
 
 .conflict-results-deck[hidden] { display: none; }
-.analysis-status { color: var(--text-secondary); font-size: 12px; margin: 0 0 12px; }
+.analysis-status { color: var(--text-secondary); font-size: 13px; margin: 0 0 12px; }
 .analysis-status:empty { display: none; }
 
 /* Verdict & Gauge Card */
@@ -2093,11 +2092,11 @@ body.flarex-theme {
 }
 
 .gauge-label {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-muted);
-  letter-spacing: 0.05em;
+  letter-spacing: normal;
   margin-bottom: 6px;
 }
 
@@ -2110,14 +2109,14 @@ body.flarex-theme {
 .score-number {
   font-size: 38px;
   font-weight: 800;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-pure);
 }
 
 .score-max {
   font-size: 14px;
   color: var(--text-dim);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .verdict-col {
@@ -2131,11 +2130,11 @@ body.flarex-theme {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
-  font-family: var(--font-mono);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .verdict-highly-comparable {
@@ -2170,7 +2169,7 @@ body.flarex-theme {
   border: 1px solid #fef3c7;
   padding: 8px 12px;
   border-radius: 5px;
-  font-size: 12px;
+  font-size: 13px;
   color: #92400e;
   font-weight: 500;
 }
@@ -2200,7 +2199,7 @@ body.flarex-theme {
 .dimensions-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12.5px;
+  font-size: 13px;
 }
 
 .dimensions-table th {
@@ -2208,7 +2207,7 @@ body.flarex-theme {
   padding: 10px 12px;
   text-align: left;
   font-weight: 600;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-hairline);
 }
@@ -2223,8 +2222,8 @@ body.flarex-theme {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 3px;
-  font-size: 10.5px;
-  font-family: var(--font-mono);
+  font-size: 13px;
+  font-family: var(--font-sans);
   font-weight: 700;
 }
 
@@ -2246,7 +2245,7 @@ body.flarex-theme {
 .dim-impact-cell {
   color: var(--text-secondary);
   line-height: 1.45;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .reconciliation-header {
@@ -2287,9 +2286,9 @@ body.flarex-theme {
 }
 
 .card-tag {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-muted);
 }
 
@@ -2300,9 +2299,9 @@ body.flarex-theme {
 }
 
 .citation-meta {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .btn-ntrs-external {
@@ -2310,9 +2309,9 @@ body.flarex-theme {
   align-self: flex-start;
   color: var(--nasa-blue);
   font-weight: 600;
-  font-size: 12px;
+  font-size: 13px;
   text-decoration: none;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .btn-ntrs-external:hover {
@@ -2342,16 +2341,16 @@ body.flarex-theme {
 .cov-kpi-tile .kpi-num {
   font-size: 28px;
   font-weight: 800;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-pure);
 }
 
 .cov-kpi-tile .kpi-lbl {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-muted);
-  letter-spacing: 0.05em;
+  letter-spacing: normal;
 }
 
 .highlight-cyan {
@@ -2384,8 +2383,8 @@ body.flarex-theme {
   display: flex;
   align-items: center;
   gap: 14px;
-  font-size: 11px;
-  font-family: var(--font-mono);
+  font-size: 13px;
+  font-family: var(--font-sans);
   color: var(--text-secondary);
 }
 
@@ -2422,7 +2421,7 @@ body.flarex-theme {
 .heatmap-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .heatmap-grid-scroll { max-width: 100%; overflow-x: auto; }
@@ -2431,7 +2430,7 @@ body.flarex-theme {
   background: var(--bg-deep);
   padding: 10px;
   text-align: center;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: 600;
   color: var(--text-secondary);
   border: 1px solid var(--border-hairline);
@@ -2445,7 +2444,7 @@ body.flarex-theme {
   padding: 12px;
   background: var(--bg-deep);
   border: 1px solid var(--border-hairline);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-primary);
   white-space: nowrap;
 }
@@ -2461,7 +2460,7 @@ body.flarex-theme {
 .heatmap-cell:hover {
   transform: scale(1.02);
   z-index: 2;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+
 }
 
 .heatmap-cell.swatch-high {
@@ -2510,19 +2509,19 @@ body.flarex-theme {
 .cell-count {
   font-size: 18px;
   font-weight: 800;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .cell-density-tag {
-  font-size: 9.5px;
-  font-family: var(--font-mono);
+  font-size: 13px;
+  font-family: var(--font-sans);
   font-weight: 600;
   color: var(--text-muted);
 }
 
 .heatmap-footnote {
   margin-top: 14px;
-  font-size: 11.5px;
+  font-size: 13px;
   color: var(--text-secondary);
   background: #f8fafc;
   padding: 8px 12px;
@@ -2560,7 +2559,7 @@ body.flarex-theme {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+
 }
 
 .gap-card-header {
@@ -2570,9 +2569,9 @@ body.flarex-theme {
 }
 
 .gap-id-badge {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-muted);
 }
 
@@ -2582,8 +2581,8 @@ body.flarex-theme {
   border: 1px solid #fecaca;
   padding: 2px 6px;
   border-radius: 3px;
-  font-size: 9.5px;
-  font-family: var(--font-mono);
+  font-size: 13px;
+  font-family: var(--font-sans);
   font-weight: 700;
 }
 
@@ -2594,8 +2593,8 @@ body.flarex-theme {
 }
 
 .gap-regime-strip {
-  font-size: 11.5px;
-  font-family: var(--font-mono);
+  font-size: 13px;
+  font-family: var(--font-sans);
   color: var(--text-secondary);
   background: #f1f5f9;
   padding: 4px 8px;
@@ -2603,21 +2602,21 @@ body.flarex-theme {
 }
 
 .gap-materials {
-  font-size: 11.5px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
 .gap-section-label {
   display: block;
-  font-size: 9.5px;
+  font-size: 13px;
   font-weight: 700;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-muted);
   margin-bottom: 3px;
 }
 
 .gap-text {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.45;
   color: var(--text-secondary);
 }
@@ -2632,15 +2631,15 @@ body.flarex-theme {
 
 .rec-label {
   display: block;
-  font-size: 9px;
+  font-size: 13px;
   font-weight: 700;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--nasa-blue);
   margin-bottom: 2px;
 }
 
 .rec-text {
-  font-size: 11.5px;
+  font-size: 13px;
   color: #1e3a8a;
   line-height: 1.35;
 }
@@ -2671,7 +2670,7 @@ body.flarex-theme {
   width: 100%;
   height: 100%;
   background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(4px);
+
 }
 
 .modal-dialog-card {
@@ -2682,7 +2681,7 @@ body.flarex-theme {
   width: 90%;
   max-width: 620px;
   padding: 24px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -2708,9 +2707,9 @@ body.flarex-theme {
   border: 1px solid var(--color-safe-border);
   padding: 3px 8px;
   border-radius: 4px;
-  font-size: 10.5px;
+  font-size: 13px;
   font-weight: 700;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .modal-pill-origin {
@@ -2719,8 +2718,8 @@ body.flarex-theme {
   border: 1px solid var(--border-hairline);
   padding: 3px 8px;
   border-radius: 4px;
-  font-size: 10.5px;
-  font-family: var(--font-mono);
+  font-size: 13px;
+  font-family: var(--font-sans);
 }
 
 .btn-modal-close {
@@ -2744,9 +2743,9 @@ body.flarex-theme {
 }
 
 .modal-exp-sub {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--text-muted);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   margin-bottom: 16px;
 }
 
@@ -2763,15 +2762,15 @@ body.flarex-theme {
 .detail-row {
   display: grid;
   grid-template-columns: 170px 1fr;
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.45;
 }
 
 .detail-label {
   font-weight: 600;
   color: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-family: var(--font-sans);
+  font-size: 13px;
 }
 
 .detail-val {
@@ -2781,7 +2780,7 @@ body.flarex-theme {
 .detail-val.highlight {
   color: var(--nasa-blue);
   font-weight: 700;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .modal-actions-row {
@@ -2795,9 +2794,9 @@ body.flarex-theme {
   color: #ffffff;
   padding: 8px 16px;
   border-radius: 5px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   text-decoration: none;
   transition: background var(--dur-fast) var(--ease-out);
 }
@@ -2909,10 +2908,10 @@ body.flarex-theme {
   .regime-status-badge { font-size: 13px; }
   .phase-space-container { min-height: 430px; }
   .phase-header-bar { align-items: flex-start; }
-  .phase-legend { font-size: 10px; }
+  .phase-legend { font-size: 13px; }
   .physics-telemetry-bar { gap: 8px; padding: 10px; }
   .canvas-coordinate-badge { left: 8px; right: 8px; justify-content: center; }
-  .coord-val { font-size: 9px; }
+  .coord-val { font-size: 13px; }
   .full-view-container { padding: 14px 12px; }
   .panel-inner-container { padding: 14px 12px; }
   .conflict-selection-card { padding: 14px; }
@@ -2936,7 +2935,7 @@ body.flarex-theme {
   .sweep-control-strip { flex-direction: column; align-items: stretch; gap: 12px; }
   .sweep-scrubber-unit { min-width: 0; width: 100%; }
   .sweep-control-strip .btn-action-primary { width: 100%; }
-  .sweep-scroll-hint { display: block; color: var(--text-muted); font-size: 11px; }
+  .sweep-scroll-hint { display: block; color: var(--text-muted); font-size: 13px; }
   .sweep-canvas-card { justify-content: flex-start; }
   #sweep-chart-canvas { min-width: 900px; }
   .filter-search-input { width: 100%; }
@@ -2977,4 +2976,88 @@ body.flarex-theme {
 .model-telemetry-cluster { min-width: 0; flex-wrap: wrap; }
 .telemetry-cell { min-width: 0; overflow-wrap: anywhere; }
 .archive-probe { padding: 2px; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 600; text-align: left; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.material-domain { margin: 10px 0 0; font-size: 11px; line-height: 1.5; color: var(--text-secondary); overflow-wrap: anywhere; }
+.material-domain { margin: 10px 0 0; font-size: 13px; line-height: 1.5; color: var(--text-secondary); overflow-wrap: anywhere; }
+
+/* Evidence explanations remain readable within the existing narrow pane. */
+.obs-context, .obs-interpretation, .obs-ranking { font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+.obs-context, .obs-ranking { color: var(--text-muted); }
+.obs-interpretation p, .obs-ranking p { margin: 8px 0; }
+.obs-ranking summary { cursor: pointer; }
+
+/* Evidence desk: one tinted frame, white working sheet, colour reserved for data. */
+body.flarex-theme { background: #edf2f5; }
+.flight-ops-header, .ops-nav-deck, .campaign-telemetry-ribbon, .avionics-pane { background: #edf2f5; }
+.flight-ops-header, .avionics-pane { border: 0; }
+.nasa-insignia { background: #164c78; }
+.nasa-wordmark { font-size: 18px; }
+.platform-code { font-size: 20px; }
+.platform-desc { font-size: 13px; color: var(--text-secondary); }
+.ops-nav-btn { font-size: 13px; font-family: var(--font-sans); color: var(--text-primary); border-radius: 0; }
+.ops-nav-btn.active { color: var(--text-pure); background: #fff; border-bottom: 2px solid #164c78; }
+.nav-key { display: none; }
+.center-phase-pane, .evidence-pane { background: #fff; }
+.flight-deck-grid { grid-template-columns: 280px minmax(0, 1fr) 360px; }
+.evidence-overview, .report-search-panel, .research-model-panel { padding: 20px; background: #fff; border: 1px solid #e4e9ed; border-radius: 8px; margin-bottom: 16px; min-width: 0; }
+.evidence-overview h2, .report-search-panel h2 { font-size: 22px; line-height: 1.25; margin-bottom: 12px; letter-spacing: normal; }
+.evidence-overview p, .report-search-panel p { font-size: 14px; line-height: 1.55; margin-bottom: 12px; overflow-wrap: anywhere; }
+.evidence-overview a, .report-search-panel a { color: #145784; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.evidence-overview button, .report-search-panel button { font: inherit; min-height: 36px; padding: 8px 12px; border: 1px solid #c8d1d8; border-radius: 4px; background: #f4f6f7; color: var(--text-primary); cursor: pointer; }
+.evidence-overview button:disabled { color: var(--text-muted); cursor: default; }
+.selected-observation { padding: 12px; background: #edf3f8; border-left: 3px solid #164c78; }
+.report-search-form { display: flex; gap: 8px; margin-bottom: 10px; }
+.report-search-form input { min-width: 0; flex: 1; font: inherit; padding: 8px 10px; border: 1px solid #b9c5ce; border-radius: 4px; }
+.report-search-panel article { padding: 16px 0; border-top: 1px solid #e4e9ed; }
+.report-search-panel h3 { font-size: 16px; margin-bottom: 8px; }
+.research-model-panel > summary { font-size: 15px; font-weight: 600; cursor: pointer; }
+.research-model-panel > .module-explainer { margin: 12px 0; }
+.research-model-panel[open] > .flammability-status-hud { margin-top: 16px; }
+.skip-link, .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.skip-link:focus { position: fixed; top: 8px; left: 8px; width: auto; height: auto; clip-path: none; padding: 12px; background: #fff; z-index: 1000; }
+:focus-visible { outline: 2px solid #164c78; outline-offset: 3px; }
+.gap-risk-pill { color: #3e5262; background: #eef2f5; border-color: #d4dde4; }
+.score-number { font-size: 24px; }
+.score-circle-wrap { border-radius: 0; border: 0; }
+.dim-status-pill { font-size: 13px; }
+@media (max-width: 1280px) { .flight-deck-grid { grid-template-columns: 250px minmax(0, 1fr) 310px; } }
+@media (max-width: 1024px) {
+  .flight-deck-grid { grid-template-columns: minmax(0, 1fr); }
+  .center-phase-pane { order: 1; }
+  .avionics-pane { order: 2; }
+  .evidence-pane { order: 3; }
+  .evidence-overview, .report-search-panel { margin-bottom: 12px; }
+}
+@media (max-width: 640px) {
+  .evidence-overview, .report-search-panel, .research-model-panel { padding: 16px; }
+  .report-search-form { flex-wrap: wrap; }
+  .report-search-form input { flex-basis: 100%; min-height: 44px; }
+  .report-search-form button, .evidence-overview button { min-height: 44px; }
+  .platform-code { font-size: 18px; }
+}
+
+.deck-pane, .deck-pane.center-phase-pane { padding: 20px; }
+.readout-box { white-space: nowrap; flex: none; }
+.module-title { min-width: 0; }
+.campaign-telemetry-ribbon { padding: 8px 20px; min-height: 38px; height: auto; gap: 12px; flex-wrap: wrap; }
+.ribbon-metric { min-width: 0; flex-shrink: 0; }
+#ribbon-active-fuel { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.campaign-telemetry-ribbon .metric-dim { font-family: var(--font-sans); }
+th, td { font-variant-numeric: tabular-nums; text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+@media (max-width: 640px) {
+  .deck-pane, .deck-pane.center-phase-pane { padding: 16px; }
+  .campaign-telemetry-ribbon { padding: 8px 16px; flex-wrap: wrap; }
+  .ribbon-metric:first-child { flex-basis: 100%; }
+  #ribbon-active-fuel { max-width: 240px; }
+  .ribbon-metric-right { margin-left: 0; }
+  .flight-ops-header { padding-left: 16px; padding-right: 16px; }
+}
+
+.obs-id, .mono-tag, #inspect-exp-id { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+.sweep-sampling-note { font-size: 14px; line-height: 1.55; margin: 12px 0; color: var(--text-secondary); }
+.sweep-model-legend { justify-content: flex-start; flex-wrap: wrap; margin: 12px 0; }
+.sweep-model-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.sweep-series { display: inline-block; width: 24px; border-top: 3px solid; }
+.series-spread { border-color: #b91c1c; }
+.series-marginal { border-color: #b45309; border-top-style: dashed; }
+.series-no-spread { border-color: #047857; border-top-style: dotted; }

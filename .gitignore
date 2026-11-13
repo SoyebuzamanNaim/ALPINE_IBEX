@@ -14,3 +14,4 @@ data/raw/
 .claude/
 .taste-skill/
 node_modules/
+/_site/

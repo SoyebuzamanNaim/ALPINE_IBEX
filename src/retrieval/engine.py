@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from typing import Any
+import hashlib
 from src.retrieval.nearest import NearestExperimentRetriever
 from src.retrieval.corpus_search import ReportCorpusSearcher
 
@@ -9,6 +10,7 @@ from src.retrieval.corpus_search import ReportCorpusSearcher
 class EvidenceRetrievalEngine:
     def __init__(self):
         self.nearest_retriever = NearestExperimentRetriever()
+        self.dataset_sha256 = hashlib.sha256(self.nearest_retriever.data_path.read_bytes()).hexdigest()
         self.corpus_searcher = ReportCorpusSearcher()
 
     def retrieve_evidence(
@@ -47,10 +49,8 @@ class EvidenceRetrievalEngine:
 
         # 3. Formulate scientific caveats
         caveats = []
-        if any(exp["distance"] > 0.5 for exp in nearest):
-            caveats.append("Nearest experimental points are relatively sparse in this region of the operational envelope.")
-        if flow_cm_s < 1.0:
-            caveats.append("Low flow velocities (<1 cm/s) in microgravity approach the quiescent extinction limit where radiative loss dominates.")
+        caveats.append("Similarity ranking measures numerical proximity, not scientific reliability or coverage of the requested scenario.")
+        caveats.append("Geometry, flow direction and ignition protocol are not represented in this four-input query. Review the original source context.")
 
         return {
             "scenario": {
@@ -62,4 +62,10 @@ class EvidenceRetrievalEngine:
             "nearest_experiments": nearest,
             "cited_reports": cited_reports,
             "scientific_caveats": caveats,
+            "scope": "current FLARE-X dataset",
+            "dataset_sha256": self.dataset_sha256,
+            "material_counts": {str(material): int(count) for material, count in self.nearest_retriever.df["material"].value_counts().items()},
+            "summary_method": "deterministic_record_template",
+            "prediction": None,
+            "selected_result": nearest[0]["interpretation"] if nearest else None,
         }

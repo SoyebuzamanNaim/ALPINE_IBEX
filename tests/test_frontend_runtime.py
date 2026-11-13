@@ -138,15 +138,15 @@ const document = {
 };
 const context = vm.createContext({ document, window: { location: { protocol: 'file:', origin: 'null', hostname: '' } }, console });
 vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
-vm.runInContext('drawSweepCanvas = () => {}; state.sweepData = {points: [{oxygen_pct: 18, prediction: null}]}; state.dynamicLocBoundary = 17.5; updateSweepPoint(18)', context);
+vm.runInContext('drawSweepCanvas = () => {}; state.sweepData = {points: [{oxygen_pct: 18, prediction: null, status: "conflicting_evidence", warning_message: "Conflicting indexed outcomes."}]}; state.dynamicLocBoundary = 17.5; updateSweepPoint(18)', context);
 if (nodes.get('safety-margin-val').textContent !== 'N/A' ||
-    nodes.get('safety-margin-status').textContent !== 'No model estimate at this point' ||
+    !nodes.get('safety-margin-status').textContent.includes('No model estimate: conflicting evidence') ||
     /BASS|16.5%/.test(nodes.get('evidence-below-boundary').textContent + nodes.get('evidence-below-boundary').innerHTML)) {
   throw new Error('Refused sweep point displayed a transition or fabricated evidence');
 }
 vm.runInContext('state.sweepData = {points: [{oxygen_pct: 17.2, prediction: "spread"}, {oxygen_pct: 17.4, prediction: "no_spread"}]}; updateSweepPoint(17.3)', context);
 if (nodes.get('safety-margin-val').textContent !== 'N/A' ||
-    nodes.get('safety-margin-status').textContent !== 'No model estimate at this point') {
+    nodes.get('safety-margin-status').textContent !== 'No model estimate was sampled at this oxygen value.') {
   throw new Error('Unsampled slider value inherited a neighboring prediction');
 }
 """
@@ -163,12 +163,12 @@ def test_sweep_chart_does_not_draw_probability_through_refused_points():
     script = r"""
 const fs = require('fs');
 const vm = require('vm');
-const red = [];
+const red = [], texts = [], marginal = [];
 const ctx = {
   strokeStyle: '', fillStyle: '', lineWidth: 1,
-  clearRect() {}, fillRect() {}, strokeRect() {}, setLineDash() {}, beginPath() {}, stroke() {}, fillText() {}, arc() {}, fill() {},
-  moveTo(x, y) { if (this.strokeStyle === '#dc2626') red.push('move'); },
-  lineTo(x, y) { if (this.strokeStyle === '#dc2626') red.push('line'); }
+  clearRect() {}, fillRect() {}, strokeRect() {}, setLineDash() {}, beginPath() {}, stroke() {}, fillText(text) {texts.push(text);}, arc() {}, fill() {},
+  moveTo(x, y) { if (this.strokeStyle === '#b91c1c') red.push('move'); if (this.strokeStyle === '#b45309' && this.lineWidth === 2.4) marginal.push('move'); },
+  lineTo(x, y) { if (this.strokeStyle === '#b91c1c') red.push('line'); }
 };
 const document = {
   addEventListener() {},
@@ -176,8 +176,9 @@ const document = {
 };
 const context = vm.createContext({document, window: {location: {protocol: 'file:', origin: 'null', hostname: ''}}, console});
 vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
-vm.runInContext('state.dynamicLocBoundary = 17.5; state.sweepData = {points: [{oxygen_pct: 16, probabilities: {spread: 0.8, no_spread: 0.2}}, {oxygen_pct: 17, probabilities: null}, {oxygen_pct: 18, probabilities: {spread: 0.2, no_spread: 0.8}}]}; drawSweepCanvas(18)', context);
+vm.runInContext('state.dynamicLocBoundary = 17.5; state.sweepData = {range: [16, 21], points: [{oxygen_pct: 16, prediction: "spread", probabilities: {spread: 0.7, marginal_spread: 0.1, no_spread: 0.2}}, {oxygen_pct: 17, prediction: null, probabilities: null}, {oxygen_pct: 18, prediction: "no_spread", probabilities: {spread: 0.2, marginal_spread: 0.1, no_spread: 0.7}}]}; drawSweepCanvas(18)', context);
 if (red.includes('line') || red.filter(x => x === 'move').length !== 2) throw new Error(JSON.stringify(red));
+if (marginal.length !== 2 || !texts.includes('100%') || !texts.includes('0%') || !texts.includes('Model probability')) throw new Error('Missing outcome curve or probability scale');
 """
     result = subprocess.run(
         ["node", "-e", script], cwd=ROOT, capture_output=True, text=True, check=False
@@ -201,7 +202,7 @@ vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
   const first = vm.runInContext('fetchSweepData()', context);
   vm.runInContext('state.material = "Silicone"', context);
   const second = vm.runInContext('fetchSweepData()', context);
-  const data = material => ({marker: material, points: [{oxygen_pct: 21, prediction: 'spread'}], transitions: [{from_regime: 'no_spread', to_regime: 'spread', midpoint: 20, evidence_before: [], evidence_after: []}]});
+  const data = material => ({marker: material, range: [16, 21], points: [{oxygen_pct: 21, prediction: 'spread', probabilities: {spread: 0.8, marginal_spread: 0.1, no_spread: 0.1}}], transitions: [{from_regime: 'no_spread', to_regime: 'spread', midpoint: 20, evidence_before: [], evidence_after: []}]});
   pending[1]({ok: true, json: async () => data('Silicone')});
   await second;
   pending[0]({ok: true, json: async () => data('PMMA')});
@@ -302,11 +303,11 @@ const context = vm.createContext({
   setInterval: callback => {tick = callback; return 42;}, clearInterval() {}
 });
 vm.runInContext(fs.readFileSync('app/app.js', 'utf8'), context);
-vm.runInContext('fetchSweepData = () => {}; state.sweepData = {points: []}; state.dynamicLocBoundary = 17.5; setupSweepView()', context);
+vm.runInContext('fetchSweepData = () => {}; state.sweepMode = "model"; state.sweepData = {points: [{oxygen_pct: 16}, {oxygen_pct: 18.333}, {oxygen_pct: 21}]}; state.dynamicLocBoundary = 17.5; setupSweepView()', context);
 nodes.get('btn-run-auto-sweep').click();
 for (let i = 0; i < 52; i++) tick();
 const readout = nodes.get('readout-sweep-o2').textContent;
-if (readout !== '16.0 %' || vm.runInContext('state.sweepRunning', context)) {
+if (readout !== '16 %' || vm.runInContext('state.sweepRunning', context)) {
   throw new Error(`Auto sweep passed slider minimum: ${readout}`);
 }
 """
@@ -432,8 +433,9 @@ const document = {
 const fetch = async () => ({
   ok: true,
   json: async () => ({
-    points: [{oxygen_pct: 16, prediction: 'spread', probabilities: {spread: 0.8}},
-             {oxygen_pct: 21, prediction: 'spread', probabilities: {spread: 0.9}}],
+    range: [16, 21],
+    points: [{oxygen_pct: 16, prediction: 'spread', probabilities: {spread: 0.8, marginal_spread: 0.1, no_spread: 0.1}},
+             {oxygen_pct: 21, prediction: 'spread', probabilities: {spread: 0.9, marginal_spread: 0.05, no_spread: 0.05}}],
     transitions: []
   })
 });
@@ -447,7 +449,7 @@ vm.runInContext('drawSweepCanvas = () => {};', context);
   if (vm.runInContext('state.sweepMode', context) !== 'model' ||
       nodes.get('sweep-oxygen-slider').disabled ||
       nodes.get('safety-margin-val').textContent !== 'N/A' ||
-      nodes.get('safety-margin-status').textContent !== 'No model transition in this range' ||
+      !nodes.get('safety-margin-status').textContent.includes('No model transition detected') ||
           nodes.get('sweep-title').textContent !== 'Research model oxygen sweep') {
     throw new Error('Transition-free model points were hidden or given a fabricated transition');
   }

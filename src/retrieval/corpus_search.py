@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 from rank_bm25 import BM25Okapi
@@ -26,7 +27,7 @@ class ReportCorpusSearcher:
             
             # Combine text for indexing
             text = f"{doc.get('title', '')} {doc.get('abstract', '')} {' '.join(doc.get('keywords', []))}".lower()
-            tokens = text.split()
+            tokens = re.findall(r"[\w]+(?:[.-][\w]+)*", text)
             self.doc_tokens.append(tokens)
 
         if self.doc_tokens:
@@ -43,7 +44,7 @@ class ReportCorpusSearcher:
         if not self.bm25 or not self.documents:
             return []
 
-        tokens = query.lower().split()
+        tokens = re.findall(r"[\w]+(?:[.-][\w]+)*", query.lower())
         scores = self.bm25.get_scores(tokens)
         top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
 
@@ -62,7 +63,7 @@ class ReportCorpusSearcher:
             return "Abstract unavailable."
 
         abstract = doc["abstract"]
-        sentences = [s.strip() for s in abstract.split(".") if len(s.strip()) > 20]
+        sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+(?=[A-Z])", abstract) if len(s.strip()) > 20]
         scored = []
         for s in sentences:
             score = sum(1 for kw in keywords if kw.lower() in s.lower())
@@ -71,5 +72,5 @@ class ReportCorpusSearcher:
         scored.sort(key=lambda x: x[0], reverse=True)
         top_sentences = [s for sc, s in scored[:2] if sc > 0]
         if top_sentences:
-            return ". ".join(top_sentences) + "."
-        return sentences[0] + "." if sentences else abstract[:200] + "..."
+            return " ".join(top_sentences)
+        return sentences[0] if sentences else abstract

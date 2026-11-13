@@ -171,6 +171,6 @@ class EvidenceAuditor:
             "reasons": (
                 f"Hallucinated numbers: {hallucinated_numbers}; "
                 f"Unauthorized citations: {invalid_citations}"
-                if not is_valid else "Explanation strictly grounded in prediction object."
+                if not is_valid else "Numbers and citation identifiers match the payload; semantic claims are not checked."
             ),
         }

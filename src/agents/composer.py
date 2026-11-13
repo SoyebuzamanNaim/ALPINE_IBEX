@@ -1,7 +1,7 @@
 """Explanation Composer Agent for FLARE-X.
 
-Converts verified prediction payloads and empirical citations into clear,
-rigorous scientific explanations.
+Uses deterministic templates to describe model outputs and indexed observations.
+The auditor checks numbers and citation identifiers, not scientific entailment.
 Enforces Section 8 Rule 4: If text fails the numerical/citation audit,
 fall back immediately to a deterministic template.
 """
@@ -27,51 +27,44 @@ class ExplanationComposer:
             )
 
         inputs = prediction_obj.get("inputs", {})
-        material = inputs.get("material", "fuel")
-        o2 = inputs.get("oxygen_pct")
-        p = inputs.get("pressure_kpa")
-        flow = inputs.get("flow_cm_s")
-
-        prediction = prediction_obj.get("prediction", "unknown")
-        probs = prediction_obj.get("probabilities", {})
-        prob_val = probs.get(prediction)
-        pct_str = f"{prob_val * 100:.1f}%" if prob_val is not None else "high confidence"
-
-        regime_desc = {
-            "spread": "sustained flame spread",
-            "marginal_spread": "marginal flame spread with unstable propagation or near-extinction oscillations",
-            "no_spread": "flame extinction or failure to sustain spread",
-        }.get(prediction, prediction)
-
-        exps = prediction_obj.get("nearest_experiments", [])
-        cite_texts = []
-        for e in exps[:2]:
-            rid = e.get("report_id") or e.get("experiment_id")
-            outcome = e.get("outcome") or e.get("flame_spread_regime")
-            if rid and outcome:
-                cite_texts.append(f"{rid} (observed: {outcome})")
-
-        citations = "; ".join(cite_texts) if cite_texts else "available microgravity observations"
-
-        # Construct explanation incorporating only validated numbers
-        text = (
-            f"Under microgravity conditions without natural buoyant convection, {material} at {o2}% O2, "
-            f"{p} kPa, and {flow} cm/s ventilation has an exploratory model estimate of {regime_desc}, "
-            f"with an estimated class probability of {pct_str}. These probabilities have not been validated across reports. "
-            f"In microgravity, forced airflow supplies convective oxygen to the reaction zone while conductive and radiative "
-            f"heat losses dictate the flame stabilization boundary. "
-            f"Nearby NASA spaceflight or drop-tower observations for comparison: {citations}. "
-            f"Nearby observations may differ in geometry, flow direction and ignition history; this estimate does not establish safety."
+        prediction = prediction_obj.get("prediction")
+        probs = prediction_obj.get("probabilities") or {}
+        probability = probs.get(prediction)
+        estimate = (
+            f"Exploratory model estimate: {prediction} for {inputs.get('material')} at "
+            f"{inputs.get('oxygen_pct')}% oxygen, {inputs.get('pressure_kpa')} kPa and "
+            f"{inputs.get('flow_cm_s')} cm/s. "
+            if prediction else "No model estimate is available. "
         )
+        if probability is not None:
+            estimate += f"Estimated class probability: {probability * 100:.1f}%; not validated across reports. "
 
-        return text
+        exps = prediction_obj.get("nearest_experiments") or []
+        citations = "; ".join(
+            f"{e.get('report_id') or e.get('experiment_id')} (observed: {e.get('outcome')})"
+            for e in exps[:2] if (e.get("report_id") or e.get("experiment_id")) and e.get("outcome")
+        )
+        selected = exps[0].get("interpretation", {}) if exps else {}
+        observed = selected.get("observed") or citations or "No indexed observation is available."
+        differences = " ".join(selected.get("conditions_differ", [])) or (
+            "Geometry, flow direction and ignition history are not specified in the query; agreement is unknown."
+        )
+        limits = selected.get("cannot_conclude") or (
+            "Similarity does not measure scientific reliability or establish the requested outcome or safety."
+        )
+        return (
+            f"{estimate}What was observed: {observed} "
+            f"Which conditions differ: {differences} "
+            f"What cannot be concluded: {limits} "
+            f"Source records: {citations or 'none'}. Summary method: deterministic template."
+        )
 
     def compose(
         self,
         prediction_obj: dict[str, Any],
         candidate_text: str | None = None,
     ) -> dict[str, Any]:
-        """Produce an audited explanation, falling back to deterministic template on audit failure."""
+        """Check numbers/citations; this is not a semantic claim checker or an LLM call."""
         if not prediction_obj.get("in_training_range"):
             refusal_text = (
                 "Requested conditions are outside the published experimental envelope. "
@@ -87,19 +80,12 @@ class ExplanationComposer:
         # If external candidate text was provided (e.g. from an LLM), audit it strictly
         if candidate_text:
             audit_res = self.auditor.audit_explanation(candidate_text, prediction_obj)
-            if audit_res["is_valid"]:
-                return {
-                    "explanation": candidate_text,
-                    "audited": True,
-                    "source": "llm_validated",
-                    "audit_result": audit_res,
-                }
-            # Audit failed: fallback to deterministic template per Rule 4
+            # Numeric/citation agreement cannot validate a candidate's scientific claims.
             det_text = self.compose_deterministic(prediction_obj)
             return {
                 "explanation": det_text,
                 "audited": True,
-                "source": "deterministic_fallback_audit_failed",
+                "source": "deterministic_candidate_not_enabled" if audit_res["is_valid"] else "deterministic_fallback_audit_failed",
                 "audit_result": audit_res,
             }
 

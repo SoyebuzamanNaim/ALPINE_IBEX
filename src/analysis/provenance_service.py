@@ -2,7 +2,7 @@
 
 Provides fine-grained source traceability for every NASA microgravity combustion observation.
 Allows researchers and judges to trace any AI claim or empirical data point back to its
-exact peer-reviewed NASA Technical Report, page, table, figure, and original measurement.
+recorded NASA report reference and available source-location fields.
 """
 from __future__ import annotations
 
@@ -12,7 +12,6 @@ from typing import Any, Optional
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
-PROVENANCE_PATH = ROOT / "data" / "metadata" / "provenance_registry.json"
 DATA_PATH = ROOT / "cache" / "experiments.parquet"
 REPORT_CORPUS_DIR = ROOT / "cache" / "report_corpus"
 
@@ -22,57 +21,24 @@ class ProvenanceService:
 
     def __init__(
         self,
-        provenance_path: Path = PROVENANCE_PATH,
         data_path: Path = DATA_PATH,
         corpus_dir: Path = REPORT_CORPUS_DIR,
     ):
-        self.provenance_path = provenance_path
         self.data_path = data_path
         self.corpus_dir = corpus_dir
         self._registry: dict[str, dict[str, Any]] = {}
         self._load_registry()
 
     def _load_registry(self) -> None:
-        if self.provenance_path.exists():
-            try:
-                raw = json.loads(self.provenance_path.read_bytes())
-                if isinstance(raw, list):
-                    for item in raw:
-                        self._registry[item["experiment_id"]] = item
-                elif isinstance(raw, dict):
-                    self._registry = raw
-            except Exception:
-                pass
-
-        # If parquet exists and has extra fields, merge them
-        if self.data_path.exists():
-            try:
-                df = pd.read_parquet(self.data_path)
-                for _, row in df.iterrows():
-                    eid = row["experiment_id"]
-                    if eid not in self._registry:
-                        self._registry[eid] = {
-                            "experiment_id": eid,
-                            "investigation": row.get("investigation", "BASS-II"),
-                            "material": row.get("material", "PMMA"),
-                            "outcome": row.get("outcome", "spread"),
-                            "oxygen_pct": float(row.get("oxygen_pct", 21.0)),
-                            "pressure_kpa": float(row.get("pressure_kpa", 101.3)),
-                            "flow_cm_s": float(row.get("flow_cm_s", 5.0)),
-                            "report_id": row.get("report_id", ""),
-                            "source_url": row.get("source_url", ""),
-                            "exact_source_citation": row.get("exact_source_citation", f"NASA Report {row.get('report_id')}"),
-                            "verification_tier": row.get("verification_tier", "VERIFIED_FLIGHT_TABLE"),
-                            "data_origin": row.get("data_origin", "direct_measurement"),
-                            "extraction_notes": row.get("extraction_notes", ""),
-                        }
-                    for field in ("sample_geometry", "sample_thickness_mm", "flow_direction",
-                                  "gravity_env", "outcome_raw", "outcome_interpreted"):
-                        value = row.get(field)
-                        if value is not None and not pd.isna(value):
-                            self._registry[eid][field] = value
-            except Exception:
-                pass
+        # Canonical rows are authoritative; an older registry must not override conditions.
+        df = pd.read_parquet(self.data_path)
+        self._registry = {
+            str(row["experiment_id"]): {
+                key: None if pd.isna(value) else value
+                for key, value in row.items()
+            }
+            for row in df.to_dict(orient="records")
+        }
 
     def get_provenance(self, experiment_id: str) -> Optional[dict[str, Any]]:
         """Retrieve complete provenance and citation card for an experiment ID."""
@@ -86,11 +52,12 @@ class ProvenanceService:
 
         return {
             **record,
-            "report_title": corpus_meta.get("title", f"NASA Technical Report {report_id}"),
+            "report_title": corpus_meta.get("title", f"NTRS record {report_id}"),
             "authors": corpus_meta.get("authors", []),
             "publication_year": corpus_meta.get("year"),
             "doi": corpus_meta.get("doi"),
-            "document_type": corpus_meta.get("document_type", "NASA Technical Memorandum"),
+            "document_type": corpus_meta.get("document_type"),
+            "summary_method": "source_record_lookup",
         }
 
     def query_provenance(
@@ -143,6 +110,6 @@ class ProvenanceService:
         if p.exists():
             try:
                 return json.loads(p.read_bytes())
-            except Exception:
-                pass
+            except (OSError, ValueError):
+                return {}
         return {}

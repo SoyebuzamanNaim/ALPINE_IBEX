@@ -88,6 +88,17 @@ def test_refusal_on_unsupported_material():
     assert any(r["feature"] == "material" for r in res["out_of_range_reasons"])
 
 
+def test_compatibility_predictor_keeps_conflict_and_model_integrity_guards():
+    predictor = FlameSpreadPredictor()
+    conflict = predictor.predict(oxygen_pct=18.0, pressure_kpa=101.3, flow_cm_s=3.0, material="PMMA")
+    assert conflict["status"] == "conflicting_evidence"
+    assert conflict["prediction"] is None
+    predictor.meta["dataset_sha256"] = "0" * 64
+    refused = predictor.predict(oxygen_pct=19, pressure_kpa=101.3, flow_cm_s=5, material="PMMA")
+    assert refused["status"] == "model_unvalidated"
+    assert refused["prediction"] is None
+
+
 def test_metrics_comparisons_exist():
     metrics = json.loads(METRICS_PATH.read_bytes())
     models = metrics["models"]

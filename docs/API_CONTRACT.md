@@ -16,6 +16,8 @@ The FastAPI service is served locally at `http://localhost:8000`. The interactiv
 |---|---|---|
 | `GET` | `/health` | Service and model readiness |
 | `POST` | `/predict` | Guarded estimate, refusal, or abstention with evidence |
+| `POST` | `/evidence` | Model-independent similarity ranking, source context and cited summaries |
+| `GET` | `/reports/search` | BM25 lexical search over indexed report metadata and abstracts |
 | `GET` | `/experiments` | Paginated curated observations |
 | `GET` | `/model` | Model metadata and evaluation metrics |
 | `GET` | `/boundary` | Guarded 2-D oxygen/flow slice |
@@ -28,7 +30,7 @@ The FastAPI service is served locally at `http://localhost:8000`. The interactiv
 | `GET` | `/api/conflict/profiles` | Available study profiles |
 | `POST` | `/api/conflict/compare-studies` | Compare two study profiles |
 | `POST` | `/api/conflict/compare-experiments` | Compare two observations |
-| `GET` | `/api/coverage-map` | Empirical coverage and knowledge gaps |
+| `GET` | `/api/coverage-map` | Current dataset coverage and team proposals |
 | `GET` | `/api/provenance` | Filter provenance records |
 | `GET` | `/api/provenance/{experiment_id}` | Provenance record for one observation |
 
@@ -56,6 +58,67 @@ The numeric fields must be nonnegative and within broad schema bounds: oxygen 0�
 - `audit_failed`: the final explanation failed evidence checks. The result and probabilities are withheld.
 
 When status is eligible for a model estimate, the response includes `inputs`, `in_training_range`, `out_of_range_reasons`, `prediction`, `probabilities`, `model`, `nearest_experiments`, and `explanation`. Any abstention keeps the nearest historical observations available when the retrieval service can provide them.
+
+### Similarity ranking and interpretation
+
+`nearest_experiments` are sorted by ascending normalized Euclidean distance over oxygen,
+pressure and airflow, plus a material mismatch penalty (default 10). Each feature is divided
+by its range in the indexed table; a constant feature uses a divisor of 1. Stable ties retain
+dataset order. This is **similarity ranking**, not scientific reliability or evidence strength.
+
+Each result includes `similarity_ranking` (formula, feature ranges, normalized differences,
+numeric distance and applied material penalty), the recorded `sample_geometry`,
+`sample_thickness_mm`, `flow_direction`, source observation and extraction notes, and an
+`interpretation` object with `observed`, `conditions_differ`, `cannot_conclude`, and
+`method=deterministic_record_template`. `matched_variables` means within the display
+tolerances of 1 oxygen percentage point, 5 kPa and 2 cm/s, with matching material; these
+tolerances do not change the distance calculation or imply exact experimental equivalence.
+
+Boolean conditions and extra request fields are rejected. The four-input query does not specify geometry, thickness, direction or ignition protocol,
+so agreement for these conditions is unknown. Ignition history is not a structured dataset
+field and is not inferred; consult the original notes. The result cards expose this context
+even when the model abstains. An interpreted outcome label remains marked as interpreted.
+
+`explanation_source` identifies the deterministic template or refusal path. The public route
+does not invoke a generative model. The internal candidate-text hook checks numbers and
+citation identifiers for diagnostics, but always returns a deterministic template. Passing
+those checks does not establish scientific entailment and does not enable candidate publication.
+
+`POST /evidence` accepts the same four conditions but never runs a classifier. It returns the
+scenario, nearest observations, cited report metadata, selected deterministic interpretation,
+scope and actual indexed dataset hash. It remains available when optional model artifacts are
+missing or invalid. In that situation `/health` reports `evidence_ready=true`,
+`model_ready=false`; model-specific routes return HTTP 503.
+
+`GET /reports/search?query=PMMA%20extinction&limit=5` ranks indexed report titles, abstracts and
+keywords by BM25 lexical relevance. The query is limited to 500 characters and the result
+limit is 1–20. A zero-result search is not a literature-wide absence claim.
+
+### Recorded-condition comparisons
+
+Study profiles summarize the current indexed rows for a study family, rather than guessed
+chamber volumes or complete experimental specifications. Each dimension reports `MATCH`,
+`DIFFERENT`, or `UNKNOWN`, with unknown used whenever either side lacks complete context.
+Range agreement across studies does not establish matched tests or justify pooling.
+
+Comparison responses expose `matching_dimensions`, `unknown_dimensions`, source reports,
+and `comparison_method=deterministic_recorded_conditions`. The legacy `comparability_score`
+field is always null. The view neither assigns scientific reliability nor infers physical
+causes for differing outcomes. Original source review remains necessary.
+
+### Dataset coverage
+
+`/api/coverage-map` reports `scope=current FLARE-X dataset`. Grid occupancy aggregates
+materials, pressures and geometries in oxygen–airflow bins; it does not establish coverage
+of every scenario in an occupied bin. Empty cells have `density=NO_INDEXED_OBSERVATIONS`.
+The legacy keys `coverage_completeness_pct` and `untested_gap_cells_count` mean occupied-bin
+percentage and empty-bin count, respectively, not literature completeness or proven gaps.
+
+The legacy `empirical_white_spaces` list now contains `status=team_proposal`, explicit
+dataset scope, computed `matching_observations`, per-material counts, and a
+`coverage_statement`. Zero matches are described as “No matching observations in the current
+FLARE-X dataset.” A proposal with indexed matches reports that count instead. These ideas
+are team proposals and make no independently verified literature-wide absence claim.
 
 ## Scenario parsing
 

@@ -15,6 +15,7 @@ class NearestExperimentRetriever:
     def __init__(self, data_path: Path = DATA_FILE):
         if not data_path.exists():
             raise FileNotFoundError(f"Missing experiments dataset: {data_path}")
+        self.data_path = data_path
         self.df = pd.read_parquet(data_path)
         
         # Calculate feature ranges for normalization
@@ -48,7 +49,7 @@ class NearestExperimentRetriever:
         distances = np.sqrt(delta_o2**2 + delta_p**2 + delta_flow**2) + mat_mismatch
 
         # Top k indices
-        top_k_indices = np.argsort(distances)[:k]
+        top_k_indices = np.argsort(distances, kind="stable")[:k]
 
         results = []
         for idx in top_k_indices:
@@ -79,6 +80,36 @@ class NearestExperimentRetriever:
             else:
                 mismatched.append(f"material (observed {row['material']}, requested {material})")
 
+            # Context is displayed but never silently treated as a ranked feature.
+            context = {
+                key: row.get(key) if pd.notna(row.get(key)) else None
+                for key in ("sample_geometry", "sample_thickness_mm", "flow_direction",
+                            "outcome_raw", "extraction_notes", "gravity_env")
+            }
+            differences = []
+            for field, requested, label, unit in (
+                ("oxygen_pct", oxygen_pct, "Oxygen", "%"),
+                ("pressure_kpa", pressure_kpa, "Pressure", " kPa"),
+                ("flow_cm_s", flow_cm_s, "Airflow", " cm/s"),
+                ("material", material, "Material", ""),
+            ):
+                if row[field] != requested:
+                    differences.append(f"{label}: observed {row[field]}{unit}, requested {requested}{unit}.")
+            if not differences:
+                differences.append("No differences in the four ranked inputs.")
+            differences.append(
+                "Query geometry, thickness, flow direction and ignition history are unspecified; agreement is unknown."
+            )
+            # Ignition history has no structured column; do not infer it from an outcome.
+            context["ignition_history"] = None
+            limitations = (
+                "Similarity ranking measures proximity, not scientific reliability. "
+                "The requested outcome, ignition/extinction threshold and safety cannot be inferred."
+            )
+            observed = (
+                f"{row['experiment_id']}: curated outcome label {row['outcome']} for {row['material']}."
+            )
+
             # Keep the returned experiment records aligned with the API response schema.
             results.append({
                 "experiment_id": str(row["experiment_id"]),
@@ -93,9 +124,24 @@ class NearestExperimentRetriever:
                 "source_url": str(row["source_url"]),
                 "source_page": int(row["source_page"]) if pd.notnull(row.get("source_page")) else None,
                 "source_table": str(row["source_table"]) if pd.notnull(row.get("source_table")) else None,
+                "exact_source_citation": str(row["exact_source_citation"]) if pd.notnull(row.get("exact_source_citation")) else None,
                 "matched_variables": matched,
                 "mismatched_variables": mismatched,
-                "similarity_explanation": f"Observed {row['outcome']} in {row['investigation']} at {row['oxygen_pct']}% O2, {row['flow_cm_s']} cm/s flow."
+                **context,
+                "outcome_interpreted": bool(row.get("outcome_interpreted", False)),
+                "similarity_ranking": {
+                    "method": "sqrt(sum((absolute difference / dataset feature range)^2)) + material penalty",
+                    "feature_ranges": {"oxygen_pct": self.o2_range, "pressure_kpa": self.p_range,
+                                       "flow_cm_s": self.flow_range},
+                    "normalized_differences": {"oxygen_pct": float(delta_o2[idx]),
+                                               "pressure_kpa": float(delta_p[idx]),
+                                               "flow_cm_s": float(delta_flow[idx])},
+                    "material_penalty": float(mat_mismatch[idx]),
+                    "numeric_distance": float(distances[idx] - mat_mismatch[idx]),
+                },
+                "interpretation": {"method": "deterministic_record_template", "observed": observed,
+                                   "conditions_differ": differences, "cannot_conclude": limitations},
+                "similarity_explanation": observed,
             })
 
         return results

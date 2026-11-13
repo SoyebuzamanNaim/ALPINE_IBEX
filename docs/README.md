@@ -6,6 +6,8 @@
 - [Architecture](ARCHITECTURE.md)
 - [API contract](API_CONTRACT.md)
 - [Reproduction guide](REPRODUCIBILITY.md)
+- [Public demo deployment and recording check](DEPLOYMENT.md)
+- [Space Apps 2026 submission narrative and demonstration](SUBMISSION.md)
 
 ## Data and science
 

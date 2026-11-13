@@ -43,7 +43,9 @@ def test_e2e_1_supported_scenario(client):
     first_exp = data["nearest_experiments"][0]
     assert first_exp["report_id"] is not None
     assert "ntrs.nasa.gov" in first_exp["source_url"]
-    assert "exploratory" in data["explanation"]
+    assert "exploratory" in data["explanation"].lower()
+    assert data["explanation_source"] == "deterministic_template"
+    assert first_exp["interpretation"]["method"] == "deterministic_record_template"
 
 
 def test_e2e_2_boundary_scenario(client):

@@ -43,8 +43,18 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
           npm run test:frontend
+      - name: Verify submission acceptance check against local FastAPI
+        if: matrix.python-version == '3.12'
+        run: |
+          python -m uvicorn src.api.main:app --host 127.0.0.1 --port 8010 > /tmp/flare-demo-api.log 2>&1 &
+          api_pid=$!
+          trap 'kill "$api_pid"' EXIT
+          curl --retry 10 --retry-connrefused --retry-delay 1 --fail http://127.0.0.1:8010/health > /dev/null
+          FLARE_DEMO_URL=http://127.0.0.1:8010/ npm run test:demo
       - uses: actions/upload-artifact@v4
         if: always() && matrix.python-version == '3.12'
         with:
           name: frontend-playwright
-          path: /tmp/flare-playwright/
+          path: |
+            /tmp/flare-playwright/
+            /tmp/flare-demo/

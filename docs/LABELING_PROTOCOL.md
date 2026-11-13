@@ -1,40 +1,42 @@
 # Outcome labeling protocol
 
-> **Document Status:** Authoritative scientific protocol for categorizing microgravity combustion observations
-> into target regime classes.
+This is a curation protocol for FLARE-X research labels. It is not a material-safety standard.
+A label describes a particular reported observation and test history; it does not certify a
+material or predict what happens under another protocol.
 
-## 1. Target Classes
-
-Microgravity solid fuel flammability is mapped into three distinct physical regimes:
-
-| Target Class | Physical Definition | Spacecraft Safety Significance |
+| Label | Indexed interpretation | Inference limit |
 |---|---|---|
-| `no_spread` | The ignition flame fails to establish, self-extinguishes immediately after igniter de-energization, or undergoes total blowoff/quench. No flame propagation across the solid surface. | Non-flammable / inherently safe under the specified atmosphere and flow conditions. |
-| `marginal_spread` | A weak, unstable, or flickering flame survives near the flammability limit. Spreads unsteadily, exhibits partial surface regression, or slowly fades toward delayed extinction. | High-risk hazard: flame may survive undetected in ventilation dead-zones and transition to vigorous burning if airflow increases. |
-| `spread` | A self-sustaining flame propagates steadily along the solid fuel surface until fuel is consumed or external intervention occurs. | Unsafe / catastrophic fire hazard: sustained combustion requiring immediate suppression. |
+| `no_spread` | The curated record describes failure to sustain spread, failure to ignite, or extinction at a reported condition. | Ignition failure and extinction of an established flame are different observations. Neither implies inherent safety. |
+| `marginal_spread` | The curated record describes limited, unstable or intermittent propagation. | The label alone does not establish a threshold, spread rate or operational hazard level. |
+| `spread` | The curated record describes sustained propagation or continued burning under its test conditions. | It does not quantify an operational spacecraft fire scenario. |
 
----
+## Source and interpretation
 
-## 2. Textual Mapping Rules
+Preserve the source observation text, test identifier, citation, oxygen basis, geometry,
+flow direction and available ignition history. Do not turn keyword matches into new labels
+without reading the full observation. A sentence containing both initial burning and later
+extinction cannot be reduced safely by taking its first matching keyword.
 
-Published NASA technical reports describe outcomes using PI narrative notes, table columns, and experimental remarks.
-The following deterministic mapping rules are applied:
+BASS-II conditions come from PSI-25; outcome labels were hand assigned from the report's
+observations. They are curated interpretations, not an outcome column supplied by PSI.
+The legacy canonical table's `outcome_interpreted` flag does not consistently encode this:
+its current false values must not be presented as proof that these labels are direct
+measurements. The application displays source text and identifies the outcome as a curated
+label. Scientific review of the label assignments remains necessary.
 
-| Raw Literature Wording / Keywords | Assigned Class | Interpretation Required? (`outcome_interpreted`) |
-|---|---|---|
-| `"extinguished immediately"`, `"no ignition"`, `"failed to ignite"`, `"immediate extinction"`, `"quenched"`, `"blowoff"`, `"no flame"` | `no_spread` | False (Direct observation) |
-| `"extinguished after flow turned off"`, `"self-extinguished"`, `"spread < 5 mm then out"`, `"did not sustain"` | `no_spread` | False (Direct observation) |
-| `"flickering"`, `"near-limit"`, `"unsteady spread"`, `"weak blue flame"`, `"marginal"`, `"decaying flame"`, `"intermittent burning"`, `"oscillating"` | `marginal_spread` | True (Rule applied) |
-| `"slow spread near extinction"`, `"limitation boundary"`, `"partial consumption with fade"` | `marginal_spread` | True (Rule applied) |
-| `"steady spread"`, `"sustained spread"`, `"propagated along rod"`, `"burned to end"`, `"robust flame"`, `"vigorous burning"`, `"steady flame"` | `spread` | False (Direct observation) |
-| `"multiple velocities for steady spread"`, `"spread rate = X mm/s"` (where rate > 0) | `spread` | False (Direct observation) |
+## Multiple conditions in one burn
 
----
+A velocity ramp or oxygen-depletion sequence is one evolving experiment. A record may
+index one condition along it. Do not count repeated conditions as independent burns, infer
+an ignition limit from a later extinction, or use initial oxygen as post-burn oxygen.
+If the source does not tie an outcome to an exact condition, leave the label unresolved in
+the curation worksheet rather than adding a training row.
 
-## 3. Ambiguity Resolution & Conflict Protocol
+## Review and regeneration
 
-1. **Velocity Sweeps within Single Run:** In several BASS-II tests (e.g. B10, B11), the astronaut varied fan speeds from 5 cm/s down to 0.35 cm/s within a single test run to locate the low-speed extinction boundary.
-   - For conditions where the flame spread steadily, a row is recorded as `spread`.
-   - At the specific velocity where the flame faded and extinguished (e.g. at 0.35 cm/s), a separate discrete condition row is recorded as `no_spread` (or `marginal_spread` if hovering before extinction).
-2. **Flagging:** Every row where the outcome was inferred from narrative notes rather than an explicit "Outcome" column must have `outcome_interpreted: true`.
-3. **Quarantine:** If a publication notes "video lost", "camera malfunction", or "ambiguous test point without visual confirmation", that row is excluded from model training and quarantined.
+A reviewer should record the quoted observation, page/table/test, interpretation reason,
+oxygen basis, and whether ignition preceded the indexed condition. Exclude ambiguous or
+unverifiable assignments from any future canonical rebuild. Any accepted label or condition
+change requires ingestion validation, retraining, regenerated evaluation and model card,
+artifact verification, and the API/browser regression suites. Never change labels to
+increase prediction accuracy.

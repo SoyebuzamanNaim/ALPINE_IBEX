@@ -1,6 +1,6 @@
 """End-to-End Test Suite for FLARE-X Evidence Atlas Workflow.
 
-Validates the full NASA Space Apps 2026 winning demonstration storyline:
+Validates the full NASA Space Apps 2026 research demonstration workflow:
 1. Grounded Evidence Retrieval & Claim-level Provenance
 2. Multi-study Comparability & Conflict Explorer
 3. Research Coverage Map & Empirical White Spaces
@@ -48,10 +48,10 @@ def test_full_evidence_atlas_workflow():
         "study_b": "Saffire",
     }).json()
 
-    assert conflict_res["verdict"] == "COMPLEMENTARY_DIFFERENT_REGIMES"
-    assert 0.40 <= conflict_res["comparability_score"] <= 0.60
-    assert any("Scale" in d["dimension"] for d in conflict_res["dimensions"])
-    assert "radiative" in conflict_res["scientific_reconciliation"].lower()
+    assert conflict_res["verdict"] == "CONTEXT_DIFFERS"
+    assert conflict_res["comparability_score"] is None
+    assert any("geometry" in d["dimension"] for d in conflict_res["dimensions"])
+    assert "does not explain why outcomes differ" in conflict_res["scientific_reconciliation"]
 
     # 4. Research Coverage Map & Empirical White Spaces
     coverage_res = client.get("/api/coverage-map").json()

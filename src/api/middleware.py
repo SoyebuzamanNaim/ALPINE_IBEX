@@ -17,6 +17,7 @@ class RequestGuardMiddleware:
     """
 
     HEAVY_POST_PATHS = {
+        "/evidence",
         "/predict",
         "/counterfactual",
         "/sweep",

@@ -58,7 +58,7 @@ class EnvelopeGuard:
                 "feature": "material",
                 "value": material,
                 "allowed_values": self.allowed_materials,
-                "reason": f"Material '{material}' was not tested in published microgravity datasets."
+                "reason": f"No matching observations for material '{material}' in the current FLARE-X dataset."
             })
             nearest = self.retriever.find_nearest(oxygen_pct, pressure_kpa, flow_cm_s, material, k=3)
             return {
@@ -66,7 +66,7 @@ class EnvelopeGuard:
                 "status": "unsupported_category",
                 "out_of_range_reasons": reasons,
                 "sparse_region_warning": False,
-                "warning_message": f"Material '{material}' is not in the published microgravity database.",
+                "warning_message": f"Material '{material}' is not in the current FLARE-X dataset.",
                 "nearest_experiments": nearest,
                 "explanation": "Requested conditions are outside the published experimental envelope. No prediction is made."
             }

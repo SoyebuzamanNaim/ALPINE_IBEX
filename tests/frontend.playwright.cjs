@@ -65,11 +65,40 @@ async function ready() {
     await page.goto(frontend);
     await page.waitForFunction(() => document.getElementById('chip-model-type').textContent === 'Linear SVM' && document.getElementById('val-prob-spread').textContent.includes('%'));
     await page.screenshot({path: path.join(output, 'initial-desktop.png'), animations: 'disabled'});
+    await check('Evidence desk leads with the source record, supports report search and exports cited evidence', async () => {
+      assert.equal(await page.locator('#research-model-panel').getAttribute('open'), null);
+      assert.match(await page.locator('#evidence-overview-body').innerText(), /Source observation:[\s\S]*Cannot conclude:/);
+      await page.locator('#report-search-input').fill('PMMA extinction');
+      await page.locator('#report-search-form button').click();
+      await page.locator('#report-search-results article').first().waitFor();
+      assert.match(await page.locator('#report-search-status').innerText(), /lexical relevance/);
+      assert.match(await page.locator('#report-search-results a').first().getAttribute('href'), /^https:\/\//);
+      const downloading = page.waitForEvent('download');
+      await page.locator('#download-evidence').click();
+      const download = await downloading;
+      const bundle = JSON.parse(fs.readFileSync(await download.path(), 'utf8'));
+      assert.equal(bundle.summary_method, 'deterministic_record_template');
+      assert.equal(bundle.observations.length, 3);
+      assert.match(bundle.observations[0].source_url, /^https:\/\//);
+      await page.locator('#report-search-input').fill('unmatched-zxqv197341');
+      await page.locator('#report-search-form button').click();
+      await page.waitForFunction(() => document.getElementById('report-search-status').textContent.startsWith('0 reports'));
+      await page.locator('#research-model-panel > summary').click();
+    });
     await check('Frontend connects to the selected research SVM backend', async () => {
       const h = await (await page.request.get(`${base}/health`)).json();
       assert.equal(h.model_type, 'linear_svm'); assert.equal(h.model_ready, true); assert.equal(h.release_mode, 'research');
-      assert.equal(await page.locator('#chip-cv-acc').innerText(), '84.0%');
+      assert.equal(await page.locator('#chip-cv-acc').count(), 0);
       assert.match(await page.locator('#operator-briefing-text').innerText(), /Exploratory/);
+    });
+    await check('Similarity ranking explains conditions and limitations without implying reliability', async () => {
+      const card = page.locator('.flight-obs-card').first();
+      const text = await card.innerText();
+      assert.match(text, /What was observed:[\s\S]*Which conditions differ:[\s\S]*What cannot be concluded:/);
+      assert.match(text, /Geometry:[\s\S]*Flow direction:[\s\S]*Ignition history:/);
+      assert.match(text, /unspecified/);
+      await card.locator('summary').click();
+      assert.match(await card.innerText(), /material penalty[\s\S]*not more reliable/);
     });
     await check('Citation inspector includes source text, geometry and keyboard focus', async () => {
       await page.locator('.btn-trace-cite').first().click();
@@ -221,6 +250,8 @@ async function ready() {
       await page.waitForFunction(() => document.getElementById('cov-total-runs').textContent === '200');
       const sum = await page.locator('.cell-count').evaluateAll(nodes => nodes.reduce((sum, node) => sum + Number(node.textContent), 0));
       assert.equal(sum, 200); assert.ok(await page.locator('.gap-card').count() > 0);
+      assert.match(await page.locator('.gap-card').first().innerText(), /TEAM PROPOSAL/);
+      assert.match(await page.locator('.heatmap-footnote').innerText(), /current FLARE-X dataset/);
     });
     await check('Model provenance distinguishes selected score from nested search and shows seven folds', async () => {
       await page.locator('#tab-model-btn').click();
@@ -236,9 +267,52 @@ async function ready() {
       assert.equal(await page.locator('#sweep-title').innerText(), 'Research model oxygen sweep');
       assert.equal(await page.locator('#safety-margin-val').innerText(), 'N/A');
       assert.match(await page.locator('#safety-margin-status').innerText(), /No model transition/);
+      assert.match(await page.locator('#sweep-model-key').innerText(), /Spread[\s\S]*Marginal spread[\s\S]*No spread/);
+      assert.ok((await page.locator('#sweep-chart-canvas').boundingBox()).height >= 260, 'Probability scale was compressed by the layout');
+      const expected = await page.evaluate(() => state.sweepData.points.find(point => point.oxygen_pct === 21).probabilities);
+      for (const probability of Object.values(expected)) {
+        assert.ok((await page.locator('#sweep-point-details').innerText()).includes(`${(probability * 100).toFixed(2)}%`));
+      }
       await page.locator('#btn-run-auto-sweep').click();
       await page.waitForFunction(() => !state.sweepRunning, null, {timeout: 10000});
       assert.equal(Number(await page.locator('#sweep-oxygen-slider').inputValue()), 16);
+    });
+    await check('Oxygen sweeps include the selected condition and keyboard controls reach real samples', async () => {
+      await scenario('PMMA at 25% O2, 101.3 kPa, 5 cm/s');
+      await page.locator('#tab-sweep-btn').click();
+      await page.waitForFunction(() => state.sweepMode === 'model');
+      const range = await page.evaluate(() => state.sweepData.range);
+      assert.ok(range[0] <= 25 && range[1] >= 25);
+      assert.equal(Number(await page.locator('#sweep-oxygen-slider').inputValue()), 25);
+      await page.locator('#sweep-oxygen-slider').focus();
+      await page.keyboard.press('ArrowLeft');
+      assert.equal(await page.evaluate(() => state.sweepData.points.some(point => point.oxygen_pct === Number(document.getElementById('sweep-oxygen-slider').value))), true);
+      assert.ok(Number(await page.locator('#sweep-oxygen-slider').inputValue()) < 25);
+      await page.keyboard.press('End');
+      assert.equal(Number(await page.locator('#sweep-oxygen-slider').inputValue()), 25);
+    });
+    await check('Fully refused oxygen sweeps show reasons and disable playback', async () => {
+      for (const query of ['Nomex at 21% O2, 101.3 kPa, 5 cm/s', 'PMMA at 21% O2, 101.3 kPa, 45 cm/s']) {
+        await scenario(query);
+        await page.locator('#tab-sweep-btn').click();
+        await page.waitForFunction(() => document.getElementById('sweep-description').textContent.startsWith('No model estimates: all'));
+        assert.equal(await page.locator('#sweep-oxygen-slider').isDisabled(), true);
+        assert.equal(await page.locator('#btn-run-auto-sweep').isDisabled(), true);
+        assert.equal(await page.locator('#sweep-model-key').isVisible(), false);
+        assert.match(await page.locator('#safety-margin-status').innerText(), /refused[\s\S]*outside/i);
+        assert.doesNotMatch(await page.locator('#sweep-description').innerText(), /No model transition/);
+      }
+    });
+    await check('A refused oxygen sample retains its conflict reason within a partial sweep', async () => {
+      await scenario('PMMA at 21% O2, 101.3 kPa, 3 cm/s');
+      await page.locator('#tab-sweep-btn').click();
+      await page.waitForFunction(() => state.sweepMode === 'model');
+      assert.match(await page.locator('#sweep-sampling-note').innerText(), /[1-9]\d* refused/);
+      await page.locator('#sweep-oxygen-slider').evaluate(slider => { slider.value = '18'; slider.dispatchEvent(new Event('input', {bubbles: true})); });
+      assert.equal(await page.locator('#safety-margin-val').innerText(), 'N/A');
+      assert.match(await page.locator('#sweep-point-details').innerText(), /No model estimate: conflicting evidence/);
+      assert.match(await page.locator('#safety-margin-status').innerText(), /conflicting evidence/);
+      assert.equal(await page.locator('#btn-run-auto-sweep').isDisabled(), false);
     });
     await check('Keyboard tab navigation and all six views fit desktop, tablet and phones', async () => {
       await page.locator('#tab-lab-btn').focus(); await page.keyboard.press('ArrowRight');
@@ -275,6 +349,7 @@ async function ready() {
     });
     await check('A lost prediction connection clears probabilities and recovers on retry', async () => {
       await page.setViewportSize({width: 1440, height: 1000});
+      await page.locator('#research-model-panel > summary').click();
       await page.locator('#preset-iss-standard').click();
       await page.waitForFunction(() => document.getElementById('val-prob-spread').textContent.includes('%'));
       const intercept = route => route.abort('failed');
@@ -283,6 +358,9 @@ async function ready() {
       await page.waitForFunction(() => document.getElementById('status-text').textContent.includes('unavailable'));
       assert.equal((await page.locator('#val-prob-spread').innerText()).toLowerCase(), 'n/a');
       assert.match(await page.locator('#alert-message').innerText(), /Live estimate unavailable/);
+      await page.waitForFunction(() => currentEvidence?.scenario.oxygen_pct === 16.5 && currentEvidence?.observations.length > 0);
+      assert.match(await page.locator('#status-text').innerText(), /Evidence online/);
+      assert.match(await page.locator('#evidence-overview-body').innerText(), /Source observation:/);
       await page.unroute(`${base}/predict`, intercept);
       const response = page.waitForResponse(r => r.url().endsWith('/predict'));
       await page.locator('#preset-iss-standard').click(); await response;
@@ -294,11 +372,12 @@ async function ready() {
       const p = await offline.newPage(); p.on('pageerror', error => errors.push(error.message));
       await p.route(`${base}/**`, route => {
         const pathname = new URL(route.request().url()).pathname;
-        if (/^\/(predict|model|health|boundary|sweep|experiments|datasets|scenario|api)(\/|$)/.test(pathname)) return route.abort('failed');
+        if (/^\/(predict|evidence|reports|model|health|boundary|sweep|experiments|datasets|scenario|api)(\/|$)/.test(pathname)) return route.abort('failed');
         return route.continue();
       });
       await p.goto(frontend);
       await p.waitForFunction(() => /Backend unavailable|Live estimate unavailable/.test(document.getElementById('status-text').textContent));
+      await p.locator('#research-model-panel > summary').click();
       assert.match(await p.locator('#state-tier-label').innerText(), /PUBLISHED NASA BOUNDARY/);
       assert.equal((await p.locator('#val-prob-spread').innerText()).toLowerCase(), 'n/a');
       await p.locator('#tab-coverage-btn').click();

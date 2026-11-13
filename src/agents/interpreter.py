@@ -107,7 +107,8 @@ class ScenarioInterpreter:
     def _parse_text(self, text: str) -> dict[str, Any]:
         ambiguities = []
         parsed: dict[str, Any] = {}
-        lower = text.lower()
+        lower = text.lower().replace("o₂", "o2")
+        assumptions = []
 
         number = r"(?<![\w.+\-–—])\d+(?:\.\d+)?(?![\w.+\-–—])"
 
@@ -153,11 +154,12 @@ class ScenarioInterpreter:
             following = lower[match.end():]
             if re.match(r"\s*(?:oxygen|o2)\b", following):
                 oxygen_explicit.append(float(match.group(1)))
-            elif not re.match(r"\s*(?:relative\s+humidity|humidity|rh)\b", following):
+            elif not re.match(r"\s*(?:relative\s+humidity|humidity|rh|moisture|n2|nitrogen|co2|carbon\s+dioxide|h2|hydrogen|argon|helium)\b", following):
                 oxygen_unlabeled.append(float(match.group(1)))
         oxygen_values = oxygen_explicit + oxygen_unlabeled
         if not oxygen_values and "exploration atmosphere" in lower:
             oxygen_values.append(34.0)
+            assumptions.append("34% oxygen is an illustrative exploration-atmosphere preset, not a spacecraft atmosphere specification.")
         choose_numeric("oxygen_pct", "oxygen", oxygen_values,
                        "Missing oxygen concentration (e.g. '21% O2').",
                        malformed=malformed_or_range(r"%|pct\b|percent\b"))
@@ -172,6 +174,7 @@ class ScenarioInterpreter:
             pressure_values.append(101.3)
         if "exploration atmosphere" in lower:
             pressure_values.append(56.5)
+            assumptions.append("56.5 kPa is an illustrative exploration-atmosphere preset, not a spacecraft atmosphere specification.")
         choose_numeric("pressure_kpa", "pressure", pressure_values,
                        "Missing pressure specification (e.g. '101.3 kPa' or 'sea level').",
                        tolerance=0.1, malformed=malformed_or_range(r"kpa\b|kilopascals?\b|psi\b"))
@@ -192,4 +195,6 @@ class ScenarioInterpreter:
             "ambiguities": ambiguities,
             "source_type": "natural_language",
             "raw_text": text,
+            "assumptions": assumptions,
+            "unmodeled_context": sorted(set(re.findall(r"\b(?:rods?|sheets?|slabs?|spheres?|opposed|concurrent|ignition|preheated|co2|carbon dioxide|nitrogen|argon|helium)\b", lower))),
         }

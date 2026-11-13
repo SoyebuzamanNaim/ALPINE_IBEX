@@ -6,7 +6,6 @@ citations, counterfactual sweeps, and 2-D decision boundary slices.
 from __future__ import annotations
 
 import csv
-import hashlib
 import json
 import logging
 import math
@@ -35,6 +34,8 @@ from src.api.schemas import (
 from src.api.middleware import RequestGuardMiddleware
 from src.features.counterfactual import CounterfactualEngine
 from src.retrieval.corpus_search import ReportCorpusSearcher
+from src.retrieval.engine import EvidenceRetrievalEngine
+from src.models.baseline import research_model_readiness
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("flare_x_api")
@@ -60,14 +61,20 @@ app.add_middleware(RequestGuardMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Core engine instances
-orchestrator = AgentOrchestrator(meta_path=META_PATH, data_path=DATA_PATH)
-cf_engine = CounterfactualEngine(data_path=DATA_PATH, meta_path=META_PATH)
+try:
+    orchestrator = AgentOrchestrator(meta_path=META_PATH, data_path=DATA_PATH)
+    cf_engine = CounterfactualEngine(data_path=DATA_PATH, meta_path=META_PATH)
+except (FileNotFoundError, ValueError, KeyError) as exc:
+    logger.warning("Optional research model unavailable: %s", exc)
+    orchestrator = None
+    cf_engine = None
+evidence_engine = EvidenceRetrievalEngine()
 interpreter = ScenarioInterpreter()
 corpus_searcher = ReportCorpusSearcher(corpus_dir=CORPUS_DIR)
 conflict_engine = ConflictExplorerEngine(data_path=DATA_PATH)
@@ -77,33 +84,9 @@ provenance_service = ProvenanceService(data_path=DATA_PATH, corpus_dir=CORPUS_DI
 
 def _model_readiness() -> tuple[bool, str]:
     """Gate public inference on the measured report-grouped baseline comparison."""
-    meta = orchestrator.router.meta
-    score = meta.get("cv_accuracy")
-    baseline = meta.get("majority_baseline_accuracy")
-    if (
-        isinstance(score, bool)
-        or isinstance(baseline, bool)
-        or not isinstance(score, (int, float))
-        or not isinstance(baseline, (int, float))
-        or not math.isfinite(score)
-        or not math.isfinite(baseline)
-        or not 0 <= score <= 1
-        or not 0 <= baseline <= 1
-    ):
-        return False, "Model validation metrics are missing; inference is unavailable."
-    if not DATA_PATH.exists() or hashlib.sha256(DATA_PATH.read_bytes()).hexdigest() != meta.get("dataset_sha256"):
-        return False, "Model dataset hash does not match the current experiments table; inference is unavailable."
-    if not MODEL_PATH.exists() or hashlib.sha256(MODEL_PATH.read_bytes()).hexdigest() != meta.get("model_sha256"):
-        return False, "Model artifact hash does not match its metadata; inference is unavailable."
-    if score <= baseline:
-        return False, (
-            f"Model grouped accuracy ({score:.1%}) does not exceed the majority "
-            f"baseline ({baseline:.1%}); inference is unavailable."
-        )
-    return True, (
-        "Exploratory grouped selection score exceeds the majority baseline. "
-        "Research estimates are available; independent external validation is absent."
-    )
+    if orchestrator is None:
+        return False, "Research model artifacts are unavailable or invalid; evidence retrieval remains available."
+    return research_model_readiness(orchestrator.router.meta, DATA_PATH, MODEL_PATH)
 
 
 def _require_model_ready() -> None:
@@ -115,24 +98,38 @@ def _require_model_ready() -> None:
 @app.get("/health", tags=["System"])
 def health_check() -> dict[str, Any]:
     """Service health check, dataset status, and model readiness."""
-    df = pd.read_parquet(DATA_PATH)
-    meta = json.loads(META_PATH.read_bytes())
+    df = evidence_engine.nearest_retriever.df
+    meta = orchestrator.router.meta if orchestrator is not None else {}
     model_ready, model_reason = _model_readiness()
     return {
         "status": "healthy" if model_ready else "degraded",
         "model_ready": model_ready,
+        "evidence_ready": True,
         "model_readiness_reason": model_reason,
         "service": "FLARE-X Microgravity Flammability Engine",
         "version": "1.0.0",
         "dataset_rows": len(df),
-        "dataset_sha256": meta.get("dataset_sha256"),
+        "dataset_sha256": evidence_engine.dataset_sha256,
         "model_type": meta.get("type"),
         "cv_accuracy": meta.get("cv_accuracy"),
         "release_mode": meta.get("release_mode"),
         "validation_status": meta.get("validation_status"),
         "nested_search": meta.get("nested_search"),
-        "allowed_materials": meta.get("training_range", {}).get("allowed_materials", []),
+        "allowed_materials": sorted(df["material"].dropna().unique().tolist()),
     }
+
+
+@app.post("/evidence", tags=["Evidence"])
+def retrieve_evidence(request: PredictRequest) -> dict[str, Any]:
+    """Retrieve indexed observations and cited summaries without running a classifier."""
+    return evidence_engine.retrieve_evidence(**request.model_dump())
+
+
+@app.get("/reports/search", tags=["Evidence"])
+def search_reports(query: str = Query(min_length=1, max_length=500), limit: int = Query(5, ge=1, le=20)) -> dict[str, Any]:
+    """Search indexed report titles, abstracts and keywords using lexical relevance."""
+    reports = corpus_searcher.search(query, top_k=limit)
+    return {"query": query, "ranking": "BM25 lexical relevance; not scientific reliability", "reports": reports}
 
 
 @app.post("/predict", response_model=PredictResponse, tags=["Prediction"])
@@ -144,6 +141,8 @@ def predict(request: PredictRequest) -> dict[str, Any]:
     with detailed reasons while still returning the nearest historical experiments.
     """
     payload = request.model_dump()
+    if orchestrator is None:
+        raise HTTPException(status_code=503, detail=_model_readiness()[1])
     model_ready, model_reason = _model_readiness()
     if not model_ready:
         envelope = orchestrator.guard.check(**payload)
@@ -158,6 +157,7 @@ def predict(request: PredictRequest) -> dict[str, Any]:
                 "model": orchestrator.router.get_model_metadata(),
                 "nearest_experiments": envelope["nearest_experiments"],
                 "explanation": model_reason,
+                "explanation_source": "model_validation_refusal",
                 "warning_message": model_reason,
                 "sparse_region_warning": envelope.get("sparse_region_warning", False),
                 "knn_mean_distance": envelope.get("knn_mean_distance"),
@@ -203,8 +203,9 @@ def list_experiments(
 @app.get("/model", tags=["Model"])
 def get_model_info() -> dict[str, Any]:
     """Return trained model metadata, CV evaluation metrics, confusion matrix, and training ranges."""
-    meta = json.loads(META_PATH.read_bytes())
-    return meta
+    if orchestrator is None:
+        raise HTTPException(status_code=503, detail=_model_readiness()[1])
+    return orchestrator.router.meta
 
 
 def _mask_conflicting_grid_points(
@@ -422,12 +423,6 @@ def get_source_document(report_id: str = PathParam(min_length=1, max_length=128)
         clean_id = report_id.replace("NTRS_", "").replace("NTRS-", "").replace("NTRS ", "")
         doc = corpus_searcher.get_report(clean_id)
     if not doc:
-        # Check by filename stem in CORPUS_DIR
-        for p in CORPUS_DIR.glob("*.json"):
-            if p.stem == clean_id or p.stem in report_id:
-                doc = json.loads(p.read_bytes())
-                break
-    if not doc:
         raise HTTPException(status_code=404, detail=f"Report '{report_id}' not found in corpus.")
     return doc
 
@@ -472,7 +467,7 @@ def compare_experiments(request: ConflictExperimentsRequest) -> dict[str, Any]:
 
 @app.get("/api/coverage-map", tags=["Coverage Map"])
 def get_research_coverage() -> dict[str, Any]:
-    """Retrieve multi-dimensional NASA combustion coverage matrix and empirical white spaces."""
+    """Retrieve indexed dataset coverage and explicitly labeled team proposals."""
     return coverage_engine.get_coverage_summary()
 
 

@@ -13,6 +13,9 @@ The serving linear SVM has an 84.0% exploratory grouped selection score against 
 - The envelope guard limits requests to observed material-specific conditions and their joint domain. It does not establish safety inside that domain.
 - Sparse material evidence and contradictory outcomes produce abstentions. A missing observation is not evidence that a condition is safe.
 - Nearest observations provide context, not proof that an untested condition behaves the same way.
+- Similarity ranking measures normalized numerical proximity with a material penalty, not scientific reliability. Geometry, thickness, flow direction and ignition history are not ranked. Their agreement is unknown when the query does not specify them.
+- Coverage counts apply only to the current FLARE-X dataset. Empty oxygen–flow bins do not prove a gap in the wider literature; occupied bins aggregate materials, pressures and geometries. Suggested experiments are team proposals.
+- Summaries use deterministic templates. The auditor checks numbers and citation identifiers, not whether a scientific interpretation follows from the source. No generative summarization is enabled in the public workflow.
 - The published cast-PMMA boundary in the UI is a separate empirical relation. It describes extinction of an established flame under its published conditions; it does not predict ignition or generalize to other materials or geometries.
 - Counterfactual sweeps show changes in the current mathematical model and retrieval results. They do not simulate controlled physical interventions.
 

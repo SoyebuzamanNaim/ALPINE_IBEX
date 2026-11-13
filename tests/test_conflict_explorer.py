@@ -17,8 +17,9 @@ def test_conflict_explorer_canonical_cases():
 def test_conflict_explorer_study_comparison():
     engine = ConflictExplorerEngine()
     res = engine.compare_canonical_studies("BASS-II", "Saffire")
-    assert res["verdict"] == "COMPLEMENTARY_DIFFERENT_REGIMES"
-    assert 0.0 <= res["comparability_score"] <= 1.0
+    assert res["verdict"] == "CONTEXT_DIFFERS"
+    assert res["comparability_score"] is None
+    assert res["comparison_method"] == "deterministic_recorded_conditions"
     assert len(res["dimensions"]) >= 4
     assert "scientific_reconciliation" in res
     assert "citations" in res
@@ -28,7 +29,9 @@ def test_conflict_explorer_experiment_comparison():
     engine = ConflictExplorerEngine()
     res = engine.compare_experiments("BASS2_B1_5", "BASS2_B6_5")
     assert "comparability_score" in res
-    assert res["verdict"] in ["HIGHLY_COMPARABLE", "COMPLEMENTARY_DIFFERENT_REGIMES", "STRUCTURAL_MISMATCH_NON_COMPARABLE"]
+    assert res["verdict"] == "CONTEXT_DIFFERS"
+    assert res["comparability_score"] is None
+    assert any(d["dimension"] == "Ignition history" and d["status"] == "UNKNOWN" for d in res["dimensions"])
     assert "citations" in res
 
 
@@ -55,3 +58,19 @@ def test_conflict_explorer_api_endpoints():
     # 4. Error on unknown study
     r = client.post("/api/conflict/compare-studies", json={"study_a": "UNKNOWN_STUDY", "study_b": "BASS-II"})
     assert r.status_code == 400
+
+
+def test_comparisons_are_symmetric_and_unknown_context_never_becomes_a_match():
+    engine = ConflictExplorerEngine()
+    forward = engine.compare_canonical_studies("BASS-II", "Saffire")
+    reverse = engine.compare_canonical_studies("Saffire", "BASS-II")
+    assert forward["matching_dimensions"] == reverse["matching_dimensions"]
+    assert forward["unknown_dimensions"] == reverse["unknown_dimensions"]
+    assert [d["status"] for d in forward["dimensions"]] == [d["status"] for d in reverse["dimensions"]]
+    identical = engine.compare_canonical_studies("Drop_Tower_Olson", "Drop_Tower_Olson")
+    assert identical["verdict"] == "INCOMPLETE_CONTEXT"
+    assert identical["unknown_dimensions"] > 0
+    missing = engine.compare_canonical_studies("SoFIE_MIST", "BASS-II")
+    assert all(d["status"] == "UNKNOWN" for d in missing["dimensions"])
+    assert "no indexed observations" in missing["scientific_reconciliation"]
+    assert "safe for" not in identical["cautionary_guidance"].lower()

@@ -32,6 +32,36 @@ data/processed ──► src/ingestion/build_table.py ──► cache/experiment
 - `src/api/` exposes these functions through FastAPI, validates request fields, caps bodies at 64 KiB, and applies per-client request limits.
 - `app/` contains the static frontend.
 
+## Evidence presentation
+
+Nearest records use numerical similarity ranking over oxygen, pressure and airflow, with a
+material penalty. Each record carries the score components, observed geometry and direction,
+and a deterministic summary of the observation, input differences and inference limits.
+Unspecified query context and unstructured ignition history are displayed as unknown rather
+than assumed to match. Ranking does not measure scientific reliability.
+
+The composer uses deterministic templates by default. The auditor checks numeric values and
+citation identifiers; it does not establish scientific entailment. The public API does not
+call a generative model, and candidate text is never released. Any future generative summaries need source-preserving semantic
+claim checks before publication.
+
+Coverage counts describe only the indexed FLARE-X table. Empty bins make no literature-wide
+absence claim. Proposed studies are labeled as team proposals with computed dataset counts.
+
+`POST /evidence` and `/reports/search` are independent of the optional classifier. Invalid
+or missing model artifacts degrade only model features rather than stopping evidence startup.
+The evidence desk shows source observations first, offers a cited JSON download, and puts
+model estimates behind an explicit disclosure. Provenance uses canonical rows directly;
+the exported registry cannot override current test conditions or fill missing values by guess.
+
+Study comparisons report recorded dimensions and missing context rather than a weighted
+comparability score or causal explanation. The standalone prediction helper, model router,
+counterfactual engine and API share the same research-release integrity checks.
+
+GitHub Pages serves static assets; its build requires `FLARE_API_BASE` and writes `app/config.js`.
+A fresh-browser acceptance check exercises the real evidence workflow before publishing and
+again at the exact published URL. See [public demo deployment](DEPLOYMENT.md).
+
 ## Inference gate
 
 The checked-in linear SVM has 200 training rows and an 84.0% exploratory grouped selection score against an 81.5% majority baseline. Guarded research estimates are available; this score was used for selection and is not independent validation. The full search procedure's nested accuracy is 25.5%, which evaluates model selection rather than the fixed SVM alone. Probabilities have not been validated across reports.

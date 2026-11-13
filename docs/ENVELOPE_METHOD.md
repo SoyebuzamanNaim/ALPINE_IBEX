@@ -84,3 +84,20 @@ The API's BASS-II `oxygen_pct` field records the initial oxygen concentration fr
 the post-burn oxygen value used to fit Eq. (6.1). The oxygen sweep therefore labels the numerical difference as an
 initial-oxygen comparison, shows matching concurrent-flow test readings in a separate context lane, and does not
 classify observations as above or below the fitted boundary. These displays do not establish a safety margin.
+
+## 5. Research-model oxygen sweep
+
+The model sweep starts with 16–21% oxygen and expands either endpoint to include the selected
+scenario's oxygen value. It requests approximately 0.1-percentage-point samples, capped at
+100 points by the API contract. The slider, keyboard controls and playback visit actual
+sample values; an unsampled initial selection is explicitly identified without borrowing
+a neighbouring prediction. Plot coordinates and ticks use the returned range.
+
+Spread, marginal spread and no-spread probabilities share a labelled 0–100% scale and legend.
+The selected sample also has a text probability readout. These are exploratory probabilities,
+not independently validated performance estimates. Refused samples break every curve and
+retain their refusal reason. An entirely refused sweep disables playback and reports that no
+model estimates are available; it does not report an absence of physical transitions. Partial
+sweeps disclose refusal counts, and transitions are detected only between adjacent eligible
+samples. The published PMMA fallback retains its separate fitted oxygen range and explicitly
+discloses any clamping when the selected initial oxygen lies outside that range.

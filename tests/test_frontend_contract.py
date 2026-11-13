@@ -11,7 +11,7 @@ def test_static_shell_does_not_present_old_model_results():
     page = APP_HTML.read_text(encoding="utf-8")
     for obsolete in ("83.45%", "51.72%", "72.41%", "145", "Delrin"):
         assert obsolete not in page
-    assert "MODEL INFERENCE WITHHELD" in page
+    assert "model inference withheld" in page.lower()
     assert 'id="val-prob-spread">N/A<' in page
 
 
@@ -42,3 +42,16 @@ def test_sweep_copy_does_not_call_model_transition_a_safety_limit():
         "(LOC Boundary)",
     ):
         assert unsupported not in source
+
+
+def test_pitch_uses_evidence_and_labels_templates_and_dataset_scope():
+    page = APP_HTML.read_text(encoding="utf-8")
+    overview = (APP_HTML.parents[1] / "project-page" / "index.html").read_text(encoding="utf-8")
+    assert 'id="chip-cv-acc"' not in page
+    assert 'id="chip-base-acc"' not in page
+    assert "84.0%" not in overview
+    assert "similarity ranking" in page.lower()
+    assert "template summary" in page.lower()
+    assert "Team-Proposed Experiments" in page
+    assert "current FLARE-X dataset" in page
+    assert page.index('src="config.js"') < page.index('src="app.js"')

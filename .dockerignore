@@ -1,0 +1,11 @@
+.git
+.venv
+node_modules
+.agents
+.taste-skill
+.pytest_cache
+**/__pycache__
+data/raw
+data/external
+reports
+tests

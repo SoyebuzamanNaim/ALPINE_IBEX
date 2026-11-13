@@ -43,7 +43,7 @@ class AgentOrchestrator:
     ):
         self.interpreter = ScenarioInterpreter()
         self.guard = EnvelopeGuard(meta_path=meta_path, data_path=data_path)
-        self.router = ModelRouter(meta_path=meta_path)
+        self.router = ModelRouter(meta_path=meta_path, data_path=data_path)
         self.retriever = EvidenceRetrieverAgent(data_path=data_path)
         self.auditor = EvidenceAuditor()
         self.composer = ExplanationComposer(auditor=self.auditor)
@@ -106,6 +106,7 @@ class AgentOrchestrator:
                 "model": model_meta,
                 "nearest_experiments": env_res["nearest_experiments"],
                 "explanation": env_res["explanation"],
+                "explanation_source": "envelope_refusal",
                 "sparse_region_warning": env_res.get("sparse_region_warning", False),
                 "warning_message": env_res.get("warning_message"),
                 "knn_mean_distance": env_res.get("knn_mean_distance"),
@@ -138,7 +139,7 @@ class AgentOrchestrator:
         prediction_payload = {
             "inputs": scenario,
             "in_training_range": True,
-            "status": env_res["status"],
+            "status": pred_res.get("status", env_res["status"]),
             "out_of_range_reasons": [],
             "prediction": pred_res["prediction"],
             "probabilities": pred_res["probabilities"],
@@ -147,7 +148,7 @@ class AgentOrchestrator:
             "supporting_passages": ret_res.get("supporting_passages", []),
             "sparse_region_warning": env_res.get("sparse_region_warning", False),
             "knn_mean_distance": env_res.get("knn_mean_distance"),
-            "warning_message": env_res.get("warning_message"),
+            "warning_message": pred_res.get("warning_message") or env_res.get("warning_message"),
         }
 
         # 5. State: COMPOSING

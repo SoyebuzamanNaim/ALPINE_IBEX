@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from src.envelope.guard import EnvelopeGuard
-from src.models.baseline import load_trained_model
+from src.models.baseline import load_trained_model, research_model_readiness
 from src.retrieval.nearest import NearestExperimentRetriever
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -36,6 +36,7 @@ class CounterfactualEngine:
         if not meta_path.exists():
             raise FileNotFoundError(f"Metadata file missing: {meta_path}")
 
+        self.model_path, self.data_path = model_path, data_path
         self.model = load_trained_model(model_path, meta_path)
         self.meta = json.loads(meta_path.read_bytes())
         self.guard = EnvelopeGuard(meta_path=meta_path, data_path=data_path)
@@ -79,6 +80,12 @@ class CounterfactualEngine:
                 "warning_message": env["warning_message"],
                 "explanation": env["explanation"],
             }
+
+        ready, reason = research_model_readiness(self.meta, self.data_path, self.model_path)
+        if not ready:
+            return {"inputs": inputs, "in_training_range": True, "status": "model_unvalidated",
+                    "out_of_range_reasons": [], "prediction": None, "probabilities": None, "confidence": None,
+                    "nearest_experiments": env["nearest_experiments"], "warning_message": reason, "explanation": reason}
 
         # Model inference
         row = pd.DataFrame([inputs])

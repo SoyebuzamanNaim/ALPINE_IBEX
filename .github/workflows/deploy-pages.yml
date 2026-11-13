@@ -23,14 +23,50 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
       - name: Assemble static site
         run: |
           mkdir -p _site
           cp index.html _site/index.html
           cp -R app _site/app
           cp -R project-page _site/project-page
+      - name: Require a configured public API
+        env:
+          FLARE_API_BASE: ${{ vars.FLARE_API_BASE }}
+        run: python scripts/configure_pages.py
+      - name: Prepare browser verification
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Check the assembled demo against the deployed API
+        env:
+          FLARE_API_BASE: ${{ vars.FLARE_API_BASE }}
+          FLARE_DEMO_URL: http://127.0.0.1:8080/
+          FLARE_DEMO_OUTPUT: /tmp/flare-demo-preflight
+        run: |
+          python -m http.server 8080 --directory _site > /tmp/flare-static.log 2>&1 &
+          curl --retry 10 --retry-connrefused --retry-delay 1 --fail http://127.0.0.1:8080/ > /dev/null
+          node scripts/check_demo.cjs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify the exact public submission URL in a fresh browser
+        env:
+          FLARE_DEMO_URL: ${{ steps.deployment.outputs.page_url }}
+          FLARE_API_BASE: ${{ vars.FLARE_API_BASE }}
+        run: node scripts/check_demo.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-demo-verification
+          path: |
+            /tmp/flare-demo/
+            /tmp/flare-demo-preflight/

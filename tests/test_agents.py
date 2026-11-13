@@ -220,6 +220,29 @@ def test_composer_fallback_on_audit_failure(composer):
     assert "20140011099" in comp_res["explanation"]
 
 
+def test_candidate_with_no_fabricated_numbers_cannot_publish_an_unsupported_safety_claim(composer):
+    payload = {"in_training_range": True, "inputs": {"material": "PMMA", "oxygen_pct": 19, "pressure_kpa": 101.3, "flow_cm_s": 5},
+               "prediction": "spread", "probabilities": {"spread": 1.0},
+               "nearest_experiments": [{"report_id": "20210011385", "outcome": "spread"}]}
+    result = composer.compose(payload, candidate_text="This material is certified safe for spacecraft use.")
+    assert result["source"] == "deterministic_candidate_not_enabled"
+    assert "certified safe" not in result["explanation"]
+
+
+def test_parser_does_not_treat_another_gas_percentage_as_oxygen():
+    interpreter = ScenarioInterpreter()
+    wrong_gas = interpreter.parse("PMMA in 18% nitrogen at 101.3 kPa and 5 cm/s")
+    assert wrong_gas["is_valid"] is False
+    valid = interpreter.parse("PMMA in 19% O₂ and 5% CO2 at 101.3 kPa and 5 cm/s")
+    assert valid["is_valid"] is True
+    assert valid["parsed_scenario"]["oxygen_pct"] == 19
+    contextual = interpreter.parse("PMMA rod in concurrent flow, 19% oxygen at 101.3 kPa and 5 cm/s")
+    assert contextual["unmodeled_context"] == ["concurrent", "rod"]
+    preset = interpreter.parse("PMMA in an exploration atmosphere at 5 cm/s")
+    assert preset["is_valid"] is True
+    assert len(preset["assumptions"]) == 2
+
+
 def test_orchestrator_in_domain_run(orchestrator):
     res = orchestrator.run({
         "oxygen_pct": 19.0,

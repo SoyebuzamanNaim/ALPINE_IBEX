@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -33,87 +34,45 @@ def load_model_meta() -> dict[str, Any]:
     return json.loads(META_PATH.read_bytes())
 
 
+def research_model_readiness(meta: dict[str, Any], data_path: Path = ROOT / "cache" / "experiments.parquet",
+                             model_path: Path = MODEL_PATH) -> tuple[bool, str]:
+    """Use one integrity and research-release rule for every inference entry point."""
+    score, baseline = meta.get("cv_accuracy"), meta.get("majority_baseline_accuracy")
+    if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) or not 0 <= v <= 1
+           for v in (score, baseline)):
+        return False, "Model validation metrics are missing; inference is unavailable."
+    if not data_path.exists() or hashlib.sha256(data_path.read_bytes()).hexdigest() != meta.get("dataset_sha256"):
+        return False, "Model dataset hash does not match the current experiments table; inference is unavailable."
+    if not model_path.exists() or hashlib.sha256(model_path.read_bytes()).hexdigest() != meta.get("model_sha256"):
+        return False, "Model artifact hash does not match its metadata; inference is unavailable."
+    if score <= baseline:
+        return False, (f"Model grouped accuracy ({score:.1%}) does not exceed the majority "
+                       f"baseline ({baseline:.1%}); inference is unavailable.")
+    return True, "Exploratory research estimates are available; independent external validation is absent."
+
+
 class FlameSpreadPredictor:
+    """Compatibility interface using the same joint-domain and release guards as the API."""
+
     def __init__(self):
+        from src.envelope.guard import EnvelopeGuard
+
         self.model = load_trained_model()
         self.meta = load_model_meta()
-        self.classes = self.meta["classes"]
-        self.training_range = self.meta["training_range"]
+        self.guard = EnvelopeGuard()
 
     def is_in_range(self, oxygen_pct: float, pressure_kpa: float, flow_cm_s: float, material: str) -> tuple[bool, list[dict[str, Any]]]:
-        reasons = []
-        # Check material
-        allowed_mats = self.training_range["allowed_materials"]
-        if material not in allowed_mats:
-            reasons.append({
-                "feature": "material",
-                "value": material,
-                "allowed_values": allowed_mats,
-                "reason": f"Material '{material}' was not tested in published microgravity datasets."
-            })
-            return False, reasons
-
-        # Check numeric features
-        o2_min = self.training_range["oxygen_pct"]["min"]
-        o2_max = self.training_range["oxygen_pct"]["max"]
-        if oxygen_pct < o2_min or oxygen_pct > o2_max:
-            reasons.append({
-                "feature": "oxygen_pct",
-                "value": oxygen_pct,
-                "train_min": o2_min,
-                "train_max": o2_max,
-                "reason": f"Oxygen concentration {oxygen_pct}% is outside training envelope [{o2_min}%, {o2_max}%]."
-            })
-
-        p_min = self.training_range["pressure_kpa"]["min"]
-        p_max = self.training_range["pressure_kpa"]["max"]
-        if pressure_kpa < p_min or pressure_kpa > p_max:
-            reasons.append({
-                "feature": "pressure_kpa",
-                "value": pressure_kpa,
-                "train_min": p_min,
-                "train_max": p_max,
-                "reason": f"Pressure {pressure_kpa} kPa is outside training envelope [{p_min} kPa, {p_max} kPa]."
-            })
-
-        f_min = self.training_range["flow_cm_s"]["min"]
-        f_max = self.training_range["flow_cm_s"]["max"]
-        if flow_cm_s < f_min or flow_cm_s > f_max:
-            reasons.append({
-                "feature": "flow_cm_s",
-                "value": flow_cm_s,
-                "train_min": f_min,
-                "train_max": f_max,
-                "reason": f"Flow velocity {flow_cm_s} cm/s is outside training envelope [{f_min} cm/s, {f_max} cm/s]."
-            })
-
-        in_range = len(reasons) == 0
-        return in_range, reasons
+        env = self.guard.check(oxygen_pct, pressure_kpa, flow_cm_s, material)
+        return env["in_training_range"] and not env.get("requires_abstention", False), env["out_of_range_reasons"]
 
     def predict(self, oxygen_pct: float, pressure_kpa: float, flow_cm_s: float, material: str) -> dict[str, Any]:
-        in_range, reasons = self.is_in_range(oxygen_pct, pressure_kpa, flow_cm_s, material)
-        if not in_range:
-            return {
-                "in_training_range": False,
-                "out_of_range_reasons": reasons,
-                "prediction": None,
-                "probabilities": None,
-            }
-
-        df_input = pd.DataFrame([{
-            "oxygen_pct": oxygen_pct,
-            "pressure_kpa": pressure_kpa,
-            "flow_cm_s": flow_cm_s,
-            "material": material
-        }])
-
-        pred_class = self.model.predict(df_input)[0]
-        probs = self.model.predict_proba(df_input)[0]
-        prob_dict = {cls: round(float(p), 4) for cls, p in zip(self.model.classes_, probs)}
-
-        return {
-            "in_training_range": True,
-            "out_of_range_reasons": [],
-            "prediction": str(pred_class),
-            "probabilities": prob_dict,
-        }
+        env = self.guard.check(oxygen_pct, pressure_kpa, flow_cm_s, material)
+        result = {**env, "prediction": None, "probabilities": None}
+        if not env["in_training_range"] or env.get("requires_abstention"):
+            return result
+        ready, reason = research_model_readiness(self.meta)
+        if not ready:
+            return {**result, "status": "model_unvalidated", "explanation": reason}
+        inputs = pd.DataFrame([dict(oxygen_pct=oxygen_pct, pressure_kpa=pressure_kpa, flow_cm_s=flow_cm_s, material=material)])
+        return {**result, "prediction": str(self.model.predict(inputs)[0]),
+                "probabilities": {str(c): round(float(p), 4) for c, p in zip(self.model.classes_, self.model.predict_proba(inputs)[0])}}

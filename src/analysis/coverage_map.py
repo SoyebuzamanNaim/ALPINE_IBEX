@@ -1,8 +1,6 @@
-"""Research Coverage Map and Empirical White-Space Engine for FLARE-X Evidence Atlas.
+"""Count observations in the current FLARE-X dataset and label team proposals.
 
-Analyzes empirical data density across NASA microgravity combustion research,
-maps verified test coverage across multidimensional parameter spaces,
-and identifies critical scientific knowledge gaps (untested mission-critical regimes).
+Dataset absence is not evidence of a gap in the wider literature or of safety.
 """
 from __future__ import annotations
 
@@ -36,62 +34,33 @@ PRESSURE_BINS = [
     {"id": "p_hyperbaric", "label": "> 105 kPa (Hyperbaric)", "min": 105.0, "max": 500.0},
 ]
 
-KNOWN_EMPIRICAL_WHITE_SPACES = [
+TEAM_EXPERIMENT_PROPOSALS = [
     {
         "gap_id": "GAP_HYPOBARIC_HIGH_O2_HIGH_FLOW",
-        "title": "Hypobaric High-O2 High-Ventilation Boundary",
+        "title": "Hypobaric high-oxygen, high-flow conditions",
         "regime": "Pressure < 60 kPa, Oxygen > 30%, Forced Flow > 15 cm/s",
         "materials_affected": ["Nomex", "Delrin", "Cotton"],
-        "operational_risk": (
-            "CRITICAL for Lunar/Mars EVA Prebreathe & Habitat ECLSS (e.g. Artemis 56.5 kPa / 34% O2). "
-            "High ventilation duct drafts near exploration cabin return grilles could enable rapid flame spread "
-            "where only quiescent ground flammability data currently exist."
-        ),
-        "scientific_rationale": (
-            "Under hypobaric conditions, mass diffusion increases (D ~ 1/P), but gas heat capacity per unit volume drops. "
-            "The interaction between elevated chemical kinetics from 34% O2 and high convection shear has never been "
-            "measured in continuous microgravity."
-        ),
-        "recommended_experiment": "ISS CIR/SoFIE-MIST exploration atmosphere test matrix at 56.5 kPa and 34% O2.",
+        "recommended_experiment": "Team proposal: compare these materials at 56.5 kPa, 34% oxygen and flows above 15 cm/s, subject to qualified experimental review.",
     },
     {
         "gap_id": "GAP_DELRIN_NOMEX_EXTINCTION_LIMIT",
-        "title": "Delrin & Nomex Microgravity Radiative Extinction Limits",
-        "regime": "Forced Flow < 1.0 cm/s, Any Pressure, Normoxic to Enriched O2",
+        "title": "Delrin and Nomex at low imposed airflow",
+        "regime": "Forced Flow < 1 cm/s, Oxygen >= 20.9%, Any Pressure",
         "materials_affected": ["Delrin", "Nomex"],
-        "operational_risk": (
-            "HIGH for unventilated equipment bays and electronics racks. In zero forced flow, buoyant convection is absent. "
-            "Without empirical low-flow extinction boundaries for engineering polymers like Delrin (POM), safety models "
-            "cannot guarantee whether quiescent smoldering will self-extinguish or hover indefinitely."
-        ),
-        "scientific_rationale": (
-            "BASS-II extensively characterized PMMA quenching boundaries down to 0.35 cm/s, but Delrin and Nomex tests "
-            "in the current NASA corpus are heavily concentrated in moderate forced flow (5-20 cm/s). Radiative loss accumulation "
-            "in low-speed microgravity flames is material-specific."
-        ),
-        "recommended_experiment": "MSG or CIR opposed-flow decelerating velocity ramps down to 0 cm/s on POM rods.",
+        "recommended_experiment": "Team proposal: measure Delrin and Nomex outcomes with controlled airflow ramps below 1 cm/s, documenting ignition history and sample geometry.",
     },
     {
         "gap_id": "GAP_THICK_SAMPLE_CONCURRENT_FLOW",
-        "title": "Thermally Thick Fuel Slabs in Concurrent Forced Flow",
-        "regime": "Fuel Thickness > 5 mm, Concurrent Flow Direction, All Atmospheres",
+        "title": "Thick samples in concurrent flow",
+        "regime": "Fuel Thickness > 5 mm, Concurrent Flow, All Atmospheres",
         "materials_affected": ["PMMA", "Polyethylene", "Delrin"],
-        "operational_risk": (
-            "HIGH for structural vehicle components. Flame spread concurrent with airflow carries heated gas over "
-            "unburnt fuel, dramatically increasing forward heat flux and spread rate compared to opposed flow."
-        ),
-        "scientific_rationale": (
-            "Over 85% of indexed NASA flight experiments utilize opposed flow geometry because it creates a quasi-stationary "
-            "flame anchor suitable for optical diagnostics. Saffire began concurrent testing, but continuous parametric data "
-            "across oxygen concentrations remain sparse."
-        ),
-        "recommended_experiment": "Cygnus Saffire follow-on or extended ISS MSG concurrent flow duct runs.",
+        "recommended_experiment": "Team proposal: compare thick-sample concurrent-flow observations across oxygen conditions while controlling thickness and ignition protocol.",
     },
 ]
 
 
 class ResearchCoverageEngine:
-    """Computes empirical research density, matrix coverage, and scientific gaps."""
+    """Computes indexed observation density and scoped proposal counts."""
 
     def __init__(self, data_path: Path = DATA_PATH):
         self.data_path = data_path
@@ -104,7 +73,7 @@ class ResearchCoverageEngine:
             self.df = pd.DataFrame()
 
     def get_coverage_summary(self) -> dict[str, Any]:
-        """Generate comprehensive multi-dimensional coverage summary and gap analysis."""
+        """Summarize indexed bins and count observations for team-selected proposals."""
         if self.df.empty:
             return {"total_experiments": 0, "status": "no_data"}
 
@@ -151,7 +120,7 @@ class ResearchCoverageEngine:
                 elif count >= 1:
                     density = "SPARSE"
                 else:
-                    density = "UNTESTED_GAP"
+                    density = "NO_INDEXED_OBSERVATIONS"
 
                 cell_outcomes = cell_df["outcome"].value_counts().to_dict() if count > 0 else {}
                 cell_mats = cell_df["material"].unique().tolist() if count > 0 else []
@@ -173,10 +142,35 @@ class ResearchCoverageEngine:
         total_cells = len(grid_cells)
         covered_cells = sum(1 for c in grid_cells if c["count"] > 0)
         high_cells = sum(1 for c in grid_cells if c["density"] == "HIGH")
-        gap_cells = sum(1 for c in grid_cells if c["density"] == "UNTESTED_GAP")
+        gap_cells = sum(1 for c in grid_cells if c["density"] == "NO_INDEXED_OBSERVATIONS")
         coverage_completeness_pct = round(covered_cells / total_cells * 100, 1)
 
+        proposal_masks = [
+            (self.df["pressure_kpa"] < 60) & (self.df["oxygen_pct"] > 30) & (self.df["flow_cm_s"] > 15),
+            (self.df["flow_cm_s"] < 1) & (self.df["oxygen_pct"] >= 20.9),
+            (self.df["sample_thickness_mm"] > 5) & (self.df["flow_direction"] == "concurrent"),
+        ]
+        proposals = []
+        for proposal, mask in zip(TEAM_EXPERIMENT_PROPOSALS, proposal_masks):
+            matching = self.df[mask & self.df["material"].isin(proposal["materials_affected"])]
+            count = len(matching)
+            proposals.append({
+                **proposal,
+                "status": "team_proposal",
+                "scope": "current FLARE-X dataset only; not a literature-wide finding",
+                "matching_observations": count,
+                "material_counts": {mat: int((matching["material"] == mat).sum())
+                                    for mat in proposal["materials_affected"]},
+                "coverage_statement": (
+                    "No matching observations in the current FLARE-X dataset" if count == 0 else
+                    f"{count} matching observations in the current FLARE-X dataset"
+                ),
+                "scientific_rationale": "Team-selected comparison for further study; no claim that the wider literature lacks measurements. Missing context is not counted as a match.",
+            })
+
         return {
+            "scope": "current FLARE-X dataset",
+            "coverage_basis": "Occupied oxygen-by-airflow bins, aggregated across materials, pressures, geometries and ignition protocols; not scientific completeness.",
             "total_verified_experiments": total_experiments,
             "unique_materials_tested": len(materials),
             "unique_investigations": len(investigations),
@@ -191,11 +185,11 @@ class ResearchCoverageEngine:
             "material_breakdown": material_breakdown,
             "high_density_cells_count": high_cells,
             "untested_gap_cells_count": gap_cells,
-            "empirical_white_spaces": KNOWN_EMPIRICAL_WHITE_SPACES,
+            "empirical_white_spaces": proposals,
             "scientific_takeaway": (
-                f"The empirical NASA microgravity corpus is heavily concentrated around PMMA thin sheets in "
-                f"normobaric air ({material_breakdown.get('PMMA', {}).get('pct_of_total', 0)}% of all observations). "
-                f"{gap_cells} of {total_cells} parameter bins ({100 - coverage_completeness_pct:.1f}%) represent untested "
-                f"knowledge voids. Empty space on this map indicates an empirical absence of flight data, NOT a verified safe condition."
+                f"{covered_cells} of {total_cells} oxygen-by-airflow bins contain observations in the current "
+                f"FLARE-X dataset. {gap_cells} bins have no matching observations in the current FLARE-X dataset. "
+                "This map does not measure literature completeness, scientific reliability or safety. "
+                "Suggested experiments are team proposals, not independently verified literature gaps."
             ),
         }

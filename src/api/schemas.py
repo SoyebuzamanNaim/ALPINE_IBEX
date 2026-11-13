@@ -7,6 +7,15 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class PredictRequest(BaseModel):
+    model_config = {"extra": "forbid"}
+
+    @field_validator("oxygen_pct", "pressure_kpa", "flow_cm_s", mode="before")
+    @classmethod
+    def reject_boolean_conditions(cls, value: Any) -> Any:
+        if isinstance(value, bool):
+            raise ValueError("Conditions must be numeric values, not booleans.")
+        return value
+
     oxygen_pct: float = Field(
         ...,
         ge=0.0,
@@ -82,6 +91,7 @@ class PredictResponse(BaseModel):
     model: ModelMetaSchema
     nearest_experiments: list[dict[str, Any]]
     explanation: str
+    explanation_source: str | None = None
     status: str | None = None
     sparse_region_warning: bool | None = False
     knn_mean_distance: float | None = None
